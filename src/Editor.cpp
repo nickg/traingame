@@ -18,6 +18,7 @@
 #include "Editor.hpp"
 #include "ILogger.hpp"
 #include "IModel.hpp"
+#include "IMap.hpp"
 
 #include <GL/gl.h>
 
@@ -32,13 +33,15 @@ public:
 
 private:
    IModelPtr m;
+   IMapPtr myMap;
 };
 
 Editor::Editor()
 {
    const string fileName("/home/nick/stompstomp.obj");
    m = loadModel(fileName);
-   
+
+   myMap = makeEmptyMap(32, 32);
 }
 
 // Render the next frame
@@ -60,6 +63,9 @@ void Editor::display(IGraphicsPtr aContext)
 
    glTranslatef(-5.0f, 0.0f, 0.0f);
    m->render();
+
+   glTranslated(0.0, -4.0, -12.0);
+   myMap->render();
 }
 
 // Create an instance of the editor screen

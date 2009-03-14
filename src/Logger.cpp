@@ -37,6 +37,9 @@ PrintLinePtr LoggerImpl::writeMsg(LogMsg::Type type)
    case LogMsg::DEBUG:
       cout << "D) ";
       break;
+   case LogMsg::WARN:
+      cout << "!) ";
+      break;
    }
    return PrintLinePtr(new PrintLine(cout));
 }

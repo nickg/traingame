@@ -15,24 +15,21 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_IMAP_HPP
-#define INC_IMAP_HPP
+#ifndef INC_ITEXTURE_MANAGER_HPP
+#define INC_ITEXTURE_MANAGER_HPP
 
-#include <tr1/memory>
+#include <string>
 
-// A map is a MxN array of floating point height values
-class IMap {
+#include "ITexture.hpp"
+
+// Manage loading and unloading textures
+class ITextureManager {
 public:
-   virtual int width() const = 0;
-   virtual int depth() const = 0;
-   virtual double heightAt() const = 0;
-   
-   virtual void render() const = 0;
+   virtual ITexturePtr load(const std::string& fileName) = 0;
 };
 
-typedef std::tr1::shared_ptr<IMap> IMapPtr;
+typedef std::tr1::shared_ptr<ITextureManager> ITextureManagerPtr;
 
-// Make an empty map
-IMapPtr makeEmptyMap(int aWidth, int aHeight);
+ITextureManagerPtr getTextureManager();
 
 #endif

@@ -17,6 +17,8 @@
 
 #include "IMap.hpp"
 
+#include <GL/gl.h>
+
 class Map : public IMap {
 public:
    Map(int aWidth, int aDepth);
@@ -24,6 +26,8 @@ public:
    int width() const { return myWidth; }
    int depth() const { return myDepth; }
    double heightAt() const { return 0.0; }
+
+   void render() const;
 private:
    int myWidth, myDepth;
 };
@@ -32,6 +36,31 @@ Map::Map(int aWidth, int aDepth)
    : myWidth(aWidth), myDepth(aDepth)
 {
    
+}
+
+void Map::render() const
+{
+   const double SCALE = 0.5;
+
+   glDisable(GL_TEXTURE);
+   glColor3d(0.0, 0.6, 0.0);
+   for (int x = 0; x < myWidth; x++) {
+      for (int z = 0; z < myDepth; z++) {
+         double xd = static_cast<double>(x) * SCALE;
+         double zd = static_cast<double>(z) * SCALE;
+
+         glBegin(GL_QUADS);
+         glNormal3d(0, 1, 0);
+         glVertex3d(xd, 0, zd);
+         glNormal3d(0, 1, 0);
+         glVertex3d(xd + SCALE, 0, zd);
+         glNormal3d(0, 1, 0);
+         glVertex3d(xd + SCALE, 0, zd + SCALE);
+         glNormal3d(0, 1, 0);
+         glVertex3d(xd, 0, zd + SCALE);
+         glEnd();
+      }
+   }
 }
 
 IMapPtr makeEmptyMap(int aWidth, int aDepth)

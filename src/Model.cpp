@@ -1,5 +1,6 @@
 #include "Maths.hpp"
 #include "IModel.hpp"
+#include "ITextureManager.hpp"
 
 #include <cstdio>
 #include <cstring>
@@ -9,8 +10,6 @@
 #include <memory>
 
 #include <GL/gl.h>
-
-#include "ILogger.hpp"
 
 using namespace std;
 
@@ -41,12 +40,16 @@ struct Model : IModel {
    float           zMin, zMax;      // Minimum and maximum Z-coordinates
    float           xMin, xMax;      // Minimum and maximum X-coordinates
    float           yMin, yMax;      // Minimum and maximum Y-coordinates
+
+   ITexturePtr texture;
 };
 
 // Load a WaveFront .obj model from disk
 IModelPtr loadModel(const string& fileName)
 {
    auto_ptr<Model> pModel = auto_ptr<Model>(new Model);
+
+   pModel->texture = getTextureManager()->load("/home/nick/cube1_auv.bmp");
 
    char ch, line[256];
    int vertexCount=0, normalCount=0, texCoordCount=0, faceCount=0;
@@ -178,8 +181,8 @@ void Model::render()
 {
    glEnable(GL_DEPTH_TEST);
    glDisable(GL_BLEND);
-   //EnableTexture();
-   //glBindTexture(GL_TEXTURE_2D, m->uTexture);
+   glEnable(GL_TEXTURE);
+   texture->bind();
    glColor3f(1.0f, 1.0f, 1.0f);
    for (int i = 0; i < faceCount; i++)
       {
@@ -195,7 +198,7 @@ void Model::render()
             int n = faces[i].vdesc[j].n;
             int t = faces[i].vdesc[j].t;
             glNormal3f(normals[n].x, normals[n].y, normals[n].z);
-            glTexCoord2f(texCoords[t].x, texCoords[t].y);
+            glTexCoord2f(texCoords[t].x, 1.0f - texCoords[t].y);
             glVertex3f(verticies[v].x, verticies[v].y, verticies[v].z);
         }
         glEnd();
