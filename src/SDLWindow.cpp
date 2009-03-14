@@ -26,6 +26,7 @@
 #include <SDL.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <unistd.h>
 
 using namespace std;
 using namespace std::tr1;
@@ -100,11 +101,30 @@ SDLWindow::SDLWindow()
 void SDLWindow::run(IScreenPtr aScreen)
 {
    myScreen = aScreen;
+
+   const unsigned targetFramerate = 30;
+   const unsigned window = 1000 / targetFramerate;
    
    amRunning = true;
    do {
+      unsigned tickStart = SDL_GetTicks();
+      
       processInput();
       drawGLScene();
+
+      // Limit the frame rate
+      unsigned tickNow = SDL_GetTicks();
+      if (tickNow > tickStart + window) {
+         log() << "Missed window by " << tickNow - tickStart - window
+               << "ms (skipping next frame)";
+      }
+      else {
+         while (tickNow < tickStart + window)	{
+            log() << "spare ms: " << (tickStart + window - tickNow);
+            usleep((tickStart + window - tickNow) * 1000);
+            tickNow = SDL_GetTicks();
+         }
+      }
    } while (amRunning);
 }
 

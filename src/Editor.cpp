@@ -98,16 +98,16 @@ void Editor::onKeyDown(SDLKey aKey)
 {
    switch (aKey) {
    case SDLK_w:
-      myMovement.z = 0.1;
+      myMovement.z = 1.0;
       break;
    case SDLK_s:
-      myMovement.z = -0.1;
+      myMovement.z = -1.0;
       break;
    case SDLK_a:
-      myMovement.x = 0.1;
+      myMovement.x = 1.0;
       break;
    case SDLK_d:
-      myMovement.x = -0.1;
+      myMovement.x = -1.0;
       break;
    default:
       break;
