@@ -30,13 +30,20 @@ using namespace std;
 using namespace std::tr1;
 
 // Concrete implementation of SDL window
-class SDLWindow : public IWindow {
+class SDLWindow : public IWindow, public IGraphics,
+                  public enable_shared_from_this<SDLWindow> {
 public:
    SDLWindow();
    ~SDLWindow();
 
+   // IWindow interface
    void run(IScreenPtr aScreen);
    void quit();
+
+   // IGraphics interface
+   void setAmbient(double r, double g, double b);
+   void setDiffuse(double r, double g, double b);
+   void moveLight(double x, double y, double z);
 private:
    void resizeGLScene();
    void initGL();
@@ -107,7 +114,7 @@ void SDLWindow::drawGLScene()
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glLoadIdentity();
 
-   myScreen->display();
+   myScreen->display(shared_from_this());
 
    SDL_GL_SwapBuffers();
 }
@@ -139,8 +146,11 @@ void SDLWindow::initGL()
    glDepthFunc(GL_LEQUAL);
 
    glEnable(GL_TEXTURE_2D);
-   
+ 
    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+   
+   glEnable(GL_LIGHTING);
+   glEnable(GL_LIGHT1);
 }
 
 // Change the perspective when the window is resized
@@ -165,6 +175,27 @@ void SDLWindow::resizeGLScene()
 SDLWindow::~SDLWindow()
 {
    
+}
+
+// Set the value of the ambient light
+void SDLWindow::setAmbient(double r, double g, double b)
+{
+   const GLfloat LightAmbient[] = { r, g, b, 1.0f };
+   glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
+}
+
+// Set the diffuse light
+void SDLWindow::setDiffuse(double r, double g, double b)
+{
+   const GLfloat LightDiffuse[] = { r, g, b, 1.0f };
+   glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
+}
+
+// Change the light position
+void SDLWindow::moveLight(double x, double y, double z)
+{
+   const GLfloat LightPosition[]= { x, y, z, 1.0f };
+   glLightfv(GL_LIGHT1, GL_POSITION,LightPosition);
 }
 
 // Construct and initialise an OpenGL SDL window

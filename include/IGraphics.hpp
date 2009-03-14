@@ -15,20 +15,21 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_ISCREEN_HPP
-#define INC_ISCREEN_HPP
-
-#include "IGraphics.hpp"
+#ifndef INC_IGRAPHICS_HPP
+#define INC_IGRAPHICS_HPP
 
 #include <tr1/memory>
 
-
-// Interface for game screens
-class IScreen {
+// Interface to stateful graphics things (lights, cameras, etc.)
+class IGraphics {
 public:
-   virtual void display(IGraphicsPtr aContext) = 0;
+   // Lights
+   virtual void setAmbient(double r, double g, double b) = 0;
+   virtual void setDiffuse(double r, double g, double b) = 0;
+   virtual void moveLight(double x, double y, double z) = 0;
+   
 };
 
-typedef std::tr1::shared_ptr<IScreen> IScreenPtr;
+typedef std::tr1::shared_ptr<IGraphics> IGraphicsPtr;
 
 #endif

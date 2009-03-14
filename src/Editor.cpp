@@ -28,7 +28,7 @@ class Editor : public IScreen {
 public:
    Editor();
    
-   void display();
+   void display(IGraphicsPtr aContext);
 
 private:
    IModelPtr m;
@@ -42,8 +42,12 @@ Editor::Editor()
 }
 
 // Render the next frame
-void Editor::display()
+void Editor::display(IGraphicsPtr aContext)
 {
+   aContext->setAmbient(0.5, 0.5, 0.5);
+   aContext->setDiffuse(1.0, 1.0, 1.0);
+   aContext->moveLight(0.0, 0.0, 2.0);
+   
    glTranslatef(0.0f, 0.0f, -15.0f);
    glBegin(GL_TRIANGLES);
    glColor3f(1.0f, 0.0f, 0.0f);
