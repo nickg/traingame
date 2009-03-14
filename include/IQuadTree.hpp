@@ -25,7 +25,8 @@
 
 // Interface to things that can be rendered by sector
 struct ISectorRenderable {
-   virtual void renderSector(Point<int> botLeft, Point<int> topRight) = 0;
+   virtual void renderSector(IGraphicsPtr aContext,
+                             Point<int> botLeft, Point<int> topRight) = 0;
 };
 
 typedef std::tr1::shared_ptr<ISectorRenderable> ISectorRenderablePtr;

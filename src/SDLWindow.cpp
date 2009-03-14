@@ -47,6 +47,7 @@ public:
    bool cuboidInViewFrustum(double x, double y, double z,
                             double sizeX, double sizeY, double sizeZ);
    bool cubeInViewFrustum(double x, double y, double z, double size);
+   bool pointInViewFrustum(double x, double y, double z);
 private:
    void resizeGLScene();
    void initGL();
@@ -210,6 +211,12 @@ bool SDLWindow::cuboidInViewFrustum(double x, double y, double z,
 
 // Intersect a cube with the current view frustum
 bool SDLWindow::cubeInViewFrustum(double x, double y, double z, double size)
+{
+   return true;
+}
+
+// True if the point is contained within the view frustum
+bool SDLWindow::pointInViewFrustum(double x, double y, double z)
 {
    return true;
 }

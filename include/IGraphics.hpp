@@ -33,6 +33,7 @@ public:
                                     double sizeX, double sizeY, double sizeZ) = 0;
    virtual bool cubeInViewFrustum(double x, double y, double z,
                                   double size) = 0;
+   virtual bool pointInViewFrustum(double x, double y, double z) = 0;
    
 };
 

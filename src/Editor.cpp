@@ -65,7 +65,7 @@ void Editor::display(IGraphicsPtr aContext)
    m->render();
 
    glTranslated(0.0, -4.0, -12.0);
-   myMap->render();
+   myMap->render(aContext);
 }
 
 // Create an instance of the editor screen

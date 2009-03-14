@@ -18,6 +18,8 @@
 #ifndef INC_IMAP_HPP
 #define INC_IMAP_HPP
 
+#include "IGraphics.hpp"
+
 #include <tr1/memory>
 
 // A map is a MxN array of floating point height values
@@ -27,7 +29,7 @@ public:
    virtual int depth() const = 0;
    virtual double heightAt() const = 0;
    
-   virtual void render() const = 0;
+   virtual void render(IGraphicsPtr aContext) const = 0;
 };
 
 typedef std::tr1::shared_ptr<IMap> IMapPtr;

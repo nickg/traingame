@@ -16,55 +16,167 @@
 //
 
 #include "IMap.hpp"
+#include "IQuadTree.hpp"
+#include "Maths.hpp"
+#include "ILogger.hpp"
+
+#include <stdexcept>
 
 #include <GL/gl.h>
 
-class Map : public IMap {
+using namespace std;
+using namespace std::tr1;
+
+class Map : public IMap, public ISectorRenderable,
+            public enable_shared_from_this<Map> {
 public:
-   Map(int aWidth, int aDepth);
+   Map();
+   ~Map();
 
    int width() const { return myWidth; }
    int depth() const { return myDepth; }
    double heightAt() const { return 0.0; }
 
-   void render() const;
+   void render(IGraphicsPtr aContext) const;
+
+   void resetMap(int aWidth, int aDepth);
+
+   // ISectorRenderable interface
+   void renderSector(IGraphicsPtr aContext,
+                     Point<int> botLeft, Point<int> topRight);
 private:
+   // Tiles on the map
+   struct Tile {
+      struct Vertex {
+         Vector<double> pos, normal;
+      } v[4];
+   } *myTiles;
+
+   static const unsigned TILE_NAME_BASE	= 32000;	// Base of tile naming
+   static const unsigned NULL_OBJECT		= 0;		  // Non-existant object
+   static const double TILE_HEIGHT		  = 0.2;	  // Standard height increment
+
+   inline int index(int x, int y) const
+   {
+      return x + y*myWidth;
+   }
+   
+   inline int tileName(int x, int z) const
+   {
+      return TILE_NAME_BASE + index(x, z);
+   }
+
    int myWidth, myDepth;
+   IQuadTreePtr myQuadTree;
 };
 
-Map::Map(int aWidth, int aDepth)
-   : myWidth(aWidth), myDepth(aDepth)
+Map::Map()
+   : myTiles(NULL), myWidth(0), myDepth(0)
 {
    
 }
 
-void Map::render() const
+Map::~Map()
 {
-   const double SCALE = 0.5;
+   delete myTiles;
+}
 
-   glDisable(GL_TEXTURE);
+void Map::resetMap(int aWidth, int aDepth)
+{   
+   if (aWidth != aDepth)
+      throw runtime_error("Maps must be square");
+ 
+   myWidth = aWidth;
+   myDepth = aDepth;
+   
+   // Allocate memory
+   if (myTiles)
+      delete[] myTiles;
+   myTiles = new Tile[aWidth * aDepth];
+   
+   // Clear map
+   for (int i = 0; i < aWidth * aDepth; i++) {
+      myTiles[i].v[0].pos = makeVector(-0.5, 0.0, -0.5);
+      myTiles[i].v[1].pos = makeVector(-0.5, 0.0, 0.5);
+      myTiles[i].v[2].pos = makeVector(0.5, 0.0, 0.5);
+      myTiles[i].v[3].pos = makeVector(0.5, 0.0, -0.5);
+      
+      Vector<double> n = surfaceNormal(myTiles[i].v[0].pos,
+                                       myTiles[i].v[1].pos,
+                                       myTiles[i].v[2].pos);
+      myTiles[i].v[0].normal = n;
+      myTiles[i].v[1].normal = n;
+      myTiles[i].v[2].normal = n;
+      myTiles[i].v[3].normal = n;
+   }
+   
+   // Create quad tree
+   myQuadTree = makeQuadTree(shared_from_this(), myWidth);
+}
+
+void Map::render(IGraphicsPtr aContext) const
+{
+   myQuadTree->render(aContext);
+}
+
+// Render a small part of the map as directed by the quad tree
+void Map::renderSector(IGraphicsPtr aContext,
+                       Point<int> botLeft, Point<int> topRight)
+{
+   glColorMaterial(GL_FRONT, GL_DIFFUSE);
+   glEnable(GL_COLOR_MATERIAL);
    glDisable(GL_LIGHTING);
-   glColor3d(0.0, 0.8, 0.0);
-   for (int x = 0; x < myWidth; x++) {
-      for (int z = 0; z < myDepth; z++) {
-         double xd = static_cast<double>(x) * SCALE;
-         double zd = static_cast<double>(z) * SCALE;
+   
+   for (int x = topRight.x-1; x >= botLeft.x; x--) {
+      for (int y = botLeft.y; y < topRight.y; y++) {
+         // Name this tile
+         glPushName(tileName(x, y));
 
-         glBegin(GL_QUADS);
-         glNormal3d(0, 1, 0);
-         glVertex3d(xd, 0, zd);
-         glNormal3d(0, 1, 0);
-         glVertex3d(xd + SCALE, 0, zd);
-         glNormal3d(0, 1, 0);
-         glVertex3d(xd + SCALE, 0, zd + SCALE);
-         glNormal3d(0, 1, 0);
-         glVertex3d(xd, 0, zd + SCALE);
-         glEnd();
+         Tile::Vertex* v = myTiles[index(x, y)].v;
+            
+         bool shouldDraw = false;
+         for (int i = 0; i < 4; i++) {
+            shouldDraw |= aContext->pointInViewFrustum
+               (v[i].pos.x + static_cast<double>(x),
+                v[i].pos.y + 0.0,
+                v[i].pos.z + static_cast<double>(y));
+            if (shouldDraw)
+               break;
+         }
+
+         if (shouldDraw) {
+            // Render tile
+            glPushMatrix();
+            glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
+            glColor3f(1.0f, 1.0f, 1.0f);
+            glBegin(GL_POLYGON);
+
+            for (int i = 0; i < 4; i++)
+               glVertex3d(v[i].pos.x, v[i].pos.y, v[i].pos.z);
+
+            glEnd();
+            glPopMatrix();
+            
+            // Render grid lines
+            glPushMatrix();
+            glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
+            glColor3f(0.0f, 0.0f, 0.0f);
+            glBegin(GL_LINE_LOOP);
+				
+            for (int i = 0; i < 4; i++)
+               glVertex3d(v[i].pos.x, v[i].pos.y, v[i].pos.z);
+            
+            glEnd();
+            glPopMatrix();
+         }			
+         glPopName();
       }
    }
 }
 
 IMapPtr makeEmptyMap(int aWidth, int aDepth)
 {
-   return IMapPtr(new Map(aWidth, aDepth));
+   shared_ptr<Map> ptr(new Map);
+   ptr->resetMap(aWidth, aDepth);
+   return IMapPtr(ptr);
 }

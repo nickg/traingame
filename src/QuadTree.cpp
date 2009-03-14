@@ -144,7 +144,7 @@ void QuadTree::displaySector(IGraphicsPtr aContext, int aSector)
    // See if it's a leaf
    if (mySectors[aSector].type == QT_LEAF)
       myRenderer->renderSector
-         (mySectors[aSector].botLeft, mySectors[aSector].topRight);
+         (aContext, mySectors[aSector].botLeft, mySectors[aSector].topRight);
    else {
       // Loop through each sector
       for (int i = 3; i >= 0; i--) {
@@ -161,4 +161,11 @@ void QuadTree::displaySector(IGraphicsPtr aContext, int aSector)
             displaySector(aContext, childID);
       }
    }
+}
+
+IQuadTreePtr makeQuadTree(ISectorRenderablePtr aRenderer, int aDim)
+{
+   auto_ptr<QuadTree> ptr(new QuadTree(aRenderer));
+   ptr->buildTree(aDim);
+   return IQuadTreePtr(ptr);
 }
