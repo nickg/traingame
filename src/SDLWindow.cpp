@@ -44,6 +44,9 @@ public:
    void setAmbient(double r, double g, double b);
    void setDiffuse(double r, double g, double b);
    void moveLight(double x, double y, double z);
+   bool cuboidInViewFrustum(double x, double y, double z,
+                            double sizeX, double sizeY, double sizeZ);
+   bool cubeInViewFrustum(double x, double y, double z, double size);
 private:
    void resizeGLScene();
    void initGL();
@@ -196,6 +199,19 @@ void SDLWindow::moveLight(double x, double y, double z)
 {
    const GLfloat LightPosition[]= { x, y, z, 1.0f };
    glLightfv(GL_LIGHT1, GL_POSITION,LightPosition);
+}
+
+// Intersect a cuboid with the current view frustum
+bool SDLWindow::cuboidInViewFrustum(double x, double y, double z,
+                                    double sizeX, double sizeY, double sizeZ)
+{
+   return true;
+}
+
+// Intersect a cube with the current view frustum
+bool SDLWindow::cubeInViewFrustum(double x, double y, double z, double size)
+{
+   return true;
 }
 
 // Construct and initialise an OpenGL SDL window

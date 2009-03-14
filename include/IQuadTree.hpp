@@ -15,27 +15,29 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_IGRAPHICS_HPP
-#define INC_IGRAPHICS_HPP
+#ifndef INC_IQUADTREE_HPP
+#define INC_IQUADTREE_HPP
+
+#include "Maths.hpp"
+#include "IGraphics.hpp"
 
 #include <tr1/memory>
 
-// Interface to stateful graphics things (lights, cameras, etc.)
-class IGraphics {
-public:
-   // Lights
-   virtual void setAmbient(double r, double g, double b) = 0;
-   virtual void setDiffuse(double r, double g, double b) = 0;
-   virtual void moveLight(double x, double y, double z) = 0;
-
-   // Camera
-   virtual bool cuboidInViewFrustum(double x, double y, double z,
-                                    double sizeX, double sizeY, double sizeZ) = 0;
-   virtual bool cubeInViewFrustum(double x, double y, double z,
-                                  double size) = 0;
-   
+// Interface to things that can be rendered by sector
+struct ISectorRenderable {
+   virtual void renderSector(Point<int> botLeft, Point<int> topRight) = 0;
 };
 
-typedef std::tr1::shared_ptr<IGraphics> IGraphicsPtr;
+typedef std::tr1::shared_ptr<ISectorRenderable> ISectorRenderablePtr;
+
+// Inteface for constructing quad trees for space partioning
+struct IQuadTree {
+   virtual void render(IGraphicsPtr aContext) = 0;
+};
+
+typedef std::tr1::shared_ptr<IQuadTree> IQuadTreePtr;
+
+// Produce a quad tree of given square dimension
+IQuadTreePtr makeQuadTree(ISectorRenderablePtr aRenderable, int aDim);
 
 #endif

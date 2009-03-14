@@ -43,7 +43,8 @@ void Map::render() const
    const double SCALE = 0.5;
 
    glDisable(GL_TEXTURE);
-   glColor3d(0.0, 0.6, 0.0);
+   glDisable(GL_LIGHTING);
+   glColor3d(0.0, 0.8, 0.0);
    for (int x = 0; x < myWidth; x++) {
       for (int z = 0; z < myDepth; z++) {
          double xd = static_cast<double>(x) * SCALE;

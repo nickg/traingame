@@ -45,4 +45,10 @@ Point<T> makePoint(T x, T y)
    return Point<T>(x, y);
 }
 
+// A frustum
+template <typename T>
+struct Frustum {
+   T planes[6][4];
+};
+
 #endif
