@@ -19,23 +19,23 @@
 #define INC_ILOGGER_HPP
 
 #include <tr1/memory>
-#include <iosfwd>
+#include <ostream>
 
 // Stream surrogate for writing log data to
-struct LogStream {
-   LogStream(std::ostream& aStream);
-   ~LogStream();
+struct PrintLine {
+   PrintLine(std::ostream& aStream);
+   ~PrintLine();
    std::ostream& stream;
 };
 
-typedef std::tr1::shared_ptr<LogStream> LogStreamPtr;
+typedef std::tr1::shared_ptr<PrintLine> PrintLinePtr;
 
 template <typename T>
-inline LogStreamPtr operator<<(LogStreamPtr aLogStream, const T& aThing)
+inline PrintLinePtr operator<<(PrintLinePtr aPrintLine, const T& aThing)
 {
    using namespace std;
-   aLogStream->stream << aThing;
-   return aLogStream;
+   aPrintLine->stream << aThing;
+   return aPrintLine;
 }
 
 // Types of log levels
@@ -48,14 +48,14 @@ namespace LogMsg {
 // Interface to logger class
 class ILogger {
 public:
-   virtual LogStreamPtr writeMsg(LogMsg::Type type = LogMsg::NORMAL) = 0;
+   virtual PrintLinePtr writeMsg(LogMsg::Type type = LogMsg::NORMAL) = 0;
 };
 
 typedef std::tr1::shared_ptr<ILogger> ILoggerPtr;
 
 ILoggerPtr getLogger();
 
-inline LogStreamPtr log(LogMsg::Type type = LogMsg::NORMAL)
+inline PrintLinePtr log(LogMsg::Type type = LogMsg::NORMAL)
 {
    return getLogger()->writeMsg(type);
 }

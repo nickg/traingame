@@ -3,10 +3,12 @@
 
 #include <tr1/memory>
 
+#include "IScreen.hpp"
+
 // Interface to the game window
 class IWindow {
 public:
-   virtual void run() = 0;
+   virtual void run(IScreenPtr aScreen) = 0;
    virtual void quit() = 0;
 };
 

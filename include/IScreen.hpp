@@ -15,46 +15,17 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "ILogger.hpp"
+#ifndef INC_ISCREEN_HPP
+#define INC_ISCREEN_HPP
 
-#include <iostream>
+#include <tr1/memory>
 
-using namespace std;
-using namespace std::tr1;
-
-// Concrete logger implementation
-class LoggerImpl : public ILogger {
+// Interface for game screens
+class IScreen {
 public:
-   PrintLinePtr writeMsg(LogMsg::Type type);
+   virtual void display() = 0;
 };
 
-PrintLinePtr LoggerImpl::writeMsg(LogMsg::Type type)
-{
-   switch (type) {
-   case LogMsg::NORMAL:
-      cout << "I) ";
-      break;
-   case LogMsg::DEBUG:
-      cout << "D) ";
-      break;
-   }
-   return PrintLinePtr(new PrintLine(cout));
-}
+typedef std::tr1::shared_ptr<IScreen> IScreenPtr;
 
-PrintLine::PrintLine(ostream& aStream)
-   : stream(aStream)
-{
-   
-}
-
-PrintLine::~PrintLine()
-{
-   stream << endl;
-}
-
-// Return the single instance of Logger
-ILoggerPtr getLogger()
-{
-   static ILoggerPtr logger(new LoggerImpl);
-   return logger;
-}
+#endif

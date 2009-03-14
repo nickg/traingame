@@ -15,20 +15,12 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "IWindow.hpp"
-#include "ILogger.hpp"
-#include "Editor.hpp"
+#ifndef INC_EDITOR_HPP
+#define INC_EDITOR_HPP
 
-int main(int argc, char** argv)
-{
-   log() << "Program started";
-   
-   IWindowPtr window = makeSDLWindow();
+#include "IScreen.hpp"
 
-   IScreenPtr editor = makeEditorScreen();
+// External inteface to editor
+IScreenPtr makeEditorScreen();
 
-   window->run(editor);
-
-   log() << "Finished";   
-   return 0;
-}
+#endif

@@ -15,46 +15,26 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "ILogger.hpp"
+#include "IMap.hpp"
 
-#include <iostream>
-
-using namespace std;
-using namespace std::tr1;
-
-// Concrete logger implementation
-class LoggerImpl : public ILogger {
+class Map : public IMap {
 public:
-   PrintLinePtr writeMsg(LogMsg::Type type);
+   Map(int aWidth, int aDepth);
+
+   int width() const { return myWidth; }
+   int depth() const { return myDepth; }
+   double heightAt() const { return 0.0; }
+private:
+   int myWidth, myDepth;
 };
 
-PrintLinePtr LoggerImpl::writeMsg(LogMsg::Type type)
-{
-   switch (type) {
-   case LogMsg::NORMAL:
-      cout << "I) ";
-      break;
-   case LogMsg::DEBUG:
-      cout << "D) ";
-      break;
-   }
-   return PrintLinePtr(new PrintLine(cout));
-}
-
-PrintLine::PrintLine(ostream& aStream)
-   : stream(aStream)
+Map::Map(int aWidth, int aDepth)
+   : myWidth(aWidth), myDepth(aDepth)
 {
    
 }
 
-PrintLine::~PrintLine()
+IMapPtr makeEmptyMap(int aWidth, int aDepth)
 {
-   stream << endl;
-}
-
-// Return the single instance of Logger
-ILoggerPtr getLogger()
-{
-   static ILoggerPtr logger(new LoggerImpl);
-   return logger;
+   return IMapPtr(new Map(aWidth, aDepth));
 }

@@ -15,46 +15,34 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "ILogger.hpp"
+#ifndef INC_MATHS_HPP
+#define INC_MATHS_HPP
 
-#include <iostream>
-
-using namespace std;
-using namespace std::tr1;
-
-// Concrete logger implementation
-class LoggerImpl : public ILogger {
-public:
-   PrintLinePtr writeMsg(LogMsg::Type type);
+// A generic 3D vector
+template <typename T>
+struct Vector {
+   Vector(T x, T y, T z) : x(x), y(y), z(z) {}
+   Vector() : x(0), y(0), z(0) {}
+   
+   T x, y, z;
 };
 
-PrintLinePtr LoggerImpl::writeMsg(LogMsg::Type type)
+template <typename T>
+Vector<T> makeVector(T x, T y, T z)
 {
-   switch (type) {
-   case LogMsg::NORMAL:
-      cout << "I) ";
-      break;
-   case LogMsg::DEBUG:
-      cout << "D) ";
-      break;
-   }
-   return PrintLinePtr(new PrintLine(cout));
+   return Vector<T>(x, y, z);
 }
 
-PrintLine::PrintLine(ostream& aStream)
-   : stream(aStream)
+// A 2D point in space
+template <typename T>
+struct Point {
+   T x, y;
+};
+
+template <typename T>
+Point<T> makePoint(T x, T y)
 {
-   
+   return Point<T>(x, y);
 }
 
-PrintLine::~PrintLine()
-{
-   stream << endl;
-}
-
-// Return the single instance of Logger
-ILoggerPtr getLogger()
-{
-   static ILoggerPtr logger(new LoggerImpl);
-   return logger;
-}
+#endif

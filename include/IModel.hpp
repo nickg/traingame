@@ -15,46 +15,20 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "ILogger.hpp"
+#ifndef INC_IMODEL_HPP
+#define INC_IMODEL_HPP
 
-#include <iostream>
+#include <tr1/memory>
+#include <string>
 
-using namespace std;
-using namespace std::tr1;
-
-// Concrete logger implementation
-class LoggerImpl : public ILogger {
+class IModel {
 public:
-   PrintLinePtr writeMsg(LogMsg::Type type);
+   virtual void render() = 0;
 };
 
-PrintLinePtr LoggerImpl::writeMsg(LogMsg::Type type)
-{
-   switch (type) {
-   case LogMsg::NORMAL:
-      cout << "I) ";
-      break;
-   case LogMsg::DEBUG:
-      cout << "D) ";
-      break;
-   }
-   return PrintLinePtr(new PrintLine(cout));
-}
+typedef std::tr1::shared_ptr<IModel> IModelPtr;
 
-PrintLine::PrintLine(ostream& aStream)
-   : stream(aStream)
-{
-   
-}
+// Load a model from a WaveFront .obj file
+IModelPtr loadModel(const std::string& fileName);
 
-PrintLine::~PrintLine()
-{
-   stream << endl;
-}
-
-// Return the single instance of Logger
-ILoggerPtr getLogger()
-{
-   static ILoggerPtr logger(new LoggerImpl);
-   return logger;
-}
+#endif

@@ -15,46 +15,22 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "ILogger.hpp"
+#ifndef INC_IMAP_HPP
+#define INC_IMAP_HPP
 
-#include <iostream>
+#include <tr1/memory>
 
-using namespace std;
-using namespace std::tr1;
-
-// Concrete logger implementation
-class LoggerImpl : public ILogger {
+// A map is a MxN array of floating point height values
+class IMap {
 public:
-   PrintLinePtr writeMsg(LogMsg::Type type);
+   virtual int width() const = 0;
+   virtual int depth() const = 0;
+   virtual double heightAt() const = 0;
 };
 
-PrintLinePtr LoggerImpl::writeMsg(LogMsg::Type type)
-{
-   switch (type) {
-   case LogMsg::NORMAL:
-      cout << "I) ";
-      break;
-   case LogMsg::DEBUG:
-      cout << "D) ";
-      break;
-   }
-   return PrintLinePtr(new PrintLine(cout));
-}
+typedef std::tr1::shared_ptr<IMap> IMapPtr;
 
-PrintLine::PrintLine(ostream& aStream)
-   : stream(aStream)
-{
-   
-}
+// Make an empty map
+IMapPtr makeEmptyMap(int aWidth, int aHeight);
 
-PrintLine::~PrintLine()
-{
-   stream << endl;
-}
-
-// Return the single instance of Logger
-ILoggerPtr getLogger()
-{
-   static ILoggerPtr logger(new LoggerImpl);
-   return logger;
-}
+#endif

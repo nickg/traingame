@@ -15,46 +15,52 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include "Editor.hpp"
 #include "ILogger.hpp"
+#include "IModel.hpp"
 
-#include <iostream>
+#include <GL/gl.h>
 
 using namespace std;
-using namespace std::tr1;
 
-// Concrete logger implementation
-class LoggerImpl : public ILogger {
+// Concrete editor class
+class Editor : public IScreen {
 public:
-   PrintLinePtr writeMsg(LogMsg::Type type);
+   Editor();
+   
+   void display();
+
+private:
+   IModelPtr m;
 };
 
-PrintLinePtr LoggerImpl::writeMsg(LogMsg::Type type)
+Editor::Editor()
 {
-   switch (type) {
-   case LogMsg::NORMAL:
-      cout << "I) ";
-      break;
-   case LogMsg::DEBUG:
-      cout << "D) ";
-      break;
-   }
-   return PrintLinePtr(new PrintLine(cout));
-}
-
-PrintLine::PrintLine(ostream& aStream)
-   : stream(aStream)
-{
+   const string fileName("/home/nick/stompstomp.obj");
+   m = loadModel(fileName);
    
 }
 
-PrintLine::~PrintLine()
+// Render the next frame
+void Editor::display()
 {
-   stream << endl;
+   glTranslatef(0.0f, 0.0f, -15.0f);
+   glBegin(GL_TRIANGLES);
+   glColor3f(1.0f, 0.0f, 0.0f);
+   glVertex3f(1.0f, -1.0f, 0.0f);
+   glColor3f(0.0f, 1.0f, 0.0f);
+   glVertex3f(1.0f, 0.0f, 0.0f);
+   glColor3f(0.0f, 0.0f, 1.0f);
+   glVertex3f(0.0f, 0.0f, 0.0f);
+   glEnd();
+
+   glTranslatef(-5.0f, 0.0f, 0.0f);
+   m->render();
 }
 
-// Return the single instance of Logger
-ILoggerPtr getLogger()
+// Create an instance of the editor screen
+IScreenPtr makeEditorScreen()
 {
-   static ILoggerPtr logger(new LoggerImpl);
-   return logger;
+   
+   return IScreenPtr(new Editor);
 }
