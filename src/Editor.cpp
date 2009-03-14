@@ -19,6 +19,7 @@
 #include "ILogger.hpp"
 #include "IModel.hpp"
 #include "IMap.hpp"
+#include "Maths.hpp"
 
 #include <GL/gl.h>
 
@@ -30,28 +31,37 @@ public:
    Editor();
    
    void display(IGraphicsPtr aContext);
+   void onKeyDown(SDLKey aKey);
+   void onKeyUp(SDLKey aKey);
 
 private:
    IModelPtr m;
    IMapPtr myMap;
+
+   Vector<double> myPosition;
+   Vector<double> myMovement;
 };
 
 Editor::Editor()
+   : myPosition(0.0, -5.0, 0.0)
 {
    const string fileName("/home/nick/stompstomp.obj");
    m = loadModel(fileName);
 
-   myMap = makeEmptyMap(32, 32);
+   myMap = makeEmptyMap(128, 128);
 }
 
 // Render the next frame
 void Editor::display(IGraphicsPtr aContext)
 {
+   myPosition += myMovement;
+   aContext->setCamera(myPosition);
+   
    aContext->setAmbient(0.5, 0.5, 0.5);
    aContext->setDiffuse(1.0, 1.0, 1.0);
-   aContext->moveLight(0.0, 0.0, 2.0);
+   aContext->moveLight(0.0, 20.0, 0.0);
    
-   glTranslatef(0.0f, 0.0f, -15.0f);
+   /*glTranslatef(0.0f, 0.0f, -15.0f);
    glBegin(GL_TRIANGLES);
    glColor3f(1.0f, 0.0f, 0.0f);
    glVertex3f(1.0f, -1.0f, 0.0f);
@@ -63,14 +73,49 @@ void Editor::display(IGraphicsPtr aContext)
 
    glTranslatef(-5.0f, 0.0f, 0.0f);
    m->render();
-
-   glTranslated(0.0, -4.0, -12.0);
+   */
+   //   glTranslated(0.0, -4.0, -12.0);
    myMap->render(aContext);
+}
+
+void Editor::onKeyUp(SDLKey aKey)
+{
+   switch (aKey) {
+   case SDLK_w:
+   case SDLK_s:
+      myMovement.z = 0.0;
+      break;
+   case SDLK_a:
+   case SDLK_d:
+      myMovement.x = 0.0;
+      break;
+   default:
+      break;
+   }
+}
+
+void Editor::onKeyDown(SDLKey aKey)
+{
+   switch (aKey) {
+   case SDLK_w:
+      myMovement.z = 0.1;
+      break;
+   case SDLK_s:
+      myMovement.z = -0.1;
+      break;
+   case SDLK_a:
+      myMovement.x = 0.1;
+      break;
+   case SDLK_d:
+      myMovement.x = -0.1;
+      break;
+   default:
+      break;
+   }
 }
 
 // Create an instance of the editor screen
 IScreenPtr makeEditorScreen()
 {
-   
    return IScreenPtr(new Editor);
 }

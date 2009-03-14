@@ -16,6 +16,7 @@
 //
 
 #include "IQuadTree.hpp"
+#include "ILogger.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -32,6 +33,7 @@ public:
    
    void render(IGraphicsPtr aContext)
    {
+      myKillCount = 0;
       displaySector(aContext, 0);
    }
 
@@ -52,12 +54,14 @@ private:
    int mySize, myNumSectors, myUsedSectors;
    ISectorRenderablePtr myRenderer;
 
+   int myKillCount;
+
    static const int QT_LEAF_SIZE = 8; 	// Number of tiles in a QuadTree leaf
 };
 
 QuadTree::QuadTree(ISectorRenderablePtr aRenderable)
    : mySectors(NULL), mySize(0), myNumSectors(0), myUsedSectors(0),
-     myRenderer(aRenderable)
+     myRenderer(aRenderable), myKillCount(0)
 {
    
 }
@@ -159,6 +163,8 @@ void QuadTree::displaySector(IGraphicsPtr aContext, int aSector)
 
          if (aContext->cubeInViewFrustum((float)x, 0.0f, (float)y, (float)w/2))
             displaySector(aContext, childID);
+         else
+            myKillCount++;
       }
    }
 }

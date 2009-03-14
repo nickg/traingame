@@ -22,11 +22,14 @@
 
 #include <tr1/memory>
 
+#include <SDL.h>
 
 // Interface for game screens
 class IScreen {
 public:
    virtual void display(IGraphicsPtr aContext) = 0;
+   virtual void onKeyDown(SDLKey aKey) = 0;
+   virtual void onKeyUp(SDLKey aKey) = 0;
 };
 
 typedef std::tr1::shared_ptr<IScreen> IScreenPtr;

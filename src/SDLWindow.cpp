@@ -17,6 +17,7 @@
 
 #include "IWindow.hpp"
 #include "ILogger.hpp"
+#include "Maths.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -48,6 +49,7 @@ public:
                             double sizeX, double sizeY, double sizeZ);
    bool cubeInViewFrustum(double x, double y, double z, double size);
    bool pointInViewFrustum(double x, double y, double z);
+   void setCamera(const Vector<double>& aPos);
 private:
    void resizeGLScene();
    void initGL();
@@ -57,6 +59,7 @@ private:
    bool amRunning;
    int myWidth, myHeight;
    IScreenPtr myScreen;
+   Frustum myViewFrustum;
 };
 
 // Create the game window
@@ -111,12 +114,21 @@ void SDLWindow::quit()
    amRunning = false;
 }
 
+// Called to set the camera position
+void SDLWindow::setCamera(const Vector<double>& aPos)
+{
+   glTranslated(aPos.x, aPos.y, aPos.z);
+   myViewFrustum = getViewFrustum();
+}
+
 // Render the next screen
 void SDLWindow::drawGLScene()
 {
    // Clear the screen
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glLoadIdentity();
+
+   setCamera(Vector<double>());
 
    myScreen->display(shared_from_this());
 
@@ -134,6 +146,14 @@ void SDLWindow::processInput()
          // End the game
          quit();
          log() << "Window closed";
+         break;
+         
+      case SDL_KEYDOWN:
+         myScreen->onKeyDown(e.key.keysym.sym);
+         break;
+
+      case SDL_KEYUP:
+         myScreen->onKeyUp(e.key.keysym.sym);
          break;
       }
    }
@@ -169,7 +189,7 @@ void SDLWindow::resizeGLScene()
    glLoadIdentity();
 
    // Calculate The Aspect Ratio Of The Window
-   gluPerspective(45.0f, (GLfloat)myWidth/(GLfloat)myHeight, 0.1f, 100.0f);
+   gluPerspective(45.0f, (GLfloat)myWidth/(GLfloat)myHeight, 0.1f, 50.0f);
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
@@ -206,19 +226,19 @@ void SDLWindow::moveLight(double x, double y, double z)
 bool SDLWindow::cuboidInViewFrustum(double x, double y, double z,
                                     double sizeX, double sizeY, double sizeZ)
 {
-   return true;
+   return myViewFrustum.cuboidInFrustum(x, y, z, sizeX, sizeY, sizeZ);
 }
 
 // Intersect a cube with the current view frustum
 bool SDLWindow::cubeInViewFrustum(double x, double y, double z, double size)
 {
-   return true;
+   return myViewFrustum.cubeInFrustum(x, y, z, size);
 }
 
 // True if the point is contained within the view frustum
 bool SDLWindow::pointInViewFrustum(double x, double y, double z)
 {
-   return true;
+   return myViewFrustum.pointInFrustum(x, y, z);
 }
 
 // Construct and initialise an OpenGL SDL window

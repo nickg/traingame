@@ -18,6 +18,8 @@
 #ifndef INC_IGRAPHICS_HPP
 #define INC_IGRAPHICS_HPP
 
+#include "Maths.hpp"
+
 #include <tr1/memory>
 
 // Interface to stateful graphics things (lights, cameras, etc.)
@@ -34,7 +36,7 @@ public:
    virtual bool cubeInViewFrustum(double x, double y, double z,
                                   double size) = 0;
    virtual bool pointInViewFrustum(double x, double y, double z) = 0;
-   
+   virtual void setCamera(const Vector<double>& aPos) = 0;   
 };
 
 typedef std::tr1::shared_ptr<IGraphics> IGraphicsPtr;

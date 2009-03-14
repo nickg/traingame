@@ -125,7 +125,6 @@ void Map::renderSector(IGraphicsPtr aContext,
 {
    glColorMaterial(GL_FRONT, GL_DIFFUSE);
    glEnable(GL_COLOR_MATERIAL);
-   glDisable(GL_LIGHTING);
    
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
       for (int y = botLeft.y; y < topRight.y; y++) {
@@ -151,8 +150,10 @@ void Map::renderSector(IGraphicsPtr aContext,
             glColor3f(1.0f, 1.0f, 1.0f);
             glBegin(GL_POLYGON);
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++) {
+               glNormal3d(v[i].normal.x, v[i].normal.y, v[i].normal.z);
                glVertex3d(v[i].pos.x, v[i].pos.y, v[i].pos.z);
+            }
 
             glEnd();
             glPopMatrix();
@@ -163,7 +164,7 @@ void Map::renderSector(IGraphicsPtr aContext,
             glColor3f(0.0f, 0.0f, 0.0f);
             glBegin(GL_LINE_LOOP);
 				
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++) 
                glVertex3d(v[i].pos.x, v[i].pos.y, v[i].pos.z);
             
             glEnd();

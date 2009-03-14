@@ -59,10 +59,26 @@ struct Vector {
    {
       return Vector<T>(x+v.x, y+v.y, z+v.z);
    }
+
+   Vector<T> operator+=(const Vector<T>& v)
+   {
+      x += v.x;
+      y += v.y;
+      z += v.z;
+      return *this;
+   }
    
    Vector<T> operator-(const Vector<T>& v) const
    {
       return Vector<T>(x-v.x, y-v.y, z-v.z);
+   }
+
+   Vector<T> operator-=(const Vector<T>& v)
+   {
+      x -= v.x;
+      y -= v.y;
+      z -= v.z;
+      return *this;
    }
    
    bool operator==(const Vector<T> &v) const
@@ -72,6 +88,13 @@ struct Vector {
    
    T x, y, z;
 };
+
+template <typename T>
+std::ostream& operator<<(std::ostream& aStream, const Vector<T>& aVector)
+{
+   return aStream << "[" << aVector.x << " " << aVector.y
+                  << " " << aVector.z << "]";
+}
 
 template <typename T>
 Vector<T> makeVector(T x, T y, T z)
@@ -110,9 +133,16 @@ Point<T> makePoint(T x, T y)
 }
 
 // A frustum
-template <typename T>
 struct Frustum {
-   T planes[6][4];
+   bool pointInFrustum(float x, float y, float z);
+   bool sphereInFrustum(float x, float y, float z, float radius);
+   bool cubeInFrustum(float x, float y, float z, float size);	// size = 0.5*side_length
+   bool cuboidInFrustum(float x,	  float y,	   float z,
+                        float sizeX, float sizeY, float sizeZ);
+   
+   float planes[6][4];
 };
+
+Frustum getViewFrustum();
 
 #endif
