@@ -117,6 +117,9 @@ Vector<T> surfaceNormal(const Vector<T>& a, const Vector<T>& b,
 // A 2D point in space
 template <typename T>
 struct Point {
+   Point(T _x, T _y) : x(_x), y(_y) {}
+   Point() : x(0), y(0) {}
+   
    T x, y;
 };
 

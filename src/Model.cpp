@@ -68,6 +68,8 @@ IModelPtr loadModel(const string& fileName)
    vector<Vector<double> > vertices, normals;
    vector<Point<double> > textureOffs;
 
+   ITexturePtr texture;
+
    GLenum displayList = glGenLists(1);
    glNewList(displayList, GL_COMPILE);
 
@@ -79,7 +81,7 @@ IModelPtr loadModel(const string& fileName)
    glEnable(GL_TEXTURE);
    glEnable(GL_LIGHTING);
 
-   glColor3d(1.0, 1.0, 1.0);
+   glColor3d(0.0, 0.0, 1.0);
    
    while (!f.eof()) {
       string first;
@@ -93,10 +95,6 @@ IModelPtr loadModel(const string& fileName)
          string objName;
          f >> objName;
          debug() << "Building object " << objName;
-
-         vertices.clear();
-         normals.clear();
-         textureOffs.clear();
       }
       else if (first == "mtllib") {
          // Material file
@@ -115,6 +113,13 @@ IModelPtr loadModel(const string& fileName)
          
          normals.push_back(makeVector(x, y, z));
       }
+      else if (first == "vt") {
+         // Texture coordinate
+         double x, y;
+         f >> x >> y;
+
+         textureOffs.push_back(makePoint(x, y));
+      }
       else if (first == "g" || first == "usemtl") {
          // ???
       }
@@ -128,7 +133,16 @@ IModelPtr loadModel(const string& fileName)
          while (!ss.eof()) {
             char delim1, delim2;
             unsigned vi, vti, vni;
-            ss >> vi >> delim1 >> vti >> delim2 >> vni;
+            ss >> vi >> delim1;
+
+            // Texture coordinate may be omitted
+            ss >> vti;
+            if (ss.fail()) {
+               vti = -1;
+               ss.clear();
+            }
+
+            ss >> delim2 >> vni;
             assert(delim1 == '/' && delim2 == '/');
 
             Vector<double>& vn = normals[vni - 1];

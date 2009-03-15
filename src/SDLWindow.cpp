@@ -245,7 +245,7 @@ void SDLWindow::setDiffuse(double r, double g, double b)
 // Change the light position
 void SDLWindow::moveLight(double x, double y, double z)
 {
-   const GLfloat LightPosition[]= { x, y, z, 1.0f };
+   const GLfloat LightPosition[]= { x, y, z, 0.0f };
    glLightfv(GL_LIGHT1, GL_POSITION,LightPosition);
 }
 

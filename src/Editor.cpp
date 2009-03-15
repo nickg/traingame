@@ -45,7 +45,7 @@ private:
 Editor::Editor()
    : myPosition(2.0, -8.0, -10.0)
 {
-   const string fileName("/home/nick/stompstomp.obj");
+   const string fileName("/home/nick/traingame/train.obj");
    m = loadModel(fileName);
 
    myMap = makeEmptyMap(128, 128);
@@ -65,10 +65,11 @@ void Editor::display(IGraphicsPtr aContext)
    
    glPushMatrix();
    glScaled(0.6, 0.6, 0.6);
-   glTranslated(10.0, 5.0, 20.0);
+   glTranslated(5.0, 0.5, 5.0);
+   glRotated(-45.0, 0.0, 1.0, 0.0);
    m->render();
    glPopMatrix();
-   
+
    myMap->render(aContext);
 }
 
@@ -82,6 +83,9 @@ void Editor::onKeyUp(SDLKey aKey)
       myMovement.z = 0.0;
       myMovement.x = 0.0;
       break;
+   case SDLK_UP:
+   case SDLK_DOWN:
+      myMovement.y = 0.0;
    default:
       break;
    }
@@ -107,6 +111,12 @@ void Editor::onKeyDown(SDLKey aKey)
    case SDLK_s:
       myMovement.z = -speed;
       myMovement.x = speed;
+      break;
+   case SDLK_UP:
+      myMovement.y = -speed;
+      break;
+   case SDLK_DOWN:
+      myMovement.y = speed;
       break;
    default:
       break;
