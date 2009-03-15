@@ -1,0 +1,1 @@
+* Wheels should be indent about 0.1 Wings3D units from edge

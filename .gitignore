@@ -3,4 +3,5 @@ CMakeFiles/
 Makefile
 bin/
 cmake_install.cmake
-
+*~
+gmon.out
