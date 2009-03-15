@@ -116,16 +116,19 @@ void Map::resetMap(int aWidth, int aDepth)
 
 void Map::render(IGraphicsPtr aContext) const
 {
+   glClearColor(0.6, 0.7, 0.8, 1.0);
+   glPushAttrib(GL_ALL_ATTRIB_BITS);
+   glColorMaterial(GL_FRONT, GL_DIFFUSE);
+   glEnable(GL_COLOR_MATERIAL);
+   
    myQuadTree->render(aContext);
+   glPopAttrib();
 }
 
 // Render a small part of the map as directed by the quad tree
 void Map::renderSector(IGraphicsPtr aContext,
                        Point<int> botLeft, Point<int> topRight)
-{
-   glColorMaterial(GL_FRONT, GL_DIFFUSE);
-   glEnable(GL_COLOR_MATERIAL);
-   
+{   
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
       for (int y = botLeft.y; y < topRight.y; y++) {
          // Name this tile
@@ -133,45 +136,33 @@ void Map::renderSector(IGraphicsPtr aContext,
 
          Tile::Vertex* v = myTiles[index(x, y)].v;
             
-         bool shouldDraw = false;
+         // Render tile
+         glPushMatrix();
+         glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
+         glColor3f(0.8f, 1.0f, 0.8f);
+         glBegin(GL_POLYGON);
+
          for (int i = 0; i < 4; i++) {
-            shouldDraw |= aContext->pointInViewFrustum
-               (v[i].pos.x + static_cast<double>(x),
-                v[i].pos.y + 0.0,
-                v[i].pos.z + static_cast<double>(y));
-            if (shouldDraw)
-               break;
+            glNormal3d(v[i].normal.x, v[i].normal.y, v[i].normal.z);
+            glVertex3d(v[i].pos.x, v[i].pos.y, v[i].pos.z);
          }
-
-         if (shouldDraw) {
-            // Render tile
-            glPushMatrix();
-            glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
-            glColor3f(1.0f, 1.0f, 1.0f);
-            glBegin(GL_POLYGON);
-
-            for (int i = 0; i < 4; i++) {
-               glNormal3d(v[i].normal.x, v[i].normal.y, v[i].normal.z);
-               glVertex3d(v[i].pos.x, v[i].pos.y, v[i].pos.z);
-            }
-
-            glEnd();
-            glPopMatrix();
-            
-            // Render grid lines
-            glPushMatrix();
-            glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
-            glColor3f(0.0f, 0.0f, 0.0f);
-            glBegin(GL_LINE_LOOP);
-				
-            for (int i = 0; i < 4; i++) 
-               glVertex3d(v[i].pos.x, v[i].pos.y, v[i].pos.z);
-            
-            glEnd();
-            glPopMatrix();
-         }			
-         glPopName();
-      }
+         
+         glEnd();
+         glPopMatrix();
+         
+         // Render grid lines
+         glPushMatrix();
+         glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
+         glColor3f(0.0f, 0.0f, 0.0f);
+         glBegin(GL_LINE_LOOP);
+         
+         for (int i = 0; i < 4; i++) 
+            glVertex3d(v[i].pos.x, v[i].pos.y, v[i].pos.z);
+         
+         glEnd();
+         glPopMatrix();
+      }			
+      glPopName();
    }
 }
 
