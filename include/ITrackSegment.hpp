@@ -18,16 +18,26 @@
 #ifndef INC_ITRACKSEGMENT_HPP
 #define INC_ITRACKSEGMENT_HPP
 
+#include "Maths.hpp"
+
 #include <tr1/memory>
 
 // A segment of track which fits over a number of tiles
 // Each track segment has an origin and one or more exits
 struct ITrackSegment {
+   virtual ~ITrackSegment() {}
+   
    // Render the track with the origin in the centre
    virtual void render() const = 0;
 
    // Set the absolute position of the track in the world
    virtual void setOrigin(int x, int y) = 0;
+
+   // Get the length of this track segment
+   virtual double segmentLength() const = 0;
+
+   // Return an offset vector for a point along this segment
+   virtual Vector<double> offsetForDelta(double aDelta) const = 0;
 };
 
 typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;

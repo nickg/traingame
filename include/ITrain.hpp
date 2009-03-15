@@ -15,31 +15,24 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_IMAP_HPP
-#define INC_IMAP_HPP
+#ifndef INC_ITRAIN_HPP
+#define INC_ITRAIN_HPP
 
-#include "IGraphics.hpp"
-#include "ITrackSegment.hpp"
+#include "IRollingStock.hpp"
+#include "IMap.hpp"
 
 #include <tr1/memory>
 
-// A map is a MxN array of floating point height values
-// It also contains the track layout and any scenery items
-class IMap {
-public:
-   virtual int width() const = 0;
-   virtual int depth() const = 0;
-   virtual double heightAt() const = 0;
-   virtual ITrackSegmentPtr trackAt(const Point<int>& aPoint) const = 0;
-
-   virtual Point<int> startLocation() const = 0;
+// Interface to managing complete trains
+struct ITrain {
+   virtual ~ITrain() {}
    
-   virtual void render(IGraphicsPtr aContext) const = 0;
+   virtual void render() const = 0;
+   virtual void update() = 0;
 };
 
-typedef std::tr1::shared_ptr<IMap> IMapPtr;
+typedef std::tr1::shared_ptr<ITrain> ITrainPtr;
 
-// Make an empty map
-IMapPtr makeEmptyMap(int aWidth, int aHeight);
+ITrainPtr makeTrain(IMapPtr aMap);
 
 #endif

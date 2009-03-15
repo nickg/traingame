@@ -19,6 +19,8 @@
 #include "TrackCommon.hpp"
 #include "ILogger.hpp"
 
+#include <cassert>
+
 #include <GL/gl.h>
 #include <GL/glu.h>
 
@@ -33,6 +35,9 @@ public:
    void render() const;
    
    void setOrigin(int x, int y) { myX = x; myY = y; }
+   double segmentLength() const { return 1.0; }
+
+   Vector<double> offsetForDelta(double aDelta) const;
 private:
    int myX, myY;  // Absolute position
    GLUquadric* myRailQuadric;
@@ -46,6 +51,15 @@ StraightTrack::StraightTrack()
 StraightTrack::~StraightTrack()
 {
    gluDeleteQuadric(myRailQuadric);
+}
+
+Vector<double> StraightTrack::offsetForDelta(double aDelta) const
+{
+   //assert(aDelta < 1.0);
+
+   return makeVector(static_cast<double>(myX),
+                     0.0,
+                     static_cast<double>(myY) + aDelta);
 }
 
 void StraightTrack::render() const

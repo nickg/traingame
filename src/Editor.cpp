@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "Editor.hpp"
+#include "GameScreens.hpp"
 #include "ILogger.hpp"
 #include "IModel.hpp"
 #include "IMap.hpp"

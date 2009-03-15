@@ -15,12 +15,32 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_EDITOR_HPP
-#define INC_EDITOR_HPP
+#include "IRollingStock.hpp"
+#include "IModel.hpp"
 
-#include "IScreen.hpp"
+// Concrete implementation of powered rolling stock
+class Engine : public IRollingStock {
+public:
+   Engine();
+   
+   void render() const;
+private:
+   IModelPtr myModel;
+};
 
-// External inteface to editor
-IScreenPtr makeEditorScreen();
+Engine::Engine()
+{
+   myModel = loadModel("train.obj");
+}
 
-#endif
+// Draw the engine, smoke, etc.
+void Engine::render() const
+{
+   myModel->render();
+}
+
+// Make a new engine
+IRollingStockPtr makeEngine()
+{
+   return IRollingStockPtr(new Engine);
+}

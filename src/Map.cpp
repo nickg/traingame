@@ -22,6 +22,7 @@
 #include "ITrackSegment.hpp"
 
 #include <stdexcept>
+#include <sstream>
 #include <cassert>
 
 #include <GL/gl.h>
@@ -39,6 +40,8 @@ public:
    int depth() const { return myDepth; }
    double heightAt() const { return 0.0; }
 
+   Point<int> startLocation() const;
+   ITrackSegmentPtr trackAt(const Point<int>& aPoint) const;
    void render(IGraphicsPtr aContext) const;
 
    void resetMap(int aWidth, int aDepth);
@@ -90,6 +93,25 @@ Map::~Map()
    delete myTiles;
 }
 
+ITrackSegmentPtr Map::trackAt(const Point<int>& aPoint) const
+{
+   ITrackSegmentPtr ptr = tileAt(aPoint.x, aPoint.y).track;
+   if (ptr)
+      return ptr;
+   else {
+      ostringstream ss;
+      ss << "No track segment at " << aPoint;
+      throw runtime_error(ss.str());
+   }
+}
+
+// Return a location where the train may start
+Point<int> Map::startLocation() const
+{
+   // This is just a hack for now
+   return makePoint(1, 1);
+}
+
 void Map::resetMap(int aWidth, int aDepth)
 {   
    if (aWidth != aDepth)
@@ -120,8 +142,10 @@ void Map::resetMap(int aWidth, int aDepth)
    }
 
    // Create a straight line of track along the side of the map
-   for (int i = 0; i < 10; i++)
+   for (int i = 0; i < 10; i++) {
       tileAt(1, i).track = makeStraightTrack();
+      tileAt(1, i).track->setOrigin(1, i);
+   }
    
    // Create quad tree
    myQuadTree = makeQuadTree(shared_from_this(), myWidth);
@@ -133,8 +157,10 @@ void Map::render(IGraphicsPtr aContext) const
    glPushAttrib(GL_ALL_ATTRIB_BITS);
    glColorMaterial(GL_FRONT, GL_DIFFUSE);
    glEnable(GL_COLOR_MATERIAL);
-   
+
+   glPushMatrix();
    myQuadTree->render(aContext);
+   glPopMatrix();
    glPopAttrib();
 }
 

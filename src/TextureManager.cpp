@@ -115,14 +115,18 @@ Texture::Texture(const string &file)
    glGenTextures(1, &myTexture);
    glBindTexture(GL_TEXTURE_2D, myTexture);
 
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+   // Use GL_NEAREST here for better performance
+   // Or GL_LINEAR for better apppearance
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
    // Load the surface's data into the texture
    glTexImage2D(GL_TEXTURE_2D, 0, ncols, surface->w, surface->h, 0,
                 texture_format, GL_UNSIGNED_BYTE, surface->pixels);
 
    SDL_FreeSurface(surface);
+
+   log() << "Loaded texture " << file;
 }
 
 Texture::~Texture()

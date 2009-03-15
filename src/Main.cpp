@@ -17,7 +17,7 @@
 
 #include "IWindow.hpp"
 #include "ILogger.hpp"
-#include "Editor.hpp"
+#include "GameScreens.hpp"
 
 int main(int argc, char** argv)
 {
@@ -25,9 +25,10 @@ int main(int argc, char** argv)
    
    IWindowPtr window = makeSDLWindow();
 
-   IScreenPtr editor = makeEditorScreen();
+   //IScreenPtr editor = makeEditorScreen();
+   IScreenPtr game = makeGameScreen();
 
-   window->run(editor);
+   window->run(game);
 
    log() << "Finished";   
    return 0;
