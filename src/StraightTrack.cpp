@@ -55,7 +55,7 @@ StraightTrack::~StraightTrack()
 
 Vector<double> StraightTrack::offsetForDelta(double aDelta) const
 {
-   //assert(aDelta < 1.0);
+   assert(aDelta < 1.0);
 
    return makeVector(static_cast<double>(myX),
                      0.0,
