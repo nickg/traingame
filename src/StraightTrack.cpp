@@ -17,6 +17,7 @@
 
 #include "ITrackSegment.hpp"
 #include "TrackCommon.hpp"
+#include "ILogger.hpp"
 
 #include <GL/gl.h>
 #include <GL/glu.h>

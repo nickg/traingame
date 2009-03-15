@@ -18,193 +18,143 @@
 #include "Maths.hpp"
 #include "IModel.hpp"
 #include "ITextureManager.hpp"
+#include "ILogger.hpp"
 
-#include <cstdio>
-#include <cstring>
 #include <string>
-#include <stdexcept>
-#include <sstream>
-#include <memory>
+#include <fstream>
 #include <vector>
+#include <sstream>
+#include <cassert>
+#include <stdexcept>
 
 #include <GL/gl.h>
 
 using namespace std;
 
-// A face of the model
-struct Face {
-   static const int MAX_VERTEX = 16;
+// A model contains the display list to render it
+class Model : public IModel {
+public:
+   Model(GLuint aDisplayList) : myDisplayList(aDisplayList) {}
+   ~Model();
    
-   struct VertexDesc {
-      unsigned short v, n, t;   // Vertex, normal and texture indicies
-   } vdesc[MAX_VERTEX];         // Maximum of 16 verticies in a face...
-   
-   int vertexCount;       // The number of verticies (in this face)
+   void render() const;
+private:
+   GLuint myDisplayList;
 };
 
-typedef vector<Face> FaceList;
-typedef vector<Vector<double> > VectorList;
-typedef vector<Point<double> > PointList;
+// Free the display list
+Model::~Model()
+{
+   glDeleteLists(myDisplayList, 1);
+}
 
-// The model itself
-struct Model : IModel {   
-   void render();
-   
-   FaceList   faces;           // The model's faces
-   VectorList verticies;       // The model's verticies
-   VectorList normals;         // The model's normals
-   PointList  texCoords;       // The model's texture coordinates
-   GLuint     uTexture;        // Model texture map
-   int        faceCount;       // Total number of faces
-   float      zMin, zMax;      // Minimum and maximum Z-coordinates
-   float      xMin, xMax;      // Minimum and maximum X-coordinates
-   float      yMin, yMax;      // Minimum and maximum Y-coordinates
-
-   ITexturePtr texture;
-};
+void Model::render() const
+{
+   glCallList(myDisplayList);
+}
 
 // Load a WaveFront .obj model from disk
 IModelPtr loadModel(const string& fileName)
 {
-   auto_ptr<Model> pModel = auto_ptr<Model>(new Model);
-
-   pModel->texture = getTextureManager()->load("/home/nick/cube1_auv.bmp");
-
-   char ch, line[256];
-   int vertexCount=0, normalCount=0, texCoordCount=0, faceCount=0;
-   int texCoordIterator=0, normalIterator=0, faceIterator=0, vertexIterator=0;
-   
-   pModel->xMin = pModel->xMax = pModel->yMin
-      = pModel->yMax = pModel->zMin = pModel->zMax = 0.0f;
-    
-   const char* p = fileName.c_str();
-   FILE* f = fopen(p, "r");
-   if (f == NULL) {
+   ifstream f(fileName.c_str());
+   if (!f.good()) {
       ostringstream ss;
-      ss << "Cannot open model file: " << fileName;
+      ss << "Failed to open model: " << fileName;
       throw runtime_error(ss.str());
    }
-   
-   // First pass, count up number of vertices, texture coords and normals
-   while (!feof(f)) {
-      fscanf(f, "%s", line);
-      if (strcasecmp(line, "v") == 0)
-         vertexCount++;
-      else if (strcasecmp(line, "vn") == 0)
-         normalCount++;
-      else if (strcasecmp(line, "vt") == 0)
-         texCoordCount++;
-      else if (strcasecmp(line, "f") == 0)
-         faceCount++;
-      fgets(line, 256, f);
-   }
 
-   // Allocate memory
-   pModel->faceCount = faceCount;
-   pModel->faces.reserve(faceCount);
-   pModel->verticies.reserve(vertexCount);
-   pModel->normals.reserve(normalCount);
-   pModel->texCoords.reserve(texCoordCount);
-   
-   rewind(f);
+   log() << "Loading model " << fileName;
 
-   // Loop through each line
-   float x, y, z;
-   while (!feof(f)) {
-      ch = fgetc(f);
-      if (ch == 'v') {
-         // Some sort of vertex
-         char next = fgetc(f);
-         if (next == 'n') {
-            // Its a normal
-            fscanf(f, "%f %f %f", &x, &y, &z);
-            pModel->normals[normalIterator].x = x;
-            pModel->normals[normalIterator].y = y;
-            pModel->normals[normalIterator].z = z;
-            normalIterator++;
-         }
-         else if (next == 't') {
-            // Its a texture coordinate
-            fscanf(f, "%f %f", &x, &y);
-            pModel->texCoords[texCoordIterator].x = x;
-            pModel->texCoords[texCoordIterator].y = y;
-            texCoordIterator++;
-         }
-         else if (next == ' ') {
-            // Its a vertex
-            fscanf(f, "%f %f %f", &x, &y, &z);
-            pModel->verticies[vertexIterator].x = x;
-            pModel->verticies[vertexIterator].y = y;
-            pModel->verticies[vertexIterator].z = z;
-            
-            // Check size
-            if (x < pModel->xMin) pModel->xMin = x;
-            else if (x > pModel->xMax) pModel->xMax = x;
-            if (y < pModel->yMin) pModel->yMin = y;
-            else if (y > pModel->yMax) pModel->yMax = y;
-            if (z < pModel->zMin) pModel->zMin = z;
-            else if (z > pModel->zMax) pModel->zMax = z;
-            
-            vertexIterator++;
-         }
-         fgets(line, 256, f);
-      }
-      else if (ch == '#') {
-         // Its a comment so ignore it
-         fgets(line, 256, f);
-      }
-      else if (ch == 'f') {
-         // Its a face
-         // The normal indicies are ignored (is this ok???)
-         int v[16], vt[16], vn[16];
-         int read = 0;
-         fgets(line, 256, f);
-         char *token = strtok(line, " \n");
-         while (token != NULL) {
-            sscanf(token, "%d/%d/%d", &v[read], &vt[read], &vn[read]);
-            read++;
-            token = strtok(NULL, " \n");
-         }
-         if (read > Face::MAX_VERTEX)
-            throw runtime_error("Too many verticies in model face");
-         else
-            pModel->faces[faceIterator].vertexCount = read;
-         for (int i = 0; i < read; i++) {
-            pModel->faces[faceIterator].vdesc[i].v = v[i]-1;
-            pModel->faces[faceIterator].vdesc[i].n = vn[i]-1;
-            pModel->faces[faceIterator].vdesc[i].t = vt[i]-1;
-         }
-         faceIterator++;
-      }
-   }
-   
-   return IModelPtr(pModel);
-}
+   vector<Vector<double> > vertices, normals;
+   vector<Point<double> > textureOffs;
 
-// Render the 3D model in the current view
-void Model::render()
-{
+   GLenum displayList = glGenLists(1);
+   glNewList(displayList, GL_COMPILE);
+
+   glPushAttrib(GL_ALL_ATTRIB_BITS);
+   glPushMatrix();
+   
    glEnable(GL_DEPTH_TEST);
    glDisable(GL_BLEND);
    glEnable(GL_TEXTURE);
    glEnable(GL_LIGHTING);
-   texture->bind();
-   glColor3f(1.0f, 1.0f, 1.0f);
-   for (int i = 0; i < faceCount; i++) {
-      switch(faces[i].vertexCount) {
-      case 3: glBegin(GL_TRIANGLES); break;
-      case 4: glBegin(GL_QUADS); break;
-      default: glBegin(GL_POLYGON); break;
-      }
-      for (int j = 0; j < faces[i].vertexCount; j++) {
-         int v = faces[i].vdesc[j].v;
-         int n = faces[i].vdesc[j].n;
-         int t = faces[i].vdesc[j].t;
-         glNormal3f(normals[n].x, normals[n].y, normals[n].z);
-         glTexCoord2f(texCoords[t].x, 1.0f - texCoords[t].y);
-         glVertex3f(verticies[v].x, verticies[v].y, verticies[v].z);
-      }
-      glEnd();
-   }
-}
 
+   glColor3d(1.0, 1.0, 1.0);
+   
+   while (!f.eof()) {
+      string first;
+      f >> first;
+
+      if (first[0] == '#') {
+         // Comment
+      }
+      else if (first == "o") {
+         // New object
+         string objName;
+         f >> objName;
+         debug() << "Building object " << objName;
+
+         vertices.clear();
+         normals.clear();
+         textureOffs.clear();
+      }
+      else if (first == "mtllib") {
+         // Material file
+      }
+      else if (first == "v") {
+         // Vertex
+         double x, y, z;
+         f >> x >> y >> z;
+
+         vertices.push_back(makeVector(x, y, z));
+      }
+      else if (first == "vn") {
+         // Normal
+         double x, y, z;
+         f >> x >> y >> z;
+         
+         normals.push_back(makeVector(x, y, z));
+      }
+      else if (first == "g" || first == "usemtl") {
+         // ???
+      }
+      else if (first == "f") {
+         // Face
+         string line;
+         getline(f, line);
+         istringstream ss(line);
+
+         glBegin(GL_POLYGON);
+         while (!ss.eof()) {
+            char delim1, delim2;
+            unsigned vi, vti, vni;
+            ss >> vi >> delim1 >> vti >> delim2 >> vni;
+            assert(delim1 == '/' && delim2 == '/');
+
+            Vector<double>& vn = normals[vni - 1];
+            glNormal3d(vn.x, vn.y, vn.z);
+
+            if (vti - 1 < textureOffs.size()) {
+               Point<double>& vt = textureOffs[vti - 1];
+               glTexCoord2d(vt.x, vt.y);
+            }
+
+            Vector<double>& v = vertices[vi - 1];
+            glVertex3d(v.x, v.y, v.z);
+         }
+         glEnd();
+            
+         // Don't discard the next line
+         continue;
+      }
+
+      // Discard the rest of the line
+      getline(f, first);
+   }
+
+   glPopMatrix();
+   glPopAttrib();
+   glEndList();
+   
+   return IModelPtr(new Model(displayList));
+}

@@ -23,7 +23,7 @@
 
 class IModel {
 public:
-   virtual void render() = 0;
+   virtual void render() const = 0;
 };
 
 typedef std::tr1::shared_ptr<IModel> IModelPtr;

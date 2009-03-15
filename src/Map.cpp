@@ -22,6 +22,7 @@
 #include "ITrackSegment.hpp"
 
 #include <stdexcept>
+#include <cassert>
 
 #include <GL/gl.h>
 
@@ -60,6 +61,7 @@ private:
 
    inline int index(int x, int y) const
    {
+      assert(x < myWidth && y < myDepth);
       return x + y*myWidth;
    }
    
@@ -117,7 +119,9 @@ void Map::resetMap(int aWidth, int aDepth)
       myTiles[i].v[3].normal = n;
    }
 
-   tileAt(0, 0).track = makeStraightTrack();
+   // Create a straight line of track along the side of the map
+   for (int i = 0; i < 10; i++)
+      tileAt(1, i).track = makeStraightTrack();
    
    // Create quad tree
    myQuadTree = makeQuadTree(shared_from_this(), myWidth);
@@ -172,8 +176,12 @@ void Map::renderSector(IGraphicsPtr aContext,
          glPopMatrix();
 
          // Draw the track, if any
-         if (tileAt(x, y).track)
+         if (tileAt(x, y).track) {
+            glPushMatrix();
+            glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
             tileAt(x, y).track->render();
+            glPopMatrix();
+         }
       }			
       glPopName();
    }

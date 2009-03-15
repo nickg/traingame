@@ -43,7 +43,7 @@ private:
 };
 
 Editor::Editor()
-   : myPosition(2.0, -5.0, -5.0)
+   : myPosition(2.0, -8.0, -10.0)
 {
    const string fileName("/home/nick/stompstomp.obj");
    m = loadModel(fileName);
@@ -63,20 +63,12 @@ void Editor::display(IGraphicsPtr aContext)
    aContext->setDiffuse(1.0, 1.0, 1.0);
    aContext->moveLight(0.0, 20.0, 0.0);
    
-   /*glTranslatef(0.0f, 0.0f, -15.0f);
-   glBegin(GL_TRIANGLES);
-   glColor3f(1.0f, 0.0f, 0.0f);
-   glVertex3f(1.0f, -1.0f, 0.0f);
-   glColor3f(0.0f, 1.0f, 0.0f);
-   glVertex3f(1.0f, 0.0f, 0.0f);
-   glColor3f(0.0f, 0.0f, 1.0f);
-   glVertex3f(0.0f, 0.0f, 0.0f);
-   glEnd();
-
-   glTranslatef(-5.0f, 0.0f, 0.0f);
+   glPushMatrix();
+   glScaled(0.6, 0.6, 0.6);
+   glTranslated(10.0, 5.0, 20.0);
    m->render();
-   */
-   //   glTranslated(0.0, -4.0, -12.0);
+   glPopMatrix();
+   
    myMap->render(aContext);
 }
 
@@ -85,10 +77,9 @@ void Editor::onKeyUp(SDLKey aKey)
    switch (aKey) {
    case SDLK_w:
    case SDLK_s:
-      myMovement.z = 0.0;
-      break;
    case SDLK_a:
    case SDLK_d:
+      myMovement.z = 0.0;
       myMovement.x = 0.0;
       break;
    default:
@@ -98,18 +89,24 @@ void Editor::onKeyUp(SDLKey aKey)
 
 void Editor::onKeyDown(SDLKey aKey)
 {
+   const double speed = 0.5;
+   
    switch (aKey) {
-   case SDLK_w:
-      myMovement.z = 1.0;
-      break;
-   case SDLK_s:
-      myMovement.z = -1.0;
-      break;
    case SDLK_a:
-      myMovement.x = 1.0;
+      myMovement.z = speed;
+      myMovement.x = speed;
       break;
    case SDLK_d:
-      myMovement.x = -1.0;
+      myMovement.z = -speed;
+      myMovement.x = -speed;
+      break;
+   case SDLK_w:
+      myMovement.z = speed;
+      myMovement.x = -speed;
+      break;
+   case SDLK_s:
+      myMovement.z = -speed;
+      myMovement.x = speed;
       break;
    default:
       break;
