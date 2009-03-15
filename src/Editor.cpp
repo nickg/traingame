@@ -43,7 +43,7 @@ private:
 };
 
 Editor::Editor()
-   : myPosition(0.0, -5.0, 0.0)
+   : myPosition(2.0, -5.0, -5.0)
 {
    const string fileName("/home/nick/stompstomp.obj");
    m = loadModel(fileName);
@@ -55,6 +55,8 @@ Editor::Editor()
 void Editor::display(IGraphicsPtr aContext)
 {
    myPosition += myMovement;
+   glRotated(45.0, 1.0, 0.0, 0.0);
+   glRotated(45.0, 0.0, 1.0, 0.0);
    aContext->setCamera(myPosition);
    
    aContext->setAmbient(0.5, 0.5, 0.5);

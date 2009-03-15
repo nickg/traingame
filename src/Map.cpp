@@ -19,6 +19,7 @@
 #include "IQuadTree.hpp"
 #include "Maths.hpp"
 #include "ILogger.hpp"
+#include "ITrackSegment.hpp"
 
 #include <stdexcept>
 
@@ -50,6 +51,7 @@ private:
       struct Vertex {
          Vector<double> pos, normal;
       } v[4];
+      ITrackSegmentPtr track;  // Track at this location, if any
    } *myTiles;
 
    static const unsigned TILE_NAME_BASE	= 32000;	// Base of tile naming
@@ -64,6 +66,11 @@ private:
    inline int tileName(int x, int z) const
    {
       return TILE_NAME_BASE + index(x, z);
+   }
+
+   inline Tile& tileAt(int x, int z) const
+   {
+      return myTiles[index(x, z)];
    }
 
    int myWidth, myDepth;
@@ -109,6 +116,8 @@ void Map::resetMap(int aWidth, int aDepth)
       myTiles[i].v[2].normal = n;
       myTiles[i].v[3].normal = n;
    }
+
+   tileAt(0, 0).track = makeStraightTrack();
    
    // Create quad tree
    myQuadTree = makeQuadTree(shared_from_this(), myWidth);
@@ -161,6 +170,10 @@ void Map::renderSector(IGraphicsPtr aContext,
          
          glEnd();
          glPopMatrix();
+
+         // Draw the track, if any
+         if (tileAt(x, y).track)
+            tileAt(x, y).track->render();
       }			
       glPopName();
    }

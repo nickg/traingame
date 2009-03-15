@@ -61,11 +61,12 @@ private:
    int myWidth, myHeight;
    IScreenPtr myScreen;
    Frustum myViewFrustum;
+   bool willSkipNextFrame;
 };
 
 // Create the game window
 SDLWindow::SDLWindow()
-   : amRunning(false)
+   : amRunning(false), willSkipNextFrame(false)
 {
    // Start SDL
    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -108,19 +109,25 @@ void SDLWindow::run(IScreenPtr aScreen)
    amRunning = true;
    do {
       unsigned tickStart = SDL_GetTicks();
-      
+
       processInput();
-      drawGLScene();
+      // TODO: update state
+      
+      if (!willSkipNextFrame)
+         drawGLScene();
+      else
+         willSkipNextFrame = false;
 
       // Limit the frame rate
       unsigned tickNow = SDL_GetTicks();
       if (tickNow > tickStart + window) {
          log() << "Missed window by " << tickNow - tickStart - window
                << "ms (skipping next frame)";
+         willSkipNextFrame = true;
       }
       else {
          while (tickNow < tickStart + window)	{
-            log() << "spare ms: " << (tickStart + window - tickNow);
+            //log() << "spare ms: " << (tickStart + window - tickNow);
             usleep((tickStart + window - tickNow) * 1000);
             tickNow = SDL_GetTicks();
          }
