@@ -95,6 +95,8 @@ IModelPtr loadModel(const string& fileName)
          string objName;
          f >> objName;
          debug() << "Building object " << objName;
+
+         texture.reset();
       }
       else if (first == "mtllib") {
          // Material file
@@ -120,8 +122,20 @@ IModelPtr loadModel(const string& fileName)
 
          textureOffs.push_back(makePoint(x, y));
       }
-      else if (first == "g" || first == "usemtl") {
-         // ???
+      else if (first == "g") {
+         // Ignore it (texture file comes from material name)
+      }
+      else if (first == "usemtl") {
+         // Set the material for this object
+         string texBaseName;
+         f >> texBaseName;
+
+         bool exists = ifstream((texBaseName + ".bmp").c_str()).good();
+
+         if (exists) 
+            texture = getTextureManager()->load(texBaseName + ".bmp");
+         else
+            log() << "No texture for material " << texBaseName;
       }
       else if (first == "f") {
          // Face
@@ -150,7 +164,7 @@ IModelPtr loadModel(const string& fileName)
 
             if (vti - 1 < textureOffs.size()) {
                Point<double>& vt = textureOffs[vti - 1];
-               glTexCoord2d(vt.x, vt.y);
+               glTexCoord2d(vt.x, 1.0 - vt.y);
             }
 
             Vector<double>& v = vertices[vi - 1];

@@ -60,13 +60,13 @@ void Editor::display(IGraphicsPtr aContext)
    aContext->setCamera(myPosition);
    
    aContext->setAmbient(0.5, 0.5, 0.5);
-   aContext->setDiffuse(1.0, 1.0, 1.0);
-   aContext->moveLight(0.0, 20.0, 0.0);
+   aContext->setDiffuse(0.8, 0.8, 0.8);
+   aContext->moveLight(0.0, 50.0, 0.0);
    
    glPushMatrix();
    glScaled(0.6, 0.6, 0.6);
    glTranslated(5.0, 0.5, 5.0);
-   glRotated(-45.0, 0.0, 1.0, 0.0);
+   glRotated(-69.0, 0.0, 1.0, 0.0);
    m->render();
    glPopMatrix();
 
