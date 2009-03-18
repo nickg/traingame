@@ -23,8 +23,9 @@
 #include "ITexture.hpp"
 
 // Manage loading and unloading textures
-class ITextureManager {
-public:
+struct ITextureManager {
+   virtual ~ITextureManager() {}
+   
    virtual ITexturePtr load(const std::string& fileName) = 0;
 };
 

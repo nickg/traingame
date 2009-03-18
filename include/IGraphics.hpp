@@ -23,8 +23,9 @@
 #include <tr1/memory>
 
 // Interface to stateful graphics things (lights, cameras, etc.)
-class IGraphics {
-public:
+struct IGraphics {
+   virtual ~IGraphics() {}
+   
    // Lights
    virtual void setAmbient(double r, double g, double b) = 0;
    virtual void setDiffuse(double r, double g, double b) = 0;

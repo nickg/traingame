@@ -21,8 +21,9 @@
 #include <tr1/memory>
 #include <string>
 
-class IModel {
-public:
+struct IModel {
+   virtual ~IModel() {}
+   
    virtual void render() const = 0;
 };
 

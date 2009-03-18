@@ -8,6 +8,8 @@
 // Interface to the game window
 class IWindow {
 public:
+   virtual ~IWindow() {}
+   
    virtual void run(IScreenPtr aScreen) = 0;
    virtual void quit() = 0;
 };

@@ -46,8 +46,9 @@ namespace LogMsg {
 }
 
 // Interface to logger class
-class ILogger {
-public:
+struct ILogger {
+   virtual ~ILogger() {}
+   
    virtual PrintLinePtr writeMsg(LogMsg::Type type = LogMsg::NORMAL) = 0;
 };
 

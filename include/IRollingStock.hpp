@@ -22,6 +22,8 @@
 
 // Interface for various powered and unpowered parts of the train
 struct IRollingStock {
+   virtual ~IRollingStock() {}
+   
    // Display the object and any animiation
    virtual void render() const = 0;
 };

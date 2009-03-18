@@ -21,8 +21,9 @@
 #include <tr1/memory>
 
 // Abstract interface to textures
-class ITexture {
-public:
+struct ITexture {
+   virtual ~ITexture() {}
+   
    virtual void bind() const = 0;
    virtual int width() const = 0;
    virtual int height() const = 0;
