@@ -49,5 +49,6 @@ struct ITrackSegment {
 typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;
 
 ITrackSegmentPtr makeStraightTrack();
+ITrackSegmentPtr makeCurvedTrack();
 
 #endif

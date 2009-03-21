@@ -17,7 +17,15 @@
 
 #include "TrackCommon.hpp"
 
+#include <cmath>
+
 #include <GL/gl.h>
+
+namespace Track {
+   const double railWidth = 0.1;
+   const double railHeight = 0.1;
+   const double gauge = 0.7;
+}
 
 // Draw a sleeper in the current maxtrix location
 void renderSleeper()
@@ -70,3 +78,127 @@ void renderSleeper()
    glPopMatrix();
 }
 
+static void renderOneRail()
+{
+   glPushMatrix();
+   glTranslated(-Track::railWidth/2.0, 0.0, 0.0);
+   
+   glBegin(GL_QUADS);
+   
+   // Top side
+   glNormal3d(0.0, 1.0, 0.0);
+   glVertex3d(0.0, Track::railHeight, 0.0);
+   glNormal3d(0.0, 1.0, 0.0);
+   glVertex3d(0.0, Track::railHeight, 1.0);
+   glNormal3d(0.0, 1.0, 0.0);
+   glVertex3d(Track::railWidth, Track::railHeight, 1.0);
+   glNormal3d(0.0, 1.0, 0.0);
+   glVertex3d(Track::railWidth, Track::railHeight, 0.0);
+   
+   // Outer side
+   glNormal3d(0.0, 0.0, -1.0);
+   glVertex3d(0.0, Track::railHeight, 0.0);
+   glNormal3d(0.0, 0.0, -1.0);
+   glVertex3d(0.0, 0.0, 0.0);
+   glNormal3d(0.0, 0.0, -1.0);
+   glVertex3d(0.0, 0.0, 1.0);
+   glNormal3d(0.0, 0.0, -1.0);
+   glVertex3d(0.0, Track::railHeight, 1.0);
+   
+   // Inner side
+   glNormal3d(0.0, 0.0, 1.0);
+   glVertex3d(Track::railWidth, Track::railHeight, 0.0);
+   glNormal3d(0.0, 0.0, 1.0);
+   glVertex3d(Track::railWidth, 0.0, 0.0);
+   glNormal3d(0.0, 0.0, 1.0);
+   glVertex3d(Track::railWidth, 0.0, 1.0);
+   glNormal3d(0.0, 0.0, 1.0);
+   glVertex3d(Track::railWidth, Track::railHeight, 1.0);
+   
+   glEnd();
+   glPopMatrix();
+}
+
+void renderStraightRail()
+{
+   glPushMatrix();
+   glColor3d(0.7, 0.7, 0.7);
+
+   glTranslated(-Track::gauge/2.0, 0.0, -0.5);
+   renderOneRail();
+   
+   glTranslated(Track::gauge, 0.0, 0.0);
+   renderOneRail();
+
+   glPopMatrix();
+}
+
+enum RailType {
+   InnerRail, OuterRail
+};
+
+static void makeCurveRail(double baseRadius, double startAngle,
+                          double finishAngle, RailType type)
+{
+   const double edgeWidth = (1 - Track::gauge - Track::railWidth)/2.0;
+   const double R = baseRadius - edgeWidth
+      - (type == OuterRail ? 0 : Track::gauge);
+   const double r = R - Track::railWidth;
+
+   const double step = 0.05;
+
+   glPushMatrix();
+   glTranslated(baseRadius - 0.5, 0.0, -0.5);
+
+   // Top of rail
+   glBegin(GL_QUADS);
+   for (double theta = startAngle; theta < finishAngle; theta += step) {
+      glNormal3d(0.0, 1.0, 0.0);
+      glVertex3d(R * cos(theta), 0.1, R * sin(theta));
+      glNormal3d(0.0, 1.0, 0.0);
+      glVertex3d(R * cos(theta + step), 0.1, R * sin(theta + step));
+      glNormal3d(0.0, 1.0, 0.0);
+      glVertex3d(r * cos(theta + step), 0.1, r * sin(theta + step));
+      glNormal3d(0.0, 1.0, 0.0);
+      glVertex3d(r * cos(theta), 0.1, r * sin(theta));
+   }
+   glEnd();
+
+   // Outer edge
+   glBegin(GL_QUADS);
+   for (double theta = startAngle; theta < finishAngle; theta += step) {
+      glNormal3d(cos(theta), 0.0, sin(theta));
+      glVertex3d(R * cos(theta), 0.1, R * sin(theta));
+      glNormal3d(cos(theta), 0.0, sin(theta));
+      glVertex3d(R * cos(theta), 0.0, R * sin(theta));
+      glNormal3d(cos(theta + step), 0.0, sin(theta + step));
+      glVertex3d(R * cos(theta + step), 0.0, R * sin(theta + step));
+      glNormal3d(cos(theta + step), 0.1, sin(theta + step));
+      glVertex3d(R * cos(theta + step), 0.1, R * sin(theta + step));
+   }
+   glEnd();
+
+   // Inner edge
+   glBegin(GL_QUADS);
+   for (double theta = startAngle; theta < finishAngle; theta += step) {
+      glNormal3d(-cos(theta), 0.0, -sin(theta));
+      glVertex3d(r * cos(theta), 0.1, r * sin(theta));
+      glNormal3d(-cos(theta), 0.0, -sin(theta));
+      glVertex3d(r * cos(theta), 0.0, r * sin(theta));
+      glNormal3d(-cos(theta + step), 0.0, -sin(theta + step));
+      glVertex3d(r * cos(theta + step), 0.0, r * sin(theta + step));
+      glNormal3d(-cos(theta + step), 0.1, -sin(theta + step));
+      glVertex3d(r * cos(theta + step), 0.1, r * sin(theta + step));
+   }
+   glEnd();
+
+   glPopMatrix();
+}
+
+void renderCurveRail()
+{
+   glColor3d(0.7, 0.7, 0.7);
+
+   makeCurveRail(2.0, M_PI/2.0, M_PI, OuterRail);
+   makeCurveRail(2.0, M_PI/2.0, M_PI, InnerRail);
+}

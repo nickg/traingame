@@ -70,11 +70,14 @@ Point<int> StraightTrack::nextPosition() const
 
 void StraightTrack::render() const
 {
+   renderStraightRail();
+   
    // Left rail
-   glPushMatrix();
+   /*glPushMatrix();
    glTranslated(-0.3, 0.05, -0.5);
-   glColor3d(0.7, 0.7, 0.7);
-   gluCylinder(myRailQuadric,
+   renderStraightRail();
+   /*glColor3d(0.7, 0.7, 0.7);
+      gluCylinder(myRailQuadric,
                0.03, 0.03,  // Base, top
                1.0,         // Height
                15, 1);      // Slices, stacks
@@ -88,7 +91,7 @@ void StraightTrack::render() const
                0.03, 0.03,  // Base, top
                1.0,         // Height
                15, 1);      // Slices, stacks
-   glPopMatrix();
+               glPopMatrix();*/
 
    // Draw the sleepers
    glPushMatrix();

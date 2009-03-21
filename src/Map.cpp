@@ -152,10 +152,12 @@ void Map::resetMap(int aWidth, int aDepth)
    }
 
    // Create a straight line of track along the side of the map
-   for (int i = 0; i < 10; i++) {
+   for (int i = 0; i < 5; i++) {
       tileAt(1, i).track = makeStraightTrack();
       tileAt(1, i).track->setOrigin(1, i);
    }
+   tileAt(1, 5).track = makeCurvedTrack();
+   tileAt(1, 5).track->setOrigin(1, 5);
    
    // Create quad tree
    myQuadTree = makeQuadTree(shared_from_this(), myWidth);
