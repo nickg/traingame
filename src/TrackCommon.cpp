@@ -22,7 +22,7 @@
 #include <GL/gl.h>
 
 namespace Track {
-   const double railWidth = 0.1;
+   const double railWidth = 0.05;
    const double railHeight = 0.1;
    const double gauge = 0.7;
 }
@@ -145,7 +145,7 @@ static void makeCurveRail(double baseRadius, double startAngle,
       - (type == OuterRail ? 0 : Track::gauge);
    const double r = R - Track::railWidth;
 
-   const double step = 0.05;
+   const double step = 0.1;
 
    glPushMatrix();
    glTranslated(baseRadius - 0.5, 0.0, -0.5);

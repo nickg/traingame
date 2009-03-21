@@ -54,7 +54,10 @@ const double Train::MODEL_YOFF(0.05);
 Train::Train(IMapPtr aMap)
    : myMap(aMap)
 {
-   enterSegment(aMap->startLocation());
+   // Start the train at the track segment immediately
+   // following the start segment
+   ITrackSegmentPtr start = aMap->trackAt(aMap->startLocation());
+   enterSegment(start->nextPosition());
 
    myEngine = makeEngine();
 }
@@ -62,7 +65,7 @@ Train::Train(IMapPtr aMap)
 // Move the train along the line a bit
 void Train::update()
 {
-   mySegmentDelta += 0.00;
+   mySegmentDelta += 0.01;
    
    if (mySegmentDelta >= mySegment->segmentLength()) {
       // Moved onto a new piece of track

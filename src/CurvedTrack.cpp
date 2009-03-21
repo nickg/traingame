@@ -61,7 +61,17 @@ void CurvedTrack::transform(double aDelta) const
 {
    assert(aDelta < segmentLength());
 
-   
+   glTranslated(static_cast<double>(myX + myBaseRadius),
+                0.0,
+                static_cast<double>(myY));
+
+   double ratio = aDelta / segmentLength();
+
+   double angle = 90.0 * ratio;
+
+   glRotated(-90.0 + angle, 0.0, 1.0, 0.0);
+
+   glTranslated(0.0, 0.0, static_cast<double>(myBaseRadius));
 }
 
 double CurvedTrack::segmentLength() const

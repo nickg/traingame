@@ -44,7 +44,7 @@ void Engine::render() const
 {
    glPushMatrix();
 
-   glTranslated(0.5, 0.0, 0.0);
+   glTranslated(-0.5, 0.0, 0.0);
    
    // All rolling stock is scaled by a uniform amount
    glScaled(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
