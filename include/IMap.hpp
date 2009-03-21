@@ -30,8 +30,16 @@ public:
    virtual int width() const = 0;
    virtual int depth() const = 0;
    virtual double heightAt() const = 0;
+
+   // Return the track segment at the given position
+   // It is invalid to call this with a position that doesn't
+   // contain the *origin* of a track segment -- call isValidTrack
+   // first
    virtual ITrackSegmentPtr trackAt(const Point<int>& aPoint) const = 0;
 
+   // True if the given position is the origin of a track segment
+   virtual bool isValidTrack(const Point<int>& aPoint) const = 0;
+   
    virtual Point<int> startLocation() const = 0;
    
    virtual void render(IGraphicsPtr aContext) const = 0;

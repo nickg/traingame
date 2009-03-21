@@ -38,6 +38,12 @@ struct ITrackSegment {
 
    // Return an offset vector for a point along this segment
    virtual Vector<double> offsetForDelta(double aDelta) const = 0;
+
+   // Return the position of the next segment of track
+   // Note that this may not actually be a valid track segment!
+   // You should call IMap::isValidTrack before using it (this
+   // will happen, e.g. if the train runs off the end of the line)
+   virtual Point<int> nextPosition() const = 0;
 };
 
 typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;

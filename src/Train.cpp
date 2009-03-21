@@ -17,6 +17,7 @@
 
 #include "ITrain.hpp"
 #include "IRollingStock.hpp"
+#include "ILogger.hpp"
 
 #include <stdexcept>
 
@@ -63,12 +64,24 @@ Train::Train(IMapPtr aMap)
 void Train::update()
 {
    mySegmentDelta += 0.01;
+   
+   if (mySegmentDelta >= mySegment->segmentLength()) {
+      // Moved onto a new piece of track
+      Point<int> next = mySegment->nextPosition();
+
+      if (!myMap->isValidTrack(next))
+         throw runtime_error("Train fell off end of track!");
+
+      enterSegment(next);
+   }
 }
 
 // Called when the train enters a new segment
 // Resets the delta and gets the length of the new segment
 void Train::enterSegment(const Point<int>& aPoint)
 {
+   debug() << "Train entered segment at " << aPoint;
+   
    mySegmentDelta = 0.0;
    mySegment = myMap->trackAt(aPoint);
 }

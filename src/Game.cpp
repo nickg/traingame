@@ -49,9 +49,9 @@ void Game::display(IGraphicsPtr aContext)
 {
    myTrain->update();
    
-   glRotated(0.0, 1.0, 0.0, 0.0);
-   glRotated(0.0, 0.0, 1.0, 0.0);
-   aContext->setCamera(makeVector(-1.0, -1.0, -10.0));
+   glRotated(45.0, 1.0, 0.0, 0.0);
+   glRotated(45.0, 0.0, 1.0, 0.0);
+   aContext->setCamera(makeVector(2.0, -8.0, -10.0));
 
    aContext->setAmbient(0.5, 0.5, 0.5);
    aContext->setDiffuse(0.8, 0.8, 0.8);

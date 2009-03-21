@@ -42,6 +42,7 @@ public:
 
    Point<int> startLocation() const;
    ITrackSegmentPtr trackAt(const Point<int>& aPoint) const;
+   bool isValidTrack(const Point<int>& aPoint) const;
    void render(IGraphicsPtr aContext) const;
 
    void resetMap(int aWidth, int aDepth);
@@ -64,7 +65,7 @@ private:
 
    inline int index(int x, int y) const
    {
-      assert(x < myWidth && y < myDepth);
+      assert(x < myWidth && y < myDepth && x >= 0 && y >= 0);
       return x + y*myWidth;
    }
    
@@ -103,6 +104,15 @@ ITrackSegmentPtr Map::trackAt(const Point<int>& aPoint) const
       ss << "No track segment at " << aPoint;
       throw runtime_error(ss.str());
    }
+}
+
+bool Map::isValidTrack(const Point<int>& aPoint) const
+{
+   if (aPoint.x < 0 || aPoint.y < 0
+       || aPoint.x >= myWidth || aPoint.y >= myDepth)
+       return false;
+
+   return tileAt(aPoint.x, aPoint.y).track;
 }
 
 // Return a location where the train may start

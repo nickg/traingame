@@ -38,6 +38,7 @@ public:
    double segmentLength() const { return 1.0; }
 
    Vector<double> offsetForDelta(double aDelta) const;
+   Point<int> nextPosition() const;
 private:
    int myX, myY;  // Absolute position
    GLUquadric* myRailQuadric;
@@ -60,6 +61,11 @@ Vector<double> StraightTrack::offsetForDelta(double aDelta) const
    return makeVector(static_cast<double>(myX),
                      0.0,
                      static_cast<double>(myY) + aDelta);
+}
+
+Point<int> StraightTrack::nextPosition() const
+{
+   return makePoint(myX, myY + 1);
 }
 
 void StraightTrack::render() const
