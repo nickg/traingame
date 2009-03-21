@@ -35,6 +35,12 @@ struct Vector {
                        x*v.y - y*v.x);
    }
 
+   // Multiply by a scalar
+   Vector<T> operator*(T t) const
+   {
+      return Vector<T>(x*t, y*t, z*t);
+   }
+
    // Scalar product
    T dot(const Vector<T>&v) const
    {

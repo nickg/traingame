@@ -195,10 +195,12 @@ static void makeCurveRail(double baseRadius, double startAngle,
    glPopMatrix();
 }
 
-void renderCurveRail()
+// `baseRadius' is measured in tiles
+void renderCurveRail(int baseRadius)
 {
    glColor3d(0.7, 0.7, 0.7);
 
-   makeCurveRail(2.0, M_PI/2.0, M_PI, OuterRail);
-   makeCurveRail(2.0, M_PI/2.0, M_PI, InnerRail);
+   const double baseRadiusD = static_cast<double>(baseRadius);
+   makeCurveRail(baseRadiusD, M_PI/2.0, M_PI, OuterRail);
+   makeCurveRail(baseRadiusD, M_PI/2.0, M_PI, InnerRail);
 }

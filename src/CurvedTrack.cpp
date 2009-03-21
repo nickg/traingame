@@ -19,11 +19,13 @@
 #include "TrackCommon.hpp"
 
 #include <cmath>
+#include <cassert>
 
 #include <GL/gl.h>
-#include <GL/glu.h>
 
 using namespace std;
+using namespace std::tr1;
+using namespace std::tr1::placeholders;
 
 // Concrete implementation of curved pieces of track
 class CurvedTrack : public ITrackSegment {
@@ -36,20 +38,18 @@ public:
    void setOrigin(int x, int y) { myX = x; myY = y; }
    double segmentLength() const;
 
-   Vector<double> offsetForDelta(double aDelta) const;
    Point<int> nextPosition() const;
+   TransformFunc transformFunc() const;
 private:
-   int myX, myY;
-   static GLUquadric* ourRailQuadric;
+   void transform(double aDelta) const;
+   
+   int myX, myY, myBaseRadius;
 };
 
-GLUquadric* CurvedTrack::ourRailQuadric(NULL);
-
 CurvedTrack::CurvedTrack()
-   : myX(0), myY(0)
+   : myX(0), myY(0), myBaseRadius(4)
 {
-   if (ourRailQuadric == NULL)
-      ourRailQuadric = gluNewQuadric();
+   
 }
 
 CurvedTrack::~CurvedTrack()
@@ -57,24 +57,32 @@ CurvedTrack::~CurvedTrack()
 
 }
 
-double CurvedTrack::segmentLength() const
+void CurvedTrack::transform(double aDelta) const
 {
+   assert(aDelta < segmentLength());
 
+   
 }
 
-Vector<double> CurvedTrack::offsetForDelta(double aDelta) const
+double CurvedTrack::segmentLength() const
 {
+   // Assume curve is only through 90 degrees
+   return M_PI * (static_cast<double>(myBaseRadius) - 0.5) / 2.0;
+}
 
+ITrackSegment::TransformFunc CurvedTrack::transformFunc() const
+{
+   return bind(&CurvedTrack::transform, this, _1);
 }
 
 Point<int> CurvedTrack::nextPosition() const
 {
-
+   return makePoint(1, 0);
 }
 
 void CurvedTrack::render() const
 {
-   renderCurveRail();
+   renderCurveRail(4);
 }
 
 ITrackSegmentPtr makeCurvedTrack()

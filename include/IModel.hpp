@@ -18,6 +18,8 @@
 #ifndef INC_IMODEL_HPP
 #define INC_IMODEL_HPP
 
+#include "Maths.hpp"
+
 #include <tr1/memory>
 #include <string>
 
@@ -25,6 +27,7 @@ struct IModel {
    virtual ~IModel() {}
    
    virtual void render() const = 0;
+   virtual Vector<double> dimensions() const = 0;
 };
 
 typedef std::tr1::shared_ptr<IModel> IModelPtr;

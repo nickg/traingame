@@ -20,11 +20,14 @@
 #include "ILogger.hpp"
 
 #include <cassert>
+//#include <tr1/bind>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
 
 using namespace std;
+using namespace std::tr1;
+using namespace std::tr1::placeholders;
 
 // Concrete implementation of straight-line pieces of track
 class StraightTrack : public ITrackSegment {
@@ -39,7 +42,10 @@ public:
 
    Vector<double> offsetForDelta(double aDelta) const;
    Point<int> nextPosition() const;
+   TransformFunc transformFunc() const;
 private:
+   void transform(double aDelta) const;
+   
    int myX, myY;  // Absolute position
    GLUquadric* myRailQuadric;
 };
@@ -54,13 +60,19 @@ StraightTrack::~StraightTrack()
    gluDeleteQuadric(myRailQuadric);
 }
 
-Vector<double> StraightTrack::offsetForDelta(double aDelta) const
+void StraightTrack::transform(double aDelta) const
 {
    assert(aDelta < 1.0);
+   
+   glTranslated(static_cast<double>(myX),
+                0.0,
+                static_cast<double>(myY) + aDelta);
+   glRotated(-90.0, 0.0, 1.0, 0.0);
+}
 
-   return makeVector(static_cast<double>(myX),
-                     0.0,
-                     static_cast<double>(myY) + aDelta);
+ITrackSegment::TransformFunc StraightTrack::transformFunc() const
+{
+   return bind(&StraightTrack::transform, this, _1);
 }
 
 Point<int> StraightTrack::nextPosition() const
@@ -72,27 +84,6 @@ void StraightTrack::render() const
 {
    renderStraightRail();
    
-   // Left rail
-   /*glPushMatrix();
-   glTranslated(-0.3, 0.05, -0.5);
-   renderStraightRail();
-   /*glColor3d(0.7, 0.7, 0.7);
-      gluCylinder(myRailQuadric,
-               0.03, 0.03,  // Base, top
-               1.0,         // Height
-               15, 1);      // Slices, stacks
-   glPopMatrix();
-
-   // Right rail
-   glPushMatrix();
-   glTranslated(0.3, 0.05, -0.5);
-   glColor3d(0.7, 0.7, 0.7);
-   gluCylinder(myRailQuadric,
-               0.03, 0.03,  // Base, top
-               1.0,         // Height
-               15, 1);      // Slices, stacks
-               glPopMatrix();*/
-
    // Draw the sleepers
    glPushMatrix();
    glRotated(90.0, 0.0, 1.0, 0.0);

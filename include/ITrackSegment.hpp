@@ -21,11 +21,14 @@
 #include "Maths.hpp"
 
 #include <tr1/memory>
+#include <tr1/functional>
 
 // A segment of track which fits over a number of tiles
 // Each track segment has an origin and one or more exits
 struct ITrackSegment {
    virtual ~ITrackSegment() {}
+
+   typedef std::tr1::function<void (double)> TransformFunc;
    
    // Render the track with the origin in the centre
    virtual void render() const = 0;
@@ -36,8 +39,9 @@ struct ITrackSegment {
    // Get the length of this track segment
    virtual double segmentLength() const = 0;
 
-   // Return an offset vector for a point along this segment
-   virtual Vector<double> offsetForDelta(double aDelta) const = 0;
+   // Return a function that transforms the location of the train
+   // so it will render in the correct place for this track segment
+   virtual TransformFunc transformFunc() const = 0;
 
    // Return the position of the next segment of track
    // Note that this may not actually be a valid track segment!

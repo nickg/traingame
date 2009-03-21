@@ -18,6 +18,8 @@
 #include "IRollingStock.hpp"
 #include "IModel.hpp"
 
+#include <GL/gl.h>
+
 // Concrete implementation of powered rolling stock
 class Engine : public IRollingStock {
 public:
@@ -26,7 +28,11 @@ public:
    void render() const;
 private:
    IModelPtr myModel;
+   
+   static const double MODEL_SCALE;
 };
+
+const double Engine::MODEL_SCALE(0.4);
 
 Engine::Engine()
 {
@@ -36,7 +42,19 @@ Engine::Engine()
 // Draw the engine, smoke, etc.
 void Engine::render() const
 {
+   glPushMatrix();
+
+   glTranslated(0.5, 0.0, 0.0);
+   
+   // All rolling stock is scaled by a uniform amount
+   glScaled(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
+
+   Vector<double> dim = myModel->dimensions();
+   glTranslated(-(dim.x/2.0), 0.0, 0.0);
+      
    myModel->render();
+
+   glPopMatrix();
 }
 
 // Make a new engine

@@ -41,15 +41,14 @@ private:
    // along the segment the train is
    ITrackSegmentPtr mySegment;
    double mySegmentDelta;
+   ITrackSegment::TransformFunc myTransformer;
 
    // This updates the above two values
    void enterSegment(const Point<int>& aPoint);
 
-   static const double MODEL_SCALE;
    static const double MODEL_YOFF;
 };
 
-const double Train::MODEL_SCALE(0.4);
 const double Train::MODEL_YOFF(0.05);
 
 Train::Train(IMapPtr aMap)
@@ -84,19 +83,18 @@ void Train::enterSegment(const Point<int>& aPoint)
    
    mySegmentDelta = 0.0;
    mySegment = myMap->trackAt(aPoint);
+   myTransformer = mySegment->transformFunc();
 }
 
 void Train::render() const
 {
    glPushMatrix();
 
-   Vector<double> loc = mySegment->offsetForDelta(mySegmentDelta);
-   glTranslated(loc.x, loc.y + MODEL_YOFF, loc.z);
-   glRotated(-90.0, 0.0, 1.0, 0.0);
+   //Vector<double> loc = mySegment->offsetForDelta(mySegmentDelta);
+   //glTranslated(loc.x, loc.y + MODEL_YOFF, loc.z);
+   myTransformer(mySegmentDelta);
+   //glRotated(-90.0, 0.0, 1.0, 0.0);
 
-   // All rolling stock is scaled by a uniform amount
-   glScaled(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
-   
    myEngine->render();
 
    glPopMatrix();

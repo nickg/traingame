@@ -36,9 +36,17 @@ public:
 private:
    IMapPtr myMap;
    ITrainPtr myTrain;
+
+   Vector<double> myPosition;
+   Vector<double> myMovement;
+   
+   Vector<double> myRotation;
+   Vector<double> mySpin;
 };
 
 Game::Game()
+   : myPosition(makeVector(2.0, -8.0, -10.0)),
+     myRotation(makeVector(45.0, 45.0, 0.0))
 {
    myMap = makeEmptyMap(128, 128);
    
@@ -47,12 +55,15 @@ Game::Game()
 
 void Game::display(IGraphicsPtr aContext)
 {
+   myPosition += myMovement;
+   myRotation += mySpin;
+   
+   glRotated(myRotation.x, 1.0, 0.0, 0.0);
+   glRotated(myRotation.y, 0.0, 1.0, 0.0);
+   aContext->setCamera(myPosition);
+
    myTrain->update();
    
-   glRotated(45.0, 1.0, 0.0, 0.0);
-   glRotated(45.0, 0.0, 1.0, 0.0);
-   aContext->setCamera(makeVector(2.0, -8.0, -10.0));
-
    aContext->setAmbient(0.5, 0.5, 0.5);
    aContext->setDiffuse(0.8, 0.8, 0.8);
    aContext->moveLight(0.0, 50.0, 0.0);
@@ -63,12 +74,66 @@ void Game::display(IGraphicsPtr aContext)
 
 void Game::onKeyDown(SDLKey aKey)
 {
-
+   const double speed = 0.5;
+   const double yspeed = 0.2;
+   const double spinSpeed = 0.8;
+   
+   switch (aKey) {
+   case SDLK_a:
+      myMovement.z = speed;
+      //myMovement.x = speed;
+      break;
+   case SDLK_d:
+      myMovement.z = -speed;
+      //myMovement.x = -speed;
+      break;
+   case SDLK_w:
+      //myMovement.z = speed;
+      myMovement.x = -speed;
+      break;
+   case SDLK_s:
+      //myMovement.z = -speed;
+      myMovement.x = speed;
+      break;
+   case SDLK_UP:
+      myMovement.y = -yspeed;
+      break;
+   case SDLK_DOWN:
+      myMovement.y = yspeed;
+      break;
+   case SDLK_LEFT:
+      mySpin.y = -spinSpeed;
+      break;
+   case SDLK_RIGHT:
+      mySpin.y = spinSpeed;
+      break;   
+   default:
+      break;
+   }
 }
 
 void Game::onKeyUp(SDLKey aKey)
-{
-   
+{   
+   switch (aKey) {
+   case SDLK_w:
+   case SDLK_s:
+   case SDLK_a:
+   case SDLK_d:
+      myMovement.z = 0.0;
+      myMovement.x = 0.0;
+      break;
+   case SDLK_UP:
+   case SDLK_DOWN:
+      myMovement.y = 0.0;
+      break;
+   case SDLK_LEFT:
+   case SDLK_RIGHT:
+      mySpin.x = 0.0;
+      mySpin.y = 0.0;
+      break;
+   default:
+      break;
+   }
 }
 
 // Create an instance of the play screen

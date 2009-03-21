@@ -26,6 +26,7 @@
 #include <sstream>
 #include <cassert>
 #include <stdexcept>
+#include <algorithm>
 
 #include <GL/gl.h>
 
@@ -34,12 +35,15 @@ using namespace std;
 // A model contains the display list to render it
 class Model : public IModel {
 public:
-   Model(GLuint aDisplayList) : myDisplayList(aDisplayList) {}
+   Model(GLuint aDisplayList, const Vector<double>& aDim)
+      : myDisplayList(aDisplayList), myDimensions(aDim) {}
    ~Model();
    
    void render() const;
+   Vector<double> dimensions() const { return myDimensions; }
 private:
    GLuint myDisplayList;
+   Vector<double> myDimensions;
 };
 
 // Free the display list
@@ -82,6 +86,10 @@ IModelPtr loadModel(const string& fileName)
    glEnable(GL_LIGHTING);
 
    glColor3d(0.0, 0.0, 1.0);
+
+   bool foundVertex = false;
+   double ymin = 0, ymax = 0, xmin = 0, xmax = 0,
+      zmin = 0, zmax = 0;
    
    while (!f.eof()) {
       string first;
@@ -105,6 +113,24 @@ IModelPtr loadModel(const string& fileName)
          // Vertex
          double x, y, z;
          f >> x >> y >> z;
+
+         if (foundVertex) {
+            xmin = min(x, xmin);
+            xmax = max(x, xmax);
+
+            ymin = min(y, ymin);
+            ymax = max(y, ymax);
+
+            zmin = min(z, zmin);
+            zmax = max(z, zmax);
+         }
+         else {
+            xmin = xmax = x;
+            ymin = ymax = y;
+            zmin = zmax = z;
+
+            foundVertex = true;
+         }
 
          vertices.push_back(makeVector(x, y, z));
       }
@@ -180,9 +206,11 @@ IModelPtr loadModel(const string& fileName)
       getline(f, first);
    }
 
+   Vector<double> dim = makeVector(xmax - xmin, ymax - ymin, zmax - zmin);
+   log() << dim;
    glPopMatrix();
    glPopAttrib();
    glEndList();
    
-   return IModelPtr(new Model(displayList));
+   return IModelPtr(new Model(displayList, dim));
 }
