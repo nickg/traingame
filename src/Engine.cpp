@@ -50,7 +50,7 @@ void Engine::render() const
    glScaled(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
 
    Vector<double> dim = myModel->dimensions();
-   glTranslated(-(dim.x/2.0), 0.0, 0.0);
+   //   glTranslated(-(dim.x/2.0), 0.0, 0.0);
       
    myModel->render();
 

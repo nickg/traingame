@@ -65,14 +65,17 @@ Train::Train(IMapPtr aMap)
 // Move the train along the line a bit
 void Train::update()
 {
-   mySegmentDelta += 0.01;
+   mySegmentDelta += 0.03;
    
    if (mySegmentDelta >= mySegment->segmentLength()) {
       // Moved onto a new piece of track
       Point<int> next = mySegment->nextPosition();
 
+      log() << "next: " << next;
+
       if (!myMap->isValidTrack(next))
-         throw runtime_error("Train fell off end of track!");
+         next = makePoint(1, 0);
+         //       throw runtime_error("Train fell off end of track!");
 
       enterSegment(next);
    }

@@ -52,7 +52,12 @@ struct ITrackSegment {
 
 typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;
 
-ITrackSegmentPtr makeStraightTrack();
+// Orientations for straight track
+enum Orientation {
+   ALONG_X, ALONG_Z
+};
+
+ITrackSegmentPtr makeStraightTrack(Orientation anOrientation);
 ITrackSegmentPtr makeCurvedTrack();
 
 #endif

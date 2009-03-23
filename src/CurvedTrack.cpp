@@ -61,17 +61,27 @@ void CurvedTrack::transform(double aDelta) const
 {
    assert(aDelta < segmentLength());
 
-   glTranslated(static_cast<double>(myX + myBaseRadius),
+   glTranslated(static_cast<double>(myX + myBaseRadius - 1) + 0.5,
                 0.0,
-                static_cast<double>(myY));
+                static_cast<double>(myY) - 0.5);
+
+   glBegin(GL_LINES);
+   glVertex3d(0.0, -5.0, 0.0);
+   glVertex3d(0.0, 5.0, 0.0);
+   glEnd();
 
    double ratio = aDelta / segmentLength();
 
    double angle = 90.0 * ratio;
 
    glRotated(-90.0 + angle, 0.0, 1.0, 0.0);
+   glTranslated(0.5, 0.0, static_cast<double>(myBaseRadius) - 0.5);
 
-   glTranslated(0.0, 0.0, static_cast<double>(myBaseRadius));
+   
+   glBegin(GL_LINES);
+   glVertex3d(0.0, -5.0, 0.0);
+   glVertex3d(0.0, 5.0, 0.0);
+   glEnd();
 }
 
 double CurvedTrack::segmentLength() const
@@ -87,12 +97,12 @@ ITrackSegment::TransformFunc CurvedTrack::transformFunc() const
 
 Point<int> CurvedTrack::nextPosition() const
 {
-   return makePoint(1, 0);
+   return makePoint(myX + myBaseRadius, myY + myBaseRadius - 1);
 }
 
 void CurvedTrack::render() const
 {
-   renderCurveRail(4);
+   renderCurveRail(myBaseRadius);
 }
 
 ITrackSegmentPtr makeCurvedTrack()
