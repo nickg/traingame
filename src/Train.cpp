@@ -71,8 +71,6 @@ void Train::update()
       // Moved onto a new piece of track
       Point<int> next = mySegment->nextPosition();
 
-      log() << "next: " << next;
-
       if (!myMap->isValidTrack(next))
          next = makePoint(1, 0);
          //       throw runtime_error("Train fell off end of track!");

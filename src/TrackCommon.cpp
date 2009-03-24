@@ -16,6 +16,7 @@
 //
 
 #include "TrackCommon.hpp"
+#include "ILogger.hpp"
 
 #include <cmath>
 
@@ -25,6 +26,8 @@ namespace Track {
    const double railWidth = 0.05;
    const double railHeight = 0.1;
    const double gauge = 0.7;
+
+   const int sleepersPerUnit = 4;
 }
 
 // Draw a sleeper in the current maxtrix location
@@ -200,7 +203,31 @@ void renderCurveRail(int baseRadius)
 {
    glColor3d(0.7, 0.7, 0.7);
 
+   const double startAngle = M_PI/2.0;
+   const double endAngle = M_PI;
+
    const double baseRadiusD = static_cast<double>(baseRadius);
-   makeCurveRail(baseRadiusD, M_PI/2.0, M_PI, OuterRail);
-   makeCurveRail(baseRadiusD, M_PI/2.0, M_PI, InnerRail);
+   makeCurveRail(baseRadiusD, startAngle, endAngle, OuterRail);
+   makeCurveRail(baseRadiusD, startAngle, endAngle, InnerRail);
+
+   const double length = (endAngle - startAngle) * baseRadius;
+   const int numSleepers = length * Track::sleepersPerUnit;
+   const double sleeperAngle =
+      ((endAngle - startAngle) / numSleepers) * (180.0 / M_PI);
+
+   glPushMatrix();
+   glTranslated(baseRadius - 0.5, 0.0, -0.5);
+   
+   for (int i = 0; i < numSleepers; i++) {
+      glPushMatrix();
+      
+      glRotated(270.0 + (i + 0.5)*sleeperAngle, 0.0, 1.0, 0.0);
+      glTranslated(0.0, 0.0, static_cast<double>(baseRadius) - 0.5);
+      
+      renderSleeper();
+      
+      glPopMatrix();
+   }
+
+   glPopMatrix();
 }
