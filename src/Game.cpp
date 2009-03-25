@@ -20,6 +20,7 @@
 #include "IMap.hpp"
 #include "IRollingStock.hpp"
 #include "ITrain.hpp"
+#include "ILogger.hpp"
 
 #include <GL/gl.h>
 
@@ -28,12 +29,16 @@ using namespace std;
 // Implementation of the main play screen
 class Game : public IScreen {
 public:
-   Game();
+   Game(IMapPtr aMap);
+   ~Game();
    
    void display(IGraphicsPtr aContext) const;
    void update(IPickBufferPtr aPickBuffer);
    void onKeyDown(SDLKey aKey);
    void onKeyUp(SDLKey aKey);
+   void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y) {}
+   void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
+                     int aButton, bool pressed) {}
 private:
    IMapPtr myMap;
    ITrainPtr myTrain;
@@ -45,18 +50,21 @@ private:
    Vector<double> mySpin;
 };
 
-Game::Game()
-   : myPosition(makeVector(2.0, -8.0, -10.0)),
+Game::Game(IMapPtr aMap)
+   : myMap(aMap),
+     myPosition(makeVector(2.0, -8.0, -10.0)),
      myRotation(makeVector(45.0, 45.0, 0.0))
 {
-   myMap = makeEmptyMap(128, 128);
-   
    myTrain = makeTrain(myMap);
+}
+
+Game::~Game()
+{
+   
 }
 
 void Game::display(IGraphicsPtr aContext) const
 {
-   
    aContext->setCamera(myPosition, myRotation);
    
    aContext->setAmbient(0.5, 0.5, 0.5);
@@ -139,8 +147,8 @@ void Game::onKeyUp(SDLKey aKey)
    }
 }
 
-// Create an instance of the play screen
-IScreenPtr makeGameScreen()
+// Create an instance of the play screen with the given map
+IScreenPtr makeGameScreen(IMapPtr aMap)
 {
-   return IScreenPtr(new Game);
+   return IScreenPtr(new Game(aMap));
 }

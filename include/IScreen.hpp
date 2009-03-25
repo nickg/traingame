@@ -33,6 +33,9 @@ struct IScreen {
    virtual void update(IPickBufferPtr aPickBuffer) = 0;
    virtual void onKeyDown(SDLKey aKey) = 0;
    virtual void onKeyUp(SDLKey aKey) = 0;
+   virtual void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y) = 0;
+   virtual void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
+                             int aButton, bool upDown) = 0;
 };
 
 typedef std::tr1::shared_ptr<IScreen> IScreenPtr;

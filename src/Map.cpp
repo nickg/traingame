@@ -42,6 +42,8 @@ public:
 
    Point<int> startLocation() const;
    ITrackSegmentPtr trackAt(const Point<int>& aPoint) const;
+   void setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack,
+                   bool rebuild);
    bool isValidTrack(const Point<int>& aPoint) const;
    void render(IGraphicsPtr aContext) const;
 
@@ -59,7 +61,7 @@ private:
       ITrackSegmentPtr track;  // Track at this location, if any
    } *myTiles;
 
-   static const unsigned TILE_NAME_BASE	= 32000;	// Base of tile naming
+   static const unsigned TILE_NAME_BASE	= 1000;	  // Base of tile naming
    static const unsigned NULL_OBJECT		= 0;		  // Non-existant object
    static const double TILE_HEIGHT		  = 0.2;	  // Standard height increment
 
@@ -77,6 +79,22 @@ private:
    inline Tile& tileAt(int x, int z) const
    {
       return myTiles[index(x, z)];
+   }
+
+   bool isValidTileName(unsigned aName) const
+   {
+      return aName >= TILE_NAME_BASE
+         && aName < TILE_NAME_BASE + myWidth * myDepth;
+   }
+
+   Point<int> pickPosition(unsigned aName) const
+   {
+      log() << "pickPosition " << aName;
+      
+      assert(isValidTileName(aName));
+      
+      int a = aName - TILE_NAME_BASE;
+      return makePoint(a % myWidth, a / myWidth);
    }
 
    int myWidth, myDepth;
@@ -104,6 +122,16 @@ ITrackSegmentPtr Map::trackAt(const Point<int>& aPoint) const
       ss << "No track segment at " << aPoint;
       throw runtime_error(ss.str());
    }
+}
+
+void Map::setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack,
+                     bool rebuild)
+{
+   aTrack->setOrigin(aPoint.x, aPoint.y);
+   tileAt(aPoint.x, aPoint.y).track = aTrack;
+
+   if (rebuild)
+      myQuadTree->rebuildDisplayLists();
 }
 
 bool Map::isValidTrack(const Point<int>& aPoint) const
@@ -152,7 +180,7 @@ void Map::resetMap(int aWidth, int aDepth)
    }
 
    // Create a straight line of track along the side of the map
-   for (int i = 0; i < 5; i++) {
+   /*for (int i = 0; i < 5; i++) {
       tileAt(1, i).track = makeStraightTrack(ALONG_Z);
       tileAt(1, i).track->setOrigin(1, i);
    }
@@ -162,7 +190,7 @@ void Map::resetMap(int aWidth, int aDepth)
    tileAt(5, 8).track = makeStraightTrack(ALONG_X);
    tileAt(5, 8).track->setOrigin(5, 8);
    tileAt(6, 8).track = makeStraightTrack(ALONG_X);
-   tileAt(6, 8).track->setOrigin(6, 8);
+   tileAt(6, 8).track->setOrigin(6, 8);*/
    
    // Create quad tree
    myQuadTree = makeQuadTree(shared_from_this(), myWidth);
@@ -206,6 +234,8 @@ void Map::renderSector(IGraphicsPtr aContext,
          glEnd();
          glPopMatrix();
          
+         glPopName();
+         
          // Render grid lines
          glPushMatrix();
          glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
@@ -225,8 +255,8 @@ void Map::renderSector(IGraphicsPtr aContext,
             tileAt(x, y).track->render();
             glPopMatrix();
          }
+         
       }			
-      glPopName();
    }
 }
 

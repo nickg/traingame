@@ -19,9 +19,15 @@
 #define INC_GAME_SCREENS_HPP
 
 #include "IScreen.hpp"
+#include "IMap.hpp"
+#include "IWindow.hpp"
 
 // Create the various screens
+// These may be called multiple times
 IScreenPtr makeEditorScreen();
-IScreenPtr makeGameScreen();
+IScreenPtr makeGameScreen(IMapPtr aMap);
+
+// Access to the window the game is running in
+IWindowPtr getGameWindow();
 
 #endif

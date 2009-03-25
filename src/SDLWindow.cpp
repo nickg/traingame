@@ -23,6 +23,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <cstdlib>
+#include <cassert>
 
 #include <SDL.h>
 #include <GL/gl.h>
@@ -41,6 +42,7 @@ public:
 
    // IWindow interface
    void run(IScreenPtr aScreen);
+   void switchScreen(IScreenPtr aScreen);
    void quit();
 
    // IGraphics interface
@@ -53,7 +55,7 @@ public:
    bool pointInViewFrustum(double x, double y, double z);
    void setCamera(const Vector<double>& aPos,
                   const Vector<double>& aRotation);
-   void beginPick();
+   IGraphicsPtr beginPick(int x, int y);
    unsigned endPick();
 private:
    void resizeGLScene();
@@ -66,7 +68,16 @@ private:
    IScreenPtr myScreen;
    Frustum myViewFrustum;
    bool willSkipNextFrame;
+
+   // Picking data
+   static const int SELECT_BUFFER_SZ = 128;
+   GLuint mySelectBuffer[SELECT_BUFFER_SZ];
+
+   static const float NEAR_CLIP, FAR_CLIP;
 };
+
+const float SDLWindow::NEAR_CLIP(0.1f);
+const float SDLWindow::FAR_CLIP(50.0f);
 
 // Create the game window
 SDLWindow::SDLWindow()
@@ -102,9 +113,20 @@ SDLWindow::SDLWindow()
    log() << "Created " << myWidth << "x" << myHeight << " window";
 }
 
+// Change the active screen while the game is running
+void SDLWindow::switchScreen(IScreenPtr aScreen)
+{
+   assert(amRunning);
+
+   myScreen = aScreen;
+   willSkipNextFrame = true;
+}
+
 // Run the game until the user quits
 void SDLWindow::run(IScreenPtr aScreen)
 {
+   assert(!amRunning);
+   
    myScreen = aScreen;
 
    const unsigned targetFramerate = 30;
@@ -115,7 +137,7 @@ void SDLWindow::run(IScreenPtr aScreen)
       unsigned tickStart = SDL_GetTicks();
 
       processInput();
-      aScreen->update(shared_from_this());
+      myScreen->update(shared_from_this());
       
       if (!willSkipNextFrame)
          drawGLScene();
@@ -137,6 +159,8 @@ void SDLWindow::run(IScreenPtr aScreen)
          }
       }
    } while (amRunning);
+
+   myScreen.reset();
 }
 
 // Stop the game cleanly
@@ -189,7 +213,28 @@ void SDLWindow::processInput()
       case SDL_KEYUP:
          myScreen->onKeyUp(e.key.keysym.sym);
          break;
+
+      case SDL_MOUSEMOTION:
+         myScreen->onMouseMove(shared_from_this(),
+                               e.motion.x, e.motion.y);
+         break;
+         
+      case SDL_MOUSEBUTTONDOWN:
+      case SDL_MOUSEBUTTONUP:
+         {
+            int index = 0;
+            switch (e.button.button) {
+            case SDL_BUTTON_LEFT: index = 0; break;
+            case SDL_BUTTON_MIDDLE: index = 1; break;
+            case SDL_BUTTON_RIGHT: index = 2; break;
+            }
+            myScreen->onMouseClick(shared_from_this(),
+                                   e.button.x, e.button.y, index,
+                                   e.button.state == SDL_PRESSED);
+         }
+         break;
       }
+
    }
 }
 
@@ -223,7 +268,8 @@ void SDLWindow::resizeGLScene()
    glLoadIdentity();
 
    // Calculate The Aspect Ratio Of The Window
-   gluPerspective(45.0f, (GLfloat)myWidth/(GLfloat)myHeight, 0.1f, 50.0f);
+   gluPerspective(45.0f, (GLfloat)myWidth/(GLfloat)myHeight,
+                  NEAR_CLIP, FAR_CLIP);
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
@@ -276,15 +322,73 @@ bool SDLWindow::pointInViewFrustum(double x, double y, double z)
 }
 
 // Set up OpenGL to pick out objects
-void SDLWindow::beginPick()
+IGraphicsPtr SDLWindow::beginPick(int x, int y)
 {
+   // Set up selection buffer
+   glSelectBuffer(128, mySelectBuffer);
 
+   // Get viewport coordinates
+   GLint viewportCoords[4];
+   glGetIntegerv(GL_VIEWPORT, viewportCoords);	
+   
+   // Switch to projection matrix
+   glMatrixMode(GL_PROJECTION);
+   glPushMatrix();
+   
+   // Render the objects, but don't change the frame buffer
+   glRenderMode(GL_SELECT);
+   glLoadIdentity();	
+   
+   // Set picking matrix
+   gluPickMatrix(x, viewportCoords[3] - y, 2, 2, viewportCoords);
+
+   // Just set the perspective
+   gluPerspective(45.0f, (GLfloat)myWidth/(GLfloat)myHeight,
+                  NEAR_CLIP, FAR_CLIP);
+
+   glMatrixMode(GL_MODELVIEW);
+   glInitNames();
+
+   // Let the user render their stuff
+   glLoadIdentity();
+   return shared_from_this();
 }
 
 // Finish picking and return the name of the clicked object or zero
+// It's *very* important that this is called exactly once for every
+// beginPick or things will get very messed up
 unsigned SDLWindow::endPick()
 {
-   return 0;
+   int objectsFound = glRenderMode(GL_RENDER);
+
+   log() << objectsFound << " objects found after picking";
+   
+   // Go back to normal
+   glMatrixMode(GL_PROJECTION);
+   glPopMatrix();
+   glMatrixMode(GL_MODELVIEW);
+   
+   // See if we found any objects
+   if (objectsFound > 0) {
+      // Find the object with the lowest depth
+      unsigned int lowestDepth = mySelectBuffer[1];
+      int selectedObject = mySelectBuffer[3];
+      int i;
+      
+      // Go through all the objects found
+      for (i = 1; i < objectsFound; i++) {
+         // See if it's closer than the current nearest
+         if (mySelectBuffer[(i*4) + 1] < lowestDepth)	{ // 4 values for each object
+            lowestDepth = mySelectBuffer[(i * 4) + 1];
+            selectedObject = mySelectBuffer[(i * 4) + 3];
+         }
+      }
+      
+      // Return closest object
+      return selectedObject;
+   }
+   else
+      return 0;
 }
 
 // Construct and initialise an OpenGL SDL window

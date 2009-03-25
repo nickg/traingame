@@ -39,10 +39,23 @@ public:
 
    // True if the given position is the origin of a track segment
    virtual bool isValidTrack(const Point<int>& aPoint) const = 0;
+
+   // Change the track segment at the given position
+   // Set rebuild to true to update the display lists used to render
+   // the map
+   virtual void setTrackAt(const Point<int>& aPoint,
+                           ITrackSegmentPtr aTrack,
+                           bool rebuild=true) = 0;
    
    virtual Point<int> startLocation() const = 0;
    
    virtual void render(IGraphicsPtr aContext) const = 0;
+
+   // Given a pick name return the (x, y) co-ordinate
+   virtual Point<int> pickPosition(unsigned aName) const = 0;
+
+   // True if this names a valid tile
+   virtual bool isValidTileName(unsigned aName) const = 0;
 };
 
 typedef std::tr1::shared_ptr<IMap> IMapPtr;

@@ -34,6 +34,9 @@ public:
    void update(IPickBufferPtr aPickBuffer);
    void onKeyDown(SDLKey aKey);
    void onKeyUp(SDLKey aKey);
+   void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y);
+   void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
+                     int aButton, bool pressed);
 private:
    IMapPtr myMap;
 
@@ -44,14 +47,14 @@ private:
 Editor::Editor()
    : myPosition(2.0, -8.0, -10.0)
 {
-   myMap = makeEmptyMap(128, 128);
+   myMap = makeEmptyMap(32, 32);
 }
 
 // Render the next frame
 void Editor::display(IGraphicsPtr aContext) const
 {
    aContext->setCamera(myPosition, makeVector(45.0, 45.0, 1.0));
-      
+   
    aContext->setAmbient(0.5, 0.5, 0.5);
    aContext->setDiffuse(0.8, 0.8, 0.8);
    aContext->moveLight(0.0, 50.0, 0.0);
@@ -63,6 +66,29 @@ void Editor::display(IGraphicsPtr aContext) const
 void Editor::update(IPickBufferPtr aPickBuffer)
 {
    myPosition += myMovement;
+}
+
+void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
+{
+   
+}
+
+void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
+                          int aButton, bool upDown)
+{
+   if (upDown) {
+      IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
+      
+      display(pickContext);
+      
+      int id = aPickBuffer->endPick();
+      if (id > 0 && myMap->isValidTileName(id)) {
+         Point<int> where = myMap->pickPosition(id);
+         
+         ITrackSegmentPtr track = makeStraightTrack(ALONG_Z);
+         myMap->setTrackAt(where, track);
+      }
+   }
 }
 
 void Editor::onKeyUp(SDLKey aKey)
@@ -109,6 +135,13 @@ void Editor::onKeyDown(SDLKey aKey)
       break;
    case SDLK_DOWN:
       myMovement.y = speed;
+      break;
+   case SDLK_p:
+      // Switch to play mode
+      {
+         IScreenPtr game = makeGameScreen(myMap);
+         getGameWindow()->switchScreen(game);
+      }
       break;
    default:
       break;

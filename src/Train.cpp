@@ -54,10 +54,7 @@ const double Train::MODEL_YOFF(0.05);
 Train::Train(IMapPtr aMap)
    : myMap(aMap)
 {
-   // Start the train at the track segment immediately
-   // following the start segment
-   ITrackSegmentPtr start = aMap->trackAt(aMap->startLocation());
-   enterSegment(start->nextPosition());
+   enterSegment(aMap->startLocation());
 
    myEngine = makeEngine();
 }
@@ -72,8 +69,7 @@ void Train::update()
       Point<int> next = mySegment->nextPosition();
 
       if (!myMap->isValidTrack(next))
-         next = makePoint(1, 0);
-         //       throw runtime_error("Train fell off end of track!");
+         throw runtime_error("Train fell off end of track!");
 
       enterSegment(next);
    }

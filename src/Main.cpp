@@ -19,16 +19,23 @@
 #include "ILogger.hpp"
 #include "GameScreens.hpp"
 
+namespace {
+   IWindowPtr theWindow;
+}
+
+IWindowPtr getGameWindow()
+{
+   return theWindow;
+}
+
 int main(int argc, char** argv)
 {
    log() << "Program started";
    
-   IWindowPtr window = makeSDLWindow();
+   theWindow = makeSDLWindow();
 
    IScreenPtr editor = makeEditorScreen();
-   //IScreenPtr game = makeGameScreen();
-
-   window->run(editor);
+   theWindow->run(editor);
    
    log() << "Finished";   
    return 0;
