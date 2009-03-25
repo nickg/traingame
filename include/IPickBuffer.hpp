@@ -15,21 +15,19 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "IWindow.hpp"
-#include "ILogger.hpp"
-#include "GameScreens.hpp"
+#ifndef INC_IPICKBUFFER_HPP
+#define INC_IPICKBUFFER_HPP
 
-int main(int argc, char** argv)
-{
-   log() << "Program started";
-   
-   IWindowPtr window = makeSDLWindow();
+#include <tr1/memory>
 
-   IScreenPtr editor = makeEditorScreen();
-   //IScreenPtr game = makeGameScreen();
+// Provides access to a pick buffer for selecting objects
+struct IPickBuffer {
+   virtual ~IPickBuffer() {}
 
-   window->run(editor);
-   
-   log() << "Finished";   
-   return 0;
-}
+   void beginPick();
+   unsigned endPick();
+};
+
+typedef std::tr1::shared_ptr<IPickBuffer> IPickBufferPtr;
+
+#endif

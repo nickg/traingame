@@ -30,12 +30,11 @@ class Editor : public IScreen {
 public:
    Editor();
    
-   void display(IGraphicsPtr aContext);
+   void display(IGraphicsPtr aContext) const;
+   void update(IPickBufferPtr aPickBuffer);
    void onKeyDown(SDLKey aKey);
    void onKeyUp(SDLKey aKey);
-
 private:
-   IModelPtr m;
    IMapPtr myMap;
 
    Vector<double> myPosition;
@@ -45,32 +44,25 @@ private:
 Editor::Editor()
    : myPosition(2.0, -8.0, -10.0)
 {
-   const string fileName("/home/nick/traingame/train.obj");
-   m = loadModel(fileName);
-
    myMap = makeEmptyMap(128, 128);
 }
 
 // Render the next frame
-void Editor::display(IGraphicsPtr aContext)
+void Editor::display(IGraphicsPtr aContext) const
 {
-   myPosition += myMovement;
-   glRotated(45.0, 1.0, 0.0, 0.0);
-   glRotated(45.0, 0.0, 1.0, 0.0);
-   aContext->setCamera(myPosition);
-   
+   aContext->setCamera(myPosition, makeVector(45.0, 45.0, 1.0));
+      
    aContext->setAmbient(0.5, 0.5, 0.5);
    aContext->setDiffuse(0.8, 0.8, 0.8);
    aContext->moveLight(0.0, 50.0, 0.0);
-   
-   glPushMatrix();
-   glScaled(0.6, 0.6, 0.6);
-   glTranslated(5.0, 0.5, 5.0);
-   glRotated(-69.0, 0.0, 1.0, 0.0);
-   m->render();
-   glPopMatrix();
 
    myMap->render(aContext);
+}
+
+// Process user input
+void Editor::update(IPickBufferPtr aPickBuffer)
+{
+   myPosition += myMovement;
 }
 
 void Editor::onKeyUp(SDLKey aKey)

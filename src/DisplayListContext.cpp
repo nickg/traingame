@@ -55,7 +55,8 @@ public:
       return true;
    }
   
-   void setCamera(const Vector<double>& aPos)
+   void setCamera(const Vector<double>& aPos,
+                  const Vector<double>& aRotation)
    {
       throw runtime_error("setCamera called in display list");
    }

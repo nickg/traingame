@@ -19,15 +19,18 @@
 #define INC_ISCREEN_HPP
 
 #include "IGraphics.hpp"
+#include "IPickBuffer.hpp"
 
 #include <tr1/memory>
 
 #include <SDL.h>
 
 // Interface for game screens
-class IScreen {
-public:
-   virtual void display(IGraphicsPtr aContext) = 0;
+struct IScreen {
+   virtual ~IScreen() {}
+   
+   virtual void display(IGraphicsPtr aContext) const = 0;
+   virtual void update(IPickBufferPtr aPickBuffer) = 0;
    virtual void onKeyDown(SDLKey aKey) = 0;
    virtual void onKeyUp(SDLKey aKey) = 0;
 };

@@ -17,6 +17,7 @@
 
 #include "IWindow.hpp"
 #include "ILogger.hpp"
+#include "IPickBuffer.hpp"
 #include "Maths.hpp"
 
 #include <stdexcept>
@@ -32,7 +33,7 @@ using namespace std;
 using namespace std::tr1;
 
 // Concrete implementation of SDL window
-class SDLWindow : public IWindow, public IGraphics,
+class SDLWindow : public IWindow, public IGraphics, public IPickBuffer,
                   public enable_shared_from_this<SDLWindow> {
 public:
    SDLWindow();
@@ -50,7 +51,10 @@ public:
                             double sizeX, double sizeY, double sizeZ);
    bool cubeInViewFrustum(double x, double y, double z, double size);
    bool pointInViewFrustum(double x, double y, double z);
-   void setCamera(const Vector<double>& aPos);
+   void setCamera(const Vector<double>& aPos,
+                  const Vector<double>& aRotation);
+   void beginPick();
+   unsigned endPick();
 private:
    void resizeGLScene();
    void initGL();
@@ -111,7 +115,7 @@ void SDLWindow::run(IScreenPtr aScreen)
       unsigned tickStart = SDL_GetTicks();
 
       processInput();
-      // TODO: update state
+      aScreen->update(shared_from_this());
       
       if (!willSkipNextFrame)
          drawGLScene();
@@ -142,8 +146,11 @@ void SDLWindow::quit()
 }
 
 // Called to set the camera position
-void SDLWindow::setCamera(const Vector<double>& aPos)
+void SDLWindow::setCamera(const Vector<double>& aPos,
+                          const Vector<double>& aRotation)
 {
+   glRotated(aRotation.x, 1.0, 0.0, 0.0);
+   glRotated(aRotation.y, 0.0, 1.0, 0.0);
    glTranslated(aPos.x, aPos.y, aPos.z);
    myViewFrustum = getViewFrustum();
 }
@@ -155,7 +162,7 @@ void SDLWindow::drawGLScene()
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glLoadIdentity();
 
-   setCamera(Vector<double>());
+   setCamera(Vector<double>(), Vector<double>());
 
    myScreen->display(shared_from_this());
 
@@ -266,6 +273,18 @@ bool SDLWindow::cubeInViewFrustum(double x, double y, double z, double size)
 bool SDLWindow::pointInViewFrustum(double x, double y, double z)
 {
    return myViewFrustum.pointInFrustum(x, y, z);
+}
+
+// Set up OpenGL to pick out objects
+void SDLWindow::beginPick()
+{
+
+}
+
+// Finish picking and return the name of the clicked object or zero
+unsigned SDLWindow::endPick()
+{
+   return 0;
 }
 
 // Construct and initialise an OpenGL SDL window

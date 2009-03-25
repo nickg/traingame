@@ -30,7 +30,8 @@ class Game : public IScreen {
 public:
    Game();
    
-   void display(IGraphicsPtr aContext);
+   void display(IGraphicsPtr aContext) const;
+   void update(IPickBufferPtr aPickBuffer);
    void onKeyDown(SDLKey aKey);
    void onKeyUp(SDLKey aKey);
 private:
@@ -53,16 +54,10 @@ Game::Game()
    myTrain = makeTrain(myMap);
 }
 
-void Game::display(IGraphicsPtr aContext)
+void Game::display(IGraphicsPtr aContext) const
 {
-   myPosition += myMovement;
-   myRotation += mySpin;
    
-   glRotated(myRotation.x, 1.0, 0.0, 0.0);
-   glRotated(myRotation.y, 0.0, 1.0, 0.0);
-   aContext->setCamera(myPosition);
-
-   myTrain->update();
+   aContext->setCamera(myPosition, myRotation);
    
    aContext->setAmbient(0.5, 0.5, 0.5);
    aContext->setDiffuse(0.8, 0.8, 0.8);
@@ -70,6 +65,14 @@ void Game::display(IGraphicsPtr aContext)
    
    myTrain->render();
    myMap->render(aContext);
+}
+
+void Game::update(IPickBufferPtr aPickBuffer)
+{
+   myPosition += myMovement;
+   myRotation += mySpin;
+
+   myTrain->update();   
 }
 
 void Game::onKeyDown(SDLKey aKey)

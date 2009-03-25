@@ -37,12 +37,16 @@ struct IGraphics {
    virtual bool cubeInViewFrustum(double x, double y, double z,
                                   double size) = 0;
    virtual bool pointInViewFrustum(double x, double y, double z) = 0;
-   virtual void setCamera(const Vector<double>& aPos) = 0;   
+   virtual void setCamera(const Vector<double>& aPos,
+                          const Vector<double>& aRotation) = 0;
 };
 
 typedef std::tr1::shared_ptr<IGraphics> IGraphicsPtr;
 
 // Generate a special context for use in display lists
 IGraphicsPtr makeDisplayListContext();
+
+// Make a special context for picking out objects
+IGraphicsPtr makePickContext();
 
 #endif
