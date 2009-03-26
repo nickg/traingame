@@ -62,6 +62,7 @@ private:
    void initGL();
    void processInput();
    void drawGLScene();
+   int sdlButtonToInt(Uint8 aSDLButton) const;
    
    bool amRunning;
    int myWidth, myHeight;
@@ -193,6 +194,17 @@ void SDLWindow::drawGLScene()
    SDL_GL_SwapBuffers();
 }
 
+// Convert an SDL button constant to an integer or -1
+int SDLWindow::sdlButtonToInt(Uint8 aSDLButton) const
+{
+   switch (aSDLButton) {
+   case SDL_BUTTON_LEFT: return 3;
+   case SDL_BUTTON_MIDDLE: return 1;
+   case SDL_BUTTON_RIGHT: return 2;
+   default: return -1;
+   }
+}
+
 // Check for SDL input events
 void SDLWindow::processInput()
 {
@@ -220,18 +232,14 @@ void SDLWindow::processInput()
          break;
          
       case SDL_MOUSEBUTTONDOWN:
+         myScreen->onMouseClick(shared_from_this(),
+                                e.button.x, e.button.y,
+                                sdlButtonToInt(e.button.button));
+         break;
       case SDL_MOUSEBUTTONUP:
-         {
-            int index = 0;
-            switch (e.button.button) {
-            case SDL_BUTTON_LEFT: index = 0; break;
-            case SDL_BUTTON_MIDDLE: index = 1; break;
-            case SDL_BUTTON_RIGHT: index = 2; break;
-            }
-            myScreen->onMouseClick(shared_from_this(),
-                                   e.button.x, e.button.y, index,
-                                   e.button.state == SDL_PRESSED);
-         }
+         myScreen->onMouseRelease(shared_from_this(),
+                                  e.button.x, e.button.y,
+                                  sdlButtonToInt(e.button.button));
          break;
       }
 

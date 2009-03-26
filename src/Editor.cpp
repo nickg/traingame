@@ -36,7 +36,9 @@ public:
    void onKeyUp(SDLKey aKey);
    void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y);
    void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
-                     int aButton, bool pressed);
+                     int aButton);
+   void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
+                       int aButton);
 private:
    IMapPtr myMap;
 
@@ -74,21 +76,25 @@ void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
 }
 
 void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
-                          int aButton, bool upDown)
+                          int aButton)
 {
-   if (upDown) {
-      IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
+   IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
+   
+   display(pickContext);
+   
+   int id = aPickBuffer->endPick();
+   if (id > 0 && myMap->isValidTileName(id)) {
+      Point<int> where = myMap->pickPosition(id);
       
-      display(pickContext);
-      
-      int id = aPickBuffer->endPick();
-      if (id > 0 && myMap->isValidTileName(id)) {
-         Point<int> where = myMap->pickPosition(id);
-         
-         ITrackSegmentPtr track = makeStraightTrack(ALONG_Z);
-         myMap->setTrackAt(where, track);
-      }
+      ITrackSegmentPtr track = makeStraightTrack(ALONG_Z);
+      myMap->setTrackAt(where, track);
    }
+}
+
+void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
+                            int aButton)
+{
+   
 }
 
 void Editor::onKeyUp(SDLKey aKey)

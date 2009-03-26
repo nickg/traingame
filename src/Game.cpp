@@ -38,7 +38,9 @@ public:
    void onKeyUp(SDLKey aKey);
    void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y) {}
    void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
-                     int aButton, bool pressed) {}
+                     int aButton) {}
+   void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
+                       int aButton) {}
 private:
    IMapPtr myMap;
    ITrainPtr myTrain;

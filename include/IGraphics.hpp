@@ -46,7 +46,4 @@ typedef std::tr1::shared_ptr<IGraphics> IGraphicsPtr;
 // Generate a special context for use in display lists
 IGraphicsPtr makeDisplayListContext();
 
-// Make a special context for picking out objects
-IGraphicsPtr makePickContext();
-
 #endif
