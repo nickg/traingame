@@ -234,8 +234,6 @@ void Map::renderSector(IGraphicsPtr aContext,
          glEnd();
          glPopMatrix();
          
-         glPopName();
-         
          // Render grid lines
          glPushMatrix();
          glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
@@ -256,6 +254,7 @@ void Map::renderSector(IGraphicsPtr aContext,
             glPopMatrix();
          }
          
+         glPopName();
       }			
    }
 }

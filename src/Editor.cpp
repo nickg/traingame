@@ -86,8 +86,22 @@ void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
    if (id > 0 && myMap->isValidTileName(id)) {
       Point<int> where = myMap->pickPosition(id);
       
-      ITrackSegmentPtr track = makeStraightTrack(ALONG_Z);
-      myMap->setTrackAt(where, track);
+      ITrackSegmentPtr track;
+
+      switch (aButton) {
+      case 0:
+         track = makeStraightTrack(ALONG_Z);
+         break;
+      case 1:
+         track = makeStraightTrack(ALONG_X);
+         break;
+      case 2:
+         track = makeCurvedTrack();
+         break;
+      }
+      
+      if (track)
+         myMap->setTrackAt(where, track);
    }
 }
 

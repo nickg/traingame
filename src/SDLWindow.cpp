@@ -198,7 +198,7 @@ void SDLWindow::drawGLScene()
 int SDLWindow::sdlButtonToInt(Uint8 aSDLButton) const
 {
    switch (aSDLButton) {
-   case SDL_BUTTON_LEFT: return 3;
+   case SDL_BUTTON_LEFT: return 0;
    case SDL_BUTTON_MIDDLE: return 1;
    case SDL_BUTTON_RIGHT: return 2;
    default: return -1;
