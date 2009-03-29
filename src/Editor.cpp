@@ -76,8 +76,14 @@ void Editor::buildGUI()
    myRoot = wmgr.createWindow("DefaultWindow", "root");
    System::getSingleton().setGUISheet(myRoot);
 
+   myRoot->setAlpha(0.75);
+
    FrameWindow* fWnd = static_cast<FrameWindow*>
+<<<<<<< HEAD:src/Editor.cpp
       (wmgr.createWindow("Vanilla/FrameWindow", "testWindow"));
+=======
+      (wmgr.createWindow("Trains/FrameWindow", "testWindow"));
+>>>>>>> 155115e:src/Editor.cpp
    myRoot->addChildWindow(fWnd);
 
    fWnd->setPosition( UVector2( UDim( 0.25f, 0 ), UDim( 0.25f, 0 ) ) );
