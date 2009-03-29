@@ -172,7 +172,7 @@ void SDLWindow::initCEGUI()
    CEGUI::XercesParser::setSchemaDefaultResourceGroup("schemas");
 
    // Load the scheme file which autoloads the image set
-   CEGUI::SchemeManager::getSingleton().loadScheme("TaharezLook.scheme");
+   CEGUI::SchemeManager::getSingleton().loadScheme("VanillaSkin.scheme");
 
    // Load the default font
    if (!CEGUI::FontManager::getSingleton().isFontPresent("Commonwealth-10"))
@@ -180,7 +180,7 @@ void SDLWindow::initCEGUI()
 
    // Defaults
    System::getSingleton().setDefaultFont("Commonwealth-10");
-   System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
+   System::getSingleton().setDefaultMouseCursor("Vanilla-Images", "MouseArrow");
    
    log() << "CEGUI initialised";
 }
@@ -264,7 +264,7 @@ void SDLWindow::setCamera(const Vector<double>& aPos,
 
 // Render the next screen
 void SDLWindow::drawGLScene()
-{
+{   
    // Clear the screen
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glLoadIdentity();
@@ -273,9 +273,9 @@ void SDLWindow::drawGLScene()
 
    myScreen->display(shared_from_this());
 
-   glPushAttrib(GL_ALL_ATTRIB_BITS);
-   CEGUI::System::getSingleton().renderGUI();
-   glPopAttrib();
+   //glPushAttrib(GL_ALL_ATTRIB_BITS);
+   //CEGUI::System::getSingleton().renderGUI();
+   //glPopAttrib();
 
    SDL_GL_SwapBuffers();
 }
