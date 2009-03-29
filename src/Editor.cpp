@@ -76,8 +76,10 @@ void Editor::buildGUI()
    myRoot = wmgr.createWindow("DefaultWindow", "root");
    System::getSingleton().setGUISheet(myRoot);
 
+   myRoot->setAlpha(0.75);
+
    FrameWindow* fWnd = static_cast<FrameWindow*>
-      (wmgr.createWindow("TaharezLook/FrameWindow", "testWindow"));
+      (wmgr.createWindow("Trains/FrameWindow", "testWindow"));
    myRoot->addChildWindow(fWnd);
 
    fWnd->setPosition( UVector2( UDim( 0.25f, 0 ), UDim( 0.25f, 0 ) ) );

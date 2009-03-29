@@ -145,6 +145,9 @@ SDLWindow::~SDLWindow()
 void SDLWindow::initCEGUI()
 {
    using namespace CEGUI;
+
+   // Starting CEGUI affects some OpenGL attribute bits
+   glPushAttrib(GL_ALL_ATTRIB_BITS);
    
    // Start CEGUI
    myRenderer = new CEGUI::OpenGLRenderer(0, myWidth, myHeight);
@@ -172,17 +175,20 @@ void SDLWindow::initCEGUI()
    CEGUI::XercesParser::setSchemaDefaultResourceGroup("schemas");
 
    // Load the scheme file which autoloads the image set
-   CEGUI::SchemeManager::getSingleton().loadScheme("TaharezLook.scheme");
+   CEGUI::SchemeManager::getSingleton().loadScheme("Trains.scheme");
 
    // Load the default font
-   if (!CEGUI::FontManager::getSingleton().isFontPresent("Commonwealth-10"))
-      CEGUI::FontManager::getSingleton().createFont("Commonwealth-10.font");
+   if (!CEGUI::FontManager::getSingleton().isFontPresent("DejaVuSans-10"));
+      CEGUI::FontManager::getSingleton().createFont("DejaVuSans-10.font");
 
    // Defaults
-   System::getSingleton().setDefaultFont("Commonwealth-10");
-   System::getSingleton().setDefaultMouseCursor("TaharezLook", "MouseArrow");
+   System::getSingleton().setDefaultFont("DejaVuSans-10");
+   System::getSingleton().setDefaultMouseCursor("Trains", "MouseArrow");
    
    log() << "CEGUI initialised";
+
+   // Restore original attribute bits
+   glPopAttrib();
 }
 
 // Change the active screen while the game is running
@@ -270,7 +276,7 @@ void SDLWindow::drawGLScene()
    glLoadIdentity();
 
    setCamera(Vector<double>(), Vector<double>());
-
+   
    myScreen->display(shared_from_this());
 
    glPushAttrib(GL_ALL_ATTRIB_BITS);
