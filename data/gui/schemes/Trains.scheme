@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <GUIScheme Name="Trains">
 	<Imageset Name="Trains" Filename="Trains.imageset" />
-	<Font Name="Commonwealth-10" Filename="Commonwealth-10.font" />
+	<Font Name="DejaVuSans-10" Filename="DejaVuSans-10.font" />
 	<LookNFeel Filename="Trains.looknfeel" />
 	<WindowRendererSet Filename="CEGUIFalagardWRBase" />
 	<FalagardMapping WindowType="Trains/Button"      TargetType="CEGUI/PushButton"  Renderer="Falagard/Button"       LookNFeel="Trains/Button" />

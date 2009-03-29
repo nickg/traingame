@@ -177,10 +177,6 @@ void SDLWindow::initCEGUI()
    // Load the scheme file which autoloads the image set
    CEGUI::SchemeManager::getSingleton().loadScheme("Trains.scheme");
 
-   // Load the default font
-   if (!CEGUI::FontManager::getSingleton().isFontPresent("DejaVuSans-10"));
-      CEGUI::FontManager::getSingleton().createFont("DejaVuSans-10.font");
-
    // Defaults
    System::getSingleton().setDefaultFont("DejaVuSans-10");
    System::getSingleton().setDefaultMouseCursor("Trains", "MouseArrow");
