@@ -8,7 +8,7 @@ set (${PROJECT_NAME}_PATCH_LEVEL 0)
 
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 # Make sure optimisation is always enabled
 set (CMAKE_BUILD_TYPE RelWithDebInfo)
@@ -26,6 +26,7 @@ include_directories (${CMAKE_SOURCE_DIR}/include)
 include_directories (include ${SDL_INCLUDE_DIR})
 include_directories (include ${SDL_IMAGE_INCLUDE_DIR})
 include_directories (include ${OPENGL_INCLUDE_DIR})
+include_directories (include ${CEGUI_INCLUDE_DIR})
 
 if (NOT WIN32) # Unix
     add_definitions ("-Wall")
@@ -35,7 +36,7 @@ endif (NOT WIN32)
 add_executable (${PROJECT_NAME} WIN32 ${folder_source})
 
 target_link_libraries (${PROJECT_NAME} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY}
-  ${OPENGL_LIBRARY})
+  ${OPENGL_LIBRARY} ${CEGUI_LIBRARIES})
 
 # Profiling
 #set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS -pg)

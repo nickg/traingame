@@ -22,6 +22,7 @@
 #include "Maths.hpp"
 
 #include <GL/gl.h>
+#include <CEGUI.h>
 
 using namespace std;
 
@@ -29,6 +30,7 @@ using namespace std;
 class Editor : public IScreen {
 public:
    Editor();
+   ~Editor();
    
    void display(IGraphicsPtr aContext) const;
    void update(IPickBufferPtr aPickBuffer);
@@ -40,16 +42,50 @@ public:
    void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
                        int aButton);
 private:
+   void buildGUI();
+   
    IMapPtr myMap;
 
    Vector<double> myPosition;
    Vector<double> myMovement;
+
+   // GUI widgets
+   CEGUI::Window* myRoot;
 };
 
 Editor::Editor()
    : myPosition(2.0, -8.0, -10.0)
 {
    myMap = makeEmptyMap(32, 32);
+
+   buildGUI();
+}
+
+Editor::~Editor()
+{
+   
+}
+
+// Construct the editor GUI
+void Editor::buildGUI()
+{
+   using namespace CEGUI;
+   
+   WindowManager& wmgr = WindowManager::getSingleton();
+
+   myRoot = wmgr.createWindow("DefaultWindow", "root");
+   System::getSingleton().setGUISheet(myRoot);
+
+   FrameWindow* fWnd = static_cast<FrameWindow*>
+      (wmgr.createWindow("TaharezLook/FrameWindow", "testWindow"));
+   myRoot->addChildWindow(fWnd);
+
+   fWnd->setPosition( UVector2( UDim( 0.25f, 0 ), UDim( 0.25f, 0 ) ) );
+
+   // set size to be half the size of the parent
+   fWnd->setSize( UVector2( UDim( 0.5f, 0 ), UDim( 0.5f, 0 ) ) );
+
+   fWnd->setText("Hello, World!");
 }
 
 // Render the next frame
