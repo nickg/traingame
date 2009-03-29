@@ -199,10 +199,22 @@ void Map::resetMap(int aWidth, int aDepth)
 void Map::render(IGraphicsPtr aContext) const
 {
    glClearColor(0.6, 0.7, 0.8, 1.0);
+   
    glPushAttrib(GL_ALL_ATTRIB_BITS);
+   
    glColorMaterial(GL_FRONT, GL_DIFFUSE);
    glEnable(GL_COLOR_MATERIAL);
-
+   
+   // Set the default fog
+   GLfloat fogColor[4] = { 0.6f, 0.7f, 0.8f, 1.0f };
+   glFogi(GL_FOG_MODE, GL_LINEAR);
+   glFogfv(GL_FOG_COLOR, fogColor);
+   glFogf(GL_FOG_DENSITY, 0.35f);
+   glHint(GL_FOG_HINT, GL_DONT_CARE);
+   glFogf(GL_FOG_START, 20.0f);
+   glFogf(GL_FOG_END, 30.0f);
+   glEnable(GL_FOG);
+   
    glPushMatrix();
    myQuadTree->render(aContext);
    glPopMatrix();
