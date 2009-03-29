@@ -8,6 +8,8 @@ set (${PROJECT_NAME}_PATCH_LEVEL 0)
 
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
 # Make sure optimisation is always enabled
 set (CMAKE_BUILD_TYPE RelWithDebInfo)
 
@@ -17,7 +19,8 @@ source_group (${PROJECT_NAME} FILES ${folder_source})
 
 find_package (SDL REQUIRED)
 find_package (SDL_image REQUIRED)
-find_package (OpenGL)
+find_package (OpenGL REQUIRED)
+find_package (CEGUI REQUIRED)
 
 include_directories (${CMAKE_SOURCE_DIR}/include)
 include_directories (include ${SDL_INCLUDE_DIR})
