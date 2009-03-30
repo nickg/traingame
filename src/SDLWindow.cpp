@@ -176,6 +176,7 @@ void SDLWindow::initCEGUI()
 
    // Load the scheme file which autoloads the image set
    CEGUI::SchemeManager::getSingleton().loadScheme("Trains.scheme");
+   CEGUI::SchemeManager::getSingleton().loadScheme("TaharezLook.scheme");
 
    // Defaults
    System::getSingleton().setDefaultFont("DejaVuSans-10");

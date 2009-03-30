@@ -218,6 +218,7 @@ void Map::render(IGraphicsPtr aContext) const
    glPushMatrix();
    myQuadTree->render(aContext);
    glPopMatrix();
+   
    glPopAttrib();
 }
 

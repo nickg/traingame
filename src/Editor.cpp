@@ -73,7 +73,10 @@ void Editor::buildGUI()
    
    WindowManager& wmgr = WindowManager::getSingleton();
 
-   myRoot = wmgr.createWindow("DefaultWindow", "root");
+   myRoot = wmgr.loadWindowLayout("Editor.layout");
+   System::getSingleton().setGUISheet(myRoot);
+   
+   /*myRoot = wmgr.createWindow("DefaultWindow", "root");
    System::getSingleton().setGUISheet(myRoot);
 
    myRoot->setAlpha(0.75);
@@ -87,7 +90,7 @@ void Editor::buildGUI()
    // set size to be half the size of the parent
    fWnd->setSize( UVector2( UDim( 0.5f, 0 ), UDim( 0.5f, 0 ) ) );
 
-   fWnd->setText("Hello, World!");
+   fWnd->setText("Hello, World!");*/
 }
 
 // Render the next frame
