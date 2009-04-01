@@ -29,16 +29,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <unistd.h>
-#include <CEGUI.h>
-#include <CEGUIDefaultResourceProvider.h>
-
-#include "SDLToCEGUIKey.hpp"
-
-// Using the OpenGL implementation of CEGUI
-#include <RendererModules/OpenGLGUIRenderer/openglrenderer.h>
-
-// Using the Xerces parser for CEGUI
-#include <XMLParserModules/XercesParser/CEGUIXercesParser.h>
 
 using namespace std;
 using namespace std::tr1;
@@ -85,9 +75,6 @@ private:
    static const int SELECT_BUFFER_SZ = 128;
    GLuint mySelectBuffer[SELECT_BUFFER_SZ];
 
-   // CEGUI objects
-   CEGUI::OpenGLRenderer* myRenderer;   
-
    static const float NEAR_CLIP, FAR_CLIP;
 };
 
@@ -96,7 +83,7 @@ const float SDLWindow::FAR_CLIP(50.0f);
 
 // Create the game window
 SDLWindow::SDLWindow()
-   : amRunning(false), willSkipNextFrame(false), myRenderer(NULL)
+   : amRunning(false), willSkipNextFrame(false)
 {
    // Start SDL
    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -129,61 +116,12 @@ SDLWindow::SDLWindow()
    initGL();
 
    log() << "Created " << myWidth << "x" << myHeight << " window";
-
-   initCEGUI();
 }
 
 // Destroy the game window
 SDLWindow::~SDLWindow()
 {
-   delete myRenderer;
-}
-
-// Start CEGUI and load resources
-void SDLWindow::initCEGUI()
-{
-   using namespace CEGUI;
-
-   // Starting CEGUI affects some OpenGL attribute bits
-   glPushAttrib(GL_ALL_ATTRIB_BITS);
    
-   // Start CEGUI
-   myRenderer = new CEGUI::OpenGLRenderer(0, myWidth, myHeight);
-   new CEGUI::System(myRenderer);
-
-   // Initialise the directories for the default resource provider
-   CEGUI::DefaultResourceProvider* rp = static_cast<CEGUI::DefaultResourceProvider*>
-      (CEGUI::System::getSingleton().getResourceProvider());
-
-   rp->setResourceGroupDirectory("schemes", "data/gui/schemes/");
-   rp->setResourceGroupDirectory("imagesets", "data/gui/imagesets/");
-   rp->setResourceGroupDirectory("fonts", "data/gui/fonts/");
-   rp->setResourceGroupDirectory("layouts", "data/gui/layouts/");
-   rp->setResourceGroupDirectory("looknfeels", "data/gui/looknfeel/");
-   rp->setResourceGroupDirectory("lua_scripts", "data/gui/lua_scripts/");
-   rp->setResourceGroupDirectory("schemas", "data/gui/schemas/");
-   
-   // Set the default resource groups to be used
-   CEGUI::Imageset::setDefaultResourceGroup("imagesets");
-   CEGUI::Font::setDefaultResourceGroup("fonts");
-   CEGUI::Scheme::setDefaultResourceGroup("schemes");
-   CEGUI::WidgetLookManager::setDefaultResourceGroup("looknfeels");
-   CEGUI::WindowManager::setDefaultResourceGroup("layouts");
-   CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
-   CEGUI::XercesParser::setSchemaDefaultResourceGroup("schemas");
-
-   // Load the scheme file which autoloads the image set
-   CEGUI::SchemeManager::getSingleton().loadScheme("Trains.scheme");
-   CEGUI::SchemeManager::getSingleton().loadScheme("TaharezLook.scheme");
-
-   // Defaults
-   System::getSingleton().setDefaultFont("DejaVuSans-10");
-   System::getSingleton().setDefaultMouseCursor("Trains", "MouseArrow");
-   
-   log() << "CEGUI initialised";
-
-   // Restore original attribute bits
-   glPopAttrib();
 }
 
 // Change the active screen while the game is running
@@ -191,9 +129,6 @@ void SDLWindow::switchScreen(IScreenPtr aScreen)
 {
    assert(amRunning);
 
-   // Clean up any windows the previous screen created
-   CEGUI::WindowManager::getSingleton().destroyAllWindows();
-   
    myScreen = aScreen;
    willSkipNextFrame = true;
 }
@@ -208,11 +143,9 @@ void SDLWindow::run(IScreenPtr aScreen)
    const unsigned targetFramerate = 30;
    const unsigned window = 1000 / targetFramerate;
 
-   unsigned tickEnd = SDL_GetTicks();
-   
    amRunning = true;
    do {
-      unsigned tickStart = tickEnd;
+      unsigned tickStart = SDL_GetTicks();
 
       processInput();
       myScreen->update(shared_from_this());
@@ -236,12 +169,6 @@ void SDLWindow::run(IScreenPtr aScreen)
             tickNow = SDL_GetTicks();
          }
       }
-
-      // Update the CEGUI internal timer
-      tickEnd = SDL_GetTicks();
-      
-      float t = 0.001f * (tickEnd - tickStart);
-      CEGUI::System::getSingleton().injectTimePulse(t);
    } while (amRunning);
 
    myScreen.reset();
@@ -322,12 +249,7 @@ int SDLWindow::sdlButtonToInt(Uint8 aSDLButton) const
 // Check for SDL input events
 void SDLWindow::processInput()
 {
-   using namespace CEGUI;
-
    SDL_Event e;
-   MouseButton mb;
-   bool valid;
-   CEGUI::uint kc;
 
    while (SDL_PollEvent(&e)) {
       switch (e.type) {
@@ -338,98 +260,30 @@ void SDLWindow::processInput()
          break;
          
       case SDL_KEYDOWN:
-         kc = SDLKeyToCEGUIKey(e.key.keysym.sym);
-         if (!System::getSingleton().injectKeyDown(kc))
-            myScreen->onKeyDown(e.key.keysym.sym);
-
-         // Handle Unicode keys
-         if (e.key.keysym.unicode != 0)
-            System::getSingleton().injectChar(e.key.keysym.unicode);
-
+         myScreen->onKeyDown(e.key.keysym.sym);
          break;
 
       case SDL_KEYUP:
-         kc = SDLKeyToCEGUIKey(e.key.keysym.sym);
-         if (!System::getSingleton().injectKeyUp(kc))
-            myScreen->onKeyUp(e.key.keysym.sym);
-         
+         myScreen->onKeyUp(e.key.keysym.sym);
          break;
 
       case SDL_MOUSEMOTION:
-         if (!CEGUI::System::getSingleton().injectMousePosition
-             (static_cast<float>(e.motion.x),
-              static_cast<float>(e.motion.y)))
-            myScreen->onMouseMove(shared_from_this(),
-                                  e.motion.x, e.motion.y);
+         myScreen->onMouseMove(shared_from_this(),
+                               e.motion.x, e.motion.y);
          break;
          
       case SDL_MOUSEBUTTONDOWN:
-         valid = true;
-         switch (e.button.button) {
-            // Handle real mouse buttons
-         case SDL_BUTTON_LEFT:
-            mb = LeftButton;
-            break;
-         case SDL_BUTTON_MIDDLE:
-            mb = CEGUI::MiddleButton;
-            break;
-         case SDL_BUTTON_RIGHT:
-            mb = CEGUI::RightButton;
-            break;
-		
-            // Handle the mouse wheel
-         case SDL_BUTTON_WHEELDOWN:
-            CEGUI::System::getSingleton().injectMouseWheelChange(-1);
-            valid = false;
-            break;
-         case SDL_BUTTON_WHEELUP:
-            CEGUI::System::getSingleton().injectMouseWheelChange(+1);
-            valid = false;
-            break;
-
-         default:
-            valid = false;
-         }
-
-         if (valid && !System::getSingleton().injectMouseButtonDown(mb))
-            myScreen->onMouseClick(shared_from_this(),
-                                   e.button.x, e.button.y,
-                                   sdlButtonToInt(e.button.button));
+         myScreen->onMouseClick(shared_from_this(),
+                                e.button.x, e.button.y,
+                                sdlButtonToInt(e.button.button));
          break;
 
       case SDL_MOUSEBUTTONUP:
-         valid = true;
-         switch (e.button.button) {
-         case SDL_BUTTON_LEFT:
-            mb = CEGUI::LeftButton;
-            break;
-         case SDL_BUTTON_MIDDLE:
-            mb = CEGUI::MiddleButton;
-            break;
-         case SDL_BUTTON_RIGHT:
-            mb = CEGUI::RightButton;
-            break;
-
-         default:
-            valid = false;
-         }
-
-         if (valid && !System::getSingleton().injectMouseButtonUp(mb))
-            myScreen->onMouseRelease(shared_from_this(),
-                                     e.button.x, e.button.y,
-                                     sdlButtonToInt(e.button.button));
-         
+         myScreen->onMouseRelease(shared_from_this(),
+                                  e.button.x, e.button.y,
+                                  sdlButtonToInt(e.button.button));
          break;
-
-      case SDL_VIDEORESIZE:
-         myRenderer->grabTextures();
-         // Your resize code here, including the SDL_SetVideoMode call
-         myRenderer->restoreTextures();
-         myRenderer->setDisplaySize(CEGUI::Size(e.resize.w, e.resize.h));
-         break;
-
       }
-
    }
 }
 
