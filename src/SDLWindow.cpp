@@ -120,11 +120,9 @@ SDLWindow::SDLWindow()
       throw runtime_error(ss.str());
    }
 
-   // Set SDL options
-   SDL_ShowCursor(SDL_DISABLE);
-   SDL_EnableUNICODE(1);
-   SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-
+   // Hide the window manager cursor
+   //SDL_ShowCursor(SDL_DISABLE);
+   
    resizeGLScene();
 
    // Start OpenGL
@@ -267,18 +265,45 @@ void SDLWindow::setCamera(const Vector<double>& aPos,
 
 // Render the next screen
 void SDLWindow::drawGLScene()
-{   
+{
+   // Set up for 3D mode
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+
+   gluPerspective(45.0f, (GLfloat)myWidth/(GLfloat)myHeight,
+                  NEAR_CLIP, FAR_CLIP);
+
+   glMatrixMode(GL_MODELVIEW);
+   glLoadIdentity();
+
+   // Set default state
+   glEnable(GL_DEPTH_TEST);
+   glEnable(GL_TEXTURE_2D);
+  
+   glEnable(GL_LIGHTING);
+   glEnable(GL_LIGHT1);
+   
    // Clear the screen
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glLoadIdentity();
 
    setCamera(Vector<double>(), Vector<double>());
-   
+
+   // Draw the 3D part
    myScreen->display(shared_from_this());
 
-   glPushAttrib(GL_ALL_ATTRIB_BITS);
-   CEGUI::System::getSingleton().renderGUI();
-   glPopAttrib();
+   // Set up for 2D
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   gluOrtho2D(0.0f, (GLfloat)myWidth, (GLfloat)myHeight, 0.0f);
+   glMatrixMode(GL_MODELVIEW);
+   glLoadIdentity();
+
+   // Set 2D defaults
+   glDisable(GL_LIGHTING);
+   glDisable(GL_DEPTH_TEST);
+   glEnable(GL_BLEND);
+   glDisable(GL_TEXTURE_2D);
 
    SDL_GL_SwapBuffers();
 }
@@ -412,18 +437,10 @@ void SDLWindow::processInput()
 void SDLWindow::initGL()
 {
    glShadeModel(GL_SMOOTH);
-   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
    glClearDepth(1.0f);
-   glEnable(GL_DEPTH_TEST);
-   glDepthFunc(GL_LEQUAL);
-
-   glEnable(GL_TEXTURE_2D);
- 
    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-   
-   glEnable(GL_LIGHTING);
-   glEnable(GL_LIGHT1);
+   glDepthFunc(GL_LEQUAL);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 }
 
 // Change the perspective when the window is resized
@@ -433,16 +450,6 @@ void SDLWindow::resizeGLScene()
       myHeight = 1;
 
    glViewport(0, 0, myWidth, myHeight);
-
-   glMatrixMode(GL_PROJECTION);
-   glLoadIdentity();
-
-   // Calculate The Aspect Ratio Of The Window
-   gluPerspective(45.0f, (GLfloat)myWidth/(GLfloat)myHeight,
-                  NEAR_CLIP, FAR_CLIP);
-
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
 }
 
 // Set the value of the ambient light

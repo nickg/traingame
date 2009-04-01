@@ -103,6 +103,7 @@ void Editor::display(IGraphicsPtr aContext) const
    aContext->moveLight(0.0, 50.0, 0.0);
 
    myMap->render(aContext);
+   myMap->highlightTile(aContext, makePoint(1, 1));
 }
 
 // Process user input

@@ -46,6 +46,7 @@ public:
                    bool rebuild);
    bool isValidTrack(const Point<int>& aPoint) const;
    void render(IGraphicsPtr aContext) const;
+   void highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const;
 
    void resetMap(int aWidth, int aDepth);
 
@@ -220,6 +221,35 @@ void Map::render(IGraphicsPtr aContext) const
    glPopMatrix();
    
    glPopAttrib();
+}
+
+// Draw a thick border around a single tile
+void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
+{
+   Tile::Vertex* v = myTiles[index(aPoint.x, aPoint.y)].v;
+
+   // User should be able to click on the highlight as well
+   glPushName(tileName(aPoint.x, aPoint.y));
+         
+   glDisable(GL_TEXTURE_2D);
+   glEnable(GL_BLEND);
+   glDisable(GL_LIGHTING);
+   
+   glPushMatrix();
+   glTranslated(static_cast<double>(aPoint.x), 0,
+                static_cast<double>(aPoint.y));
+   glColor4d(1.0, 1.0, 1.0, 0.5);
+   glBegin(GL_POLYGON);
+   
+   for (int i = 0; i < 4; i++) {
+      glNormal3d(v[i].normal.x, v[i].normal.y, v[i].normal.z);
+      glVertex3d(v[i].pos.x, v[i].pos.y, v[i].pos.z);
+   }
+   
+   glEnd();
+   glPopMatrix();
+
+   glPopName();
 }
 
 // Render a small part of the map as directed by the quad tree

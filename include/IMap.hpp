@@ -51,6 +51,10 @@ public:
    
    virtual void render(IGraphicsPtr aContext) const = 0;
 
+   // Draw a white border around the given tile
+   virtual void highlightTile(IGraphicsPtr aContext,
+                              const Point<int>& aPoint) const = 0;
+   
    // Given a pick name return the (x, y) co-ordinate
    virtual Point<int> pickPosition(unsigned aName) const = 0;
 
