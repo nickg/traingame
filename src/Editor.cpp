@@ -123,32 +123,66 @@ bool Editor::canConnect(const Point<int>& aFirstPoint,
 // Connect the beginning and end up in the simplest way possible
 void Editor::drawDraggedTrack()
 {
+   Orientation straight;  // Orientation for straight track section
+   
+   int xmin, xmax, ymin, ymax;
+   dragBoxBounds(xmin, xmax, ymin, ymax);
+   
+   int xlen = abs(xmax - xmin);
+   int ylen = abs(ymax - ymin);
+
    // Try to guess the initial orientation from a nearby track segment
    if (canConnect(myDragBegin.left(), myDragBegin)
        || canConnect(myDragBegin.right(), myDragBegin)) {
       log() << "Connect along x";
+      straight = ALONG_X;
    }
    else if (canConnect(myDragBegin.up(), myDragBegin)
        || canConnect(myDragBegin.down(), myDragBegin)) {
       log() << "Connect along y";
+      straight = ALONG_Y;
    }
    else {
       // There isn't an adjoining track segment to connect to
       // Guess that the user wants to connect along the longest axis
-
-      int xmin, xmax, ymin, ymax;
-      dragBoxBounds(xmin, xmax, ymin, ymax);
-
-      int xlen = abs(xmax - xmin);
-      int ylen = abs(ymax - ymin);
-
       if (xlen > ylen) {
          log() << "(Guess) connect along x";
+         straight = ALONG_X;
       }
       else {
          log() << "(Guess) connect along y";
+         straight = ALONG_Y;
       }
    }
+
+   // The radius is the length of the shorter side
+   // If it's equal to 1 then the track is straight
+   // Otherwise it curves towards myDragEnd at the end
+   int radius = (xlen > ylen ? ylen : xlen) + 1;
+   int length = (xlen > ylen ? xlen : ylen) + 1;
+
+   // The length of the straight track until it starts to curve away
+   int straightLen = radius == 1 ? length : length - radius;
+
+   log() << "radius = " << radius << ", straightLen = " << straightLen;
+
+   // The direction to go from the start to the end
+   int dir;
+   if (straight == ALONG_X)
+      dir = myDragBegin.x < myDragEnd.x ? 1 : -1;
+   else
+      dir = myDragBegin.y < myDragEnd.y ? 1 : -1;
+
+   // Make the straight part
+   for (int i = 0; i < straightLen; i++) {
+      Point<int> where = straight == ALONG_X
+         ? makePoint(myDragBegin.x + i*dir, myDragBegin.y)
+         : makePoint(myDragBegin.x, myDragBegin.y + i*dir);
+
+      myMap->setTrackAt(where, makeStraightTrack(straight));
+   }
+
+   myMap->rebuildDisplayLists();
 }
 
 void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
@@ -178,29 +212,6 @@ void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
       myDragBegin = myDragEnd = where;
       amDragging = true;
    }
-
-   //  if (id > 0
-
-   /*if (id > 0 && myMap->isValidTileName(id)) {
-      Point<int> where = myMap->pickPosition(id);
-      
-      ITrackSegmentPtr track;
-
-      switch (aButton) {
-      case 0:
-         track = makeStraightTrack(ALONG_Z);
-         break;
-      case 1:
-         track = makeStraightTrack(ALONG_X);
-         break;
-      case 2:
-         track = makeCurvedTrack();
-         break;
-      }
-      
-      if (track)
-         myMap->setTrackAt(where, track);
-         }*/
 }
 
 void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,

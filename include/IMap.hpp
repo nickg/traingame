@@ -44,12 +44,14 @@ public:
    // Set rebuild to true to update the display lists used to render
    // the map
    virtual void setTrackAt(const Point<int>& aPoint,
-                           ITrackSegmentPtr aTrack,
-                           bool rebuild=true) = 0;
+                           ITrackSegmentPtr aTrack) = 0;
    
    virtual Point<int> startLocation() const = 0;
    
    virtual void render(IGraphicsPtr aContext) const = 0;
+
+   // Regenerate the display lists after updating the map
+   virtual void rebuildDisplayLists() = 0;
 
    // Draw a white border around the given tile
    virtual void highlightTile(IGraphicsPtr aContext,

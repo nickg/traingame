@@ -36,19 +36,20 @@ public:
    Map();
    ~Map();
 
+   // IMap interface
    int width() const { return myWidth; }
    int depth() const { return myDepth; }
    double heightAt() const { return 0.0; }
 
    Point<int> startLocation() const;
    ITrackSegmentPtr trackAt(const Point<int>& aPoint) const;
-   void setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack,
-                   bool rebuild);
+   void setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack);
    bool isValidTrack(const Point<int>& aPoint) const;
    void render(IGraphicsPtr aContext) const;
    void highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const;
-
+   void rebuildDisplayLists();
    void resetMap(int aWidth, int aDepth);
+   
 
    // ISectorRenderable interface
    void renderSector(IGraphicsPtr aContext,
@@ -123,14 +124,17 @@ ITrackSegmentPtr Map::trackAt(const Point<int>& aPoint) const
    }
 }
 
-void Map::setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack,
-                     bool rebuild)
+void Map::setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack)
 {
    aTrack->setOrigin(aPoint.x, aPoint.y);
    tileAt(aPoint.x, aPoint.y).track = aTrack;
+}
 
-   if (rebuild)
-      myQuadTree->rebuildDisplayLists();
+void Map::rebuildDisplayLists()
+{
+   // TODO: We should keep a list of dirty points and only rebuild the
+   // quads that cover those
+   myQuadTree->rebuildDisplayLists();
 }
 
 bool Map::isValidTrack(const Point<int>& aPoint) const
@@ -177,19 +181,6 @@ void Map::resetMap(int aWidth, int aDepth)
       myTiles[i].v[2].normal = n;
       myTiles[i].v[3].normal = n;
    }
-
-   // Create a straight line of track along the side of the map
-   /*for (int i = 0; i < 5; i++) {
-      tileAt(1, i).track = makeStraightTrack(ALONG_Z);
-      tileAt(1, i).track->setOrigin(1, i);
-   }
-   tileAt(1, 5).track = makeCurvedTrack();
-   tileAt(1, 5).track->setOrigin(1, 5);
-   
-   tileAt(5, 8).track = makeStraightTrack(ALONG_X);
-   tileAt(5, 8).track->setOrigin(5, 8);
-   tileAt(6, 8).track = makeStraightTrack(ALONG_X);
-   tileAt(6, 8).track->setOrigin(6, 8);*/
    
    // Create quad tree
    myQuadTree = makeQuadTree(shared_from_this(), myWidth);

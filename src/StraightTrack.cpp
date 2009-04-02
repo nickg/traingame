@@ -58,7 +58,7 @@ StraightTrack::StraightTrack(Orientation anOrientation)
 
 StraightTrack::~StraightTrack()
 {
-   
+   debug() << "~StraightTrack";
 }
 
 void StraightTrack::transform(double aDelta) const
