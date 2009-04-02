@@ -102,7 +102,7 @@ void QuadTree::buildTree(int aDim)
 
 // Builds a node in the tree
 int QuadTree::buildNode(int anId, int aParent, int x1, int y1, int x2, int y2)
-{
+{   
    // Store this sector's data
    mySectors[anId].id = anId;
    mySectors[anId].botLeft.x = x1;
@@ -150,7 +150,7 @@ void QuadTree::rebuildDisplayLists()
 {
    IGraphicsPtr context = makeDisplayListContext();
    
-   for (int i = 0; i < myUsedSectors; i++) {
+   for (int i = 0; i <= myUsedSectors; i++) {
       if (mySectors[i].type == QT_LEAF) {
          if (mySectors[i].displayList != 0)
             glDeleteLists(mySectors[i].displayList, 1);
@@ -167,7 +167,7 @@ void QuadTree::rebuildDisplayLists()
 
 // Render all the visible sectors
 void QuadTree::displaySector(IGraphicsPtr aContext, int aSector)
-{	
+{  
    if (aSector >= myNumSectors) {
       ostringstream ss;
       ss << "displaySector(" << aSector << ") out of range";
