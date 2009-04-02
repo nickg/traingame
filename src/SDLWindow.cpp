@@ -206,6 +206,7 @@ void SDLWindow::drawGLScene()
    // Set default state
    glEnable(GL_DEPTH_TEST);
    glEnable(GL_TEXTURE_2D);
+   glEnable(GL_CULL_FACE);
   
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT1);
@@ -231,6 +232,7 @@ void SDLWindow::drawGLScene()
    glDisable(GL_DEPTH_TEST);
    glEnable(GL_BLEND);
    glDisable(GL_TEXTURE_2D);
+   glDisable(GL_CULL_FACE);
 
    SDL_GL_SwapBuffers();
 }

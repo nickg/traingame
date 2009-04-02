@@ -122,10 +122,10 @@ int QuadTree::buildNode(int anId, int aParent, int x1, int y1, int x2, int y2)
       
       // Build children
       unsigned int* c = mySectors[anId].children;
-      c[0] = buildNode(++myUsedSectors, anId, x1,		y1,		x1+w/2, y1+h/2	);
-      c[1] = buildNode(++myUsedSectors, anId, x1,		y1+h/2, x1+w/2, y2		);
-      c[3] = buildNode(++myUsedSectors, anId, x1+w/2, y1+h/2, x2,		y2		);
-      c[2] = buildNode(++myUsedSectors, anId, x1+w/2, y1,		x2,		y1+h/2	);
+      c[0] = buildNode(++myUsedSectors, anId, x1,		  y1,     x1+w/2, y1+h/2);
+      c[1] = buildNode(++myUsedSectors, anId, x1,		  y1+h/2, x1+w/2, y2		);
+      c[3] = buildNode(++myUsedSectors, anId, x1+w/2, y1+h/2, x2,		  y2	  );
+      c[2] = buildNode(++myUsedSectors, anId, x1+w/2, y1,		  x2,     y1+h/2);
    }
 
    return anId;

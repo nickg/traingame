@@ -84,6 +84,7 @@ IModelPtr loadModel(const string& fileName)
    glDisable(GL_BLEND);
    glEnable(GL_TEXTURE);
    glEnable(GL_LIGHTING);
+   glEnable(GL_CULL_FACE);
 
    glColor3d(0.0, 0.0, 1.0);
 

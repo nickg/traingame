@@ -44,9 +44,9 @@ void renderSleeper()
    // Top
    glNormal3d(0.0, 1.0, 0.0);  // Up
    glVertex3d(-sleeperOff, sleeperDepth, -0.5);
-   glVertex3d(sleeperOff, sleeperDepth, -0.5);
-   glVertex3d(sleeperOff, sleeperDepth, 0.5);
    glVertex3d(-sleeperOff, sleeperDepth, 0.5);
+   glVertex3d(sleeperOff, sleeperDepth, 0.5);
+   glVertex3d(sleeperOff, sleeperDepth, -0.5);
 
    // Side 1
    glNormal3d(1.0, 0.0, 0.0);  // +ve x
@@ -57,24 +57,24 @@ void renderSleeper()
 
    // Side 2
    glNormal3d(-1.0, 0.0, 0.0);  // -ve x
-   glVertex3d(sleeperOff, sleeperDepth, 0.5);
-   glVertex3d(sleeperOff, 0.0, 0.5);
-   glVertex3d(-sleeperOff, 0.0, 0.5);
    glVertex3d(-sleeperOff, sleeperDepth, 0.5);
+   glVertex3d(-sleeperOff, 0.0, 0.5);
+   glVertex3d(sleeperOff, 0.0, 0.5);
+   glVertex3d(sleeperOff, sleeperDepth, 0.5);
 
    // Front
    glNormal3d(0.0, 0.0, 1.0);  // +ve z
-   glVertex3d(sleeperOff, sleeperDepth, 0.5);
    glVertex3d(sleeperOff, 0.0, 0.5);
    glVertex3d(sleeperOff, 0.0, -0.5);
    glVertex3d(sleeperOff, sleeperDepth, -0.5);
+   glVertex3d(sleeperOff, sleeperDepth, 0.5);
 
    // Back
    glNormal3d(0.0, 0.0, -1.0);  // -ve z
    glVertex3d(-sleeperOff, sleeperDepth, 0.5);
-   glVertex3d(-sleeperOff, 0.0, 0.5);
-   glVertex3d(-sleeperOff, 0.0, -0.5);
    glVertex3d(-sleeperOff, sleeperDepth, -0.5);
+   glVertex3d(-sleeperOff, 0.0, -0.5);
+   glVertex3d(-sleeperOff, 0.0, 0.5);
    
    
    glEnd();  // glBegin(GL_QUADS)
@@ -91,32 +91,23 @@ static void renderOneRail()
    // Top side
    glNormal3d(0.0, 1.0, 0.0);
    glVertex3d(0.0, Track::railHeight, 0.0);
-   glNormal3d(0.0, 1.0, 0.0);
    glVertex3d(0.0, Track::railHeight, 1.0);
-   glNormal3d(0.0, 1.0, 0.0);
    glVertex3d(Track::railWidth, Track::railHeight, 1.0);
-   glNormal3d(0.0, 1.0, 0.0);
    glVertex3d(Track::railWidth, Track::railHeight, 0.0);
    
    // Outer side
    glNormal3d(0.0, 0.0, -1.0);
    glVertex3d(0.0, Track::railHeight, 0.0);
-   glNormal3d(0.0, 0.0, -1.0);
    glVertex3d(0.0, 0.0, 0.0);
-   glNormal3d(0.0, 0.0, -1.0);
    glVertex3d(0.0, 0.0, 1.0);
-   glNormal3d(0.0, 0.0, -1.0);
    glVertex3d(0.0, Track::railHeight, 1.0);
    
    // Inner side
    glNormal3d(0.0, 0.0, 1.0);
-   glVertex3d(Track::railWidth, Track::railHeight, 0.0);
-   glNormal3d(0.0, 0.0, 1.0);
-   glVertex3d(Track::railWidth, 0.0, 0.0);
-   glNormal3d(0.0, 0.0, 1.0);
-   glVertex3d(Track::railWidth, 0.0, 1.0);
-   glNormal3d(0.0, 0.0, 1.0);
    glVertex3d(Track::railWidth, Track::railHeight, 1.0);
+   glVertex3d(Track::railWidth, 0.0, 1.0);
+   glVertex3d(Track::railWidth, 0.0, 0.0);
+   glVertex3d(Track::railWidth, Track::railHeight, 0.0);
    
    glEnd();
    glPopMatrix();
