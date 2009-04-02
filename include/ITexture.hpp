@@ -20,15 +20,24 @@
 
 #include <tr1/memory>
 
+#include <string>
+
 // Abstract interface to textures
 struct ITexture {
    virtual ~ITexture() {}
-   
+
+   // Bind this texture to the current OpenGL texture
    virtual void bind() const = 0;
+   
    virtual int width() const = 0;
    virtual int height() const = 0;
 };
 
 typedef std::tr1::shared_ptr<ITexture> ITexturePtr;
+
+// Load a texture and return a pointer to
+// A texture will only be loaded at most once no matter how many
+// times this is called
+ITexturePtr loadTexture(const std::string& aFileName);
 
 #endif

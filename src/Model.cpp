@@ -17,7 +17,7 @@
 
 #include "Maths.hpp"
 #include "IModel.hpp"
-#include "ITextureManager.hpp"
+#include "ITexture.hpp"
 #include "ILogger.hpp"
 
 #include <string>
@@ -160,7 +160,7 @@ IModelPtr loadModel(const string& fileName)
          bool exists = ifstream((texBaseName + ".bmp").c_str()).good();
 
          if (exists) 
-            texture = getTextureManager()->load(texBaseName + ".bmp");
+            texture = loadTexture(texBaseName + ".bmp");
          else
             log() << "No texture for material " << texBaseName;
       }

@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "ITextureManager.hpp"
+#include "ITexture.hpp"
 #include "ILogger.hpp"
 
 #include <map>
@@ -49,24 +49,21 @@ private:
                                       int ncols = 4, GLenum format = GL_RGBA);
 };
 
-// Concrete implementation of ITextureManager
-class TextureManager : public ITextureManager {
-public:
-   ITexturePtr load(const string& fileName);
-private:
-   map<string, ITexturePtr> myLoadedTextures;
-};
-
-ITexturePtr TextureManager::load(const string& fileName)
+// Texture cache
+namespace {
+   map<string, ITexturePtr> theTextureCache;
+}
+  
+ITexturePtr loadTexture(const string& aFileName)
 {
    map<string, ITexturePtr>::iterator it =
-      myLoadedTextures.find(fileName);
+      theTextureCache.find(aFileName);
 
-   if (it != myLoadedTextures.end())
+   if (it != theTextureCache.end())
       return (*it).second;
    else {
-      ITexturePtr ptr(new Texture(fileName));
-      myLoadedTextures[fileName] = ptr;
+      ITexturePtr ptr(new Texture(aFileName));
+      theTextureCache[aFileName] = ptr;
       return ptr;
    }      
 }
@@ -159,11 +156,4 @@ bool Texture::isTextureSizeSupported(int width, int height, int ncols, GLenum fo
 void Texture::bind() const
 {
    glBindTexture(GL_TEXTURE_2D, myTexture);
-}
-
-// Return the single instance of TextureManager
-ITextureManagerPtr getTextureManager()
-{
-   static ITextureManagerPtr ptr(new TextureManager);
-   return ptr;
 }
