@@ -34,7 +34,7 @@ endif (NOT WIN32)
 add_executable (${PROJECT_NAME} WIN32 ${folder_source})
 
 target_link_libraries (${PROJECT_NAME} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY}
-  ${OPENGL_LIBRARY} ${CEGUI_LIBRARIES})
+  ${OPENGL_LIBRARY})
 
 # Profiling
 #set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS -pg)
