@@ -41,7 +41,7 @@ public:
    int depth() const { return myDepth; }
    double heightAt() const { return 0.0; }
 
-   Point<int> startLocation() const;
+   ITrackSegment::Connection startLocation() const;
    ITrackSegmentPtr trackAt(const Point<int>& aPoint) const;
    void setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack);
    bool isValidTrack(const Point<int>& aPoint) const;
@@ -147,10 +147,11 @@ bool Map::isValidTrack(const Point<int>& aPoint) const
 }
 
 // Return a location where the train may start
-Point<int> Map::startLocation() const
+ITrackSegment::Connection Map::startLocation() const
 {
    // This is just a hack for now
-   return makePoint(1, 1);
+   return make_pair(makePoint(1, 1),
+                    makeVector(0, 0, 1));
 }
 
 void Map::resetMap(int aWidth, int aDepth)

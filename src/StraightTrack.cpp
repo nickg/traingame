@@ -20,14 +20,16 @@
 #include "ILogger.hpp"
 
 #include <cassert>
-//#include <tr1/bind>
+#include <stdexcept>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <boost/lexical_cast.hpp>
 
 using namespace std;
 using namespace std::tr1;
 using namespace std::tr1::placeholders;
+using namespace boost;
 
 // Concrete implementation of straight-line pieces of track
 class StraightTrack : public ITrackSegment {
@@ -41,7 +43,9 @@ public:
    double segmentLength() const { return 1.0; }
 
    Vector<double> offsetForDelta(double aDelta) const;
-   Point<int> nextPosition() const;
+   Connection nextPosition(const Vector<int>& aDirection) const;
+   bool isValidDirection(const Direction& aDirection) const;
+   
    TransformFunc transformFunc() const;
 private:
    void transform(double aDelta) const;
@@ -81,11 +85,47 @@ ITrackSegment::TransformFunc StraightTrack::transformFunc() const
    return bind(&StraightTrack::transform, this, _1);
 }
 
-Point<int> StraightTrack::nextPosition() const
+bool StraightTrack::isValidDirection(const Direction& aDirection) const
 {
-   const int xNext = myOrientation == ALONG_X ? 1 : 0;
-   const int yNext = myOrientation == ALONG_Y ? 1 : 0;
-   return makePoint(myX + xNext, myY + yNext);
+   const Direction alongX = makeVector(1, 0, 0);
+   const Direction alongY = makeVector(0, 0, 1);
+
+   if (myOrientation == ALONG_X) {
+      log() << "ALONG_X: " << aDirection << " == " << alongX;
+      return aDirection == alongX || -aDirection == alongX;
+   }
+   else {
+      log() << "ALONG_Y: " << aDirection << " == " << alongY;
+      return aDirection == alongY || -aDirection == alongY;
+   }
+}
+
+ITrackSegment::Connection
+StraightTrack::nextPosition(const Vector<int>& aDirection) const
+{
+   const Direction alongX = makeVector(1, 0, 0);
+   const Direction alongY = makeVector(0, 0, 1);
+
+   const Direction trackDir =
+      myOrientation == ALONG_X ? alongX : alongY;
+
+   if (aDirection != trackDir && aDirection != -trackDir)
+      throw runtime_error
+         ("Invalid direction on straight track: "
+          + lexical_cast<string>(aDirection)
+          + " (should be parallel to "
+          + lexical_cast<string>(trackDir) + ")");
+
+   if (aDirection == alongX)
+      return make_pair(makePoint(myX + 1, myY), alongX);
+   else if (aDirection == -alongX)
+      return make_pair(makePoint(myX - 1, myY), -alongX);
+   else if (aDirection == alongY)
+      return make_pair(makePoint(myX, myY + 1), alongY);
+   else if (aDirection == -alongY)
+      return make_pair(makePoint(myX, myY - 1), -alongY);
+   else
+      assert(false);
 }
 
 void StraightTrack::render() const

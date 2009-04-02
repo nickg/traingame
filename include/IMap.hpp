@@ -45,8 +45,10 @@ public:
    // the map
    virtual void setTrackAt(const Point<int>& aPoint,
                            ITrackSegmentPtr aTrack) = 0;
-   
-   virtual Point<int> startLocation() const = 0;
+
+   // The start location consists of both a position and
+   // a direction vector
+   virtual ITrackSegment::Connection startLocation() const = 0;
    
    virtual void render(IGraphicsPtr aContext) const = 0;
 

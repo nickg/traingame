@@ -24,6 +24,7 @@
 #include <GL/gl.h>
 
 using namespace std;
+using namespace std::tr1;
 
 // Concrete implementation of trains
 class Train : public ITrain {
@@ -43,8 +44,11 @@ private:
    double mySegmentDelta;
    ITrackSegment::TransformFunc myTransformer;
 
+   // Direction train is travelling along the track
+   Vector<int> myDirection;
+
    // This updates the above two values
-   void enterSegment(const Point<int>& aPoint);
+   void enterSegment(const ITrackSegment::Connection& aConnection);
 
    static const double MODEL_YOFF;
 };
@@ -66,23 +70,25 @@ void Train::update()
    
    if (mySegmentDelta >= mySegment->segmentLength()) {
       // Moved onto a new piece of track
-      Point<int> next = mySegment->nextPosition();
-
-      if (!myMap->isValidTrack(next))
-         throw runtime_error("Train fell off end of track!");
-
-      enterSegment(next);
+      enterSegment(mySegment->nextPosition(myDirection));
    }
 }
 
 // Called when the train enters a new segment
 // Resets the delta and gets the length of the new segment
-void Train::enterSegment(const Point<int>& aPoint)
+void Train::enterSegment(const ITrackSegment::Connection& aConnection)
 {
-   debug() << "Train entered segment at " << aPoint;
+   Point<int> pos;
+   tie(pos, myDirection) = aConnection;
    
+   if (!myMap->isValidTrack(pos))
+      throw runtime_error("Train fell off end of track!");
+
+   debug() << "Train entered segment at " << pos
+           << " moving " << myDirection;
+
    mySegmentDelta = 0.0;
-   mySegment = myMap->trackAt(aPoint);
+   mySegment = myMap->trackAt(pos);
    myTransformer = mySegment->transformFunc();
 }
 

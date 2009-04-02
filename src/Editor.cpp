@@ -115,8 +115,31 @@ void Editor::update(IPickBufferPtr aPickBuffer)
 bool Editor::canConnect(const Point<int>& aFirstPoint,
                         const Point<int>& aSecondPoint) const
 {
-   return myMap->isValidTrack(aFirstPoint)
-      && myMap->trackAt(aFirstPoint)->nextPosition() == aSecondPoint;
+   if (!myMap->isValidTrack(aFirstPoint))
+      return false;
+
+   ITrackSegmentPtr track = myMap->trackAt(aFirstPoint);
+   
+   Vector<int> dir = makeVector
+      (aFirstPoint.x - aSecondPoint.x, 0,
+       aFirstPoint.y - aSecondPoint.y).normalise();
+
+   log() << dir << ", " << -dir;
+
+   return (track->isValidDirection(dir)
+           && track->nextPosition(dir).first == aSecondPoint)
+      || (track->isValidDirection(-dir)
+          && track->nextPosition(-dir).first == aSecondPoint);
+   
+   /*if () {
+      log() << track->nextPosition(dir).first
+            << " == " << aSecondPoint;
+      return ;
+   }
+   else if ()
+      return ;
+   else
+   return false;*/
 }
 
 // Called when the user has finished dragging a rectangle for track

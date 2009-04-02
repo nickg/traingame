@@ -38,8 +38,9 @@ public:
    void setOrigin(int x, int y) { myX = x; myY = y; }
    double segmentLength() const;
 
-   Point<int> nextPosition() const;
+   Connection nextPosition(const Vector<int>& aDirection) const;
    TransformFunc transformFunc() const;
+   bool isValidDirection(const Direction& aDirection) const;
 private:
    void transform(double aDelta) const;
    
@@ -95,9 +96,16 @@ ITrackSegment::TransformFunc CurvedTrack::transformFunc() const
    return bind(&CurvedTrack::transform, this, _1);
 }
 
-Point<int> CurvedTrack::nextPosition() const
+bool CurvedTrack::isValidDirection(const Direction& aDirection) const
 {
-   return makePoint(myX + myBaseRadius, myY + myBaseRadius - 1);
+   return true; // TODO!
+}
+
+ITrackSegment::Connection
+CurvedTrack::nextPosition(const Vector<int>& aDirection) const
+{
+   return make_pair(makePoint(myX + myBaseRadius, myY + myBaseRadius - 1),
+                    makeVector(1, 0, 0));                    
 }
 
 void CurvedTrack::render() const

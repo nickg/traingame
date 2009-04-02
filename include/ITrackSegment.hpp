@@ -22,6 +22,7 @@
 
 #include <tr1/memory>
 #include <tr1/functional>
+#include <tr1/tuple>
 
 // A segment of track which fits over a number of tiles
 // Each track segment has an origin and one or more exits
@@ -43,11 +44,28 @@ struct ITrackSegment {
    // so it will render in the correct place for this track segment
    virtual TransformFunc transformFunc() const = 0;
 
-   // Return the position of the next segment of track
+   // TODO: This only needs (x, y) position and should contain
+   // separate layer field - but will do for now
+   typedef Point<int> Position;
+   typedef Vector<int> Direction;
+   
+   // Uniquely identifies the location of a train and its orientation
+   // along a piece of track
+   // Used for verifying whether bits of track can join together
+   typedef std::pair<Position, Direction> Connection;
+
+   // True if a train can travel in this direction along the track
+   virtual bool isValidDirection(const Direction& aDirection) const = 0;
+   
+   // Return the position of the next segment of track and the
+   // orientation of the train.
    // Note that this may not actually be a valid track segment!
    // You should call IMap::isValidTrack before using it (this
    // will happen, e.g. if the train runs off the end of the line)
-   virtual Point<int> nextPosition() const = 0;
+   // The parameter `aDirection' specifies the direction of the
+   // train when it /entered/ this segment. This must be valid
+   // for this track segment - call isValidDirection first.
+   virtual Connection nextPosition(const Direction& aDirection) const = 0;
 };
 
 typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;

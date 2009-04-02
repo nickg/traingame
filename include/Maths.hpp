@@ -53,12 +53,13 @@ struct Vector {
       return static_cast<T>(sqrt(x*x + y*y + z*z));
    }
 
-   void normalise()
+   Vector<T>& normalise()
    {
       T m = magnitude();
       x /= m;
       y /= m;
       z /= m;
+      return *this;
    }
 
    Vector<T> operator+(const Vector<T>& v) const
@@ -79,6 +80,11 @@ struct Vector {
       return Vector<T>(x-v.x, y-v.y, z-v.z);
    }
 
+   Vector<T> operator-() const
+   {
+      return Vector<T>(-x, -y, -z);
+   }
+
    Vector<T> operator-=(const Vector<T>& v)
    {
       x -= v.x;
@@ -87,9 +93,14 @@ struct Vector {
       return *this;
    }
    
-   bool operator==(const Vector<T> &v) const
+   bool operator==(const Vector<T>& v) const
    {
       return x == v.x && y == v.y && z == v.z;
+   }
+
+   bool operator!=(const Vector<T>& v) const
+   {
+      return !(v == *this);
    }
    
    T x, y, z;
