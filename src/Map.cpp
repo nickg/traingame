@@ -89,9 +89,7 @@ private:
    }
 
    Point<int> pickPosition(unsigned aName) const
-   {
-      log() << "pickPosition " << aName;
-      
+   {      
       assert(isValidTileName(aName));
       
       int a = aName - TILE_NAME_BASE;

@@ -54,7 +54,7 @@ typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;
 
 // Orientations for straight track
 enum Orientation {
-   ALONG_X, ALONG_Z
+   ALONG_X, ALONG_Y
 };
 
 ITrackSegmentPtr makeStraightTrack(Orientation anOrientation);

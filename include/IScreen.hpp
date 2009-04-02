@@ -25,6 +25,10 @@
 
 #include <SDL.h>
 
+enum MouseButton {
+   MOUSE_LEFT, MOUSE_MIDDLE, MOUSE_RIGHT
+};
+
 // Interface for game screens
 struct IScreen {
    virtual ~IScreen() {}
@@ -35,9 +39,9 @@ struct IScreen {
    virtual void onKeyUp(SDLKey aKey) = 0;
    virtual void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y) = 0;
    virtual void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
-                             int aButton) = 0;
+                             MouseButton aButton) = 0;
    virtual void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
-                               int aButton) = 0;
+                               MouseButton aButton) = 0;
 };
 
 typedef std::tr1::shared_ptr<IScreen> IScreenPtr;

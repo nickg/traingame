@@ -21,6 +21,8 @@
 #include "IMap.hpp"
 #include "Maths.hpp"
 
+#include <algorithm>
+
 #include <GL/gl.h>
 
 using namespace std;
@@ -37,20 +39,28 @@ public:
    void onKeyUp(SDLKey aKey);
    void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y);
    void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
-                     int aButton);
+                     MouseButton aButton);
    void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
-                       int aButton);
+                       MouseButton aButton);
 private:
    void buildGUI();
+   void drawDraggedTrack();
+   bool canConnect(const Point<int>& aFirstPoint,
+                   const Point<int>& aSecondPoint) const;
+   void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
    
    IMapPtr myMap;
 
    Vector<double> myPosition;
    Vector<double> myMovement;
+
+   // Variables for dragging track segments
+   Point<int> myDragBegin, myDragEnd;
+   bool amDragging;
 };
 
 Editor::Editor()
-   : myPosition(2.0, -8.0, -10.0)
+   : myPosition(2.0, -8.0, -10.0), amDragging(false)
 {
    myMap = makeEmptyMap(32, 32);
 }
@@ -60,6 +70,17 @@ Editor::~Editor()
    
 }
 
+// Calculate the bounds of the drag box accounting for the different
+// possible directions of dragging
+void Editor::dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const
+{
+   xMin = min(myDragBegin.x, myDragEnd.x);
+   xMax = max(myDragBegin.x, myDragEnd.x);
+
+   yMin = min(myDragBegin.y, myDragEnd.y);
+   yMax = max(myDragBegin.y, myDragEnd.y); 
+}
+   
 // Render the next frame
 void Editor::display(IGraphicsPtr aContext) const
 {
@@ -70,29 +91,97 @@ void Editor::display(IGraphicsPtr aContext) const
    aContext->moveLight(0.0, 50.0, 0.0);
 
    myMap->render(aContext);
-   myMap->highlightTile(aContext, makePoint(1, 1));
+
+   // Draw the highlight if we are dragging track
+   if (amDragging) {
+      int xmin, xmax, ymin, ymax;
+      dragBoxBounds(xmin, xmax, ymin, ymax);
+      
+      for (int x = xmin; x <= xmax; x++) {
+         for (int y = ymin; y <= ymax; y++)
+            myMap->highlightTile(aContext, makePoint(x, y));
+      }         
+   }
 }
 
-// Process user input
+// Prepare the next frame
 void Editor::update(IPickBufferPtr aPickBuffer)
 {
    myPosition += myMovement;
 }
 
+// True if the `aFirstPoint' is a valid track segment and it can
+// connect to `aSecondPoint'
+bool Editor::canConnect(const Point<int>& aFirstPoint,
+                        const Point<int>& aSecondPoint) const
+{
+   return myMap->isValidTrack(aFirstPoint)
+      && myMap->trackAt(aFirstPoint)->nextPosition() == aSecondPoint;
+}
+
+// Called when the user has finished dragging a rectangle for track
+// Connect the beginning and end up in the simplest way possible
+void Editor::drawDraggedTrack()
+{
+   // Try to guess the initial orientation from a nearby track segment
+   if (canConnect(myDragBegin.left(), myDragBegin)
+       || canConnect(myDragBegin.right(), myDragBegin)) {
+      log() << "Connect along x";
+   }
+   else if (canConnect(myDragBegin.up(), myDragBegin)
+       || canConnect(myDragBegin.down(), myDragBegin)) {
+      log() << "Connect along y";
+   }
+   else {
+      // There isn't an adjoining track segment to connect to
+      // Guess that the user wants to connect along the longest axis
+
+      int xmin, xmax, ymin, ymax;
+      dragBoxBounds(xmin, xmax, ymin, ymax);
+
+      int xlen = abs(xmax - xmin);
+      int ylen = abs(ymax - ymin);
+
+      if (xlen > ylen) {
+         log() << "(Guess) connect along x";
+      }
+      else {
+         log() << "(Guess) connect along y";
+      }
+   }
+}
+
 void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
 {
-   
+   if (amDragging) {
+      // Extend the selection rectangle
+      IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
+      display(pickContext);
+      int id = aPickBuffer->endPick();
+
+      if (id > 0)
+         myDragEnd = myMap->pickPosition(id);
+   }      
 }
 
 void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
-                          int aButton)
+                          MouseButton aButton)
 {
    IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
-   
    display(pickContext);
-   
    int id = aPickBuffer->endPick();
-   if (id > 0 && myMap->isValidTileName(id)) {
+
+   if (aButton == MOUSE_LEFT && id > 0) {
+      // Begin dragging a selection rectangle
+      Point<int> where = myMap->pickPosition(id);
+      
+      myDragBegin = myDragEnd = where;
+      amDragging = true;
+   }
+
+   //  if (id > 0
+
+   /*if (id > 0 && myMap->isValidTileName(id)) {
       Point<int> where = myMap->pickPosition(id);
       
       ITrackSegmentPtr track;
@@ -111,13 +200,17 @@ void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
       
       if (track)
          myMap->setTrackAt(where, track);
-   }
+         }*/
 }
 
 void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
-                            int aButton)
+                            MouseButton aButton)
 {
-   
+   if (amDragging) {
+      // Stop dragging and draw the track
+      drawDraggedTrack();
+      amDragging = false;
+   }
 }
 
 void Editor::onKeyUp(SDLKey aKey)

@@ -63,7 +63,7 @@ private:
    void initCEGUI();
    void processInput();
    void drawGLScene();
-   int sdlButtonToInt(Uint8 aSDLButton) const;
+   MouseButton fromSDLButton(Uint8 aSDLButton) const;
    
    bool amRunning;
    int myWidth, myHeight;
@@ -235,14 +235,15 @@ void SDLWindow::drawGLScene()
    SDL_GL_SwapBuffers();
 }
 
-// Convert an SDL button constant to an integer or -1
-int SDLWindow::sdlButtonToInt(Uint8 aSDLButton) const
+// Convert an SDL button constant to a MouseButton
+MouseButton SDLWindow::fromSDLButton(Uint8 aSDLButton) const
 {
    switch (aSDLButton) {
-   case SDL_BUTTON_LEFT: return 0;
-   case SDL_BUTTON_MIDDLE: return 1;
-   case SDL_BUTTON_RIGHT: return 2;
-   default: return -1;
+   case SDL_BUTTON_LEFT: return MOUSE_LEFT;
+   case SDL_BUTTON_MIDDLE: return MOUSE_MIDDLE;
+   case SDL_BUTTON_RIGHT: return MOUSE_RIGHT;
+   default:
+      abort();
    }
 }
 
@@ -250,6 +251,9 @@ int SDLWindow::sdlButtonToInt(Uint8 aSDLButton) const
 void SDLWindow::processInput()
 {
    SDL_Event e;
+
+   // Send only one mouse motion event per frame
+   bool haveSentMouseMotion = false;
 
    while (SDL_PollEvent(&e)) {
       switch (e.type) {
@@ -268,20 +272,23 @@ void SDLWindow::processInput()
          break;
 
       case SDL_MOUSEMOTION:
-         myScreen->onMouseMove(shared_from_this(),
-                               e.motion.x, e.motion.y);
+         if (!haveSentMouseMotion) {
+            myScreen->onMouseMove(shared_from_this(),
+                                  e.motion.x, e.motion.y);
+            haveSentMouseMotion = true;
+         }
          break;
          
       case SDL_MOUSEBUTTONDOWN:
          myScreen->onMouseClick(shared_from_this(),
                                 e.button.x, e.button.y,
-                                sdlButtonToInt(e.button.button));
+                                fromSDLButton(e.button.button));
          break;
 
       case SDL_MOUSEBUTTONUP:
          myScreen->onMouseRelease(shared_from_this(),
                                   e.button.x, e.button.y,
-                                  sdlButtonToInt(e.button.button));
+                                  fromSDLButton(e.button.button));
          break;
       }
    }
@@ -385,8 +392,6 @@ IGraphicsPtr SDLWindow::beginPick(int x, int y)
 unsigned SDLWindow::endPick()
 {
    int objectsFound = glRenderMode(GL_RENDER);
-
-   log() << objectsFound << " objects found after picking";
    
    // Go back to normal
    glMatrixMode(GL_PROJECTION);

@@ -125,6 +125,16 @@ template <typename T>
 struct Point {
    Point(T _x, T _y) : x(_x), y(_y) {}
    Point() : x(0), y(0) {}
+
+   Point left() const { return Point(x - 1, y); }
+   Point right() const { return Point(x + 1, y); }
+   Point up() const { return Point(x, y + 1); }
+   Point down() const { return Point(x, y - 1); }
+
+   bool operator==(const Point<T>& aPoint) const
+   {
+      return aPoint.x == x && aPoint.y == y;
+   }
    
    T x, y;
 };
