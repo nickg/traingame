@@ -142,5 +142,16 @@ void StraightTrack::render() const
 
 ITrackSegmentPtr makeStraightTrack(const ITrackSegment::Direction& aDirection)
 {
-   return ITrackSegmentPtr(new StraightTrack(aDirection));
+   ITrackSegment::Direction realDir(aDirection);
+   
+   // Direction must either be along Axis::X or Axis::Y but we
+   // allow the opositite direction here too
+   if (realDir == -Axis::X || realDir == -Axis::Y)
+      realDir = -realDir;
+
+   if (realDir != Axis::X && realDir != Axis::Y)
+      throw runtime_error("Illegal straight track direction: "
+                          + lexical_cast<string>(aDirection));
+   
+   return ITrackSegmentPtr(new StraightTrack(realDir));
 }

@@ -169,7 +169,16 @@ void Editor::drawDraggedTile()
 // This just draws straight track along the rectangle
 void Editor::drawDraggedStraight(const ITrackSegment::Direction& anAxis, int aLength)
 {
-   //for (int i = 0; i < 
+   Point<int> where = myDragBegin;
+
+   log() << "drawDraggedStraight " << anAxis << " len=" << aLength;
+   
+   for (int i = 0; i < aLength; i++) {
+      myMap->setTrackAt(where, makeStraightTrack(anAxis));
+      
+      where.x += anAxis.x;
+      where.y += anAxis.z;
+   }
 }
 
 // Called when the user has finished dragging a rectangle for track
@@ -183,13 +192,13 @@ void Editor::drawDraggedTrack()
    
    int xlen = abs(xmax - xmin) + 1;
    int ylen = abs(ymax - ymin) + 1;
-
+log() << "xlen=" << xlen << ", ylen=" << ylen;
    if (xlen == 1 && ylen == 1)
       drawDraggedTile();
    else if (xlen == 1)
-      drawDraggedStraight(Axis::Y, ylen);
+      drawDraggedStraight(myDragBegin.y < myDragEnd.y ? Axis::Y : -Axis::Y, ylen);
    else if (ylen == 1)
-      drawDraggedStraight(Axis::X, xlen);
+      drawDraggedStraight(myDragBegin.x < myDragEnd.x ? Axis::X : -Axis::X, xlen);
    /*
    // Try to guess the initial orientation from a nearby track segment
    if (canConnect(myDragBegin.left(), myDragBegin)
