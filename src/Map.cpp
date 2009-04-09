@@ -245,7 +245,9 @@ void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
 // Render a small part of the map as directed by the quad tree
 void Map::renderSector(IGraphicsPtr aContext,
                        Point<int> botLeft, Point<int> topRight)
-{   
+{
+   glEnable(GL_CULL_FACE);
+   
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
       for (int y = botLeft.y; y < topRight.y; y++) {
          // Name this tile

@@ -57,10 +57,17 @@ private:
    // Variables for dragging track segments
    Point<int> myDragBegin, myDragEnd;
    bool amDragging;
+
+   // Different tools the user can be using
+   enum Tool {
+      TRACK_TOOL, RAISE_TOOL
+   };
+   Tool myTool;
 };
 
 Editor::Editor()
-   : myPosition(2.0, -8.0, -10.0), amDragging(false)
+   : myPosition(2.0, -8.0, -10.0), amDragging(false),
+     myTool(TRACK_TOOL)
 {
    myMap = makeEmptyMap(32, 32);
 }
@@ -178,11 +185,20 @@ void Editor::drawDraggedTrack()
       }
    }
 
+   log() << "xlen=" << xlen << ", ylen=" << ylen;
+
+   // Corner case where track is connected at right angles (so the
+   // track doesn't actually join)
+   if (straight == ALONG_X && xlen == 0 && ylen > xlen)
+      straight = ALONG_Y;
+   else if (straight == ALONG_Y && ylen == 0 && xlen > ylen)
+      straight = ALONG_X;
+
    // The radius is the length of the shorter side
    // If it's equal to 1 then the track is straight
    // Otherwise it curves towards myDragEnd at the end
-   int radius = (xlen > ylen ? ylen : xlen) + 1;
-   int length = (xlen > ylen ? xlen : ylen) + 1;
+   int radius = (straight == ALONG_X ? ylen : xlen) + 1;
+   int length = (straight == ALONG_X ? xlen : ylen) + 1;
 
    // The length of the straight track until it starts to curve away
    int straightLen = radius == 1 ? length : length - radius;
