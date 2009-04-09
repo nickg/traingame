@@ -45,6 +45,8 @@ public:
 private:
    void buildGUI();
    void drawDraggedTrack();
+   void drawDraggedTile();
+   void drawDraggedStraight(const ITrackSegment::Direction& anAxis, int aLength);
    bool canConnect(const Point<int>& aFirstPoint,
                    const Point<int>& aSecondPoint) const;
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
@@ -137,30 +139,58 @@ bool Editor::canConnect(const Point<int>& aFirstPoint,
            && track->nextPosition(dir).first == aSecondPoint)
       || (track->isValidDirection(-dir)
           && track->nextPosition(-dir).first == aSecondPoint);
-   
-   /*if () {
-      log() << track->nextPosition(dir).first
-            << " == " << aSecondPoint;
-      return ;
+}
+
+// Special case of drawing dragged track where the user selects just
+// a single tile
+void Editor::drawDraggedTile()
+{
+   // Look at nearby track segments and try to guess the orientation
+   ITrackSegment::Direction orient;
+   if (canConnect(myDragBegin.left(), myDragBegin)
+       || canConnect(myDragBegin.right(), myDragBegin)) {
+      log() << "Connect along x";
+      orient = Axis::X;
    }
-   else if ()
-      return ;
-   else
-   return false;*/
+   else if (canConnect(myDragBegin.up(), myDragBegin)
+       || canConnect(myDragBegin.down(), myDragBegin)) {
+      log() << "Connect along y";
+      orient = Axis::Y;
+   }
+   else {
+      // Take a guess
+      orient = Axis::X;
+   }
+
+   myMap->setTrackAt(myDragBegin, makeStraightTrack(orient));
+}
+
+// Special case where the user drags a rectangle of width 1
+// This just draws straight track along the rectangle
+void Editor::drawDraggedStraight(const ITrackSegment::Direction& anAxis, int aLength)
+{
+   //for (int i = 0; i < 
 }
 
 // Called when the user has finished dragging a rectangle for track
 // Connect the beginning and end up in the simplest way possible
 void Editor::drawDraggedTrack()
 {
-   Orientation straight;  // Orientation for straight track section
+   ITrackSegment::Direction straight;  // Orientation for straight track section
    
    int xmin, xmax, ymin, ymax;
    dragBoxBounds(xmin, xmax, ymin, ymax);
    
-   int xlen = abs(xmax - xmin);
-   int ylen = abs(ymax - ymin);
+   int xlen = abs(xmax - xmin) + 1;
+   int ylen = abs(ymax - ymin) + 1;
 
+   if (xlen == 1 && ylen == 1)
+      drawDraggedTile();
+   else if (xlen == 1)
+      drawDraggedStraight(Axis::Y, ylen);
+   else if (ylen == 1)
+      drawDraggedStraight(Axis::X, xlen);
+   /*
    // Try to guess the initial orientation from a nearby track segment
    if (canConnect(myDragBegin.left(), myDragBegin)
        || canConnect(myDragBegin.right(), myDragBegin)) {
@@ -219,7 +249,7 @@ void Editor::drawDraggedTrack()
          : makePoint(myDragBegin.x, myDragBegin.y + i*dir);
 
       myMap->setTrackAt(where, makeStraightTrack(straight));
-   }
+      }*/
 
    myMap->rebuildDisplayLists();
 }

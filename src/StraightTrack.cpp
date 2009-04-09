@@ -34,7 +34,7 @@ using namespace boost;
 // Concrete implementation of straight-line pieces of track
 class StraightTrack : public ITrackSegment {
 public:
-   StraightTrack(Orientation anOrientation);
+   StraightTrack(const Direction& aDirection);
    ~StraightTrack();
    
    void render() const;
@@ -51,11 +51,11 @@ private:
    void transform(double aDelta) const;
    
    int myX, myY;  // Absolute position
-   Orientation myOrientation;
+   Direction myDirection;
 };
 
-StraightTrack::StraightTrack(Orientation anOrientation)
-   : myOrientation(anOrientation)
+StraightTrack::StraightTrack(const Direction& aDirection)
+   : myDirection(aDirection)
 {
    
 }
@@ -69,14 +69,14 @@ void StraightTrack::transform(double aDelta) const
 {
    assert(aDelta < 1.0);
 
-   const double xTrans = myOrientation == ALONG_X ? aDelta : 0;
-   const double yTrans = myOrientation == ALONG_Y ? aDelta : 0;
+   const double xTrans = myDirection == Axis::X ? aDelta : 0;
+   const double yTrans = myDirection == Axis::Y ? aDelta : 0;
 
    glTranslated(static_cast<double>(myX) + xTrans,
                 0.0,
                 static_cast<double>(myY) + yTrans);
 
-   if (myOrientation == ALONG_Y)
+   if (myDirection == Axis::Y)
       glRotated(-90.0, 0.0, 1.0, 0.0);
 }
 
@@ -87,43 +87,34 @@ ITrackSegment::TransformFunc StraightTrack::transformFunc() const
 
 bool StraightTrack::isValidDirection(const Direction& aDirection) const
 {
-   const Direction alongX = makeVector(1, 0, 0);
-   const Direction alongY = makeVector(0, 0, 1);
-
-   if (myOrientation == ALONG_X) {
-      log() << "ALONG_X: " << aDirection << " == " << alongX;
-      return aDirection == alongX || -aDirection == alongX;
+   if (myDirection == Axis::X) {
+      log() << "ALONG_X: " << aDirection << " == " << Axis::X;
+      return aDirection == Axis::X || -aDirection == Axis::X;
    }
    else {
-      log() << "ALONG_Y: " << aDirection << " == " << alongY;
-      return aDirection == alongY || -aDirection == alongY;
+      log() << "ALONG_Y: " << aDirection << " == " << Axis::Y;
+      return aDirection == Axis::Y || -aDirection == Axis::Y;
    }
 }
 
 ITrackSegment::Connection
-StraightTrack::nextPosition(const Vector<int>& aDirection) const
+StraightTrack::nextPosition(const Direction& aDirection) const
 {
-   const Direction alongX = makeVector(1, 0, 0);
-   const Direction alongY = makeVector(0, 0, 1);
-
-   const Direction trackDir =
-      myOrientation == ALONG_X ? alongX : alongY;
-
-   if (aDirection != trackDir && aDirection != -trackDir)
+   if (aDirection != myDirection && aDirection != -myDirection)
       throw runtime_error
          ("Invalid direction on straight track: "
           + lexical_cast<string>(aDirection)
           + " (should be parallel to "
-          + lexical_cast<string>(trackDir) + ")");
+          + lexical_cast<string>(myDirection) + ")");
 
-   if (aDirection == alongX)
-      return make_pair(makePoint(myX + 1, myY), alongX);
-   else if (aDirection == -alongX)
-      return make_pair(makePoint(myX - 1, myY), -alongX);
-   else if (aDirection == alongY)
-      return make_pair(makePoint(myX, myY + 1), alongY);
-   else if (aDirection == -alongY)
-      return make_pair(makePoint(myX, myY - 1), -alongY);
+   if (aDirection == Axis::X)
+      return make_pair(makePoint(myX + 1, myY), Axis::X);
+   else if (aDirection == -Axis::X)
+      return make_pair(makePoint(myX - 1, myY), -Axis::X);
+   else if (aDirection == Axis::Y)
+      return make_pair(makePoint(myX, myY + 1), Axis::Y);
+   else if (aDirection == -Axis::Y)
+      return make_pair(makePoint(myX, myY - 1), -Axis::Y);
    else
       assert(false);
 }
@@ -132,7 +123,7 @@ void StraightTrack::render() const
 {
    glPushMatrix();
 
-   if (myOrientation == ALONG_X)
+   if (myDirection == Axis::X)
       glRotated(90.0, 0.0, 1.0, 0.0);
    
    renderStraightRail();
@@ -149,7 +140,7 @@ void StraightTrack::render() const
    glPopMatrix();
 }
 
-ITrackSegmentPtr makeStraightTrack(Orientation anOrientation)
+ITrackSegmentPtr makeStraightTrack(const ITrackSegment::Direction& aDirection)
 {
-   return ITrackSegmentPtr(new StraightTrack(anOrientation));
+   return ITrackSegmentPtr(new StraightTrack(aDirection));
 }

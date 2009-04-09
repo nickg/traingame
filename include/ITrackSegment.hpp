@@ -71,11 +71,12 @@ struct ITrackSegment {
 typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;
 
 // Orientations for straight track
-enum Orientation {
-   ALONG_X, ALONG_Y
-};
+namespace Axis {
+   static const ITrackSegment::Direction X = makeVector(1, 0, 0);
+   static const ITrackSegment::Direction Y = makeVector(0, 0, 1);
+}
 
-ITrackSegmentPtr makeStraightTrack(Orientation anOrientation);
+ITrackSegmentPtr makeStraightTrack(const ITrackSegment::Direction& aDirection);
 ITrackSegmentPtr makeCurvedTrack();
 
 #endif
