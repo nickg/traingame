@@ -103,14 +103,14 @@ static void renderOneRail()
    glVertex3d(Track::railWidth, Track::railHeight, 0.0);
    
    // Outer side
-   glNormal3d(0.0, 0.0, -1.0);
+   glNormal3d(-1.0, 0.0, 0.0);
    glVertex3d(0.0, Track::railHeight, 0.0);
    glVertex3d(0.0, 0.0, 0.0);
    glVertex3d(0.0, 0.0, 1.0);
    glVertex3d(0.0, Track::railHeight, 1.0);
    
    // Inner side
-   glNormal3d(0.0, 0.0, 1.0);
+   glNormal3d(1.0, 0.0, 0.0);
    glVertex3d(Track::railWidth, Track::railHeight, 1.0);
    glVertex3d(Track::railWidth, 0.0, 1.0);
    glVertex3d(Track::railWidth, 0.0, 0.0);
