@@ -31,7 +31,8 @@ using namespace Track;
 // Concrete implementation of curved pieces of track
 class CurvedTrack : public ITrackSegment {
 public:
-   CurvedTrack();
+   CurvedTrack(Track::Angle aStartAngle, Track::Angle aFinishAngle,
+               int aRadius);
    ~CurvedTrack();
 
    void render() const;
@@ -46,12 +47,16 @@ private:
    void transform(double aDelta) const;
    
    int myX, myY, myBaseRadius;
+   double myStartAngle, myFinishAngle;
 };
 
-CurvedTrack::CurvedTrack()
-   : myX(0), myY(0), myBaseRadius(4)
+CurvedTrack::CurvedTrack(Track::Angle aStartAngle,
+                         Track::Angle aFinishAngle,
+                         int aRadius)
+   : myX(0), myY(0), myBaseRadius(aRadius)
 {
-   
+   myStartAngle = (static_cast<double>(aStartAngle)*M_PI)/180.0;
+   myFinishAngle = (static_cast<double>(aFinishAngle)*M_PI)/180.0;
 }
 
 CurvedTrack::~CurvedTrack()
@@ -78,7 +83,6 @@ void CurvedTrack::transform(double aDelta) const
 
    glRotated(-90.0 + angle, 0.0, 1.0, 0.0);
    glTranslated(0.5, 0.0, static_cast<double>(myBaseRadius) - 0.5);
-
    
    glBegin(GL_LINES);
    glVertex3d(0.0, -5.0, 0.0);
@@ -110,10 +114,12 @@ Connection CurvedTrack::nextPosition(const Vector<int>& aDirection) const
 
 void CurvedTrack::render() const
 {
-   renderCurveRail(myBaseRadius);
+   renderCurveRail(myBaseRadius, myStartAngle, myFinishAngle);
 }
 
-ITrackSegmentPtr makeCurvedTrack()
+ITrackSegmentPtr makeCurvedTrack(Track::Angle aStartAngle,
+                                 Track::Angle aFinishAngle, int aRadius)
 {
-   return ITrackSegmentPtr(new CurvedTrack);
+   return ITrackSegmentPtr
+      (new CurvedTrack(aStartAngle, aFinishAngle, aRadius));
 }

@@ -77,7 +77,7 @@ IModelPtr loadModel(const string& fileName, double aScale)
 
    GLenum displayList = glGenLists(1);
    glNewList(displayList, GL_COMPILE);
-
+   
    glPushAttrib(GL_ALL_ATTRIB_BITS);
    glPushMatrix();
    

@@ -134,6 +134,7 @@ namespace {
                    const Vector<double>& aNormal)
    {
       glPushAttrib(GL_ENABLE_BIT);
+      
       glDisable(GL_CULL_FACE);
       glDisable(GL_LIGHTING);
       glDisable(GL_BLEND);
@@ -143,8 +144,6 @@ namespace {
       glColor3d(1.0, 0.0, 0.0);
 
       Vector<double> normPos = aPosition + aNormal;
-
-      log() << "Normal line: " << aPosition << " -> " << normPos;
       
       glBegin(GL_LINES);
 
@@ -172,12 +171,22 @@ static void makeCurveRail(double baseRadius, double startAngle,
 
    const double step = 0.1;
 
+   glBegin(GL_LINES);
+   glColor3d(1.0, 0.0, 0.0);
+   glVertex3d(0.0, -5.0, 0.0);
+   glVertex3d(0.0, 5.0, 0.0);
+   glEnd();
+
    glPushMatrix();
-   glTranslated(baseRadius - 0.5, 0.0, -0.5);
+   glRotated(startAngle * 180.0 / M_PI, 0.0, 1.0, 0.0);
+   glTranslated((baseRadius-1)*-sin(startAngle) - 0.5, 0.0,
+                (baseRadius-1)*cos(startAngle) - 0.5);
+
+   glColor3d(0.7, 0.7, 0.7);
 
    // Top of rail
    glBegin(GL_QUADS);
-   for (double theta = startAngle; theta < finishAngle; theta += step) {
+   for (double theta = 0; theta < finishAngle - startAngle; theta += step) {
       glNormal3d(0.0, 1.0, 0.0);
       glVertex3d(r * cos(theta), 0.1, r * sin(theta)); 
       glVertex3d(r * cos(theta + step), 0.1, r * sin(theta + step));
@@ -187,7 +196,7 @@ static void makeCurveRail(double baseRadius, double startAngle,
    glEnd();
 
    // Outer edge
-   for (double theta = startAngle; theta < finishAngle; theta += step) {
+   for (double theta = 0; theta < finishAngle - startAngle; theta += step) {
       const double sinT = sin(theta);
       const double cosT = cos(theta);
       const double sinT1 = sin(theta + step);
@@ -212,7 +221,7 @@ static void makeCurveRail(double baseRadius, double startAngle,
 
    // Inner edge
    glBegin(GL_QUADS);
-   for (double theta = startAngle; theta < finishAngle; theta += step) {
+   for (double theta = 0; theta < finishAngle - startAngle; theta += step) {
       const double sinT = sin(theta);
       const double cosT = cos(theta);
       const double sinT1 = sin(theta + step);
@@ -236,13 +245,8 @@ static void makeCurveRail(double baseRadius, double startAngle,
 }
 
 // `baseRadius' is measured in tiles
-void renderCurveRail(int baseRadius)
+void renderCurveRail(int baseRadius, double startAngle, double endAngle)
 {
-   glColor3d(0.7, 0.7, 0.7);
-
-   const double startAngle = M_PI/2.0;
-   const double endAngle = M_PI;
-
    const double baseRadiusD = static_cast<double>(baseRadius);
    makeCurveRail(baseRadiusD, startAngle, endAngle, OuterRail);
    makeCurveRail(baseRadiusD, startAngle, endAngle, InnerRail);
@@ -253,12 +257,15 @@ void renderCurveRail(int baseRadius)
       ((endAngle - startAngle) / numSleepers) * (180.0 / M_PI);
 
    glPushMatrix();
-   glTranslated(baseRadius - 0.5, 0.0, -0.5);
+   glTranslated((baseRadius-1)*-sin(startAngle) - 0.5, 0.0,
+                (baseRadius-1)*cos(startAngle) - 0.5);
+
+   const double startAngleDeg = startAngle * 180.0 / M_PI;
    
    for (int i = 0; i < numSleepers; i++) {
       glPushMatrix();
       
-      glRotated(270.0 + (i + 0.5)*sleeperAngle, 0.0, 1.0, 0.0);
+      glRotated(startAngleDeg + (i + 0.5)*sleeperAngle, 0.0, 1.0, 0.0);
       glTranslated(0.0, 0.0, static_cast<double>(baseRadius) - 0.5);
       
       renderSleeper();

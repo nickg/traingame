@@ -204,9 +204,26 @@ void Editor::drawDraggedCurve(int xLength, int yLength)
    if (dir == Axis::X) {
       if (xLength > yLength) {
          log() << "Curve X->Y at end";
+         int straightLen = xLength - yLength;
+         Point<int> where = myDragBegin;
+         for (int i = 0; i < straightLen; i++) {
+            myMap->setTrackAt(where, makeStraightTrack(Axis::X));
+            where.x++;
+         }
+
+         ITrackSegmentPtr curve;
+         if (myDragBegin.y < myDragBegin.y)
+            curve = makeCurvedTrack(90, 180, yLength);
+         else
+            curve = makeCurvedTrack(0, 90, yLength);
+         myMap->setTrackAt(where, curve);
       }
       else {
          log() << "Curve X->Y at start";
+         Point<int> where = myDragBegin;
+         
+         ITrackSegmentPtr curve = makeCurvedTrack(90, 180, xLength);
+         myMap->setTrackAt(where, curve);
       }
    }
    else {
@@ -218,9 +235,6 @@ void Editor::drawDraggedCurve(int xLength, int yLength)
          log() << "Curve Y->X at start";
       }
    }
-
-   ITrackSegmentPtr curve = makeCurvedTrack();
-   myMap->setTrackAt(myDragBegin, curve);
 }
 
 // Called when the user has finished dragging a rectangle for track
