@@ -196,7 +196,30 @@ void Editor::drawDraggedCurve(int xLength, int yLength)
 
    Track::Direction dir = guessTrackDirection();
 
-   
+   // If we a drawing along the X axis then the track must curve to the
+   // Y axis somewhere
+   // If X is the longer dimension then the curve is at the end after
+   // a straight section, otherwise the curve is at the beginning
+   if (dir == Axis::X) {
+      if (xLength > yLength) {
+         log() << "Curve X->Y at end";
+      }
+      else {
+         log() << "Curve X->Y at start";
+      }
+   }
+   else {
+      // Otherwise the track must curve to the X axis
+      if (yLength > xLength) {
+         log() << "Curve Y->X at end";
+      }
+      else {
+         log() << "Curve Y->X at start";
+      }
+   }
+
+   ITrackSegmentPtr curve = makeCurvedTrack();
+   myMap->setTrackAt(myDragBegin, curve);
 }
 
 // Called when the user has finished dragging a rectangle for track

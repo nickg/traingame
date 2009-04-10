@@ -148,27 +148,31 @@ static void makeCurveRail(double baseRadius, double startAngle,
    glBegin(GL_QUADS);
    for (double theta = startAngle; theta < finishAngle; theta += step) {
       glNormal3d(0.0, 1.0, 0.0);
-      glVertex3d(R * cos(theta), 0.1, R * sin(theta));
-      glNormal3d(0.0, 1.0, 0.0);
-      glVertex3d(R * cos(theta + step), 0.1, R * sin(theta + step));
-      glNormal3d(0.0, 1.0, 0.0);
+      glVertex3d(r * cos(theta), 0.1, r * sin(theta)); 
       glVertex3d(r * cos(theta + step), 0.1, r * sin(theta + step));
-      glNormal3d(0.0, 1.0, 0.0);
-      glVertex3d(r * cos(theta), 0.1, r * sin(theta));
+      glVertex3d(R * cos(theta + step), 0.1, R * sin(theta + step));
+      glVertex3d(R * cos(theta), 0.1, R * sin(theta));
    }
    glEnd();
+
+   // I really have no idea how to compute the normals here!
+   glPushAttrib(GL_ENABLE_BIT);
+   glDisable(GL_CULL_FACE);
 
    // Outer edge
    glBegin(GL_QUADS);
    for (double theta = startAngle; theta < finishAngle; theta += step) {
       glNormal3d(cos(theta), 0.0, sin(theta));
-      glVertex3d(R * cos(theta), 0.1, R * sin(theta));
-      glNormal3d(cos(theta), 0.0, sin(theta));
       glVertex3d(R * cos(theta), 0.0, R * sin(theta));
+      
       glNormal3d(cos(theta + step), 0.0, sin(theta + step));
       glVertex3d(R * cos(theta + step), 0.0, R * sin(theta + step));
-      glNormal3d(cos(theta + step), 0.1, sin(theta + step));
+      
+      glNormal3d(cos(theta + step), 0.0, sin(theta + step));
       glVertex3d(R * cos(theta + step), 0.1, R * sin(theta + step));
+      
+      glNormal3d(cos(theta), 0.0, sin(theta));
+      glVertex3d(R * cos(theta), 0.1, R * sin(theta));      
    }
    glEnd();
 
@@ -177,14 +181,19 @@ static void makeCurveRail(double baseRadius, double startAngle,
    for (double theta = startAngle; theta < finishAngle; theta += step) {
       glNormal3d(-cos(theta), 0.0, -sin(theta));
       glVertex3d(r * cos(theta), 0.1, r * sin(theta));
+      
       glNormal3d(-cos(theta), 0.0, -sin(theta));
       glVertex3d(r * cos(theta), 0.0, r * sin(theta));
+      
       glNormal3d(-cos(theta + step), 0.0, -sin(theta + step));
       glVertex3d(r * cos(theta + step), 0.0, r * sin(theta + step));
-      glNormal3d(-cos(theta + step), 0.1, -sin(theta + step));
+      
+      glNormal3d(-cos(theta + step), 0.0, -sin(theta + step));
       glVertex3d(r * cos(theta + step), 0.1, r * sin(theta + step));
    }
    glEnd();
+
+   glPopAttrib();
 
    glPopMatrix();
 }
