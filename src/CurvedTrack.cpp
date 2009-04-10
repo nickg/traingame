@@ -114,12 +114,14 @@ Connection CurvedTrack::nextPosition(const Vector<int>& aDirection) const
 
 void CurvedTrack::render() const
 {
-   renderCurveRail(myBaseRadius, myStartAngle, myFinishAngle);
+   renderCurvedTrack(myBaseRadius, myStartAngle, myFinishAngle);
 }
 
 ITrackSegmentPtr makeCurvedTrack(Track::Angle aStartAngle,
                                  Track::Angle aFinishAngle, int aRadius)
 {
+   assert(aStartAngle < aFinishAngle);
+   
    return ITrackSegmentPtr
       (new CurvedTrack(aStartAngle, aFinishAngle, aRadius));
 }

@@ -37,6 +37,10 @@ void renderSleeper()
    const double sleeperWidth = 0.1;
    const double sleeperDepth = 0.05;
    const double sleeperOff = sleeperWidth / 2.0;
+
+   glPushAttrib(GL_ENABLE_BIT);
+   glDisable(GL_TEXTURE_2D);
+   glDisable(GL_BLEND);
    
    glPushMatrix();
    glColor3d(0.5, 0.3, 0.0);
@@ -79,7 +83,9 @@ void renderSleeper()
    
    
    glEnd();  // glBegin(GL_QUADS)
+   
    glPopMatrix();
+   glPopAttrib();
 }
 
 static void renderOneRail()
@@ -171,16 +177,27 @@ static void makeCurveRail(double baseRadius, double startAngle,
 
    const double step = 0.1;
 
+   log() << "startAngle=" << startAngle << " finishAngle=" << finishAngle;
+
+   glPushAttrib(GL_ENABLE_BIT);
+   glDisable(GL_TEXTURE_2D);
+   glDisable(GL_BLEND);
+
+   glPushMatrix();
+   
    glBegin(GL_LINES);
    glColor3d(1.0, 0.0, 0.0);
    glVertex3d(0.0, -5.0, 0.0);
    glVertex3d(0.0, 5.0, 0.0);
    glEnd();
 
-   glPushMatrix();
    glRotated(startAngle * 180.0 / M_PI, 0.0, 1.0, 0.0);
-   glTranslated((baseRadius-1)*-sin(startAngle) - 0.5, 0.0,
-                (baseRadius-1)*cos(startAngle) - 0.5);
+
+   glBegin(GL_LINES);
+   glColor3d(0.0, 1.0, 0.0);
+   glVertex3d(0.0, -5.0, 0.0);
+   glVertex3d(0.0, 5.0, 0.0);
+   glEnd();
 
    glColor3d(0.7, 0.7, 0.7);
 
@@ -242,11 +259,28 @@ static void makeCurveRail(double baseRadius, double startAngle,
    glEnd();
 
    glPopMatrix();
+   glPopAttrib();
 }
 
 // `baseRadius' is measured in tiles
-void renderCurveRail(int baseRadius, double startAngle, double endAngle)
+void renderCurvedTrack(int baseRadius, double startAngle, double endAngle)
 {
+   glPushMatrix();
+   
+   glTranslated((baseRadius-1)*-sin(startAngle) - 0.5, 0.0,
+                (baseRadius-1)*-cos(startAngle) - 0.5);
+
+   // There *must* be a way to incorporate this in the above translation
+   // as a neat formula, but I really can't think of it
+   // This is a complete a hack, but whatever...
+   const double safe = 0.01;
+   if (startAngle >= M_PI / 2.0 - safe
+       && startAngle <= M_PI + safe)
+      glTranslated(0.0, 0.0, 1.0);
+   
+   if (startAngle >= M_PI - safe && startAngle <= 3.0 * M_PI / 2.0 + safe)
+      glTranslated(1.0, 0.0, 0.0);
+
    const double baseRadiusD = static_cast<double>(baseRadius);
    makeCurveRail(baseRadiusD, startAngle, endAngle, OuterRail);
    makeCurveRail(baseRadiusD, startAngle, endAngle, InnerRail);
@@ -255,10 +289,6 @@ void renderCurveRail(int baseRadius, double startAngle, double endAngle)
    const int numSleepers = length * Track::sleepersPerUnit;
    const double sleeperAngle =
       ((endAngle - startAngle) / numSleepers) * (180.0 / M_PI);
-
-   glPushMatrix();
-   glTranslated((baseRadius-1)*-sin(startAngle) - 0.5, 0.0,
-                (baseRadius-1)*cos(startAngle) - 0.5);
 
    const double startAngleDeg = startAngle * 180.0 / M_PI;
    

@@ -21,6 +21,6 @@
 // Common track rendering functions
 void renderSleeper();
 void renderStraightRail();
-void renderCurveRail(int baseRadius, double startAngle, double endAngle);
+void renderCurvedTrack(int baseRadius, double startAngle, double endAngle);
 
 #endif

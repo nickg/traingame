@@ -212,7 +212,7 @@ void Editor::drawDraggedCurve(int xLength, int yLength)
          }
 
          ITrackSegmentPtr curve;
-         if (myDragBegin.y < myDragBegin.y)
+         if (myDragBegin.y < myDragEnd.y)
             curve = makeCurvedTrack(90, 180, yLength);
          else
             curve = makeCurvedTrack(0, 90, yLength);
@@ -221,9 +221,26 @@ void Editor::drawDraggedCurve(int xLength, int yLength)
       else {
          log() << "Curve X->Y at start";
          Point<int> where = myDragBegin;
+         Point<int> next;
          
-         ITrackSegmentPtr curve = makeCurvedTrack(90, 180, xLength);
+         ITrackSegmentPtr curve;
+         if (myDragBegin.y < myDragEnd.y) {
+            curve = makeCurvedTrack(180, 270, xLength);
+            next = makePoint(where.x + xLength - 1, where.y + xLength);
+         }
+         else {
+            curve = makeCurvedTrack(0, 90, xLength);
+            next = makePoint(where.x + xLength - 1,
+                             where.y - yLength + 1);
+         }
          myMap->setTrackAt(where, curve);
+         
+         where = next;
+         int straightLen = yLength - xLength;
+         for (int i = 0; i < straightLen; i++) {
+            myMap->setTrackAt(where, makeStraightTrack(Axis::Y));
+            where.y++;
+         }
       }
    }
    else {
@@ -233,6 +250,20 @@ void Editor::drawDraggedCurve(int xLength, int yLength)
       }
       else {
          log() << "Curve Y->X at start";
+         Point<int> where = myDragBegin;
+         Point<int> next;
+
+         ITrackSegmentPtr curve;
+         if (myDragBegin.x < myDragEnd.x) {
+            curve = makeCurvedTrack(270, 360, yLength);
+            next = makePoint(where.x + xLength - 1, where.y + xLength);
+         }
+         else {
+            curve = makeCurvedTrack(90, 180, xLength);
+            next = makePoint(where.x + xLength - 1,
+                             where.y - yLength + 1);
+         }
+         myMap->setTrackAt(where, curve);
       }
    }
 }
@@ -257,67 +288,7 @@ void Editor::drawDraggedTrack()
       drawDraggedStraight(myDragBegin.x < myDragEnd.x ? Axis::X : -Axis::X, xlen);
    else
       drawDraggedCurve(xlen, ylen);
-   /*
-   // Try to guess the initial orientation from a nearby track segment
-   if (canConnect(myDragBegin.left(), myDragBegin)
-       || canConnect(myDragBegin.right(), myDragBegin)) {
-      log() << "Connect along x";
-      straight = ALONG_X;
-   }
-   else if (canConnect(myDragBegin.up(), myDragBegin)
-       || canConnect(myDragBegin.down(), myDragBegin)) {
-      log() << "Connect along y";
-      straight = ALONG_Y;
-   }
-   else {
-      // There isn't an adjoining track segment to connect to
-      // Guess that the user wants to connect along the longest axis
-      if (xlen > ylen) {
-         log() << "(Guess) connect along x";
-         straight = ALONG_X;
-      }
-      else {
-         log() << "(Guess) connect along y";
-         straight = ALONG_Y;
-      }
-   }
-
-   log() << "xlen=" << xlen << ", ylen=" << ylen;
-
-   // Corner case where track is connected at right angles (so the
-   // track doesn't actually join)
-   if (straight == ALONG_X && xlen == 0 && ylen > xlen)
-      straight = ALONG_Y;
-   else if (straight == ALONG_Y && ylen == 0 && xlen > ylen)
-      straight = ALONG_X;
-
-   // The radius is the length of the shorter side
-   // If it's equal to 1 then the track is straight
-   // Otherwise it curves towards myDragEnd at the end
-   int radius = (straight == ALONG_X ? ylen : xlen) + 1;
-   int length = (straight == ALONG_X ? xlen : ylen) + 1;
-
-   // The length of the straight track until it starts to curve away
-   int straightLen = radius == 1 ? length : length - radius;
-
-   log() << "radius = " << radius << ", straightLen = " << straightLen;
-
-   // The direction to go from the start to the end
-   int dir;
-   if (straight == ALONG_X)
-      dir = myDragBegin.x < myDragEnd.x ? 1 : -1;
-   else
-      dir = myDragBegin.y < myDragEnd.y ? 1 : -1;
-
-   // Make the straight part
-   for (int i = 0; i < straightLen; i++) {
-      Point<int> where = straight == ALONG_X
-         ? makePoint(myDragBegin.x + i*dir, myDragBegin.y)
-         : makePoint(myDragBegin.x, myDragBegin.y + i*dir);
-
-      myMap->setTrackAt(where, makeStraightTrack(straight));
-      }*/
-
+ 
    myMap->rebuildDisplayLists();
 }
 
