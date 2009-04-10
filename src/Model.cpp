@@ -58,7 +58,8 @@ void Model::render() const
 }
 
 // Load a WaveFront .obj model from disk
-IModelPtr loadModel(const string& fileName)
+// Each vertex is scaled by `aScale'
+IModelPtr loadModel(const string& fileName, double aScale)
 {
    ifstream f(fileName.c_str());
    if (!f.good()) {
@@ -84,9 +85,10 @@ IModelPtr loadModel(const string& fileName)
    glDisable(GL_BLEND);
    glEnable(GL_TEXTURE);
    glEnable(GL_LIGHTING);
+   glEnable(GL_LIGHT0);
    glEnable(GL_CULL_FACE);
 
-   glColor3d(0.0, 0.0, 1.0);
+   glColor4d(1.0, 1.0, 1.0, 1.0);
 
    bool foundVertex = false;
    double ymin = 0, ymax = 0, xmin = 0, xmax = 0,
@@ -114,6 +116,10 @@ IModelPtr loadModel(const string& fileName)
          // Vertex
          double x, y, z;
          f >> x >> y >> z;
+
+         x *= aScale;
+         y *= aScale;
+         z *= aScale;
 
          if (foundVertex) {
             xmin = min(x, xmin);

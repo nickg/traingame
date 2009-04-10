@@ -46,9 +46,6 @@ public:
    void quit();
 
    // IGraphics interface
-   void setAmbient(double r, double g, double b);
-   void setDiffuse(double r, double g, double b);
-   void moveLight(double x, double y, double z);
    bool cuboidInViewFrustum(double x, double y, double z,
                             double sizeX, double sizeY, double sizeZ);
    bool cubeInViewFrustum(double x, double y, double z, double size);
@@ -207,7 +204,6 @@ void SDLWindow::drawGLScene()
    glEnable(GL_DEPTH_TEST);
    glEnable(GL_TEXTURE_2D);
    glEnable(GL_CULL_FACE);
-   glEnable(GL_NORMALIZE);
   
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT1);
@@ -314,27 +310,6 @@ void SDLWindow::resizeGLScene()
       myHeight = 1;
 
    glViewport(0, 0, myWidth, myHeight);
-}
-
-// Set the value of the ambient light
-void SDLWindow::setAmbient(double r, double g, double b)
-{
-   const GLfloat LightAmbient[] = { r, g, b, 1.0f };
-   glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
-}
-
-// Set the diffuse light
-void SDLWindow::setDiffuse(double r, double g, double b)
-{
-   const GLfloat LightDiffuse[] = { r, g, b, 1.0f };
-   glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
-}
-
-// Change the light position
-void SDLWindow::moveLight(double x, double y, double z)
-{
-   const GLfloat LightPosition[]= { x, y, z, 0.0f };
-   glLightfv(GL_LIGHT1, GL_POSITION,LightPosition);
 }
 
 // Intersect a cuboid with the current view frustum

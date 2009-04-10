@@ -24,21 +24,6 @@ using namespace std;
 // Special graphics context for use in display lists
 class DisplayListContext : public IGraphics {
 public:
-   void setAmbient(double r, double g, double b)
-   {
-      throw runtime_error("setAmbient called in display list");
-   }
-   
-   void setDiffuse(double r, double g, double b)
-   {
-      throw runtime_error("setDiffuse called in display list");
-   }
-   
-   void moveLight(double x, double y, double z)
-   {
-      throw runtime_error("moveLight called in display list");
-   }
-
    bool cuboidInViewFrustum(double x, double y, double z,
                             double sizeX, double sizeY, double sizeZ)
    {

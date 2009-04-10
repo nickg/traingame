@@ -15,24 +15,22 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_IMODEL_HPP
-#define INC_IMODEL_HPP
-
-#include "Maths.hpp"
+#ifndef INC_ILIGHT_HPP
+#define INC_ILIGHT_HPP
 
 #include <tr1/memory>
-#include <string>
 
-struct IModel {
-   virtual ~IModel() {}
-   
-   virtual void render() const = 0;
-   virtual Vector<double> dimensions() const = 0;
+// A generic light which can be added to the scene
+// All light properties are set at creation time
+struct ILight {
+   virtual ~ILight() {}
+
+   virtual void apply() const = 0;
 };
 
-typedef std::tr1::shared_ptr<IModel> IModelPtr;
+typedef std::tr1::shared_ptr<ILight> ILightPtr;
 
-// Load a model from a WaveFront .obj file
-IModelPtr loadModel(const std::string& fileName, double aScale = 1.0);
+// A weak non-directional light
+ILightPtr makeSunLight();
 
 #endif

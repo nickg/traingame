@@ -25,11 +25,6 @@
 // Interface to stateful graphics things (lights, cameras, etc.)
 struct IGraphics {
    virtual ~IGraphics() {}
-   
-   // Lights
-   virtual void setAmbient(double r, double g, double b) = 0;
-   virtual void setDiffuse(double r, double g, double b) = 0;
-   virtual void moveLight(double x, double y, double z) = 0;
 
    // Camera
    virtual bool cuboidInViewFrustum(double x, double y, double z,

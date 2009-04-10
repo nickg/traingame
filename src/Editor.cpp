@@ -20,6 +20,7 @@
 #include "IModel.hpp"
 #include "IMap.hpp"
 #include "Maths.hpp"
+#include "ILight.hpp"
 
 #include <algorithm>
 
@@ -54,7 +55,8 @@ private:
    Track::Direction guessTrackDirection();
    
    IMapPtr myMap;
-
+   
+   ILightPtr mySun;
    Vector<double> myPosition;
    Vector<double> myMovement;
 
@@ -74,6 +76,7 @@ Editor::Editor()
      myTool(TRACK_TOOL)
 {
    myMap = makeEmptyMap(32, 32);
+   mySun = makeSunLight();
 }
 
 Editor::~Editor()
@@ -95,12 +98,10 @@ void Editor::dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const
 // Render the next frame
 void Editor::display(IGraphicsPtr aContext) const
 {
+   mySun->apply();
+   
    aContext->setCamera(myPosition, makeVector(45.0, 45.0, 1.0));
    
-   aContext->setAmbient(0.5, 0.5, 0.5);
-   aContext->setDiffuse(0.8, 0.8, 0.8);
-   aContext->moveLight(0.0, 50.0, 0.0);
-
    myMap->render(aContext);
 
    // Draw the highlight if we are dragging track

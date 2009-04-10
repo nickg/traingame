@@ -21,6 +21,7 @@
 #include "IRollingStock.hpp"
 #include "ITrain.hpp"
 #include "ILogger.hpp"
+#include "ILight.hpp"
 
 #include <GL/gl.h>
 
@@ -44,6 +45,7 @@ public:
 private:
    IMapPtr myMap;
    ITrainPtr myTrain;
+   ILightPtr mySun;
 
    Vector<double> myPosition;
    Vector<double> myMovement;
@@ -58,6 +60,7 @@ Game::Game(IMapPtr aMap)
      myRotation(makeVector(45.0, 45.0, 0.0))
 {
    myTrain = makeTrain(myMap);
+   mySun = makeSunLight();
 }
 
 Game::~Game()
@@ -67,12 +70,10 @@ Game::~Game()
 
 void Game::display(IGraphicsPtr aContext) const
 {
+   mySun->apply();
+   
    aContext->setCamera(myPosition, myRotation);
-   
-   aContext->setAmbient(0.5, 0.5, 0.5);
-   aContext->setDiffuse(0.8, 0.8, 0.8);
-   aContext->moveLight(0.0, 50.0, 0.0);
-   
+      
    myTrain->render();
    myMap->render(aContext);
 }

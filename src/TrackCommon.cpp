@@ -186,10 +186,6 @@ static void makeCurveRail(double baseRadius, double startAngle,
    }
    glEnd();
 
-   // I really have no idea how to compute the normals here!
-   glPushAttrib(GL_ENABLE_BIT);
-   //glDisable(GL_CULL_FACE);
-
    // Outer edge
    for (double theta = startAngle; theta < finishAngle; theta += step) {
       const double sinT = sin(theta);
@@ -211,34 +207,30 @@ static void makeCurveRail(double baseRadius, double startAngle,
       glNormal3d(cosT, 0.0, sinT);
       glVertex3d(R * cosT, 0.1, R * sinT);
       
-      
-      
-      
-
       glEnd();
-
-      drawNormal(makeVector(R * cosT1, 0.1, R * sinT1),
-                 makeVector(cosT1, 0.0, sinT1));
    }
 
    // Inner edge
    glBegin(GL_QUADS);
    for (double theta = startAngle; theta < finishAngle; theta += step) {
-      glNormal3d(-cos(theta), 0.0, -sin(theta));
-      glVertex3d(r * cos(theta), 0.1, r * sin(theta));
+      const double sinT = sin(theta);
+      const double cosT = cos(theta);
+      const double sinT1 = sin(theta + step);
+      const double cosT1 = cos(theta + step);
       
-      glNormal3d(-cos(theta), 0.0, -sin(theta));
-      glVertex3d(r * cos(theta), 0.0, r * sin(theta));
+      glNormal3d(-cosT, 0.0, -sinT);
+      glVertex3d(r * cosT, 0.1, r * sinT);
       
-      glNormal3d(-cos(theta + step), 0.0, -sin(theta + step));
-      glVertex3d(r * cos(theta + step), 0.0, r * sin(theta + step));
+      glNormal3d(-cosT, 0.0, -sinT);
+      glVertex3d(r * cosT, 0.0, r * sinT);
       
-      glNormal3d(-cos(theta + step), 0.0, -sin(theta + step));
-      glVertex3d(r * cos(theta + step), 0.1, r * sin(theta + step));
+      glNormal3d(-cosT1, 0.0, -sinT1);
+      glVertex3d(r * cosT1, 0.0, r * sinT1);
+      
+      glNormal3d(-cosT1, 0.0, -sinT1);
+      glVertex3d(r * cosT1, 0.1, r * sinT1);
    }
    glEnd();
-
-   glPopAttrib();
 
    glPopMatrix();
 }
