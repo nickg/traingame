@@ -26,6 +26,7 @@
 using namespace std;
 using namespace std::tr1;
 using namespace std::tr1::placeholders;
+using namespace Track;
 
 // Concrete implementation of curved pieces of track
 class CurvedTrack : public ITrackSegment {
@@ -101,8 +102,7 @@ bool CurvedTrack::isValidDirection(const Direction& aDirection) const
    return true; // TODO!
 }
 
-ITrackSegment::Connection
-CurvedTrack::nextPosition(const Vector<int>& aDirection) const
+Connection CurvedTrack::nextPosition(const Vector<int>& aDirection) const
 {
    return make_pair(makePoint(myX + myBaseRadius, myY + myBaseRadius - 1),
                     makeVector(1, 0, 0));                    

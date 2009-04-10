@@ -48,7 +48,7 @@ private:
    Vector<int> myDirection;
 
    // This updates the above two values
-   void enterSegment(const ITrackSegment::Connection& aConnection);
+   void enterSegment(const Track::Connection& aConnection);
 
    static const double MODEL_YOFF;
 };
@@ -76,7 +76,7 @@ void Train::update()
 
 // Called when the train enters a new segment
 // Resets the delta and gets the length of the new segment
-void Train::enterSegment(const ITrackSegment::Connection& aConnection)
+void Train::enterSegment(const Track::Connection& aConnection)
 {
    Point<int> pos;
    tie(pos, myDirection) = aConnection;

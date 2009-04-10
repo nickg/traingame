@@ -24,9 +24,31 @@
 #include <tr1/functional>
 #include <tr1/tuple>
 
+// Types used for specifying track segments
+namespace Track {
+   // TODO: This only needs (x, y) position and should contain
+   // separate layer field - but will do for now
+   typedef Point<int> Position;
+   typedef Vector<int> Direction;
+   
+   // Uniquely identifies the location of a train and its orientation
+   // along a piece of track
+   // Used for verifying whether bits of track can join together
+   typedef std::pair<Position, Direction> Connection;
+
+   // Angles for curved track
+   typedef int Angle;
+}
+
+// Orientations for straight track
+namespace Axis {
+   const Track::Direction X = makeVector(1, 0, 0);
+   const Track::Direction Y = makeVector(0, 0, 1);
+}
+
 // A segment of track which fits over a number of tiles
 // Each track segment has an origin and one or more exits
-struct ITrackSegment {
+struct ITrackSegment {   
    virtual ~ITrackSegment() {}
 
    typedef std::tr1::function<void (double)> TransformFunc;
@@ -44,18 +66,8 @@ struct ITrackSegment {
    // so it will render in the correct place for this track segment
    virtual TransformFunc transformFunc() const = 0;
 
-   // TODO: This only needs (x, y) position and should contain
-   // separate layer field - but will do for now
-   typedef Point<int> Position;
-   typedef Vector<int> Direction;
-   
-   // Uniquely identifies the location of a train and its orientation
-   // along a piece of track
-   // Used for verifying whether bits of track can join together
-   typedef std::pair<Position, Direction> Connection;
-
    // True if a train can travel in this direction along the track
-   virtual bool isValidDirection(const Direction& aDirection) const = 0;
+   virtual bool isValidDirection(const Track::Direction& aDirection) const = 0;
    
    // Return the position of the next segment of track and the
    // orientation of the train.
@@ -65,18 +77,13 @@ struct ITrackSegment {
    // The parameter `aDirection' specifies the direction of the
    // train when it /entered/ this segment. This must be valid
    // for this track segment - call isValidDirection first.
-   virtual Connection nextPosition(const Direction& aDirection) const = 0;
+   virtual Track::Connection nextPosition(const Track::Direction& aDirection)
+      const = 0;
 };
 
 typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;
 
-// Orientations for straight track
-namespace Axis {
-   static const ITrackSegment::Direction X = makeVector(1, 0, 0);
-   static const ITrackSegment::Direction Y = makeVector(0, 0, 1);
-}
-
-ITrackSegmentPtr makeStraightTrack(const ITrackSegment::Direction& aDirection);
+ITrackSegmentPtr makeStraightTrack(const Track::Direction& aDirection);
 ITrackSegmentPtr makeCurvedTrack();
 
 #endif

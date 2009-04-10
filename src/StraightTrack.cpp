@@ -30,6 +30,7 @@ using namespace std;
 using namespace std::tr1;
 using namespace std::tr1::placeholders;
 using namespace boost;
+using namespace Track;
 
 // Concrete implementation of straight-line pieces of track
 class StraightTrack : public ITrackSegment {
@@ -97,8 +98,7 @@ bool StraightTrack::isValidDirection(const Direction& aDirection) const
    }
 }
 
-ITrackSegment::Connection
-StraightTrack::nextPosition(const Direction& aDirection) const
+Connection StraightTrack::nextPosition(const Direction& aDirection) const
 {
    if (aDirection != myDirection && aDirection != -myDirection)
       throw runtime_error
@@ -140,9 +140,9 @@ void StraightTrack::render() const
    glPopMatrix();
 }
 
-ITrackSegmentPtr makeStraightTrack(const ITrackSegment::Direction& aDirection)
+ITrackSegmentPtr makeStraightTrack(const Direction& aDirection)
 {
-   ITrackSegment::Direction realDir(aDirection);
+   Direction realDir(aDirection);
    
    // Direction must either be along Axis::X or Axis::Y but we
    // allow the opositite direction here too

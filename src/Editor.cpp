@@ -46,10 +46,12 @@ private:
    void buildGUI();
    void drawDraggedTrack();
    void drawDraggedTile();
-   void drawDraggedStraight(const ITrackSegment::Direction& anAxis, int aLength);
+   void drawDraggedStraight(const Track::Direction& anAxis, int aLength);
+   void drawDraggedCurve(int xLength, int yLength);
    bool canConnect(const Point<int>& aFirstPoint,
                    const Point<int>& aSecondPoint) const;
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
+   Track::Direction guessTrackDirection();
    
    IMapPtr myMap;
 
@@ -141,33 +143,38 @@ bool Editor::canConnect(const Point<int>& aFirstPoint,
           && track->nextPosition(-dir).first == aSecondPoint);
 }
 
+// Try to guess the axis to draw the track along by looking at nearby tiles
+Track::Direction Editor::guessTrackDirection()
+{
+   if (canConnect(myDragBegin.left(), myDragBegin)
+       || canConnect(myDragBegin.right(), myDragBegin)) {
+      log() << "Connect along x";
+      return Axis::X;
+   }
+   else if (canConnect(myDragBegin.up(), myDragBegin)
+       || canConnect(myDragBegin.down(), myDragBegin)) {
+      log() << "Connect along y";
+      return Axis::Y;
+   }
+   else {
+      // Take a guess
+      return Axis::X;
+   }
+}
+
 // Special case of drawing dragged track where the user selects just
 // a single tile
 void Editor::drawDraggedTile()
 {
    // Look at nearby track segments and try to guess the orientation
-   ITrackSegment::Direction orient;
-   if (canConnect(myDragBegin.left(), myDragBegin)
-       || canConnect(myDragBegin.right(), myDragBegin)) {
-      log() << "Connect along x";
-      orient = Axis::X;
-   }
-   else if (canConnect(myDragBegin.up(), myDragBegin)
-       || canConnect(myDragBegin.down(), myDragBegin)) {
-      log() << "Connect along y";
-      orient = Axis::Y;
-   }
-   else {
-      // Take a guess
-      orient = Axis::X;
-   }
+   Track::Direction orient = guessTrackDirection();   
 
    myMap->setTrackAt(myDragBegin, makeStraightTrack(orient));
 }
 
 // Special case where the user drags a rectangle of width 1
 // This just draws straight track along the rectangle
-void Editor::drawDraggedStraight(const ITrackSegment::Direction& anAxis, int aLength)
+void Editor::drawDraggedStraight(const Track::Direction& anAxis, int aLength)
 {
    Point<int> where = myDragBegin;
 
@@ -181,24 +188,37 @@ void Editor::drawDraggedStraight(const ITrackSegment::Direction& anAxis, int aLe
    }
 }
 
+// Connect the begin and end points of the drag with a curve and possibly
+// a section of straight track
+void Editor::drawDraggedCurve(int xLength, int yLength)
+{
+   log() << "drawDraggedCurve";
+
+   Track::Direction dir = guessTrackDirection();
+
+   
+}
+
 // Called when the user has finished dragging a rectangle for track
 // Connect the beginning and end up in the simplest way possible
 void Editor::drawDraggedTrack()
 {
-   ITrackSegment::Direction straight;  // Orientation for straight track section
+   Track::Direction straight;  // Orientation for straight track section
    
    int xmin, xmax, ymin, ymax;
    dragBoxBounds(xmin, xmax, ymin, ymax);
    
    int xlen = abs(xmax - xmin) + 1;
    int ylen = abs(ymax - ymin) + 1;
-log() << "xlen=" << xlen << ", ylen=" << ylen;
+   log() << "xlen=" << xlen << ", ylen=" << ylen;
    if (xlen == 1 && ylen == 1)
       drawDraggedTile();
    else if (xlen == 1)
       drawDraggedStraight(myDragBegin.y < myDragEnd.y ? Axis::Y : -Axis::Y, ylen);
    else if (ylen == 1)
       drawDraggedStraight(myDragBegin.x < myDragEnd.x ? Axis::X : -Axis::X, xlen);
+   else
+      drawDraggedCurve(xlen, ylen);
    /*
    // Try to guess the initial orientation from a nearby track segment
    if (canConnect(myDragBegin.left(), myDragBegin)
