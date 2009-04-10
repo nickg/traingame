@@ -207,6 +207,7 @@ void SDLWindow::drawGLScene()
    glEnable(GL_DEPTH_TEST);
    glEnable(GL_TEXTURE_2D);
    glEnable(GL_CULL_FACE);
+   glEnable(GL_NORMALIZE);
   
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT1);

@@ -17,6 +17,7 @@
 
 #include "TrackCommon.hpp"
 #include "ILogger.hpp"
+#include "Maths.hpp"
 
 #include <cmath>
 
@@ -127,6 +128,36 @@ void renderStraightRail()
    glPopMatrix();
 }
 
+// A utility function for debugging normal calculation
+namespace {
+   void drawNormal(const Vector<double>& aPosition,
+                   const Vector<double>& aNormal)
+   {
+      glPushAttrib(GL_ENABLE_BIT);
+      glDisable(GL_CULL_FACE);
+      glDisable(GL_LIGHTING);
+      glDisable(GL_BLEND);
+      glDisable(GL_TEXTURE_2D);
+
+      glPushAttrib(GL_CURRENT_BIT);
+      glColor3d(1.0, 0.0, 0.0);
+
+      Vector<double> normPos = aPosition + aNormal;
+
+      log() << "Normal line: " << aPosition << " -> " << normPos;
+      
+      glBegin(GL_LINES);
+
+      glVertex3d(aPosition.x, aPosition.y, aPosition.z);
+      glVertex3d(normPos.x, normPos.y, normPos.z);
+
+      glEnd();
+      
+      glPopAttrib();
+      glPopAttrib();
+   }
+}
+
 enum RailType {
    InnerRail, OuterRail
 };
@@ -157,24 +188,38 @@ static void makeCurveRail(double baseRadius, double startAngle,
 
    // I really have no idea how to compute the normals here!
    glPushAttrib(GL_ENABLE_BIT);
-   glDisable(GL_CULL_FACE);
+   //glDisable(GL_CULL_FACE);
 
    // Outer edge
-   glBegin(GL_QUADS);
    for (double theta = startAngle; theta < finishAngle; theta += step) {
-      glNormal3d(cos(theta), 0.0, sin(theta));
-      glVertex3d(R * cos(theta), 0.0, R * sin(theta));
+      const double sinT = sin(theta);
+      const double cosT = cos(theta);
+      const double sinT1 = sin(theta + step);
+      const double cosT1 = cos(theta + step);
       
-      glNormal3d(cos(theta + step), 0.0, sin(theta + step));
-      glVertex3d(R * cos(theta + step), 0.0, R * sin(theta + step));
+      glBegin(GL_QUADS);
+   
+      glNormal3d(cosT1, 0.0, sinT1);
+      glVertex3d(R * cosT1, 0.1, R * sinT1);
       
-      glNormal3d(cos(theta + step), 0.0, sin(theta + step));
-      glVertex3d(R * cos(theta + step), 0.1, R * sin(theta + step));
+      glNormal3d(cosT1, 0.0, sinT1);
+      glVertex3d(R * cosT1, 0.0, R * sinT1);
       
-      glNormal3d(cos(theta), 0.0, sin(theta));
-      glVertex3d(R * cos(theta), 0.1, R * sin(theta));      
+      glNormal3d(cosT, 0.0, sinT);
+      glVertex3d(R * cosT, 0.0, R * sinT);
+      
+      glNormal3d(cosT, 0.0, sinT);
+      glVertex3d(R * cosT, 0.1, R * sinT);
+      
+      
+      
+      
+
+      glEnd();
+
+      drawNormal(makeVector(R * cosT1, 0.1, R * sinT1),
+                 makeVector(cosT1, 0.0, sinT1));
    }
-   glEnd();
 
    // Inner edge
    glBegin(GL_QUADS);
