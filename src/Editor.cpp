@@ -72,7 +72,7 @@ private:
 };
 
 Editor::Editor()
-   : myPosition(2.0, -15.0, -10.0), amDragging(false),
+   : myPosition(4.5, -15.0, -21.5), amDragging(false),
      myTool(TRACK_TOOL)
 {
    myMap = makeEmptyMap(32, 32);

@@ -112,15 +112,17 @@ ITrackSegment::TransformFunc CurvedTrack::transformFunc() const
 // Imagine the train is travelling in a circle like this:
 //
 // (0, 0)
+//              180
 //             [-1 0]
 //        <-------------^
 //        |             |
 //        |             |
-// [0 1]  |             | [0 -1]
-//        |             |
+// [0 1]  |             | [0 -1] 90
+// 270    |             |
 //        |             |
 //        V------------>|
 //             [1 0]
+//               0
 //
 // Above are the vectors for /counter/-clockwise movement
 //
@@ -129,13 +131,13 @@ ITrackSegment::TransformFunc CurvedTrack::transformFunc() const
 Vector<int> CurvedTrack::cwEntryVector() const
 {
    return makeVector<int>(-cos(degToRad(myFinishAngle)), 0,
-                          -sin(degToRad(myFinishAngle)));
+                          sin(degToRad(myFinishAngle)));
 }
 
 // The vector the train is moving on if it enters counter-clockwise
 Vector<int> CurvedTrack::ccwEntryVector() const
 {
-   return makeVector<int>(-cos(degToRad(myStartAngle)), 0.0,
+   return makeVector<int>(cos(degToRad(myStartAngle)), 0.0,
                           -sin(degToRad(myStartAngle)));
 }
 
@@ -171,7 +173,7 @@ Connection CurvedTrack::nextPosition(const Vector<int>& aDirection) const
    log() << "xDelta=" << xDelta << ", yDelta=" << yDelta;
    
    return make_pair(makePoint(myX + xDelta + nextDir.x,
-                              myY + yDelta + nextDir.y),
+                              myY + yDelta + nextDir.z),
                     nextDir);
 }
 
