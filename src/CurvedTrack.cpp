@@ -82,7 +82,7 @@ void CurvedTrack::transform(const Track::Direction& aDirection, double aDelta) c
    double angle = myStartAngle + (90.0 * ratio);
 
    glRotated(angle, 0.0, 1.0, 0.0);
-   glTranslated(0.5, 0.0, static_cast<double>(myBaseRadius - 0.5));
+   glTranslated(0.0, 0.0, static_cast<double>(myBaseRadius - 0.5));
 }
 
 double CurvedTrack::segmentLength() const

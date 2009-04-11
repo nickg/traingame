@@ -41,14 +41,8 @@ Engine::Engine()
 
 // Draw the engine, smoke, etc.
 void Engine::render() const
-{
-   glPushMatrix();
-
-   glTranslated(-0.5, 0.0, 0.0);
-        
+{        
    myModel->render();
-
-   glPopMatrix();
 }
 
 // Make a new engine

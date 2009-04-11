@@ -90,9 +90,11 @@ void StraightTrack::transform(const Track::Direction& aDirection,
    
    if (myDirection == Axis::Y)
       glRotated(-90.0, 0.0, 1.0, 0.0);
-   //
-   //if (aDirection == -myDirection)
-   //   glRotated(-180.0, 0.0, 1.0, 0.0);
+
+   glTranslated(-0.5, 0.0, 0.0);
+   
+   if (aDirection == -myDirection)
+      glRotated(-180.0, 0.0, 1.0, 0.0);
 }
 
 ITrackSegment::TransformFunc
