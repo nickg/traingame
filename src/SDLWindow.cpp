@@ -183,6 +183,7 @@ void SDLWindow::setCamera(const Vector<double>& aPos,
 {
    glRotated(aRotation.x, 1.0, 0.0, 0.0);
    glRotated(aRotation.y, 0.0, 1.0, 0.0);
+   glRotated(aRotation.z, 0.0, 0.0, 1.0);
    glTranslated(aPos.x, aPos.y, aPos.z);
    myViewFrustum = getViewFrustum();
 }

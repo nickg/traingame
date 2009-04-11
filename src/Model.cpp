@@ -215,6 +215,9 @@ IModelPtr loadModel(const string& fileName, double aScale)
 
    Vector<double> dim = makeVector(xmax - xmin, ymax - ymin, zmax - zmin);
    log() << dim;
+
+   log() << "Model loaded: " << vertices.size() << " vertices";
+   
    glPopMatrix();
    glPopAttrib();
    glEndList();

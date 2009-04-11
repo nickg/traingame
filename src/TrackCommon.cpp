@@ -262,11 +262,9 @@ static void makeCurveRail(double baseRadius, double startAngle,
    glPopAttrib();
 }
 
-// `baseRadius' is measured in tiles
-void renderCurvedTrack(int baseRadius, double startAngle, double endAngle)
+// Move to the origin of a curved section of track
+void transformToOrigin(int baseRadius, double startAngle)
 {
-   glPushMatrix();
-   
    glTranslated((baseRadius-1)*-sin(startAngle) - 0.5, 0.0,
                 (baseRadius-1)*-cos(startAngle) - 0.5);
 
@@ -280,6 +278,14 @@ void renderCurvedTrack(int baseRadius, double startAngle, double endAngle)
    
    if (startAngle >= M_PI - safe && startAngle <= 3.0 * M_PI / 2.0 + safe)
       glTranslated(1.0, 0.0, 0.0);
+}
+
+// `baseRadius' is measured in tiles
+void renderCurvedTrack(int baseRadius, double startAngle, double endAngle)
+{
+   glPushMatrix();
+   
+   transformToOrigin(baseRadius, startAngle);
 
    const double baseRadiusD = static_cast<double>(baseRadius);
    makeCurveRail(baseRadiusD, startAngle, endAngle, OuterRail);

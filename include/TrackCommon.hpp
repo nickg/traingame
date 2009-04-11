@@ -22,5 +22,6 @@
 void renderSleeper();
 void renderStraightRail();
 void renderCurvedTrack(int baseRadius, double startAngle, double endAngle);
+void transformToOrigin(int baseRadius, double startAngle);
 
 #endif

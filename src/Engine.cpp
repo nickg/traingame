@@ -45,10 +45,7 @@ void Engine::render() const
    glPushMatrix();
 
    glTranslated(-0.5, 0.0, 0.0);
-  
-   Vector<double> dim = myModel->dimensions();
-   //   glTranslated(-(dim.x/2.0), 0.0, 0.0);
-      
+        
    myModel->render();
 
    glPopMatrix();

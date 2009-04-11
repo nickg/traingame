@@ -17,6 +17,7 @@
 
 #include "ITrackSegment.hpp"
 #include "TrackCommon.hpp"
+#include "ILogger.hpp"
 
 #include <cmath>
 #include <cassert>
@@ -45,18 +46,20 @@ public:
    bool isValidDirection(const Direction& aDirection) const;
 private:
    void transform(double aDelta) const;
+   Vector<int> cwEntryVector() const;
+   Vector<int> ccwEntryVector() const;
    
    int myX, myY, myBaseRadius;
-   double myStartAngle, myFinishAngle;
+   Track::Angle myStartAngle, myFinishAngle;
 };
 
 CurvedTrack::CurvedTrack(Track::Angle aStartAngle,
                          Track::Angle aFinishAngle,
                          int aRadius)
-   : myX(0), myY(0), myBaseRadius(aRadius)
+   : myX(0), myY(0), myBaseRadius(aRadius),
+     myStartAngle(aStartAngle), myFinishAngle(aFinishAngle)
 {
-   myStartAngle = (static_cast<double>(aStartAngle)*M_PI)/180.0;
-   myFinishAngle = (static_cast<double>(aFinishAngle)*M_PI)/180.0;
+   
 }
 
 CurvedTrack::~CurvedTrack()
@@ -68,21 +71,25 @@ void CurvedTrack::transform(double aDelta) const
 {
    assert(aDelta < segmentLength());
 
-   glTranslated(static_cast<double>(myX + myBaseRadius - 1) + 0.5,
+   glTranslated(static_cast<double>(myX),
                 0.0,
-                static_cast<double>(myY) - 0.5);
+                static_cast<double>(myY));
 
    glBegin(GL_LINES);
    glVertex3d(0.0, -5.0, 0.0);
    glVertex3d(0.0, 5.0, 0.0);
    glEnd();
 
+   double startRad = (static_cast<double>(myStartAngle)*M_PI)/180.0;
+
+   transformToOrigin(myBaseRadius, startRad);
+
    double ratio = aDelta / segmentLength();
 
    double angle = 90.0 * ratio;
 
-   glRotated(-90.0 + angle, 0.0, 1.0, 0.0);
-   glTranslated(0.5, 0.0, static_cast<double>(myBaseRadius) - 0.5);
+   glRotated(angle - 90, 0.0, 1.0, 0.0);
+   glTranslated(0.0, 0.0, static_cast<double>(myBaseRadius - 0.5));
    
    glBegin(GL_LINES);
    glVertex3d(0.0, -5.0, 0.0);
@@ -101,20 +108,78 @@ ITrackSegment::TransformFunc CurvedTrack::transformFunc() const
    return bind(&CurvedTrack::transform, this, _1);
 }
 
+//
+// Imagine the train is travelling in a circle like this:
+//
+// (0, 0)
+//             [-1 0]
+//        <-------------^
+//        |             |
+//        |             |
+// [0 1]  |             | [0 -1]
+//        |             |
+//        |             |
+//        V------------>|
+//             [1 0]
+//
+// Above are the vectors for /counter/-clockwise movement
+//
+
+// The vector the train is moving on if it enters clockwise
+Vector<int> CurvedTrack::cwEntryVector() const
+{
+   return makeVector<int>(-cos(degToRad(myFinishAngle)), 0,
+                          -sin(degToRad(myFinishAngle)));
+}
+
+// The vector the train is moving on if it enters counter-clockwise
+Vector<int> CurvedTrack::ccwEntryVector() const
+{
+   return makeVector<int>(-cos(degToRad(myStartAngle)), 0.0,
+                          -sin(degToRad(myStartAngle)));
+}
+
 bool CurvedTrack::isValidDirection(const Direction& aDirection) const
 {
-   return true; // TODO!
+   log() << "startAngle=" << myStartAngle << " finishAngle=" << myFinishAngle
+         << " cw=" << cwEntryVector() << " ccw=" << ccwEntryVector();
+   
+   return aDirection == cwEntryVector() || aDirection == ccwEntryVector();
 }
 
 Connection CurvedTrack::nextPosition(const Vector<int>& aDirection) const
 {
-   return make_pair(makePoint(myX + myBaseRadius, myY + myBaseRadius - 1),
-                    makeVector(1, 0, 0));                    
+   assert(isValidDirection(aDirection));  // TODO: remove
+
+   Vector<int> nextDir;
+   if (aDirection == cwEntryVector())
+      nextDir = -ccwEntryVector();
+   else if (aDirection == ccwEntryVector())
+      nextDir = -cwEntryVector();
+   else
+      assert(false);
+
+   // Assuming 90 degree curves again
+   int cosEnd = static_cast<int>(cos(degToRad(myFinishAngle)));
+   int cosStart = static_cast<int>(cos(degToRad(myStartAngle)));
+   int sinEnd = static_cast<int>(sin(degToRad(myFinishAngle)));
+   int sinStart = static_cast<int>(sin(degToRad(myStartAngle)));
+   
+   int xDelta = (myBaseRadius - 1) * (sinEnd - sinStart);
+   int yDelta = (myBaseRadius - 1) * (cosEnd - cosStart);
+
+   log() << "xDelta=" << xDelta << ", yDelta=" << yDelta;
+   
+   return make_pair(makePoint(myX + xDelta + nextDir.x,
+                              myY + yDelta + nextDir.y),
+                    nextDir);
 }
 
 void CurvedTrack::render() const
 {
-   renderCurvedTrack(myBaseRadius, myStartAngle, myFinishAngle);
+   renderCurvedTrack(myBaseRadius,
+                     (static_cast<double>(myStartAngle)*M_PI)/180.0,
+                     (static_cast<double>(myFinishAngle)*M_PI)/180.0);
 }
 
 ITrackSegmentPtr makeCurvedTrack(Track::Angle aStartAngle,

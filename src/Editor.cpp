@@ -72,7 +72,7 @@ private:
 };
 
 Editor::Editor()
-   : myPosition(2.0, -8.0, -10.0), amDragging(false),
+   : myPosition(2.0, -15.0, -10.0), amDragging(false),
      myTool(TRACK_TOOL)
 {
    myMap = makeEmptyMap(32, 32);
@@ -100,7 +100,7 @@ void Editor::display(IGraphicsPtr aContext) const
 {
    mySun->apply();
    
-   aContext->setCamera(myPosition, makeVector(45.0, 45.0, 1.0));
+   aContext->setCamera(myPosition, makeVector(45.0, 45.0, 0.0));
    
    myMap->render(aContext);
 
