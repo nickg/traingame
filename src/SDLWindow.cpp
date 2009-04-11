@@ -25,13 +25,14 @@
 #include <cstdlib>
 #include <cassert>
 
+#include <boost/lexical_cast.hpp>
 #include <SDL.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <unistd.h>
 
 using namespace std;
 using namespace std::tr1;
+using namespace boost;
 
 // Concrete implementation of SDL window
 class SDLWindow : public IWindow, public IGraphics, public IPickBuffer,
@@ -78,12 +79,33 @@ private:
 const float SDLWindow::NEAR_CLIP(0.1f);
 const float SDLWindow::FAR_CLIP(50.0f);
 
+// Calculation and display of the FPS rate
+namespace {
+   int theFrameCounter = 0;
+
+   Uint32 updateFPS(Uint32 anInterval, void* unused)
+   {
+      const string title =
+         "Trains! @ " + lexical_cast<string>(theFrameCounter) + " FPS";
+      SDL_WM_SetCaption(title.c_str(), title.c_str());
+
+      theFrameCounter = 0;
+      
+      return anInterval;
+   }
+
+   void frameComplete()
+   {
+      theFrameCounter++;
+   }
+}
+
 // Create the game window
 SDLWindow::SDLWindow()
    : amRunning(false), willSkipNextFrame(false)
 {
    // Start SDL
-   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
       ostringstream ss;
       ss << "Unable to initialise SDL: " << SDL_GetError();
       throw runtime_error(ss.str());
@@ -140,6 +162,8 @@ void SDLWindow::run(IScreenPtr aScreen)
    const unsigned targetFramerate = 30;
    const unsigned window = 1000 / targetFramerate;
 
+   SDL_TimerID fpsTimer = SDL_AddTimer(1000, updateFPS, NULL);
+
    amRunning = true;
    do {
       unsigned tickStart = SDL_GetTicks();
@@ -152,21 +176,25 @@ void SDLWindow::run(IScreenPtr aScreen)
       else
          willSkipNextFrame = false;
 
-      // Limit the frame rate
+      // Limit the frame rate to `targetFramerate`
       unsigned tickNow = SDL_GetTicks();
       if (tickNow > tickStart + window) {
-         log() << "Missed window by " << tickNow - tickStart - window
-               << "ms (skipping next frame)";
+         // Missed the timing window
+         // Try to catch up by skipping the next frame
          willSkipNextFrame = true;
       }
       else {
+         // Got some time spare
          while (tickNow < tickStart + window)	{
-            //log() << "spare ms: " << (tickStart + window - tickNow);
-            usleep((tickStart + window - tickNow) * 1000);
+            SDL_Delay(tickStart + window - tickNow);
             tickNow = SDL_GetTicks();
          }
       }
+
+      frameComplete();
    } while (amRunning);
+
+   SDL_RemoveTimer(fpsTimer);
 
    myScreen.reset();
 }
