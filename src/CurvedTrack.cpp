@@ -21,13 +21,16 @@
 
 #include <cmath>
 #include <cassert>
+#include <stdexcept>
 
 #include <GL/gl.h>
+#include <boost/lexical_cast.hpp>
 
 using namespace std;
 using namespace std::tr1;
 using namespace std::tr1::placeholders;
 using namespace Track;
+using namespace boost;
 
 // Concrete implementation of curved pieces of track
 class CurvedTrack : public ITrackSegment {
@@ -48,6 +51,7 @@ private:
    void transform(const Track::Direction& aDirection, double aDelta) const;
    Vector<int> cwEntryVector() const;
    Vector<int> ccwEntryVector() const;
+   void ensureValidDirection(const Direction& aDirection) const;
    
    int myX, myY, myBaseRadius;
    Track::Angle myStartAngle, myFinishAngle;
@@ -94,6 +98,8 @@ double CurvedTrack::segmentLength() const
 ITrackSegment::TransformFunc
 CurvedTrack::transformFunc(const Track::Direction& aDirection) const
 {
+   ensureValidDirection(aDirection);
+   
    return bind(&CurvedTrack::transform, this, aDirection, _1);
 }
 
@@ -130,16 +136,28 @@ Vector<int> CurvedTrack::ccwEntryVector() const
                           -sin(degToRad(myStartAngle)));
 }
 
+void CurvedTrack::ensureValidDirection(const Direction& aDirection) const
+{
+   if (!isValidDirection(aDirection))
+      throw runtime_error
+         ("Invalid direction on curved track from "
+          + lexical_cast<string>(myStartAngle) + " to "
+          + lexical_cast<string>(myFinishAngle) + " degrees: "
+          + lexical_cast<string>(aDirection)
+          + " (should be "
+          + lexical_cast<string>(cwEntryVector()) + " or "
+          + lexical_cast<string>(ccwEntryVector()) + ")");
+}
+
 bool CurvedTrack::isValidDirection(const Direction& aDirection) const
 {
-   log() << "startAngle=" << myStartAngle << " finishAngle=" << myFinishAngle
-         << " cw=" << cwEntryVector() << " ccw=" << ccwEntryVector();
-   
    return aDirection == cwEntryVector() || aDirection == ccwEntryVector();
 }
 
 Connection CurvedTrack::nextPosition(const Vector<int>& aDirection) const
 {
+   ensureValidDirection(aDirection);
+   
    Vector<int> nextDir;
    if (aDirection == cwEntryVector())
       nextDir = -ccwEntryVector();
@@ -156,8 +174,6 @@ Connection CurvedTrack::nextPosition(const Vector<int>& aDirection) const
    
    int xDelta = (myBaseRadius - 1) * (sinEnd - sinStart);
    int yDelta = (myBaseRadius - 1) * (cosEnd - cosStart);
-
-   log() << "xDelta=" << xDelta << ", yDelta=" << yDelta;
    
    return make_pair(makePoint(myX + xDelta + nextDir.x,
                               myY + yDelta + nextDir.z),

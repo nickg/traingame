@@ -64,7 +64,7 @@ StraightTrack::StraightTrack(const Direction& aDirection)
 
 StraightTrack::~StraightTrack()
 {
-   debug() << "~StraightTrack";
+   
 }
 
 void StraightTrack::transform(const Track::Direction& aDirection,
@@ -82,12 +82,6 @@ void StraightTrack::transform(const Track::Direction& aDirection,
                 0.0,
                 static_cast<double>(myY) + yTrans);
 
-   glColor3d(1.0, 0.0, 0.0);
-   glBegin(GL_LINES);
-   glVertex3d(0.0, -5.0, 0.0);
-   glVertex3d(0.0, 5.0, 0.0);
-   glEnd();
-   
    if (myDirection == Axis::Y)
       glRotated(-90.0, 0.0, 1.0, 0.0);
 
@@ -107,14 +101,10 @@ StraightTrack::transformFunc(const Track::Direction& aDirection) const
 
 bool StraightTrack::isValidDirection(const Direction& aDirection) const
 {
-   if (myDirection == Axis::X) {
-      log() << "ALONG_X: " << aDirection << " == " << Axis::X;
+   if (myDirection == Axis::X)
       return aDirection == Axis::X || -aDirection == Axis::X;
-   }
-   else {
-      log() << "ALONG_Y: " << aDirection << " == " << Axis::Y;
+   else
       return aDirection == Axis::Y || -aDirection == Axis::Y;
-   }
 }
 
 void StraightTrack::ensureValidDirection(const Direction& aDirection) const
