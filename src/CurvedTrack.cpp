@@ -75,26 +75,14 @@ void CurvedTrack::transform(const Track::Direction& aDirection, double aDelta) c
                 0.0,
                 static_cast<double>(myY));
 
-   glBegin(GL_LINES);
-   glVertex3d(0.0, -5.0, 0.0);
-   glVertex3d(0.0, 5.0, 0.0);
-   glEnd();
-
-   double startRad = (static_cast<double>(myStartAngle)*M_PI)/180.0;
-
-   transformToOrigin(myBaseRadius, startRad);
+   transformToOrigin(myBaseRadius, degToRad(myStartAngle));
 
    double ratio = aDelta / segmentLength();
 
-   double angle = 90.0 * ratio;
+   double angle = myStartAngle + (90.0 * ratio);
 
-   glRotated(angle - 90, 0.0, 1.0, 0.0);
-   glTranslated(0.0, 0.0, static_cast<double>(myBaseRadius - 0.5));
-   
-   glBegin(GL_LINES);
-   glVertex3d(0.0, -5.0, 0.0);
-   glVertex3d(0.0, 5.0, 0.0);
-   glEnd();
+   glRotated(angle, 0.0, 1.0, 0.0);
+   glTranslated(0.5, 0.0, static_cast<double>(myBaseRadius - 0.5));
 }
 
 double CurvedTrack::segmentLength() const

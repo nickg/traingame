@@ -177,27 +177,13 @@ static void makeCurveRail(double baseRadius, double startAngle,
 
    const double step = 0.1;
 
-   log() << "startAngle=" << startAngle << " finishAngle=" << finishAngle;
-
    glPushAttrib(GL_ENABLE_BIT);
    glDisable(GL_TEXTURE_2D);
    glDisable(GL_BLEND);
 
    glPushMatrix();
    
-   glBegin(GL_LINES);
-   glColor3d(1.0, 0.0, 0.0);
-   glVertex3d(0.0, -5.0, 0.0);
-   glVertex3d(0.0, 5.0, 0.0);
-   glEnd();
-
    glRotated(startAngle * 180.0 / M_PI, 0.0, 1.0, 0.0);
-
-   glBegin(GL_LINES);
-   glColor3d(0.0, 1.0, 0.0);
-   glVertex3d(0.0, -5.0, 0.0);
-   glVertex3d(0.0, 5.0, 0.0);
-   glEnd();
 
    glColor3d(0.7, 0.7, 0.7);
 

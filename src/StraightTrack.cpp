@@ -82,11 +82,17 @@ void StraightTrack::transform(const Track::Direction& aDirection,
                 0.0,
                 static_cast<double>(myY) + yTrans);
 
+   glColor3d(1.0, 0.0, 0.0);
+   glBegin(GL_LINES);
+   glVertex3d(0.0, -5.0, 0.0);
+   glVertex3d(0.0, 5.0, 0.0);
+   glEnd();
+   
    if (myDirection == Axis::Y)
       glRotated(-90.0, 0.0, 1.0, 0.0);
-
-   if (aDirection == -myDirection)
-      glRotated(-180.0, 0.0, 1.0, 0.0);
+   //
+   //if (aDirection == -myDirection)
+   //   glRotated(-180.0, 0.0, 1.0, 0.0);
 }
 
 ITrackSegment::TransformFunc
