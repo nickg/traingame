@@ -64,7 +64,9 @@ struct ITrackSegment {
 
    // Return a function that transforms the location of the train
    // so it will render in the correct place for this track segment
-   virtual TransformFunc transformFunc() const = 0;
+   // The functions assumes that it is initially placed at the origin
+   virtual TransformFunc transformFunc(const Track::Direction& aDirection)
+      const = 0;
 
    // True if a train can travel in this direction along the track
    virtual bool isValidDirection(const Track::Direction& aDirection) const = 0;

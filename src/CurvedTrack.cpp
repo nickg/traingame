@@ -42,10 +42,10 @@ public:
    double segmentLength() const;
 
    Connection nextPosition(const Vector<int>& aDirection) const;
-   TransformFunc transformFunc() const;
+   TransformFunc transformFunc(const Track::Direction& aDirection) const;
    bool isValidDirection(const Direction& aDirection) const;
 private:
-   void transform(double aDelta) const;
+   void transform(const Track::Direction& aDirection, double aDelta) const;
    Vector<int> cwEntryVector() const;
    Vector<int> ccwEntryVector() const;
    
@@ -67,7 +67,7 @@ CurvedTrack::~CurvedTrack()
 
 }
 
-void CurvedTrack::transform(double aDelta) const
+void CurvedTrack::transform(const Track::Direction& aDirection, double aDelta) const
 {
    assert(aDelta < segmentLength());
 
@@ -103,9 +103,10 @@ double CurvedTrack::segmentLength() const
    return M_PI * (static_cast<double>(myBaseRadius) - 0.5) / 2.0;
 }
 
-ITrackSegment::TransformFunc CurvedTrack::transformFunc() const
+ITrackSegment::TransformFunc
+CurvedTrack::transformFunc(const Track::Direction& aDirection) const
 {
-   return bind(&CurvedTrack::transform, this, _1);
+   return bind(&CurvedTrack::transform, this, aDirection, _1);
 }
 
 //
@@ -151,8 +152,6 @@ bool CurvedTrack::isValidDirection(const Direction& aDirection) const
 
 Connection CurvedTrack::nextPosition(const Vector<int>& aDirection) const
 {
-   assert(isValidDirection(aDirection));  // TODO: remove
-
    Vector<int> nextDir;
    if (aDirection == cwEntryVector())
       nextDir = -ccwEntryVector();

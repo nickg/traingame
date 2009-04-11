@@ -89,7 +89,7 @@ void Train::enterSegment(const Track::Connection& aConnection)
 
    mySegmentDelta = 0.0;
    mySegment = myMap->trackAt(pos);
-   myTransformer = mySegment->transformFunc();
+   myTransformer = mySegment->transformFunc(myDirection);
 }
 
 void Train::render() const

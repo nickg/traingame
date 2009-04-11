@@ -47,9 +47,10 @@ public:
    Connection nextPosition(const Vector<int>& aDirection) const;
    bool isValidDirection(const Direction& aDirection) const;
    
-   TransformFunc transformFunc() const;
+   TransformFunc transformFunc(const Track::Direction& aDirection) const;
 private:
-   void transform(double aDelta) const;
+   void transform(const Track::Direction& aDirection, double aDelta) const;
+   void ensureValidDirection(const Track::Direction& aDirection) const;
    
    int myX, myY;  // Absolute position
    Direction myDirection;
@@ -66,9 +67,13 @@ StraightTrack::~StraightTrack()
    debug() << "~StraightTrack";
 }
 
-void StraightTrack::transform(double aDelta) const
+void StraightTrack::transform(const Track::Direction& aDirection,
+                              double aDelta) const
 {
    assert(aDelta < 1.0);
+
+   if (aDirection == -myDirection)
+      aDelta = 1.0 - aDelta;
 
    const double xTrans = myDirection == Axis::X ? aDelta : 0;
    const double yTrans = myDirection == Axis::Y ? aDelta : 0;
@@ -79,11 +84,17 @@ void StraightTrack::transform(double aDelta) const
 
    if (myDirection == Axis::Y)
       glRotated(-90.0, 0.0, 1.0, 0.0);
+
+   if (aDirection == -myDirection)
+      glRotated(-180.0, 0.0, 1.0, 0.0);
 }
 
-ITrackSegment::TransformFunc StraightTrack::transformFunc() const
+ITrackSegment::TransformFunc
+StraightTrack::transformFunc(const Track::Direction& aDirection) const
 {
-   return bind(&StraightTrack::transform, this, _1);
+   ensureValidDirection(aDirection);
+   
+   return bind(&StraightTrack::transform, this, aDirection, _1);
 }
 
 bool StraightTrack::isValidDirection(const Direction& aDirection) const
@@ -98,14 +109,19 @@ bool StraightTrack::isValidDirection(const Direction& aDirection) const
    }
 }
 
-Connection StraightTrack::nextPosition(const Direction& aDirection) const
+void StraightTrack::ensureValidDirection(const Direction& aDirection) const
 {
-   if (aDirection != myDirection && aDirection != -myDirection)
+   if (!isValidDirection(aDirection))
       throw runtime_error
          ("Invalid direction on straight track: "
           + lexical_cast<string>(aDirection)
           + " (should be parallel to "
           + lexical_cast<string>(myDirection) + ")");
+}
+
+Connection StraightTrack::nextPosition(const Direction& aDirection) const
+{
+   ensureValidDirection(aDirection);
 
    if (aDirection == Axis::X)
       return make_pair(makePoint(myX + 1, myY), Axis::X);
