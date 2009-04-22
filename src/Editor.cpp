@@ -225,10 +225,12 @@ void Editor::drawDraggedCurve(int xLength, int yLength)
          
          ITrackSegmentPtr curve;
          if (myDragBegin.y < myDragEnd.y) {
-            curve = makeCurvedTrack(180, 270, xLength);
+            where = myDragEnd;
+            curve = makeCurvedTrack(90, 180, xLength);
             next = makePoint(where.x + xLength - 1, where.y + xLength);
          }
          else {
+            where = myDragBegin;
             curve = makeCurvedTrack(0, 90, xLength);
             next = makePoint(where.x + xLength - 1,
                              where.y - yLength + 1);
