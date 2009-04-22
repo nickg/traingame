@@ -23,6 +23,7 @@
 #include <tr1/memory>
 #include <tr1/functional>
 #include <tr1/tuple>
+#include <list>
 
 // Types used for specifying track segments
 namespace Track {
@@ -81,6 +82,12 @@ struct ITrackSegment {
    // for this track segment - call isValidDirection first.
    virtual Track::Connection nextPosition(const Track::Direction& aDirection)
       const = 0;
+
+   // Add all the endpoints of the track segment to the given list
+   // Note that an endpoint is not the same as what is returned
+   // from `nextPosition' - e.g. a straight track that takes up
+   // one tile has a single endpoint which is its origin
+   virtual void getEndpoints(std::list<Point<int> >& aList) const = 0;
 };
 
 typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;

@@ -47,6 +47,7 @@ public:
    Connection nextPosition(const Vector<int>& aDirection) const;
    TransformFunc transformFunc(const Track::Direction& aDirection) const;
    bool isValidDirection(const Direction& aDirection) const;
+   void getEndpoints(list<Point<int> >& aList) const;
 private:
    void transform(const Track::Direction& aDirection, double aDelta) const;
    Vector<int> cwEntryVector() const;
@@ -167,10 +168,10 @@ Connection CurvedTrack::nextPosition(const Vector<int>& aDirection) const
       assert(false);
 
    // Assuming 90 degree curves again
-   int cosEnd = static_cast<int>(cos(degToRad(myFinishAngle)));
-   int cosStart = static_cast<int>(cos(degToRad(myStartAngle)));
-   int sinEnd = static_cast<int>(sin(degToRad(myFinishAngle)));
-   int sinStart = static_cast<int>(sin(degToRad(myStartAngle)));
+   const int cosEnd = static_cast<int>(cos(degToRad(myFinishAngle)));
+   const int cosStart = static_cast<int>(cos(degToRad(myStartAngle)));
+   const int sinEnd = static_cast<int>(sin(degToRad(myFinishAngle)));
+   const int sinStart = static_cast<int>(sin(degToRad(myStartAngle)));
    
    int xDelta = (myBaseRadius - 1) * (sinEnd - sinStart);
    int yDelta = (myBaseRadius - 1) * (cosEnd - cosStart);
@@ -178,6 +179,22 @@ Connection CurvedTrack::nextPosition(const Vector<int>& aDirection) const
    return make_pair(makePoint(myX + xDelta + nextDir.x,
                               myY + yDelta + nextDir.z),
                     nextDir);
+}
+
+void CurvedTrack::getEndpoints(list<Point<int> >& aList) const
+{
+   aList.push_back(makePoint(myX, myY));
+
+   // Assuming 90 degree curves again
+   const int cosEnd = static_cast<int>(cos(degToRad(myFinishAngle)));
+   const int cosStart = static_cast<int>(cos(degToRad(myStartAngle)));
+   const int sinEnd = static_cast<int>(sin(degToRad(myFinishAngle)));
+   const int sinStart = static_cast<int>(sin(degToRad(myStartAngle)));
+   
+   const int xDelta = (myBaseRadius - 1) * (sinEnd - sinStart);
+   const int yDelta = (myBaseRadius - 1) * (cosEnd - cosStart);
+   
+   aList.push_back(makePoint(myX + xDelta, myY + yDelta));
 }
 
 void CurvedTrack::render() const

@@ -46,6 +46,7 @@ public:
    Vector<double> offsetForDelta(double aDelta) const;
    Connection nextPosition(const Vector<int>& aDirection) const;
    bool isValidDirection(const Direction& aDirection) const;
+   void getEndpoints(list<Point<int> >& aList) const;
    
    TransformFunc transformFunc(const Track::Direction& aDirection) const;
 private:
@@ -105,6 +106,11 @@ bool StraightTrack::isValidDirection(const Direction& aDirection) const
       return aDirection == Axis::X || -aDirection == Axis::X;
    else
       return aDirection == Axis::Y || -aDirection == Axis::Y;
+}
+
+void StraightTrack::getEndpoints(list<Point<int> >& aList) const
+{
+   aList.push_back(makePoint(myX, myY));
 }
 
 void StraightTrack::ensureValidDirection(const Direction& aDirection) const

@@ -30,6 +30,33 @@
 using namespace std;
 using namespace std::tr1;
 
+// A single piece of track may appear multiple times in the map - this
+// will be true for all track segments that cover multiple tiles
+// For various map algorithms (e.g. drawing) it is useful to keep track
+// of which track segments have already been visited. So track segments
+// are wrapped inside TrackNode which is used to store map-specific
+// information about the track.
+class TrackNode {
+public:
+   TrackNode(ITrackSegmentPtr aTrack, int x, int y)
+      : myTrack(aTrack), amMarked(false), myX(x), myY(y) {}
+
+   inline void setMark() { amMarked = true; }
+   inline void resetMark() { amMarked = false; }
+   inline bool marked() const { return amMarked; }
+
+   inline ITrackSegmentPtr get() { return myTrack; }
+
+   inline int originX() const { return myX; }
+   inline int originY() const { return myY; }
+private:
+   ITrackSegmentPtr myTrack;
+   bool amMarked;
+   int myX, myY;   // Position of origin
+};
+
+typedef shared_ptr<TrackNode> TrackNodePtr;
+
 class Map : public IMap, public ISectorRenderable,
             public enable_shared_from_this<Map> {
 public:
@@ -60,7 +87,7 @@ private:
       struct Vertex {
          Vector<double> pos, normal;
       } v[4];
-      ITrackSegmentPtr track;  // Track at this location, if any
+      TrackNodePtr track;  // Track at this location, if any
    } *myTiles;
 
    static const unsigned TILE_NAME_BASE	= 1000;	  // Base of tile naming
@@ -114,9 +141,9 @@ Map::~Map()
 
 ITrackSegmentPtr Map::trackAt(const Point<int>& aPoint) const
 {
-   ITrackSegmentPtr ptr = tileAt(aPoint.x, aPoint.y).track;
+   TrackNodePtr ptr = tileAt(aPoint.x, aPoint.y).track;
    if (ptr)
-      return ptr;
+      return ptr->get();
    else {
       ostringstream ss;
       ss << "No track segment at " << aPoint;
@@ -127,7 +154,18 @@ ITrackSegmentPtr Map::trackAt(const Point<int>& aPoint) const
 void Map::setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack)
 {
    aTrack->setOrigin(aPoint.x, aPoint.y);
-   tileAt(aPoint.x, aPoint.y).track = aTrack;
+
+   TrackNodePtr node(new TrackNode(aTrack, aPoint.x, aPoint.y));  
+
+   // Attach the track node to every endpoint
+   list<Point<int> > endpoints;
+   aTrack->getEndpoints(endpoints);
+
+   for (list<Point<int> >::iterator it = endpoints.begin();
+        it != endpoints.end(); ++it) {
+      tileAt((*it).x, (*it).y).track = node;
+      log() << "connect endpoint " << (*it).x << ", " << (*it).y;
+   }
 }
 
 void Map::rebuildDisplayLists()
@@ -189,6 +227,16 @@ void Map::resetMap(int aWidth, int aDepth)
 
 void Map::render(IGraphicsPtr aContext) const
 {
+   // Clear the mark bit of every track segment
+   // This is set whenever we render a track endpoint to ensure
+   // the track is only drawn once
+   for (int x = 0; x < myWidth; x++) {
+      for (int y = 0; y < myDepth; y++) {
+         if (tileAt(x, y).track)
+            tileAt(x, y).track->resetMark();
+      }
+   }
+   
    glClearColor(0.6, 0.7, 0.8, 1.0);
    
    glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -282,11 +330,15 @@ void Map::renderSector(IGraphicsPtr aContext,
          glPopMatrix();
 
          // Draw the track, if any
-         if (tileAt(x, y).track) {
+         Tile& tile = tileAt(x, y);
+         if (tile.track && !tile.track->marked()) {
             glPushMatrix();
-            glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
-            tileAt(x, y).track->render();
+            glTranslated(static_cast<double>(tile.track->originX()), 0,
+                         static_cast<double>(tile.track->originY()));
+            tile.track->get()->render();
             glPopMatrix();
+
+            tile.track->setMark();
          }
          
          glPopName();
