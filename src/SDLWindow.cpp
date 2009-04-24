@@ -82,14 +82,43 @@ const float SDLWindow::FAR_CLIP(50.0f);
 // Calculation and display of the FPS rate
 namespace {
    int theFrameCounter = 0;
+   int theLastFPS = 0;
 
-   Uint32 updateFPS(Uint32 anInterval, void* unused)
+   Uint32 updateFPS(Uint32 anInterval, void* thread);
+
+   // A wrapper around SDL times
+   struct FrameTimerThread {
+      FrameTimerThread()
+      {
+         myTimer = SDL_AddTimer(1000, updateFPS, this);
+      }
+
+      ~FrameTimerThread()
+      {
+         // Finalise properly when an exception is thrown
+         SDL_RemoveTimer(myTimer);
+      }
+
+      // Should be called from the main thread
+      void updateTitle()
+      {
+         if (shouldUpdateTitle) {
+            const string title =
+               "Trains! @ " + lexical_cast<string>(theLastFPS) + " FPS";
+            SDL_WM_SetCaption(title.c_str(), title.c_str());
+         }
+      }
+
+      SDL_TimerID myTimer;
+      bool shouldUpdateTitle;
+   };
+
+   Uint32 updateFPS(Uint32 anInterval, void* thread)
    {
-      const string title =
-         "Trains! @ " + lexical_cast<string>(theFrameCounter) + " FPS";
-      SDL_WM_SetCaption(title.c_str(), title.c_str());
-
+      theLastFPS = theFrameCounter;
       theFrameCounter = 0;
+
+      static_cast<FrameTimerThread*>(thread)->shouldUpdateTitle = true;
       
       return anInterval;
    }
@@ -162,7 +191,7 @@ void SDLWindow::run(IScreenPtr aScreen)
    const unsigned targetFramerate = 30;
    const unsigned window = 1000 / targetFramerate;
 
-   // SDL_TimerID fpsTimer = SDL_AddTimer(1000, updateFPS, NULL);
+   FrameTimerThread fpsTimer;
 
    amRunning = true;
    do {
@@ -192,9 +221,8 @@ void SDLWindow::run(IScreenPtr aScreen)
       }
 
       frameComplete();
+      fpsTimer.updateTitle();
    } while (amRunning);
-
-   //SDL_RemoveTimer(fpsTimer);
    
    myScreen.reset();
 }

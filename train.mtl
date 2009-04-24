@@ -1,35 +1,32 @@
-# Exported from Wings 3D 0.99.03
-newmtl base_auv
+# Exported from Wings 3D 0.99.06
+newmtl base
 Ns 100.0
 d 1.0
 illum 2
-Kd 1.0 1.0 1.0
+Kd 0.24076 0.24076 0.24076
 Ka 1.0 1.0 1.0
 Ks 1.0 1.0 1.0
 Ke 0.0 0.0 0.0
-map_Kd base_auv2.bmp
 
-newmtl boiler_auv
+newmtl blackened
 Ns 100.0
 d 1.0
 illum 2
-Kd 1.0 1.0 1.0
+Kd 0.12 0.12 0.12
 Ka 1.0 1.0 1.0
 Ks 1.0 1.0 1.0
 Ke 0.0 0.0 0.0
-map_Kd boiler_auv.bmp
 
-newmtl cab_auv
+newmtl body
 Ns 100.0
 d 1.0
 illum 2
-Kd 1.0 1.0 1.0
+Kd 0.9 0.13199999999999995 0.13199999999999995
 Ka 1.0 1.0 1.0
 Ks 1.0 1.0 1.0
 Ke 0.0 0.0 0.0
-map_Kd cab_auv.bmp
 
-newmtl funnel_auv
+newmtl default
 Ns 100.0
 d 1.0
 illum 2
@@ -37,15 +34,31 @@ Kd 1.0 1.0 1.0
 Ka 1.0 1.0 1.0
 Ks 1.0 1.0 1.0
 Ke 0.0 0.0 0.0
-map_Kd funnel_auv.bmp
 
-newmtl wheels_auv
+newmtl front
 Ns 100.0
 d 1.0
 illum 2
-Kd 1.0 1.0 1.0
+Kd 0.7333333333333333 0.7333333333333333 0.7333333333333333
 Ka 1.0 1.0 1.0
 Ks 1.0 1.0 1.0
 Ke 0.0 0.0 0.0
-map_Kd wheels_auv.bmp
+
+newmtl roof
+Ns 100.0
+d 1.0
+illum 2
+Kd 0.49384 0.49384 0.49384
+Ka 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+Ke 0.0 0.0 0.0
+
+newmtl wheels
+Ns 100.0
+d 1.0
+illum 2
+Kd 0.8335 0.8335 0.8335
+Ka 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+Ke 0.0 0.0 0.0
 
