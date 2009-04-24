@@ -162,7 +162,7 @@ void SDLWindow::run(IScreenPtr aScreen)
    const unsigned targetFramerate = 30;
    const unsigned window = 1000 / targetFramerate;
 
-   SDL_TimerID fpsTimer = SDL_AddTimer(1000, updateFPS, NULL);
+   // SDL_TimerID fpsTimer = SDL_AddTimer(1000, updateFPS, NULL);
 
    amRunning = true;
    do {
@@ -194,8 +194,8 @@ void SDLWindow::run(IScreenPtr aScreen)
       frameComplete();
    } while (amRunning);
 
-   SDL_RemoveTimer(fpsTimer);
-
+   //SDL_RemoveTimer(fpsTimer);
+   
    myScreen.reset();
 }
 
