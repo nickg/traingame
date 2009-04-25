@@ -374,6 +374,33 @@ void Editor::drawDraggedTrack()
             ylen--;
          }
       }
+
+      float startAngle, endAngle;
+      Point<int> where;
+
+      log() << myDragBegin << " -> " << myDragEnd;
+
+      if (startDir == Axis::X && endDir == Axis::Y) {
+         if (myDragBegin.y < myDragEnd.y) {
+            log() << "Going right";
+            startAngle = 90;
+            endAngle = 180;
+            where = myDragEnd;
+         }
+         else {
+            log() << "Going left";
+            startAngle = 0;
+            endAngle = 90;
+            where = myDragBegin;
+         }
+      }
+      else {
+         log() << "Not handled";
+         return;
+      }
+
+      ITrackSegmentPtr track = makeCurvedTrack(startAngle, endAngle, xlen);
+      myMap->setTrackAt(where, track);
    }
 
    /*if (xlen == 1 && ylen == 1)

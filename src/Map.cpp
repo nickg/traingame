@@ -168,7 +168,6 @@ void Map::setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack)
    for (list<Point<int> >::iterator it = endpoints.begin();
         it != endpoints.end(); ++it) {
       tileAt((*it).x, (*it).y).track = node;
-      log() << "connect endpoint " << (*it).x << ", " << (*it).y;
    }
 }
 
