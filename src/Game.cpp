@@ -74,8 +74,8 @@ void Game::display(IGraphicsPtr aContext) const
    
    aContext->setCamera(myPosition, myRotation);
       
-   myTrain->render();
    myMap->render(aContext);
+   myTrain->render();
 }
 
 void Game::update(IPickBufferPtr aPickBuffer)

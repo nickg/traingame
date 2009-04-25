@@ -20,6 +20,7 @@
 #include "Maths.hpp"
 #include "ILogger.hpp"
 #include "ITrackSegment.hpp"
+#include "IFog.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -126,12 +127,15 @@ private:
 
    int myWidth, myDepth;
    IQuadTreePtr myQuadTree;
+   IFogPtr myFog;
 };
 
 Map::Map()
    : myTiles(NULL), myWidth(0), myDepth(0)
 {
-   
+   myFog = makeFog(0.6, 0.7, 0.8,  // Colour
+                   0.35,           // Density
+                   20.0, 30.0);    // Start and end distance
 }
 
 Map::~Map()
@@ -238,21 +242,14 @@ void Map::render(IGraphicsPtr aContext) const
    }
    
    glClearColor(0.6, 0.7, 0.8, 1.0);
+
+   myFog->apply();
    
    glPushAttrib(GL_ALL_ATTRIB_BITS);
-   
-   glColorMaterial(GL_FRONT, GL_DIFFUSE);
+
+   // Use the value of glColor rather than materials
+   glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
    glEnable(GL_COLOR_MATERIAL);
-   
-   // Set the default fog
-   GLfloat fogColor[4] = { 0.6f, 0.7f, 0.8f, 1.0f };
-   glFogi(GL_FOG_MODE, GL_LINEAR);
-   glFogfv(GL_FOG_COLOR, fogColor);
-   glFogf(GL_FOG_DENSITY, 0.35f);
-   glHint(GL_FOG_HINT, GL_DONT_CARE);
-   glFogf(GL_FOG_START, 20.0f);
-   glFogf(GL_FOG_END, 30.0f);
-   glEnable(GL_FOG);
    
    glPushMatrix();
    myQuadTree->render(aContext);
