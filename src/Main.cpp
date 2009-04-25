@@ -19,6 +19,8 @@
 #include "ILogger.hpp"
 #include "GameScreens.hpp"
 
+#include <xercesc/util/PlatformUtils.hpp>
+
 namespace {
    IWindowPtr theWindow;
 }
@@ -30,12 +32,26 @@ IWindowPtr getGameWindow()
 
 int main(int argc, char** argv)
 {
+   using namespace xercesc;
+   
    log() << "Program started";
+
+   try {
+      XMLPlatformUtils::Initialize();
+   }
+   catch (const XMLException& e) {
+      error() << "Exception in Xerces startup: " << e.getMessage();
+      return 1;
+   }
+
+   log() << "Xerces initialised";
    
    theWindow = makeSDLWindow();
 
    IScreenPtr editor = makeEditorScreen();
    theWindow->run(editor);
+
+   XMLPlatformUtils::Terminate();
    
    log() << "Finished";   
    return 0;
