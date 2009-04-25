@@ -28,8 +28,14 @@
 
 #include <GL/gl.h>
 
+#include <xercesc/sax2/DefaultHandler.hpp>
+#include <xercesc/sax2/XMLReaderFactory.hpp>
+#include <xercesc/sax2/SAX2XMLReader.hpp>
+#include <xercesc/util/XMLString.hpp>
+
 using namespace std;
 using namespace std::tr1;
+using namespace xercesc;
 
 // A single piece of track may appear multiple times in the map - this
 // will be true for all track segments that cover multiple tiles
@@ -347,4 +353,65 @@ IMapPtr makeEmptyMap(int aWidth, int aDepth)
    shared_ptr<Map> ptr(new Map);
    ptr->resetMap(aWidth, aDepth);
    return IMapPtr(ptr);
+}
+
+// Callbacks for SAX parsing of map files
+class MapSAX2Handler : public DefaultHandler {
+public:
+   void startElement(const XMLCh* const uri,
+                     const XMLCh* const localname,
+                     const XMLCh* const qname,
+                     const Attributes& attrs)
+   {
+      char* message = XMLString::transcode(localname);
+      debug() << "I saw element: " << message;
+      XMLString::release(&message);
+   }
+
+   void error(const SAXParseException& e) { throw e; }
+   void fatalError(const SAXParseException& e) { throw e; }
+};
+
+IMapPtr loadMap(const string& aFileName)
+{
+   shared_ptr<Map> map(new Map);
+
+   log() << "Loading map from file " << aFileName;
+
+   shared_ptr<SAX2XMLReader> parser(XMLReaderFactory::createXMLReader());
+   parser->setFeature(XMLUni::fgSAX2CoreValidation, true);
+   parser->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
+   parser->setFeature(XMLUni::fgXercesValidationErrorAsFatal, true);
+   
+   XMLCh* schemaName = XMLString::transcode("schemas/map.xsd");
+   ArrayJanitor<XMLCh> janSchemaName(schemaName);
+
+   parser->setProperty(XMLUni::fgXercesSchemaExternalNoNameSpaceSchemaLocation,
+                       schemaName);
+   
+   shared_ptr<MapSAX2Handler> handler(new MapSAX2Handler);
+   parser->setContentHandler(handler.get());
+   parser->setErrorHandler(handler.get());
+   
+   try {
+      parser->parse(aFileName.c_str());
+   }
+   catch (const XMLException& e) {
+      char* message = XMLString::transcode(e.getMessage());
+      error() << "XMLException: " << message;
+      XMLString::release(&message);
+
+      throw runtime_error("Failed to load map file: " + aFileName);
+   }
+   catch (const SAXParseException& e) {
+      char* message = XMLString::transcode(e.getMessage());
+      error() << "SAXParseException: " << message;
+      XMLString::release(&message);
+
+      throw runtime_error("Failed to load map file: " + aFileName);
+   }
+
+   throw runtime_error("Done");
+   
+   return IMapPtr(map);
 }

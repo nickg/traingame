@@ -19,7 +19,12 @@
 #include "ILogger.hpp"
 #include "GameScreens.hpp"
 
+#include <stdexcept>
+
 #include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/XMLString.hpp>
+
+using namespace std;
 
 namespace {
    IWindowPtr theWindow;
@@ -40,16 +45,23 @@ int main(int argc, char** argv)
       XMLPlatformUtils::Initialize();
    }
    catch (const XMLException& e) {
-      error() << "Exception in Xerces startup: " << e.getMessage();
+      char* message = XMLString::transcode(e.getMessage());
+      error() << "Exception in Xerces startup: " << message;
+      XMLString::release(&message);
       return 1;
    }
 
    log() << "Xerces initialised";
-   
-   theWindow = makeSDLWindow();
 
-   IScreenPtr editor = makeEditorScreen();
-   theWindow->run(editor);
+   try {
+      theWindow = makeSDLWindow();
+      
+      IScreenPtr editor = makeEditorScreen();
+      theWindow->run(editor);
+   }
+   catch (const runtime_error& e) {
+      error() << "Fatal: " << e.what();
+   }
 
    XMLPlatformUtils::Terminate();
    

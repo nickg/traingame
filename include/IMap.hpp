@@ -22,6 +22,7 @@
 #include "ITrackSegment.hpp"
 
 #include <tr1/memory>
+#include <string>
 
 // A map is a MxN array of floating point height values
 // It also contains the track layout and any scenery items
@@ -70,5 +71,8 @@ typedef std::tr1::shared_ptr<IMap> IMapPtr;
 
 // Make an empty map
 IMapPtr makeEmptyMap(int aWidth, int aHeight);
+
+// Load a map from an XML file
+IMapPtr loadMap(const std::string& aFileName);
 
 #endif

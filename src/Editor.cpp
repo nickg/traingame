@@ -74,7 +74,8 @@ Editor::Editor()
    : myPosition(4.5, -15.0, -21.5), amDragging(false),
      myTool(TRACK_TOOL)
 {
-   myMap = makeEmptyMap(32, 32);
+   //myMap = makeEmptyMap(32, 32);
+   myMap = loadMap("maps/figure8.xml");
    mySun = makeSunLight();
 }
 
