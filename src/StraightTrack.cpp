@@ -113,7 +113,7 @@ ITrackSegmentPtr StraightTrack::mergeExit(const Point<int>& aPoint,
 
    // See if we can make this a crossover track
    if (myDirection != aDirection)
-      log() << "Make crossover";
+      return makeCrossoverTrack();
 
    // Not possible to merge
    return ITrackSegmentPtr();
