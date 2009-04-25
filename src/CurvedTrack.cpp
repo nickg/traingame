@@ -75,19 +75,26 @@ CurvedTrack::~CurvedTrack()
 void CurvedTrack::transform(const Track::Direction& aDirection, double aDelta) const
 {
    assert(aDelta < segmentLength());
-
+   
    glTranslated(static_cast<double>(myX),
                 0.0,
                 static_cast<double>(myY));
 
    transformToOrigin(myBaseRadius, degToRad(myStartAngle));
 
+   bool backwards = aDirection == cwEntryVector();
+   
    double ratio = aDelta / segmentLength();
-
+   if (backwards)
+      ratio = 1.0 - ratio;
+      
    double angle = myStartAngle + (90.0 * ratio);
 
    glRotated(angle, 0.0, 1.0, 0.0);
    glTranslated(0.0, 0.0, static_cast<double>(myBaseRadius - 0.5));
+
+   if (backwards)
+      glRotatef(180.0, 0, 1, 0);
 }
 
 double CurvedTrack::segmentLength() const
