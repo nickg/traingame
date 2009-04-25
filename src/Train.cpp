@@ -96,11 +96,7 @@ void Train::render() const
 {
    glPushMatrix();
 
-   //Vector<double> loc = mySegment->offsetForDelta(mySegmentDelta);
-   //glTranslated(loc.x, loc.y + MODEL_YOFF, loc.z);
    myTransformer(mySegmentDelta);
-   //glRotated(-90.0, 0.0, 1.0, 0.0);
-
    myEngine->render();
 
    glPopMatrix();

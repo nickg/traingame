@@ -165,12 +165,18 @@ bool CurvedTrack::isValidDirection(const Direction& aDirection) const
 Connection CurvedTrack::nextPosition(const Vector<int>& aDirection) const
 {
    ensureValidDirection(aDirection);
-   
+
+   bool backwards;
    Vector<int> nextDir;
-   if (aDirection == cwEntryVector())
+   if (aDirection == cwEntryVector()) {
       nextDir = -ccwEntryVector();
-   else if (aDirection == ccwEntryVector())
+      log() << "nextDir = " << nextDir;
+      backwards = true;
+   }
+   else if (aDirection == ccwEntryVector()) {
       nextDir = -cwEntryVector();
+      backwards = false;
+   }
    else
       assert(false);
 
@@ -179,9 +185,15 @@ Connection CurvedTrack::nextPosition(const Vector<int>& aDirection) const
    const int cosStart = static_cast<int>(cos(degToRad(myStartAngle)));
    const int sinEnd = static_cast<int>(sin(degToRad(myFinishAngle)));
    const int sinStart = static_cast<int>(sin(degToRad(myStartAngle)));
-   
-   int xDelta = (myBaseRadius - 1) * (sinEnd - sinStart);
-   int yDelta = (myBaseRadius - 1) * (cosEnd - cosStart);
+
+   int xDelta, yDelta;
+
+   if (backwards)
+      xDelta = yDelta = 0;
+   else {
+      xDelta = (myBaseRadius - 1) * (sinEnd - sinStart);
+      yDelta = (myBaseRadius - 1) * (cosEnd - cosStart);
+   }
    
    return make_pair(makePoint(myX + xDelta + nextDir.x,
                               myY + yDelta + nextDir.z),
