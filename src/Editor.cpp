@@ -46,6 +46,7 @@ public:
 private:
    void buildGUI();
    void drawDraggedTrack();
+   bool drawTrackTile(const Point<int>& aPoint, const Track::Direction& anAxis);
    void drawDraggedStraight(const Track::Direction& anAxis, int aLength);
    void drawDraggedCurve(int xLength, int yLength);
    bool canConnect(const Point<int>& aFirstPoint,
@@ -161,100 +162,38 @@ Track::Direction Editor::guessTrackDirection(const Point<int>& aPoint) const
    }
 }
 
+// Draw a single tile of straight track and check for collisions
+// Returns `false' if track cannot be placed here
+bool Editor::drawTrackTile(const Point<int>& aPoint, const Track::Direction& anAxis)
+{
+   if (myMap->isValidTrack(aPoint)) {
+      ITrackSegmentPtr merged = myMap->trackAt(aPoint)->mergeExit(aPoint, anAxis);
+      if (merged) {
+         myMap->setTrackAt(aPoint, merged);
+         return true;
+      }
+      else {
+         warn() << "Cannot merge track";
+         return false;
+      }
+   }
+   else {
+      myMap->setTrackAt(aPoint, makeStraightTrack(anAxis));
+      return true;
+   }
+}
+
 // Special case where the user drags a rectangle of width 1
 // This just draws straight track along the rectangle
 void Editor::drawDraggedStraight(const Track::Direction& anAxis, int aLength)
 {
    Point<int> where = myDragBegin;
 
-   log() << "drawDraggedStraight " << anAxis << " len=" << aLength;
-   
    for (int i = 0; i < aLength; i++) {
-      myMap->setTrackAt(where, makeStraightTrack(anAxis));
+      drawTrackTile(where, anAxis);
       
       where.x += anAxis.x;
       where.y += anAxis.z;
-   }
-}
-
-// Connect the begin and end points of the drag with a curve and possibly
-// a section of straight track
-void Editor::drawDraggedCurve(int xLength, int yLength)
-{
-   log() << "drawDraggedCurve";
-
-   Track::Direction dir = guessTrackDirection(myDragBegin);
-
-   // If we a drawing along the X axis then the track must curve to the
-   // Y axis somewhere
-   // If X is the longer dimension then the curve is at the end after
-   // a straight section, otherwise the curve is at the beginning
-   if (dir == Axis::X) {
-      if (xLength > yLength) {
-         log() << "Curve X->Y at end";
-         int straightLen = xLength - yLength;
-         Point<int> where = myDragBegin;
-         for (int i = 0; i < straightLen; i++) {
-            myMap->setTrackAt(where, makeStraightTrack(Axis::X));
-            where.x++;
-         }
-
-         ITrackSegmentPtr curve;
-         if (myDragBegin.y < myDragEnd.y)
-            curve = makeCurvedTrack(90, 180, yLength);
-         else
-            curve = makeCurvedTrack(0, 90, yLength);
-         myMap->setTrackAt(where, curve);
-      }
-      else {
-         log() << "Curve X->Y at start";
-         Point<int> where = myDragBegin;
-         Point<int> next;
-         
-         ITrackSegmentPtr curve;
-         if (myDragBegin.y < myDragEnd.y) {
-            where = myDragEnd;
-            curve = makeCurvedTrack(90, 180, xLength);
-            next = makePoint(where.x + xLength - 1, where.y + xLength);
-         }
-         else {
-            where = myDragBegin;
-            curve = makeCurvedTrack(0, 90, xLength);
-            next = makePoint(where.x + xLength - 1,
-                             where.y - yLength + 1);
-         }
-         myMap->setTrackAt(where, curve);
-         
-         where = next;
-         int straightLen = yLength - xLength;
-         for (int i = 0; i < straightLen; i++) {
-            myMap->setTrackAt(where, makeStraightTrack(Axis::Y));
-            where.y++;
-         }
-      }
-   }
-   else {
-      // Otherwise the track must curve to the X axis
-      if (yLength > xLength) {
-         log() << "Curve Y->X at end";
-      }
-      else {
-         log() << "Curve Y->X at start";
-         Point<int> where = myDragBegin;
-         Point<int> next;
-
-         ITrackSegmentPtr curve;
-         if (myDragBegin.x < myDragEnd.x) {
-            curve = makeCurvedTrack(270, 360, yLength);
-            next = makePoint(where.x + xLength - 1, where.y + xLength);
-         }
-         else {
-            curve = makeCurvedTrack(90, 180, xLength);
-            next = makePoint(where.x + xLength - 1,
-                             where.y - yLength + 1);
-         }
-         myMap->setTrackAt(where, curve);
-      }
    }
 }
 
@@ -352,11 +291,11 @@ void Editor::drawDraggedTrack()
             // One of the ends must lie along the x-axis since all
             // curves are through 90 degrees so extend that one
             if (startDir == Axis::X) {
-               myMap->setTrackAt(myDragBegin, makeStraightTrack(Axis::X));
+               drawTrackTile(myDragBegin, Axis::X);
                myDragBegin.x++;
             }
             else {
-               myMap->setTrackAt(myDragEnd, makeStraightTrack(Axis::X));
+               drawTrackTile(myDragEnd, Axis::X);
                myDragEnd.x--;
             }
             xlen--;
@@ -365,7 +304,7 @@ void Editor::drawDraggedTrack()
             log() << "Extend along y";
             // Need to draw track along y-axis
             if (startDir == Axis::Y) {
-               myMap->setTrackAt(myDragBegin, makeStraightTrack(Axis::Y));
+               drawTrackTile(myDragBegin, Axis::Y);
 
                // The y-coordinate for the drag points is not guaranteed
                // to be sorted
@@ -375,7 +314,7 @@ void Editor::drawDraggedTrack()
                   myDragBegin.y++;
             }
             else {
-               myMap->setTrackAt(myDragEnd, makeStraightTrack(Axis::Y));
+               drawTrackTile(myDragEnd, Axis::Y);
                                     
                if (myDragBegin.y > myDragEnd.y)
                   myDragEnd.y++;
@@ -421,17 +360,24 @@ void Editor::drawDraggedTrack()
       }
 
       ITrackSegmentPtr track = makeCurvedTrack(startAngle, endAngle, xlen);
-      myMap->setTrackAt(where, track);
-   }
+      track->setOrigin(where.x, where.y);
 
-   /*if (xlen == 1 && ylen == 1)
-      drawDraggedTile();
-   else if (xlen == 1)
-      drawDraggedStraight(myDragBegin.y < myDragEnd.y ? Axis::Y : -Axis::Y, ylen);
-   else if (ylen == 1)
-      drawDraggedStraight(myDragBegin.x < myDragEnd.x ? Axis::X : -Axis::X, xlen);
-   else
-   drawDraggedCurve(xlen, ylen);*/
+      list<Point<int> > exits;
+      track->getEndpoints(exits);
+
+      bool ok = true;
+      for (list<Point<int> >::iterator it = exits.begin();
+           it != exits.end(); ++it) {
+         if (myMap->isValidTrack(*it)) {
+            warn() << "Cannot place curve here";
+            ok = false;
+            break;
+         }
+      }
+
+      if (ok)
+         myMap->setTrackAt(where, track);
+   }
  
    myMap->rebuildDisplayLists();
 }

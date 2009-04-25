@@ -33,7 +33,8 @@ using namespace Track;
 using namespace boost;
 
 // Concrete implementation of curved pieces of track
-class CurvedTrack : public ITrackSegment {
+class CurvedTrack : public ITrackSegment,
+                    public enable_shared_from_this<CurvedTrack> {
 public:
    CurvedTrack(Track::Angle aStartAngle, Track::Angle aFinishAngle,
                int aRadius);
@@ -48,6 +49,9 @@ public:
    TransformFunc transformFunc(const Track::Direction& aDirection) const;
    bool isValidDirection(const Direction& aDirection) const;
    void getEndpoints(list<Point<int> >& aList) const;
+   
+   ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
+                              const Track::Direction& aDirection);
 private:
    void transform(const Track::Direction& aDirection, double aDelta) const;
    Vector<int> cwEntryVector() const;
@@ -213,6 +217,24 @@ void CurvedTrack::getEndpoints(list<Point<int> >& aList) const
    const int yDelta = (myBaseRadius - 1) * (cosEnd - cosStart);
    
    aList.push_back(makePoint(myX + xDelta, myY + yDelta));
+}
+
+ITrackSegmentPtr CurvedTrack::mergeExit(const Point<int>& aPoint,
+                                        const Track::Direction& aDirection)
+{
+   // See if this is already an exit
+   if (isValidDirection(aDirection)) {
+      list<Point<int> > exits;
+      getEndpoints(exits);
+
+      for (list<Point<int> >::iterator it = exits.begin();
+           it != exits.end(); ++it)
+         if (*it == aPoint)
+            return shared_from_this();
+   }
+
+   // No way to merge this as an exit
+   return ITrackSegmentPtr();
 }
 
 void CurvedTrack::render() const

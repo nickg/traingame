@@ -47,6 +47,9 @@ namespace Axis {
    const Track::Direction Y = makeVector(0, 0, 1);
 }
 
+struct ITrackSegment;
+typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;
+
 // A segment of track which fits over a number of tiles
 // Each track segment has an origin and one or more exits
 struct ITrackSegment {   
@@ -88,9 +91,17 @@ struct ITrackSegment {
    // from `nextPosition' - e.g. a straight track that takes up
    // one tile has a single endpoint which is its origin
    virtual void getEndpoints(std::list<Point<int> >& aList) const = 0;
-};
 
-typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;
+   // Add an exit to this section of track possibly generating
+   // a new track segment
+   // If this is not possible a null pointer is returned
+   // If it can be merged a new track segment is returned that
+   // may be bigger than the origin segment
+   // The track may already have an exit here in which case
+   // a pointer to itself will be returned
+   virtual ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
+                                      const Track::Direction& aDirection) = 0;
+};
 
 ITrackSegmentPtr makeStraightTrack(const Track::Direction& aDirection);
 ITrackSegmentPtr makeCurvedTrack(Track::Angle aStartAngle,

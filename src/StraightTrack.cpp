@@ -33,7 +33,8 @@ using namespace boost;
 using namespace Track;
 
 // Concrete implementation of straight-line pieces of track
-class StraightTrack : public ITrackSegment {
+class StraightTrack : public ITrackSegment,
+                      public enable_shared_from_this<StraightTrack> {
 public:
    StraightTrack(const Direction& aDirection);
    ~StraightTrack();
@@ -49,6 +50,9 @@ public:
    void getEndpoints(list<Point<int> >& aList) const;
    
    TransformFunc transformFunc(const Track::Direction& aDirection) const;
+   
+   ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
+                              const Track::Direction& aDirection);
 private:
    void transform(const Track::Direction& aDirection, double aDelta) const;
    void ensureValidDirection(const Track::Direction& aDirection) const;
@@ -98,6 +102,21 @@ StraightTrack::transformFunc(const Track::Direction& aDirection) const
    ensureValidDirection(aDirection);
    
    return bind(&StraightTrack::transform, this, aDirection, _1);
+}
+
+ITrackSegmentPtr StraightTrack::mergeExit(const Point<int>& aPoint,
+                                          const Track::Direction& aDirection)
+{
+   // See if this is already a valid exit
+   if (isValidDirection(aDirection) && aPoint == makePoint(myX, myY))
+      return shared_from_this();
+
+   // See if we can make this a crossover track
+   if (myDirection != aDirection)
+      log() << "Make crossover";
+
+   // Not possible to merge
+   return ITrackSegmentPtr();
 }
 
 bool StraightTrack::isValidDirection(const Direction& aDirection) const
