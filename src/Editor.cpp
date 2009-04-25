@@ -52,7 +52,6 @@ private:
    bool canConnect(const Point<int>& aFirstPoint,
                    const Point<int>& aSecondPoint) const;
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
-   Track::Direction guessTrackDirection(const Point<int>& aPoint) const;
    
    IMapPtr myMap;
    
@@ -136,30 +135,8 @@ bool Editor::canConnect(const Point<int>& aFirstPoint,
       (aFirstPoint.x - aSecondPoint.x, 0,
        aFirstPoint.y - aSecondPoint.y).normalise();
 
-   log() << dir << ", " << -dir;
-
    return track->isValidDirection(dir)
       || track->isValidDirection(-dir);
-}
-
-// Try to guess the axis to draw the track along by looking at nearby tiles
-Track::Direction Editor::guessTrackDirection(const Point<int>& aPoint) const
-{
-   if (canConnect(aPoint.left(), aPoint)
-       || canConnect(aPoint.right(), aPoint)) {
-      log() << "Connect along x";
-      return Axis::X;
-   }
-   else if (canConnect(aPoint.up(), aPoint)
-       || canConnect(aPoint.down(), aPoint)) {
-      log() << "Connect along y";
-      return Axis::Y;
-   }
-   else {
-      // Take a guess
-      log() << "(Guess) connect along x";
-      return Axis::X;
-   }
 }
 
 // Draw a single tile of straight track and check for collisions
@@ -208,15 +185,10 @@ void Editor::drawDraggedTrack()
    
    int xlen = abs(xmax - xmin) + 1;
    int ylen = abs(ymax - ymin) + 1;
-   log() << "xlen=" << xlen << ", ylen=" << ylen;
-
    // Normalise the coordinates so the start is always the one with
    // the smallest x-coordinate
    if (myDragBegin.x > myDragEnd.x)
       swap(myDragBegin, myDragEnd);
-
-   log() << "Begin: " << myDragBegin;
-   log() << "End: " << myDragEnd;
 
    Track::Direction startDir, endDir;
    bool startWasGuess = false;
@@ -225,12 +197,10 @@ void Editor::drawDraggedTrack()
    // Try to work out the direction of the track start
    if (canConnect(myDragBegin.left(), myDragBegin)
        || canConnect(myDragBegin.right(), myDragBegin)) {
-      log() << "Connect start along x";
       startDir = Axis::X;
    }
    else if (canConnect(myDragBegin.up(), myDragBegin)
        || canConnect(myDragBegin.down(), myDragBegin)) {
-      log() << "Connect start along y";
       startDir = Axis::Y;
    }
    else
@@ -239,12 +209,10 @@ void Editor::drawDraggedTrack()
    // Try to work out the direction of the track end
    if (canConnect(myDragEnd.left(), myDragEnd)
        || canConnect(myDragEnd.right(), myDragEnd)) {
-      log() << "Connect end along x";
       endDir = Axis::X;
    }
    else if (canConnect(myDragEnd.up(), myDragEnd)
        || canConnect(myDragEnd.down(), myDragEnd)) {
-      log() << "Connect end along y";
       endDir = Axis::Y;
    }
    else
@@ -272,7 +240,7 @@ void Editor::drawDraggedTrack()
    
    if (xlen == 1 && ylen == 1) {
       // A single tile
-      myMap->setTrackAt(myDragBegin, makeStraightTrack(startDir));
+      drawTrackTile(myDragBegin, startDir);
    }
    else if (xlen == 1)
       drawDraggedStraight(myDragBegin.y < myDragEnd.y ? Axis::Y : -Axis::Y, ylen);
@@ -287,7 +255,6 @@ void Editor::drawDraggedTrack()
       // until the dragged area is a square
       while (xlen != ylen) {
          if (xlen > ylen) {
-            log() << "Extend along x";
             // One of the ends must lie along the x-axis since all
             // curves are through 90 degrees so extend that one
             if (startDir == Axis::X) {
@@ -301,7 +268,6 @@ void Editor::drawDraggedTrack()
             xlen--;
          }
          else {
-            log() << "Extend along y";
             // Need to draw track along y-axis
             if (startDir == Axis::Y) {
                drawTrackTile(myDragBegin, Axis::Y);
@@ -328,17 +294,13 @@ void Editor::drawDraggedTrack()
       float startAngle, endAngle;
       Point<int> where;
 
-      log() << myDragBegin << " -> " << myDragEnd;
-
       if (startDir == Axis::X && endDir == Axis::Y) {
          if (myDragBegin.y < myDragEnd.y) {
-            log() << "Going right";
             startAngle = 90;
             endAngle = 180;
             where = myDragEnd;
          }
          else {
-            log() << "Going left";
             startAngle = 0;
             endAngle = 90;
             where = myDragBegin;
@@ -346,13 +308,11 @@ void Editor::drawDraggedTrack()
       }
       else {
          if (myDragBegin.y < myDragEnd.y) {
-            log() << "Going right";
             startAngle = 270;
             endAngle = 360;
             where = myDragBegin;
          }
          else {
-            log() << "Going left";
             startAngle = 180;
             endAngle = 270;
             where = myDragEnd;
