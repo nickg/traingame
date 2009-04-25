@@ -395,8 +395,18 @@ void Editor::drawDraggedTrack()
          }
       }
       else {
-         log() << "Not handled";
-         return;
+         if (myDragBegin.y < myDragEnd.y) {
+            log() << "Going right";
+            startAngle = 270;
+            endAngle = 360;
+            where = myDragBegin;
+         }
+         else {
+            log() << "Going left";
+            startAngle = 180;
+            endAngle = 270;
+            where = myDragEnd;
+         }
       }
 
       ITrackSegmentPtr track = makeCurvedTrack(startAngle, endAngle, xlen);
