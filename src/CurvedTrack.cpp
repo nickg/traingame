@@ -170,7 +170,6 @@ Connection CurvedTrack::nextPosition(const Vector<int>& aDirection) const
    Vector<int> nextDir;
    if (aDirection == cwEntryVector()) {
       nextDir = -ccwEntryVector();
-      log() << "nextDir = " << nextDir;
       backwards = true;
    }
    else if (aDirection == ccwEntryVector()) {

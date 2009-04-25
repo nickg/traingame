@@ -341,7 +341,7 @@ void Editor::drawDraggedTrack()
       drawDraggedStraight(Axis::X, xlen);
    else if (startDir == endDir) {
       // An S-bend (not implemented)
-      log() << "Sorry! No S-bends yet...";
+      warn() << "Sorry! No S-bends yet...";
    }
    else {
       // Curves at the moment cannot be ellipses so lay track down

@@ -197,13 +197,19 @@ void SDLWindow::run(IScreenPtr aScreen)
    do {
       unsigned tickStart = SDL_GetTicks();
 
-      processInput();
-      myScreen->update(shared_from_this());
-      
-      if (!willSkipNextFrame)
-         drawGLScene();
-      else
-         willSkipNextFrame = false;
+      try {
+         processInput();
+         myScreen->update(shared_from_this());
+         
+         if (!willSkipNextFrame)
+            drawGLScene();
+         else
+            willSkipNextFrame = false;
+      }
+      catch (runtime_error& e) {
+         error() << "Caught exception: " << e.what();
+         amRunning = false;
+      }
 
       // Limit the frame rate to `targetFramerate`
       unsigned tickNow = SDL_GetTicks();

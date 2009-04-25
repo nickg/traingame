@@ -18,27 +18,52 @@
 #include "ILogger.hpp"
 
 #include <iostream>
+#include <cstdio>
 
 using namespace std;
 using namespace std::tr1;
 
 // Concrete logger implementation
 class LoggerImpl : public ILogger {
+   friend class PrintLine;
 public:
+   LoggerImpl();
+   
    PrintLinePtr writeMsg(LogMsg::Type type);
 };
 
+namespace {
+   bool isStdoutTTY;
+}
+
+LoggerImpl::LoggerImpl()
+{
+   isStdoutTTY = isatty(fileno(stdout));
+}
+
 PrintLinePtr LoggerImpl::writeMsg(LogMsg::Type type)
 {
+   if (isStdoutTTY)
+         cout << "\x1B[1m";
+   
    switch (type) {
    case LogMsg::NORMAL:
-      cout << "I) ";
+      cout << "[INFO ] ";
       break;
    case LogMsg::DEBUG:
-      cout << "D) ";
+      if (isStdoutTTY)
+         cout << "\x1B[36m";
+      cout << "[DEBUG] ";
       break;
    case LogMsg::WARN:
-      cout << "!) ";
+      if (isStdoutTTY)
+         cout << "\x1B[33m";
+      cout << "[WARN ] ";
+      break;
+   case LogMsg::ERROR:
+      if (isStdoutTTY)
+         cout << "\x1B[31m";
+      cout << "[ERROR] ";
       break;
    }
    return PrintLinePtr(new PrintLine(cout));
@@ -52,6 +77,9 @@ PrintLine::PrintLine(ostream& aStream)
 
 PrintLine::~PrintLine()
 {
+   if (isStdoutTTY)
+      cout << "\x1B[0m";
+   
    stream << endl;
 }
 

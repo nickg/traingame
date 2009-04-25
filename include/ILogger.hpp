@@ -41,7 +41,7 @@ inline PrintLinePtr operator<<(PrintLinePtr aPrintLine, const T& aThing)
 // Types of log levels
 namespace LogMsg {
    enum Type {
-      NORMAL, DEBUG, WARN
+      NORMAL, DEBUG, WARN, ERROR
    };
 }
 
@@ -63,5 +63,6 @@ inline PrintLinePtr log(LogMsg::Type type = LogMsg::NORMAL)
 
 inline PrintLinePtr warn() { return log(LogMsg::WARN); }
 inline PrintLinePtr debug() { return log(LogMsg::DEBUG); }
+inline PrintLinePtr error() { return log(LogMsg::ERROR); }
 
 #endif
