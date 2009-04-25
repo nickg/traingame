@@ -299,7 +299,8 @@ MouseButton SDLWindow::fromSDLButton(Uint8 aSDLButton) const
    case SDL_BUTTON_MIDDLE: return MOUSE_MIDDLE;
    case SDL_BUTTON_RIGHT: return MOUSE_RIGHT;
    default:
-      abort();
+      throw runtime_error
+         ("Unrecognised button: " + lexical_cast<string>(aSDLButton));
    }
 }
 

@@ -137,10 +137,8 @@ bool Editor::canConnect(const Point<int>& aFirstPoint,
 
    log() << dir << ", " << -dir;
 
-   return (track->isValidDirection(dir)
-           && track->nextPosition(dir).first == aSecondPoint)
-      || (track->isValidDirection(-dir)
-          && track->nextPosition(-dir).first == aSecondPoint);
+   return track->isValidDirection(dir)
+      || track->isValidDirection(-dir);
 }
 
 // Try to guess the axis to draw the track along by looking at nearby tiles
@@ -282,6 +280,8 @@ void Editor::drawDraggedTrack()
    log() << "End: " << myDragEnd;
 
    Track::Direction startDir, endDir;
+   bool startWasGuess = false;
+   bool endWasGuess = false;
 
    // Try to work out the direction of the track start
    if (canConnect(myDragBegin.left(), myDragBegin)
@@ -294,11 +294,8 @@ void Editor::drawDraggedTrack()
       log() << "Connect start along y";
       startDir = Axis::Y;
    }
-   else {
-      // Take a guess
-      log() << "(Guess) connect start along x";
-      startDir = Axis::X;
-   }
+   else
+      startWasGuess = true;
 
    // Try to work out the direction of the track end
    if (canConnect(myDragEnd.left(), myDragEnd)
@@ -311,14 +308,28 @@ void Editor::drawDraggedTrack()
       log() << "Connect end along y";
       endDir = Axis::Y;
    }
-   else {
-      // When in doubt, prefer curves to S-bends
-      log() << "(Guess) connect end along opposite direction";
-      if (startDir == Axis::X)
+   else
+      endWasGuess = true;
+
+   // If we have to guess both orientations use a heuristic to decide
+   // between S-bends and curves
+   if (endWasGuess && startWasGuess) {
+      if (min(xlen, ylen) <= 2) {
+         if (xlen > ylen)
+            startDir = endDir = Axis::X;
+         else
+            startDir = endDir = Axis::Y;
+      }
+      else {
+         startDir = Axis::X;
          endDir = Axis::Y;
-      else
-         endDir = Axis::X;
+      }
    }
+   // Otherwise always prefer curves to S-bends
+   else if (startWasGuess)
+      startDir = endDir == Axis::X ? Axis::Y : Axis::X;
+   else if (endWasGuess)
+      endDir = startDir == Axis::X ? Axis::Y : Axis::X;
    
    if (xlen == 1 && ylen == 1) {
       // A single tile
@@ -345,7 +356,7 @@ void Editor::drawDraggedTrack()
                myDragBegin.x++;
             }
             else {
-               myMap->setTrackAt(myDragBegin, makeStraightTrack(Axis::X));
+               myMap->setTrackAt(myDragEnd, makeStraightTrack(Axis::X));
                myDragEnd.x--;
             }
             xlen--;
