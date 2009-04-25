@@ -46,13 +46,12 @@ public:
 private:
    void buildGUI();
    void drawDraggedTrack();
-   void drawDraggedTile();
    void drawDraggedStraight(const Track::Direction& anAxis, int aLength);
    void drawDraggedCurve(int xLength, int yLength);
    bool canConnect(const Point<int>& aFirstPoint,
                    const Point<int>& aSecondPoint) const;
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
-   Track::Direction guessTrackDirection();
+   Track::Direction guessTrackDirection(const Point<int>& aPoint) const;
    
    IMapPtr myMap;
    
@@ -145,32 +144,23 @@ bool Editor::canConnect(const Point<int>& aFirstPoint,
 }
 
 // Try to guess the axis to draw the track along by looking at nearby tiles
-Track::Direction Editor::guessTrackDirection()
+Track::Direction Editor::guessTrackDirection(const Point<int>& aPoint) const
 {
-   if (canConnect(myDragBegin.left(), myDragBegin)
-       || canConnect(myDragBegin.right(), myDragBegin)) {
+   if (canConnect(aPoint.left(), aPoint)
+       || canConnect(aPoint.right(), aPoint)) {
       log() << "Connect along x";
       return Axis::X;
    }
-   else if (canConnect(myDragBegin.up(), myDragBegin)
-       || canConnect(myDragBegin.down(), myDragBegin)) {
+   else if (canConnect(aPoint.up(), aPoint)
+       || canConnect(aPoint.down(), aPoint)) {
       log() << "Connect along y";
       return Axis::Y;
    }
    else {
       // Take a guess
+      log() << "(Guess) connect along x";
       return Axis::X;
    }
-}
-
-// Special case of drawing dragged track where the user selects just
-// a single tile
-void Editor::drawDraggedTile()
-{
-   // Look at nearby track segments and try to guess the orientation
-   Track::Direction orient = guessTrackDirection();   
-
-   myMap->setTrackAt(myDragBegin, makeStraightTrack(orient));
 }
 
 // Special case where the user drags a rectangle of width 1
@@ -195,7 +185,7 @@ void Editor::drawDraggedCurve(int xLength, int yLength)
 {
    log() << "drawDraggedCurve";
 
-   Track::Direction dir = guessTrackDirection();
+   Track::Direction dir = guessTrackDirection(myDragBegin);
 
    // If we a drawing along the X axis then the track must curve to the
    // Y axis somewhere
@@ -282,14 +272,118 @@ void Editor::drawDraggedTrack()
    int xlen = abs(xmax - xmin) + 1;
    int ylen = abs(ymax - ymin) + 1;
    log() << "xlen=" << xlen << ", ylen=" << ylen;
-   if (xlen == 1 && ylen == 1)
+
+   // Normalise the coordinates so the start is always the one with
+   // the smallest x-coordinate
+   if (myDragBegin.x > myDragEnd.x)
+      swap(myDragBegin, myDragEnd);
+
+   log() << "Begin: " << myDragBegin;
+   log() << "End: " << myDragEnd;
+
+   Track::Direction startDir, endDir;
+
+   // Try to work out the direction of the track start
+   if (canConnect(myDragBegin.left(), myDragBegin)
+       || canConnect(myDragBegin.right(), myDragBegin)) {
+      log() << "Connect start along x";
+      startDir = Axis::X;
+   }
+   else if (canConnect(myDragBegin.up(), myDragBegin)
+       || canConnect(myDragBegin.down(), myDragBegin)) {
+      log() << "Connect start along y";
+      startDir = Axis::Y;
+   }
+   else {
+      // Take a guess
+      log() << "(Guess) connect start along x";
+      startDir = Axis::X;
+   }
+
+   // Try to work out the direction of the track end
+   if (canConnect(myDragEnd.left(), myDragEnd)
+       || canConnect(myDragEnd.right(), myDragEnd)) {
+      log() << "Connect end along x";
+      endDir = Axis::X;
+   }
+   else if (canConnect(myDragEnd.up(), myDragEnd)
+       || canConnect(myDragEnd.down(), myDragEnd)) {
+      log() << "Connect end along y";
+      endDir = Axis::Y;
+   }
+   else {
+      // When in doubt, prefer curves to S-bends
+      log() << "(Guess) connect end along opposite direction";
+      if (startDir == Axis::X)
+         endDir = Axis::Y;
+      else
+         endDir = Axis::X;
+   }
+   
+   if (xlen == 1 && ylen == 1) {
+      // A single tile
+      myMap->setTrackAt(myDragBegin, makeStraightTrack(startDir));
+   }
+   else if (xlen == 1)
+      drawDraggedStraight(myDragBegin.y < myDragEnd.y ? Axis::Y : -Axis::Y, ylen);
+   else if (ylen == 1)
+      drawDraggedStraight(Axis::X, xlen);
+   else if (startDir == endDir) {
+      // An S-bend (not implemented)
+      log() << "Sorry! No S-bends yet...";
+   }
+   else {
+      // Curves at the moment cannot be ellipses so lay track down
+      // until the dragged area is a square
+      while (xlen != ylen) {
+         if (xlen > ylen) {
+            log() << "Extend along x";
+            // One of the ends must lie along the x-axis since all
+            // curves are through 90 degrees so extend that one
+            if (startDir == Axis::X) {
+               myMap->setTrackAt(myDragBegin, makeStraightTrack(Axis::X));
+               myDragBegin.x++;
+            }
+            else {
+               myMap->setTrackAt(myDragBegin, makeStraightTrack(Axis::X));
+               myDragEnd.x--;
+            }
+            xlen--;
+         }
+         else {
+            log() << "Extend along y";
+            // Need to draw track along y-axis
+            if (startDir == Axis::Y) {
+               myMap->setTrackAt(myDragBegin, makeStraightTrack(Axis::Y));
+
+               // The y-coordinate for the drag points is not guaranteed
+               // to be sorted
+               if (myDragBegin.y > myDragEnd.y)
+                  myDragBegin.y--;
+               else
+                  myDragBegin.y++;
+            }
+            else {
+               myMap->setTrackAt(myDragEnd, makeStraightTrack(Axis::Y));
+                                    
+               if (myDragBegin.y > myDragEnd.y)
+                  myDragEnd.y++;
+               else
+                  myDragEnd.y--;
+            }
+            ylen--;
+         }
+      }
+   }
+
+   /*if (xlen == 1 && ylen == 1)
       drawDraggedTile();
    else if (xlen == 1)
       drawDraggedStraight(myDragBegin.y < myDragEnd.y ? Axis::Y : -Axis::Y, ylen);
    else if (ylen == 1)
       drawDraggedStraight(myDragBegin.x < myDragEnd.x ? Axis::X : -Axis::X, xlen);
    else
-      drawDraggedCurve(xlen, ylen);
+   drawDraggedCurve(xlen, ylen);*/
  
    myMap->rebuildDisplayLists();
 }
