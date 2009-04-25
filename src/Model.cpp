@@ -27,10 +27,120 @@
 #include <cassert>
 #include <stdexcept>
 #include <algorithm>
+#include <map>
+
+#include <boost/lexical_cast.hpp>
 
 #include <GL/gl.h>
 
 using namespace std;
+using namespace std::tr1;
+using namespace boost;
+
+// Abstracts a WaveFront material file
+class MaterialFile {
+public:
+   MaterialFile(const string& aFileName);
+   ~MaterialFile() {}
+
+   void apply(const string& aName) const;
+private:
+   struct Material {
+      float diffuseR, diffuseG, diffuseB;
+      float ambientR, ambientG, ambientB;
+      float specularR, specularG, specularB;
+      ITexturePtr texture;
+   };
+
+   typedef map<string, Material> MaterialSet;
+   MaterialSet myMaterials;
+};
+
+typedef shared_ptr<MaterialFile> MaterialFilePtr;
+
+MaterialFile::MaterialFile(const string& aFileName)
+{
+   ifstream is(aFileName.c_str());
+   if (!is.good())
+      throw runtime_error("Failed to load material: " + aFileName);
+
+   log() << "Loading materials from " << aFileName;
+
+   string activeMaterial;
+   while (!is.eof()) {
+      string word;
+      is >> word;
+
+      if (word[0] == '#') {
+         // Comment
+         continue;
+      }
+      else if (word == "newmtl") {
+         is >> activeMaterial;
+         debug() << "Loading material " << activeMaterial;
+
+         Material m = { 0, 0, 0,    // Diffuse
+                        0, 0, 0,    // Ambient
+                        0, 0, 0 };  // Specular
+         myMaterials[activeMaterial] = m;
+      }
+      else if (word == "map_Kd") {
+         // Texture
+         is >> word;
+         myMaterials[activeMaterial].texture = loadTexture(word);
+      }
+      else if (word == "Kd") {
+         // Diffuse colour
+         Material& m = myMaterials[activeMaterial];
+         is >> m.diffuseR >> m.diffuseG >> m.diffuseB;
+      }
+      else if (word == "Ka") {
+         // Ambient colour
+         Material& m = myMaterials[activeMaterial];
+         is >> m.ambientR >> m.ambientG >> m.ambientB;
+      }
+      else if (word == "Ks") {
+         // Specular colour
+         Material& m = myMaterials[activeMaterial];
+         is >> m.specularR >> m.specularG >> m.specularB;
+      }
+      else {
+         // Ignore it
+         continue;
+      }
+   }
+}
+
+void MaterialFile::apply(const string& aName) const
+{
+   MaterialSet::const_iterator it = myMaterials.find(aName);
+   if (it == myMaterials.end())
+      throw runtime_error("No material named " + aName);
+
+   const Material& m = (*it).second;
+
+   if (m.texture) {
+      m.texture->bind();
+      glEnable(GL_TEXTURE);
+   }
+   else
+      glDisable(GL_TEXTURE);
+
+   glDisable(GL_COLOR_MATERIAL);
+
+   float diffuse[] = { m.diffuseR, m.diffuseG, m.diffuseB, 1.0 };
+   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+
+   float ambient[] = { m.ambientR, m.ambientG, m.ambientB, 1.0 };
+   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+
+   // Note we're ignoring the specular values in the model
+   float specular[] = { 0, 0, 0, 1.0 };
+   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+
+   float emission[] = { 0, 0, 0, 1 };
+   glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emission);
+}
 
 // A model contains the display list to render it
 class Model : public IModel {
@@ -73,8 +183,6 @@ IModelPtr loadModel(const string& fileName, double aScale)
    vector<Vector<double> > vertices, normals;
    vector<Point<double> > textureOffs;
 
-   ITexturePtr texture;
-
    GLenum displayList = glGenLists(1);
    glNewList(displayList, GL_COMPILE);
    
@@ -83,16 +191,17 @@ IModelPtr loadModel(const string& fileName, double aScale)
    
    glEnable(GL_DEPTH_TEST);
    glDisable(GL_BLEND);
-   glEnable(GL_TEXTURE);
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT0);
    glEnable(GL_CULL_FACE);
 
-   glColor4d(1.0, 1.0, 1.0, 1.0);
-
    bool foundVertex = false;
    double ymin = 0, ymax = 0, xmin = 0, xmax = 0,
       zmin = 0, zmax = 0;
+   int faceCount = 0;
+
+   MaterialFilePtr materialFile;
+   string materialName;
    
    while (!f.eof()) {
       string first;
@@ -106,11 +215,13 @@ IModelPtr loadModel(const string& fileName, double aScale)
          string objName;
          f >> objName;
          debug() << "Building object " << objName;
-
-         texture.reset();
       }
       else if (first == "mtllib") {
          // Material file
+         string fileName;
+         f >> fileName;
+         
+         materialFile = MaterialFilePtr(new MaterialFile(fileName));
       }
       else if (first == "v") {
          // Vertex
@@ -160,21 +271,16 @@ IModelPtr loadModel(const string& fileName, double aScale)
       }
       else if (first == "usemtl") {
          // Set the material for this object
-         string texBaseName;
-         f >> texBaseName;
-
-         bool exists = ifstream((texBaseName + ".bmp").c_str()).good();
-
-         if (exists) 
-            texture = loadTexture(texBaseName + ".bmp");
-         else
-            log() << "No texture for material " << texBaseName;
+         f >> materialName;
       }
       else if (first == "f") {
          // Face
          string line;
          getline(f, line);
          istringstream ss(line);
+
+         if (materialFile)
+            materialFile->apply(materialName);
 
          glBegin(GL_POLYGON);
          while (!ss.eof()) {
@@ -204,6 +310,8 @@ IModelPtr loadModel(const string& fileName, double aScale)
             glVertex3d(v.x, v.y, v.z);
          }
          glEnd();
+
+         faceCount++;
             
          // Don't discard the next line
          continue;
@@ -216,7 +324,8 @@ IModelPtr loadModel(const string& fileName, double aScale)
    Vector<double> dim = makeVector(xmax - xmin, ymax - ymin, zmax - zmin);
    log() << dim;
 
-   log() << "Model loaded: " << vertices.size() << " vertices";
+   log() << "Model loaded: " << vertices.size() << " vertices, "
+         << faceCount << " faces";
    
    glPopMatrix();
    glPopAttrib();
