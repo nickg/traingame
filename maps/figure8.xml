@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map>
-  
-  <track class="straight"
-         x="1" y="1" axis="x"/>
+  <name>Figure of 8</name>
+  <start x="1" y="1"/>
+  <tileset width="32" height="32">
+    <tile x="0" y="0">
+      <straightTrack align="x"/>
+    </tile>
+    <tile x="1" y="0"/>
+  </tileset>
 </map>

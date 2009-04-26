@@ -382,18 +382,29 @@ IMapPtr loadMap(const string& aFileName)
    parser->setFeature(XMLUni::fgSAX2CoreValidation, true);
    parser->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
    parser->setFeature(XMLUni::fgXercesValidationErrorAsFatal, true);
-   
+   parser->setFeature(XMLUni::fgXercesDynamic, false);
+   parser->setFeature(XMLUni::fgXercesSchema, true);
+
+   // Full checking (can be slow)
+   parser->setFeature(XMLUni::fgXercesSchemaFullChecking, true);
+
+   // Enable grammar caching
+   parser->setFeature(XMLUni::fgXercesCacheGrammarFromParse, true);
+
    XMLCh* schemaName = XMLString::transcode("schemas/map.xsd");
    ArrayJanitor<XMLCh> janSchemaName(schemaName);
 
-   parser->setProperty(XMLUni::fgXercesSchemaExternalNoNameSpaceSchemaLocation,
-                       schemaName);
-   
    shared_ptr<MapSAX2Handler> handler(new MapSAX2Handler);
    parser->setContentHandler(handler.get());
    parser->setErrorHandler(handler.get());
+   parser->setEntityResolver(handler.get());
    
    try {
+      parser->loadGrammar(schemaName, Grammar::SchemaGrammarType, true);
+
+      // Always use the cached grammar
+      parser->setFeature(XMLUni::fgXercesUseCachedGrammarInParse, true);
+      
       parser->parse(aFileName.c_str());
    }
    catch (const XMLException& e) {
