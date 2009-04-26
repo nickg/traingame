@@ -72,6 +72,8 @@ public:
    int depth() const { return myDepth; }
    double heightAt() const { return 0.0; }
 
+   void setStart(int x, int y) { myStartLocation = makePoint(x, y); }
+   
    Track::Connection startLocation() const;
    ITrackSegmentPtr trackAt(const Point<int>& aPoint) const;
    void setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack);
@@ -132,12 +134,14 @@ private:
    void resetMarks() const;
    
    int myWidth, myDepth;
+   Point<int> myStartLocation;
    IQuadTreePtr myQuadTree;
    IFogPtr myFog;
 };
 
 Map::Map()
-   : myTiles(NULL), myWidth(0), myDepth(0)
+   : myTiles(NULL), myWidth(0), myDepth(0),
+     myStartLocation(makePoint(1, 1))
 {
    myFog = makeFog(0.6, 0.7, 0.8,  // Colour
                    0.35,           // Density
@@ -196,9 +200,7 @@ bool Map::isValidTrack(const Point<int>& aPoint) const
 // Return a location where the train may start
 Track::Connection Map::startLocation() const
 {
-   // This is just a hack for now
-   return make_pair(makePoint(1, 1),
-                    makeVector(0, 0, 1));
+   return make_pair(myStartLocation, makeVector(0, 0, 1));
 }
 
 void Map::resetMap(int aWidth, int aDepth)
@@ -407,13 +409,24 @@ IMapPtr makeEmptyMap(int aWidth, int aDepth)
 // Build a map through XML callbacks
 class MapLoader : public IXMLCallback {
 public:
-   MapLoader(shared_ptr<Map> aMap) : myMap(aMap) {}
+   MapLoader(shared_ptr<Map> aMap)
+      : myMap(aMap), myXPtr(0), myYPtr(0) {}
 
    void startElement(const std::string& localName,
                      const AttributeSet& attrs)
    {
       if (localName == "tileset")
          handleTileset(attrs);
+      else if (localName == "tile")
+         handleTile(attrs);
+      else if (localName == "start")
+         handleStart(attrs);
+      else if (localName == "straightTrack")
+         handleStraightTrack(attrs);
+      else if (localName == "curvedTrack")
+         handleCurvedTrack(attrs);
+      else if (localName == "crossoverTrack")
+         handleCrossoverTrack(attrs);
    }
    
 private:
@@ -427,8 +440,52 @@ private:
 
       myMap->resetMap(width, height);
    }
+
+   void handleStart(const AttributeSet& attrs)
+   {
+      int x, y;
+      attrs.get("x", x);
+      attrs.get("y", y);
+
+      myMap->setStart(x, y);
+   }
+
+   void handleTile(const AttributeSet& attrs)
+   {
+      attrs.get("x", myXPtr);
+      attrs.get("y", myYPtr);
+   }
+
+   void handleStraightTrack(const AttributeSet& attrs)
+   {
+      string align;
+      attrs.get("align", align);
+
+      Track::Direction axis = align == "x" ? Axis::X : Axis::Y;
+
+      myMap->setTrackAt(makePoint(myXPtr, myYPtr),
+                        makeStraightTrack(axis));
+   }
+
+   void handleCurvedTrack(const AttributeSet& attrs)
+   {
+      int startAngle, finishAngle, radius;
+      attrs.get("startAngle", startAngle);
+      attrs.get("finishAngle", finishAngle);
+      attrs.get("radius", radius);
+
+      myMap->setTrackAt(makePoint(myXPtr, myYPtr),
+                        makeCurvedTrack(startAngle, finishAngle, radius));
+   }
+
+   void handleCrossoverTrack(const AttributeSet& attrs)
+   {
+      myMap->setTrackAt(makePoint(myXPtr, myYPtr),
+                        makeCrossoverTrack());                        
+   }
    
    shared_ptr<Map> myMap;
+   int myXPtr, myYPtr;
 }; 
 
 IMapPtr loadMap(const string& aFileName)
@@ -441,6 +498,8 @@ IMapPtr loadMap(const string& aFileName)
 
    MapLoader loader(map);
    xmlParser->parse(aFileName, loader);
+
+   map->rebuildDisplayLists();
       
    return IMapPtr(map);
 }

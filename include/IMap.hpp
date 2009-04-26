@@ -68,6 +68,9 @@ public:
 
    // Save the map to the given file
    virtual void save(const std::string& aFileName) = 0;
+
+   // Change the start location
+   virtual void setStart(int x, int y) = 0;
 };
 
 typedef std::tr1::shared_ptr<IMap> IMapPtr;
