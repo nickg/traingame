@@ -37,10 +37,23 @@ int main(int argc, char** argv)
    log() << "Program started";
 
    try {
+      if (argc != 3)
+         throw runtime_error("Usage: TrainGame (edit|play) [map]");
+
       theWindow = makeSDLWindow();
-      
-      IScreenPtr editor = makeEditorScreen();
-      theWindow->run(editor);
+
+      const string mapFile(argv[2]);
+      const string cmd(argv[1]);
+
+      IScreenPtr screen;
+      if (cmd == "edit")
+         screen = makeEditorScreen();
+      else if (cmd == "play")
+         screen = makeGameScreen(loadMap(mapFile));
+      else
+         throw runtime_error("Unrecognised command: " + cmd);
+         
+      theWindow->run(screen);
    }
    catch (const runtime_error& e) {
       error() << "Fatal: " << e.what();
