@@ -73,6 +73,7 @@ public:
    double heightAt() const { return 0.0; }
 
    void setStart(int x, int y) { myStartLocation = makePoint(x, y); }
+   void setGrid(bool onOff);
    
    Track::Connection startLocation() const;
    ITrackSegmentPtr trackAt(const Point<int>& aPoint) const;
@@ -84,7 +85,7 @@ public:
    void resetMap(int aWidth, int aDepth);
 
    void save(const string& aFileName);
-
+   
    // ISectorRenderable interface
    void renderSector(IGraphicsPtr aContext,
                      Point<int> botLeft, Point<int> topRight);
@@ -137,11 +138,13 @@ private:
    Point<int> myStartLocation;
    IQuadTreePtr myQuadTree;
    IFogPtr myFog;
+   bool shouldDrawGridLines;
 };
 
 Map::Map()
    : myTiles(NULL), myWidth(0), myDepth(0),
-     myStartLocation(makePoint(1, 1))
+     myStartLocation(makePoint(1, 1)),
+     shouldDrawGridLines(false)
 {
    myFog = makeFog(0.6, 0.7, 0.8,  // Colour
                    0.35,           // Density
@@ -183,6 +186,8 @@ void Map::setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack)
 
 void Map::rebuildDisplayLists()
 {
+   resetMarks();
+   
    // TODO: We should keep a list of dirty points and only rebuild the
    // quads that cover those
    myQuadTree->rebuildDisplayLists();
@@ -201,6 +206,12 @@ bool Map::isValidTrack(const Point<int>& aPoint) const
 Track::Connection Map::startLocation() const
 {
    return make_pair(myStartLocation, makeVector(0, 0, 1));
+}
+
+void Map::setGrid(bool onOff)
+{
+   shouldDrawGridLines = onOff;
+   rebuildDisplayLists();
 }
 
 void Map::resetMap(int aWidth, int aDepth)
@@ -252,8 +263,6 @@ void Map::resetMarks() const
 void Map::render(IGraphicsPtr aContext) const
 {
    glClearColor(0.6, 0.7, 0.8, 1.0);
-
-   resetMarks();
    
    myFog->apply();
    
@@ -303,6 +312,8 @@ void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
 void Map::renderSector(IGraphicsPtr aContext,
                        Point<int> botLeft, Point<int> topRight)
 {
+   log() << "renderSector " << botLeft;
+   
    glEnable(GL_CULL_FACE);
    
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
@@ -315,7 +326,7 @@ void Map::renderSector(IGraphicsPtr aContext,
          // Render tile
          glPushMatrix();
          glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
-         glColor3f(0.8f, 1.0f, 0.8f);
+         glColor3f(0.7f, 1.0f, 0.7f);
          glBegin(GL_POLYGON);
 
          for (int i = 0; i < 4; i++) {
@@ -325,22 +336,25 @@ void Map::renderSector(IGraphicsPtr aContext,
          
          glEnd();
          glPopMatrix();
-         
-         // Render grid lines
-         glPushMatrix();
-         glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
-         glColor3f(0.0f, 0.0f, 0.0f);
-         glBegin(GL_LINE_LOOP);
-         
-         for (int i = 0; i < 4; i++) 
-            glVertex3d(v[i].pos.x, v[i].pos.y, v[i].pos.z);
-         
-         glEnd();
-         glPopMatrix();
+
+         if (shouldDrawGridLines) {
+            // Render grid lines
+            glPushMatrix();
+            glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
+            glColor3f(0.0f, 0.0f, 0.0f);
+            glBegin(GL_LINE_LOOP);
+            
+            for (int i = 0; i < 4; i++) 
+               glVertex3d(v[i].pos.x, v[i].pos.y, v[i].pos.z);
+            
+            glEnd();
+            glPopMatrix();
+         }
 
          // Draw the track, if any
          Tile& tile = tileAt(x, y);
          if (tile.track && !tile.track->marked()) {
+            debug() << "Drawing track";
             glPushMatrix();
             glTranslated(static_cast<double>(tile.track->originX()), 0,
                          static_cast<double>(tile.track->originY()));

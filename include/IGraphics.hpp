@@ -34,6 +34,8 @@ struct IGraphics {
    virtual bool pointInViewFrustum(double x, double y, double z) = 0;
    virtual void setCamera(const Vector<double>& aPos,
                           const Vector<double>& aRotation) = 0;
+   virtual void lookAt(const Vector<float> anEyePoint,
+                       const Vector<float> aTargetPoint) = 0;
 };
 
 typedef std::tr1::shared_ptr<IGraphics> IGraphicsPtr;

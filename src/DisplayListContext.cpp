@@ -45,6 +45,12 @@ public:
    {
       throw runtime_error("setCamera called in display list");
    }
+
+   void lookAt(const Vector<float> anEyePoint,
+               const Vector<float> aTargetPoint)
+   {
+      throw runtime_error("lookAt called in display list");
+   }
 };
 
 IGraphicsPtr makeDisplayListContext()

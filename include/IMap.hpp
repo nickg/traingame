@@ -71,6 +71,9 @@ public:
 
    // Change the start location
    virtual void setStart(int x, int y) = 0;
+
+   // Toggle display of grid lines
+   virtual void setGrid(bool onOff) = 0;
 };
 
 typedef std::tr1::shared_ptr<IMap> IMapPtr;

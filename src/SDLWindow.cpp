@@ -53,6 +53,8 @@ public:
    bool pointInViewFrustum(double x, double y, double z);
    void setCamera(const Vector<double>& aPos,
                   const Vector<double>& aRotation);
+   void lookAt(const Vector<float> anEyePoint,
+               const Vector<float> aTargetPoint);
    IGraphicsPtr beginPick(int x, int y);
    unsigned endPick();
 private:
@@ -247,6 +249,18 @@ void SDLWindow::setCamera(const Vector<double>& aPos,
    glRotated(aRotation.y, 0.0, 1.0, 0.0);
    glRotated(aRotation.z, 0.0, 0.0, 1.0);
    glTranslated(aPos.x, aPos.y, aPos.z);
+
+   myViewFrustum = getViewFrustum();
+}
+
+// A wrapper around gluLookAt
+void SDLWindow::lookAt(const Vector<float> anEyePoint,
+                       const Vector<float> aTargetPoint)
+{
+   gluLookAt(anEyePoint.x, anEyePoint.y, anEyePoint.z,
+             aTargetPoint.x, aTargetPoint.y, aTargetPoint.z,
+             0, 1, 0);
+
    myViewFrustum = getViewFrustum();
 }
 

@@ -29,6 +29,10 @@ struct ITrain {
    
    virtual void render() const = 0;
    virtual void update() = 0;
+
+   // Return a vector of the absolute position of the front of
+   // the train
+   virtual Vector<float> front() const = 0;
 };
 
 typedef std::tr1::shared_ptr<ITrain> ITrainPtr;

@@ -33,6 +33,8 @@ public:
    
    void render() const;
    void update();
+
+   Vector<float> front() const;
 private:
    IRollingStockPtr myEngine;
    IMapPtr myMap;
@@ -100,6 +102,23 @@ void Train::render() const
    myEngine->render();
 
    glPopMatrix();
+}
+
+Vector<float> Train::front() const
+{
+   // Call the transformer to compute the world location of
+   // the front of the train
+   glPushMatrix();
+   glLoadIdentity();
+
+   myTransformer(mySegmentDelta);
+
+   float matrix[16];
+   glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
+   
+   glPopMatrix();
+
+   return makeVector(matrix[12], matrix[13], matrix[14]);
 }
 
 // Make an empty train

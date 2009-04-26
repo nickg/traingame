@@ -79,6 +79,9 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
    mySun = makeSunLight();
 
    log() << "Editing " << aFileName;
+
+   debug() << "Turning on grid";
+   myMap->setGrid(true);
 }
 
 Editor::~Editor()
@@ -99,10 +102,10 @@ void Editor::dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const
    
 // Render the next frame
 void Editor::display(IGraphicsPtr aContext) const
-{
-   mySun->apply();
-   
+{  
    aContext->setCamera(myPosition, makeVector(45.0, 45.0, 0.0));
+ 
+   mySun->apply();
    
    myMap->render(aContext);
 
@@ -432,6 +435,10 @@ void Editor::onKeyDown(SDLKey aKey)
    case SDLK_x:
       // Write out to disk
       myMap->save(myFileName);
+      break;
+   case SDLK_g:
+      // Toggle grid
+      myMap->setGrid(true);
       break;
    case SDLK_p:
       // Switch to play mode

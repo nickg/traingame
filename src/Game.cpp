@@ -47,17 +47,13 @@ private:
    ITrainPtr myTrain;
    ILightPtr mySun;
 
-   Vector<double> myPosition;
-   Vector<double> myMovement;
-   
-   Vector<double> myRotation;
-   Vector<double> mySpin;
+   Vector<float> myPosition;
+   Vector<float> myMovement;
 };
 
 Game::Game(IMapPtr aMap)
    : myMap(aMap),
-     myPosition(makeVector(2.0, -8.0, -10.0)),
-     myRotation(makeVector(45.0, 45.0, 0.0))
+     myPosition(makeVector(2.0f, 8.0f, -10.0f))
 {
    myTrain = makeTrain(myMap);
    mySun = makeSunLight();
@@ -70,10 +66,11 @@ Game::~Game()
 
 void Game::display(IGraphicsPtr aContext) const
 {
+   Vector<float> trainPos = myTrain->front();
+   aContext->lookAt(myPosition, trainPos);
+   
    mySun->apply();
    
-   aContext->setCamera(myPosition, myRotation);
-      
    myMap->render(aContext);
    myTrain->render();
 }
@@ -81,7 +78,6 @@ void Game::display(IGraphicsPtr aContext) const
 void Game::update(IPickBufferPtr aPickBuffer)
 {
    myPosition += myMovement;
-   myRotation += mySpin;
 
    myTrain->update();   
 }
@@ -90,7 +86,6 @@ void Game::onKeyDown(SDLKey aKey)
 {
    const double speed = 0.5;
    const double yspeed = 0.2;
-   const double spinSpeed = 0.8;
    
    switch (aKey) {
    case SDLK_a:
@@ -114,12 +109,6 @@ void Game::onKeyDown(SDLKey aKey)
       break;
    case SDLK_DOWN:
       myMovement.y = yspeed;
-      break;
-   case SDLK_LEFT:
-      mySpin.y = -spinSpeed;
-      break;
-   case SDLK_RIGHT:
-      mySpin.y = spinSpeed;
       break;   
    default:
       break;
@@ -139,11 +128,6 @@ void Game::onKeyUp(SDLKey aKey)
    case SDLK_UP:
    case SDLK_DOWN:
       myMovement.y = 0.0;
-      break;
-   case SDLK_LEFT:
-   case SDLK_RIGHT:
-      mySpin.x = 0.0;
-      mySpin.y = 0.0;
       break;
    default:
       break;
