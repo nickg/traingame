@@ -35,6 +35,7 @@ if (NOT WIN32) # Unix
     add_definitions ("-Wall")
 endif (NOT WIN32)
 
+
 # WIN32 makes a non-console application on Windows
 add_executable (${PROJECT_NAME} WIN32 ${folder_source})
 

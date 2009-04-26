@@ -21,9 +21,6 @@
 
 #include <stdexcept>
 
-#include <xercesc/util/PlatformUtils.hpp>
-#include <xercesc/util/XMLString.hpp>
-
 using namespace std;
 
 namespace {
@@ -36,22 +33,8 @@ IWindowPtr getGameWindow()
 }
 
 int main(int argc, char** argv)
-{
-   using namespace xercesc;
-   
+{   
    log() << "Program started";
-
-   try {
-      XMLPlatformUtils::Initialize();
-   }
-   catch (const XMLException& e) {
-      char* message = XMLString::transcode(e.getMessage());
-      error() << "Exception in Xerces startup: " << message;
-      XMLString::release(&message);
-      return 1;
-   }
-
-   log() << "Xerces initialised";
 
    try {
       theWindow = makeSDLWindow();
@@ -62,8 +45,6 @@ int main(int argc, char** argv)
    catch (const runtime_error& e) {
       error() << "Fatal: " << e.what();
    }
-
-   XMLPlatformUtils::Terminate();
    
    log() << "Finished";   
    return 0;

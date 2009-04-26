@@ -21,6 +21,7 @@
 #include "ILogger.hpp"
 #include "ITrackSegment.hpp"
 #include "IFog.hpp"
+#include "IXMLParser.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -28,14 +29,8 @@
 
 #include <GL/gl.h>
 
-#include <xercesc/sax2/DefaultHandler.hpp>
-#include <xercesc/sax2/XMLReaderFactory.hpp>
-#include <xercesc/sax2/SAX2XMLReader.hpp>
-#include <xercesc/util/XMLString.hpp>
-
 using namespace std;
 using namespace std::tr1;
-using namespace xercesc;
 
 // A single piece of track may appear multiple times in the map - this
 // will be true for all track segments that cover multiple tiles
@@ -355,22 +350,32 @@ IMapPtr makeEmptyMap(int aWidth, int aDepth)
    return IMapPtr(ptr);
 }
 
-// Callbacks for SAX parsing of map files
-class MapSAX2Handler : public DefaultHandler {
+// Build a map through XML callbacks
+class MapLoader : public IXMLCallback {
 public:
-   void startElement(const XMLCh* const uri,
-                     const XMLCh* const localname,
-                     const XMLCh* const qname,
-                     const Attributes& attrs)
-   {
-      char* message = XMLString::transcode(localname);
-      debug() << "I saw element: " << message;
-      XMLString::release(&message);
-   }
+   MapLoader(shared_ptr<Map> aMap) : myMap(aMap) {}
 
-   void error(const SAXParseException& e) { throw e; }
-   void fatalError(const SAXParseException& e) { throw e; }
-};
+   void startElement(const std::string& localName,
+                     const AttributeSet& attrs)
+   {
+      if (localName == "tileset")
+         handleTileset(attrs);
+   }
+   
+private:
+   void handleTileset(const AttributeSet& attrs)
+   {
+      int width, height;
+      attrs.get("width", width);
+      attrs.get("height", height);
+
+      debug() << "width=" << width << ", height=" << height;
+
+      myMap->resetMap(width, height);
+   }
+   
+   shared_ptr<Map> myMap;
+}; 
 
 IMapPtr loadMap(const string& aFileName)
 {
@@ -378,51 +383,10 @@ IMapPtr loadMap(const string& aFileName)
 
    log() << "Loading map from file " << aFileName;
 
-   shared_ptr<SAX2XMLReader> parser(XMLReaderFactory::createXMLReader());
-   parser->setFeature(XMLUni::fgSAX2CoreValidation, true);
-   parser->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
-   parser->setFeature(XMLUni::fgXercesValidationErrorAsFatal, true);
-   parser->setFeature(XMLUni::fgXercesDynamic, false);
-   parser->setFeature(XMLUni::fgXercesSchema, true);
+   static IXMLParserPtr xmlParser = makeXMLParser("schemas/map.xsd");
 
-   // Full checking (can be slow)
-   parser->setFeature(XMLUni::fgXercesSchemaFullChecking, true);
-
-   // Enable grammar caching
-   parser->setFeature(XMLUni::fgXercesCacheGrammarFromParse, true);
-
-   XMLCh* schemaName = XMLString::transcode("schemas/map.xsd");
-   ArrayJanitor<XMLCh> janSchemaName(schemaName);
-
-   shared_ptr<MapSAX2Handler> handler(new MapSAX2Handler);
-   parser->setContentHandler(handler.get());
-   parser->setErrorHandler(handler.get());
-   parser->setEntityResolver(handler.get());
-   
-   try {
-      parser->loadGrammar(schemaName, Grammar::SchemaGrammarType, true);
-
-      // Always use the cached grammar
-      parser->setFeature(XMLUni::fgXercesUseCachedGrammarInParse, true);
+   MapLoader loader(map);
+   xmlParser->parse(aFileName, loader);
       
-      parser->parse(aFileName.c_str());
-   }
-   catch (const XMLException& e) {
-      char* message = XMLString::transcode(e.getMessage());
-      error() << "XMLException: " << message;
-      XMLString::release(&message);
-
-      throw runtime_error("Failed to load map file: " + aFileName);
-   }
-   catch (const SAXParseException& e) {
-      char* message = XMLString::transcode(e.getMessage());
-      error() << "SAXParseException: " << message;
-      XMLString::release(&message);
-
-      throw runtime_error("Failed to load map file: " + aFileName);
-   }
-
-   throw runtime_error("Done");
-   
    return IMapPtr(map);
 }
