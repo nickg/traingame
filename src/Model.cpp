@@ -121,10 +121,10 @@ void MaterialFile::apply(const string& aName) const
 
    if (m.texture) {
       m.texture->bind();
-      glEnable(GL_TEXTURE);
+      glEnable(GL_TEXTURE_2D);
    }
    else
-      glDisable(GL_TEXTURE);
+      glDisable(GL_TEXTURE_2D);
 
    glDisable(GL_COLOR_MATERIAL);
 

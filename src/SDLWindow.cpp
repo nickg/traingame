@@ -289,8 +289,6 @@ void SDLWindow::drawGLScene()
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glLoadIdentity();
 
-   setCamera(Vector<double>(), Vector<double>());
-
    // Draw the 3D part
    myScreen->display(shared_from_this());
 
@@ -307,6 +305,13 @@ void SDLWindow::drawGLScene()
    glEnable(GL_BLEND);
    glDisable(GL_TEXTURE_2D);
    glDisable(GL_CULL_FACE);
+
+   // Check for OpenGL errors
+   GLenum error = glGetError();
+   if (error != GL_NO_ERROR) {   
+      throw runtime_error
+         ("OpenGL error: " + lexical_cast<string>(gluErrorString(error)));
+   }
 
    SDL_GL_SwapBuffers();
 }
