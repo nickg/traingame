@@ -31,7 +31,7 @@ using namespace std;
 // Concrete editor class
 class Editor : public IScreen {
 public:
-   Editor();
+   Editor(IMapPtr aMap, const string& aFileName);
    ~Editor();
    
    void display(IGraphicsPtr aContext) const;
@@ -59,6 +59,8 @@ private:
    Vector<double> myPosition;
    Vector<double> myMovement;
 
+   string myFileName;
+
    // Variables for dragging track segments
    Point<int> myDragBegin, myDragEnd;
    bool amDragging;
@@ -70,13 +72,13 @@ private:
    Tool myTool;
 };
 
-Editor::Editor()
-   : myPosition(4.5, -15.0, -21.5), amDragging(false),
-     myTool(TRACK_TOOL)
+Editor::Editor(IMapPtr aMap, const string& aFileName)
+   : myMap(aMap), myPosition(4.5, -15.0, -21.5),
+     myFileName(aFileName), amDragging(false), myTool(TRACK_TOOL)
 {
-   //myMap = makeEmptyMap(32, 32);
-   myMap = loadMap("maps/figure8.xml");
    mySun = makeSunLight();
+
+   log() << "Editing " << aFileName;
 }
 
 Editor::~Editor()
@@ -427,6 +429,10 @@ void Editor::onKeyDown(SDLKey aKey)
    case SDLK_DOWN:
       myMovement.y = speed;
       break;
+   case SDLK_x:
+      // Write out to disk
+      myMap->save(myFileName);
+      break;
    case SDLK_p:
       // Switch to play mode
       {
@@ -440,7 +446,7 @@ void Editor::onKeyDown(SDLKey aKey)
 }
 
 // Create an instance of the editor screen
-IScreenPtr makeEditorScreen()
+IScreenPtr makeEditorScreen(IMapPtr aMap, const string& aFileName)
 {
-   return IScreenPtr(new Editor);
+   return IScreenPtr(new Editor(aMap, aFileName));
 }

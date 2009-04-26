@@ -25,6 +25,10 @@
 #include <tr1/tuple>
 #include <list>
 
+namespace xml {
+   struct element;
+}
+
 // Types used for specifying track segments
 namespace Track {
    // TODO: This only needs (x, y) position and should contain
@@ -101,6 +105,10 @@ struct ITrackSegment {
    // a pointer to itself will be returned
    virtual ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
                                       const Track::Direction& aDirection) = 0;
+
+   // Convert the track segment to XML for writing out in the
+   // map configuration file
+   virtual xml::element toXml() const = 0;
 };
 
 ITrackSegmentPtr makeStraightTrack(const Track::Direction& aDirection);

@@ -18,6 +18,7 @@
 #include "ITrackSegment.hpp"
 #include "TrackCommon.hpp"
 #include "ILogger.hpp"
+#include "XMLBuilder.hpp"
 
 #include <cassert>
 #include <stdexcept>
@@ -53,6 +54,8 @@ public:
    
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
                               const Track::Direction& aDirection);
+
+   xml::element toXml() const;
 private:
    void transform(const Track::Direction& aDirection, double aDelta) const;
    void ensureValidDirection(const Track::Direction& aDirection) const;
@@ -177,6 +180,12 @@ void StraightTrack::render() const
    }
    
    glPopMatrix();
+}
+
+xml::element StraightTrack::toXml() const
+{
+   return xml::element("straightTrack")
+      .addAttribute("align", myDirection == Axis::X ? "x" : "y");
 }
 
 ITrackSegmentPtr makeStraightTrack(const Direction& aDirection)

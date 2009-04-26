@@ -65,6 +65,9 @@ public:
 
    // True if this names a valid tile
    virtual bool isValidTileName(unsigned aName) const = 0;
+
+   // Save the map to the given file
+   virtual void save(const std::string& aFileName) = 0;
 };
 
 typedef std::tr1::shared_ptr<IMap> IMapPtr;

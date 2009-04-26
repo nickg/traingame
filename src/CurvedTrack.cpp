@@ -18,6 +18,7 @@
 #include "ITrackSegment.hpp"
 #include "TrackCommon.hpp"
 #include "ILogger.hpp"
+#include "XMLBuilder.hpp"
 
 #include <cmath>
 #include <cassert>
@@ -52,6 +53,9 @@ public:
    
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
                               const Track::Direction& aDirection);
+
+   xml::element toXml() const;
+   
 private:
    void transform(const Track::Direction& aDirection, double aDelta) const;
    Vector<int> cwEntryVector() const;
@@ -242,6 +246,14 @@ void CurvedTrack::render() const
    renderCurvedTrack(myBaseRadius,
                      (static_cast<double>(myStartAngle)*M_PI)/180.0,
                      (static_cast<double>(myFinishAngle)*M_PI)/180.0);
+}
+
+xml::element CurvedTrack::toXml() const
+{
+   return xml::element("curvedTrack")
+      .addAttribute("startAngle", myStartAngle)
+      .addAttribute("finishAngle", myFinishAngle)
+      .addAttribute("radius", myBaseRadius);
 }
 
 ITrackSegmentPtr makeCurvedTrack(Track::Angle aStartAngle,

@@ -17,6 +17,7 @@
 
 #include "ITrackSegment.hpp"
 #include "TrackCommon.hpp"
+#include "XMLBuilder.hpp"
 
 #include <stdexcept>
 #include <cassert>
@@ -47,6 +48,8 @@ public:
    void getEndpoints(std::list<Point<int> >& aList) const;
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
                               const Track::Direction& aDirection);
+
+   xml::element toXml() const;
    
 private:
    void transform(const Track::Direction& aDirection, double aDelta) const;
@@ -170,6 +173,11 @@ ITrackSegmentPtr CrossoverTrack::mergeExit(const Point<int>& aPoint,
 
    // No way to extend a crossover
    return ITrackSegmentPtr();
+}
+
+xml::element CrossoverTrack::toXml() const
+{
+   return xml::element("crossoverTrack");
 }
 
 ITrackSegmentPtr makeCrossoverTrack()

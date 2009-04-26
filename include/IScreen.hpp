@@ -21,7 +21,7 @@
 #include "IGraphics.hpp"
 #include "IPickBuffer.hpp"
 
-#include <tr1/memory>
+#include <memory>
 
 #include <SDL.h>
 

@@ -22,6 +22,7 @@
 #include "ITrackSegment.hpp"
 #include "IFog.hpp"
 #include "IXMLParser.hpp"
+#include "XMLBuilder.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -78,7 +79,8 @@ public:
    void highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const;
    void rebuildDisplayLists();
    void resetMap(int aWidth, int aDepth);
-   
+
+   void save(const string& aFileName);
 
    // ISectorRenderable interface
    void renderSector(IGraphicsPtr aContext,
@@ -126,6 +128,8 @@ private:
       return makePoint(a % myWidth, a / myWidth);
    }
 
+   void resetMarks() const;
+   
    int myWidth, myDepth;
    IQuadTreePtr myQuadTree;
    IFogPtr myFog;
@@ -229,8 +233,8 @@ void Map::resetMap(int aWidth, int aDepth)
    myQuadTree = makeQuadTree(shared_from_this(), myWidth);
 }
 
-void Map::render(IGraphicsPtr aContext) const
-{
+void Map::resetMarks() const
+{   
    // Clear the mark bit of every track segment
    // This is set whenever we render a track endpoint to ensure
    // the track is only drawn once
@@ -239,10 +243,15 @@ void Map::render(IGraphicsPtr aContext) const
          if (tileAt(x, y).track)
             tileAt(x, y).track->resetMark();
       }
-   }
-   
+   }  
+}
+
+void Map::render(IGraphicsPtr aContext) const
+{
    glClearColor(0.6, 0.7, 0.8, 1.0);
 
+   resetMarks();
+   
    myFog->apply();
    
    glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -341,6 +350,46 @@ void Map::renderSector(IGraphicsPtr aContext,
          glPopName();
       }			
    }
+}
+
+// Turn the map into XML
+void Map::save(const string& aFileName)
+{
+   log() << "Saving map to " << aFileName;
+
+   xml::element root("map");
+
+   root.addChild(xml::element("name").addText("No Name"));
+   
+   root.addChild
+      (xml::element("start")
+       .addAttribute("x", 1)
+       .addAttribute("y", 1));
+
+   xml::element tileset("tileset");
+   tileset.addAttribute("width", myWidth);
+   tileset.addAttribute("height", myDepth);
+   
+   for (int x = 0; x < myWidth; x++) {
+      for (int y = 0; y < myDepth; y++) {
+         const Tile& tile = tileAt(x, y);
+
+         if (tile.track
+             && tile.track->originX() == x
+             && tile.track->originY() == y) {
+            
+            tileset.addChild
+               (xml::element("tile")
+                .addAttribute("x", x)
+                .addAttribute("y", y)
+                .addChild(tile.track->get()->toXml()));
+         }
+      }
+   }
+
+   root.addChild(tileset);
+   
+   debug() << xml::document(root);                 
 }
 
 IMapPtr makeEmptyMap(int aWidth, int aDepth)

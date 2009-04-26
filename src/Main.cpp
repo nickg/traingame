@@ -45,11 +45,13 @@ int main(int argc, char** argv)
       const string mapFile(argv[2]);
       const string cmd(argv[1]);
 
+      IMapPtr map = loadMap(mapFile);
+      
       IScreenPtr screen;
       if (cmd == "edit")
-         screen = makeEditorScreen();
+         screen = makeEditorScreen(map, mapFile);
       else if (cmd == "play")
-         screen = makeGameScreen(loadMap(mapFile));
+         screen = makeGameScreen(map);
       else
          throw runtime_error("Unrecognised command: " + cmd);
          
