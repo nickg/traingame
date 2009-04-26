@@ -21,7 +21,10 @@
 
 #include <stdexcept>
 
+#include <boost/filesystem.hpp>
+
 using namespace std;
+using namespace boost::filesystem;
 
 namespace {
    IWindowPtr theWindow;
@@ -45,13 +48,15 @@ int main(int argc, char** argv)
       const string mapFile(argv[2]);
       const string cmd(argv[1]);
 
-      IMapPtr map = loadMap(mapFile);
-      
       IScreenPtr screen;
-      if (cmd == "edit")
-         screen = makeEditorScreen(map, mapFile);
+      if (cmd == "edit") {
+         if (exists(mapFile))
+            screen = makeEditorScreen(loadMap(mapFile), mapFile);
+         else
+            screen = makeEditorScreen(makeEmptyMap(32, 32), mapFile);
+      }
       else if (cmd == "play")
-         screen = makeGameScreen(map);
+         screen = makeGameScreen(loadMap(mapFile));
       else
          throw runtime_error("Unrecognised command: " + cmd);
          

@@ -27,6 +27,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <cassert>
+#include <fstream>
 
 #include <GL/gl.h>
 
@@ -357,6 +358,10 @@ void Map::save(const string& aFileName)
 {
    log() << "Saving map to " << aFileName;
 
+   ofstream of(aFileName.c_str());
+   if (!of.good())
+      throw runtime_error("Failed to open " + aFileName + " for writing");
+
    xml::element root("map");
 
    root.addChild(xml::element("name").addText("No Name"));
@@ -389,7 +394,7 @@ void Map::save(const string& aFileName)
 
    root.addChild(tileset);
    
-   debug() << xml::document(root);                 
+   of << xml::document(root);                 
 }
 
 IMapPtr makeEmptyMap(int aWidth, int aDepth)

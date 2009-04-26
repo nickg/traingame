@@ -140,8 +140,17 @@ XercesXMLParser::~XercesXMLParser()
 void XercesXMLParser::parse(const string& aFileName, IXMLCallback& aCallback)
 {
    myHandler->callbackPtr = &aCallback;
-   
-   myReader->parse(aFileName.c_str());
+
+   try {
+      myReader->parse(aFileName.c_str());
+   }
+   catch (const SAXParseException& e) {
+      char* message = XMLString::transcode(e.getMessage());
+      error() << "SAXParseException: " << message;
+      XMLString::release(&message);
+
+      throw runtime_error("Failed to load XML file: " + aFileName);
+   }
 
    myHandler->callbackPtr = NULL;
 }

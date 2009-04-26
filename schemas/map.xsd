@@ -27,6 +27,20 @@
                       </xs:complexType>
                     </xs:element>
 
+                    <xs:element name="curvedTrack" minOccurs="0">
+                      <xs:complexType>
+                        <xs:attribute name="startAngle" use="required"
+                                      type="xs:nonNegativeInteger"/>
+                        <xs:attribute name="finishAngle" use="required"
+                                      type="xs:nonNegativeInteger"/>
+                        <xs:attribute name="radius" use="required"
+                                      type="xs:positiveInteger"/>
+                      </xs:complexType>
+                    </xs:element>
+
+                    <xs:element name="crossoverTrack" minOccurs="0">
+                    </xs:element>
+
                   </xs:sequence>
                   
                   <xs:attribute name="x" type="xs:nonNegativeInteger" use="required"/>

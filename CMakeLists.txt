@@ -20,6 +20,7 @@ source_group (${PROJECT_NAME} FILES ${folder_source})
 find_package (SDL REQUIRED)
 find_package (SDL_image REQUIRED)
 find_package (OpenGL REQUIRED)
+find_package (Boost REQUIRED COMPONENTS filesystem) 
 
 include (FindPkgConfig)
 
@@ -40,7 +41,7 @@ endif (NOT WIN32)
 add_executable (${PROJECT_NAME} WIN32 ${folder_source})
 
 target_link_libraries (${PROJECT_NAME} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY}
-  ${OPENGL_LIBRARY} ${XERCES_LIBRARIES})
+  ${OPENGL_LIBRARY} ${XERCES_LIBRARIES} ${Boost_LIBRARIES})
 
 # Profiling
 #set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS -pg)
