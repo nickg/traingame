@@ -20,14 +20,28 @@
 
 #include <GL/gl.h>
 
-// Concrete implementation of powered rolling stock
-class Engine : public IRollingStock {
+using namespace std;
+using namespace std::tr1;
+
+// Concrete implementation of a steam engine
+class Engine : public IRollingStock,
+               public IController,
+               public enable_shared_from_this<Engine> {
 public:
    Engine();
-   
+
+   // IRollingStock interface
    void render() const;
+   
+   double speed() const { return mySpeed; }
+   IControllerPtr controller() { return shared_from_this(); }
+
+   // IController interface
+   void actOn(Action anAction);
 private:
    IModelPtr myModel;
+
+   double mySpeed;
    
    static const double MODEL_SCALE;
 };
@@ -35,6 +49,7 @@ private:
 const double Engine::MODEL_SCALE(0.4);
 
 Engine::Engine()
+   : mySpeed(0.0)
 {
    myModel = loadModel("train.obj", MODEL_SCALE);
 }
@@ -43,6 +58,12 @@ Engine::Engine()
 void Engine::render() const
 {        
    myModel->render();
+}
+
+// User interface to the engine
+void Engine::actOn(Action anAction)
+{
+
 }
 
 // Make a new engine

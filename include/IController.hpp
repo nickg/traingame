@@ -15,30 +15,24 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_IROLLING_STOCK_HPP
-#define INC_IROLLING_STOCK_HPP
-
-#include "IController.hpp"
+#ifndef INC_ICONTROLLER_HPP
+#define INC_ICONTROLLER_HPP
 
 #include <tr1/memory>
 
-// Interface for various powered and unpowered parts of the train
-struct IRollingStock {
-   virtual ~IRollingStock() {}
-   
-   // Display the object and any animiation
-   virtual void render() const = 0;
-
-   // Return the controller for this vehicle (if it has one)
-   virtual IControllerPtr controller() = 0;
-
-   // Return the speed of the vehicle
-   virtual double speed() const = 0;
+// Actions the user can send
+enum Action {
+   BRAKE_TOGGLE,
+   SHOVEL_COAL,
 };
 
-typedef std::tr1::shared_ptr<IRollingStock> IRollingStockPtr;
+// Interface to something that can be controlled by the user
+struct IController {
+   virtual ~IController() {}
 
-// Make various waggons and engines
-IRollingStockPtr makeEngine();
+   virtual void actOn(Action anAction) = 0;
+};
+
+typedef std::tr1::shared_ptr<IController> IControllerPtr;
 
 #endif

@@ -68,7 +68,7 @@ Train::Train(IMapPtr aMap)
 // Move the train along the line a bit
 void Train::update()
 {
-   mySegmentDelta += 0.03;
+   mySegmentDelta += myEngine->speed();
    
    if (mySegmentDelta >= mySegment->segmentLength()) {
       // Moved onto a new piece of track
