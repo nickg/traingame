@@ -22,9 +22,16 @@
 
 #include <tr1/memory>
 
+// Useful physical constants
+const double MU_S = 0.6;   // Static coefficient of friction for rails
+const double MU_K = 0.5;   // Kinetic coefficient of friction for rails
+
 // Interface for various powered and unpowered parts of the train
 struct IRollingStock {
    virtual ~IRollingStock() {}
+
+   // Update speed, fuel, etc.
+   virtual void update() = 0;
    
    // Display the object and any animiation
    virtual void render() const = 0;

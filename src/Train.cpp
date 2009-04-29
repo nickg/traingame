@@ -35,6 +35,8 @@ public:
    void update();
 
    Vector<float> front() const;
+
+   IControllerPtr controller() { return myEngine->controller(); }
 private:
    IRollingStockPtr myEngine;
    IMapPtr myMap;
@@ -68,6 +70,8 @@ Train::Train(IMapPtr aMap)
 // Move the train along the line a bit
 void Train::update()
 {
+   myEngine->update();
+   
    mySegmentDelta += myEngine->speed();
    
    if (mySegmentDelta >= mySegment->segmentLength()) {

@@ -53,7 +53,7 @@ private:
 
 Game::Game(IMapPtr aMap)
    : myMap(aMap),
-     myPosition(makeVector(2.0f, 8.0f, -10.0f))
+     myPosition(makeVector(16.0f, 8.0f, 16.0f))
 {
    myTrain = makeTrain(myMap);
    mySun = makeSunLight();
@@ -109,7 +109,13 @@ void Game::onKeyDown(SDLKey aKey)
       break;
    case SDLK_DOWN:
       myMovement.y = yspeed;
-      break;   
+      break;
+   case SDLK_b:
+      myTrain->controller()->actOn(BRAKE_TOGGLE);
+      break;
+   case SDLK_LCTRL:
+      myTrain->controller()->actOn(SHOVEL_COAL);
+      break;
    default:
       break;
    }
