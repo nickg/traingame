@@ -71,8 +71,12 @@ Train::Train(IMapPtr aMap)
 void Train::update()
 {
    myEngine->update();
+
+   // How many metres does a tile correspond to?
+   const double M_PER_UNIT = 10.0;
    
-   mySegmentDelta += myEngine->speed();
+   const double FPS = 30.0;
+   mySegmentDelta += myEngine->speed() / FPS / M_PER_UNIT;
    
    if (mySegmentDelta >= mySegment->segmentLength()) {
       // Moved onto a new piece of track
