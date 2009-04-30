@@ -89,7 +89,7 @@ Engine::Engine()
      myStatTractiveEffort(34.7),
      isBrakeOn(true)
 {
-   myModel = loadModel("train.obj", MODEL_SCALE);
+   myModel = loadModel("pclass.obj", MODEL_SCALE);
 }
 
 // Draw the engine, smoke, etc.
