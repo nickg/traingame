@@ -75,6 +75,7 @@ private:
    double myFuelOnFire;
    double myStatTractiveEffort;
    bool isBrakeOn;
+   int myThrottle;   // Ratio measured in tenths
    
    static const double MODEL_SCALE;
    static const double TRACTIVE_EFFORT_KNEE;
@@ -87,7 +88,7 @@ Engine::Engine()
    : mySpeed(0.0), myMass(29.0), myBoilerPressure(1.0),
      myFireTemp(0.0), myFuelOnFire(0.0),
      myStatTractiveEffort(34.7),
-     isBrakeOn(true)
+     isBrakeOn(true), myThrottle(0)
 {
    myModel = loadModel("pclass.obj", MODEL_SCALE);
 }
@@ -122,14 +123,17 @@ void Engine::update()
    const double P = tractiveEffort();
    const double Q = resistance();
 
+   // The applied tractive effort is controlled by the throttle
+   const double netP = P * static_cast<double>(myThrottle) / 10.0;
+
    // A fudge factor to make the acceleration look realistic
    const double MASS_TWEAK = 10.0;
    
-   const double a = (P - Q) / (myMass * MASS_TWEAK);
+   const double a = (netP - Q) / (myMass * MASS_TWEAK);
 
    mySpeed += a;
    
-   debug() << "P=" << P << ", Q=" << Q
+   debug() << "P=" << netP << ", Q=" << Q
            << ", a=" << a << ", v=" << mySpeed;
 }
 
@@ -143,6 +147,14 @@ void Engine::actOn(Action anAction)
       break;
    case SHOVEL_COAL:
       myFuelOnFire += 1.0;
+      break;
+   case THROTTLE_UP:
+      myThrottle = min(myThrottle + 1, 10);
+      break;
+   case THROTTLE_DOWN:
+      myThrottle = max(myThrottle - 1, 0);
+      break;      
+   default:
       break;
    }
 }

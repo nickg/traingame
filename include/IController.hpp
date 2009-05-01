@@ -24,6 +24,8 @@
 enum Action {
    BRAKE_TOGGLE,
    SHOVEL_COAL,
+   THROTTLE_UP,
+   THROTTLE_DOWN,
 };
 
 // Interface to something that can be controlled by the user

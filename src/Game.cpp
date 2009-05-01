@@ -116,6 +116,12 @@ void Game::onKeyDown(SDLKey aKey)
    case SDLK_LCTRL:
       myTrain->controller()->actOn(SHOVEL_COAL);
       break;
+   case SDLK_c:
+      myTrain->controller()->actOn(THROTTLE_UP);
+      break;
+   case SDLK_v:
+      myTrain->controller()->actOn(THROTTLE_DOWN);
+      break;
    default:
       break;
    }
