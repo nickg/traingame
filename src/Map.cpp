@@ -311,9 +311,7 @@ void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
 // Render a small part of the map as directed by the quad tree
 void Map::renderSector(IGraphicsPtr aContext,
                        Point<int> botLeft, Point<int> topRight)
-{
-   log() << "renderSector " << botLeft;
-   
+{   
    glEnable(GL_CULL_FACE);
    
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
@@ -354,7 +352,6 @@ void Map::renderSector(IGraphicsPtr aContext,
          // Draw the track, if any
          Tile& tile = tileAt(x, y);
          if (tile.track && !tile.track->marked()) {
-            debug() << "Drawing track";
             glPushMatrix();
             glTranslated(static_cast<double>(tile.track->originX()), 0,
                          static_cast<double>(tile.track->originY()));
