@@ -105,10 +105,10 @@ void Game::onKeyDown(SDLKey aKey)
       myMovement.x = speed;
       break;
    case SDLK_UP:
-      myMovement.y = -yspeed;
+      myMovement.y = yspeed;
       break;
    case SDLK_DOWN:
-      myMovement.y = yspeed;
+      myMovement.y = -yspeed;
       break;
    case SDLK_b:
       myTrain->controller()->actOn(BRAKE_TOGGLE);

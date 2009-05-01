@@ -23,12 +23,13 @@
 
 #include <GL/gl.h>
 
-namespace Track {
+namespace track {
    const double railWidth = 0.05;
-   const double railHeight = 0.1;
-   const double gauge = 0.7;
+   const double gauge = 0.5;
 
    const int sleepersPerUnit = 4;
+
+   const float SLEEPER_LENGTH = 0.8;
 }
 
 // Draw a sleeper in the current maxtrix location
@@ -46,40 +47,42 @@ void renderSleeper()
    glColor3d(0.5, 0.3, 0.0);
    glBegin(GL_QUADS);
 
+   const double r = track::SLEEPER_LENGTH / 2.0;
+
    // Top
    glNormal3d(0.0, 1.0, 0.0);  // Up
-   glVertex3d(-sleeperOff, sleeperDepth, -0.5);
-   glVertex3d(-sleeperOff, sleeperDepth, 0.5);
-   glVertex3d(sleeperOff, sleeperDepth, 0.5);
-   glVertex3d(sleeperOff, sleeperDepth, -0.5);
+   glVertex3d(-sleeperOff, sleeperDepth, -r);
+   glVertex3d(-sleeperOff, sleeperDepth, r);
+   glVertex3d(sleeperOff, sleeperDepth, r);
+   glVertex3d(sleeperOff, sleeperDepth, -r);
 
    // Side 1
    glNormal3d(1.0, 0.0, 0.0);  // +ve x
-   glVertex3d(sleeperOff, sleeperDepth, -0.5);
-   glVertex3d(sleeperOff, 0.0, -0.5);
-   glVertex3d(-sleeperOff, 0.0, -0.5);
-   glVertex3d(-sleeperOff, sleeperDepth, -0.5);
+   glVertex3d(sleeperOff, sleeperDepth, -r);
+   glVertex3d(sleeperOff, 0.0, -r);
+   glVertex3d(-sleeperOff, 0.0, -r);
+   glVertex3d(-sleeperOff, sleeperDepth, -r);
 
    // Side 2
    glNormal3d(-1.0, 0.0, 0.0);  // -ve x
-   glVertex3d(-sleeperOff, sleeperDepth, 0.5);
-   glVertex3d(-sleeperOff, 0.0, 0.5);
-   glVertex3d(sleeperOff, 0.0, 0.5);
-   glVertex3d(sleeperOff, sleeperDepth, 0.5);
+   glVertex3d(-sleeperOff, sleeperDepth, r);
+   glVertex3d(-sleeperOff, 0.0, r);
+   glVertex3d(sleeperOff, 0.0, r);
+   glVertex3d(sleeperOff, sleeperDepth, r);
 
    // Front
    glNormal3d(0.0, 0.0, 1.0);  // +ve z
-   glVertex3d(sleeperOff, 0.0, 0.5);
-   glVertex3d(sleeperOff, 0.0, -0.5);
-   glVertex3d(sleeperOff, sleeperDepth, -0.5);
-   glVertex3d(sleeperOff, sleeperDepth, 0.5);
+   glVertex3d(sleeperOff, 0.0, r);
+   glVertex3d(sleeperOff, 0.0, -r);
+   glVertex3d(sleeperOff, sleeperDepth, -r);
+   glVertex3d(sleeperOff, sleeperDepth, r);
 
    // Back
    glNormal3d(0.0, 0.0, -1.0);  // -ve z
-   glVertex3d(-sleeperOff, sleeperDepth, 0.5);
-   glVertex3d(-sleeperOff, sleeperDepth, -0.5);
-   glVertex3d(-sleeperOff, 0.0, -0.5);
-   glVertex3d(-sleeperOff, 0.0, 0.5);
+   glVertex3d(-sleeperOff, sleeperDepth, r);
+   glVertex3d(-sleeperOff, sleeperDepth, -r);
+   glVertex3d(-sleeperOff, 0.0, -r);
+   glVertex3d(-sleeperOff, 0.0, r);
    
    
    glEnd();  // glBegin(GL_QUADS)
@@ -91,30 +94,30 @@ void renderSleeper()
 static void renderOneRail()
 {
    glPushMatrix();
-   glTranslated(-Track::railWidth/2.0, 0.0, 0.0);
+   glTranslated(-track::railWidth/2.0, 0.0, 0.0);
    
    glBegin(GL_QUADS);
    
    // Top side
    glNormal3d(0.0, 1.0, 0.0);
-   glVertex3d(0.0, Track::railHeight, 0.0);
-   glVertex3d(0.0, Track::railHeight, 1.0);
-   glVertex3d(Track::railWidth, Track::railHeight, 1.0);
-   glVertex3d(Track::railWidth, Track::railHeight, 0.0);
+   glVertex3d(0.0, track::RAIL_HEIGHT, 0.0);
+   glVertex3d(0.0, track::RAIL_HEIGHT, 1.0);
+   glVertex3d(track::railWidth, track::RAIL_HEIGHT, 1.0);
+   glVertex3d(track::railWidth, track::RAIL_HEIGHT, 0.0);
    
    // Outer side
    glNormal3d(-1.0, 0.0, 0.0);
-   glVertex3d(0.0, Track::railHeight, 0.0);
+   glVertex3d(0.0, track::RAIL_HEIGHT, 0.0);
    glVertex3d(0.0, 0.0, 0.0);
    glVertex3d(0.0, 0.0, 1.0);
-   glVertex3d(0.0, Track::railHeight, 1.0);
+   glVertex3d(0.0, track::RAIL_HEIGHT, 1.0);
    
    // Inner side
    glNormal3d(1.0, 0.0, 0.0);
-   glVertex3d(Track::railWidth, Track::railHeight, 1.0);
-   glVertex3d(Track::railWidth, 0.0, 1.0);
-   glVertex3d(Track::railWidth, 0.0, 0.0);
-   glVertex3d(Track::railWidth, Track::railHeight, 0.0);
+   glVertex3d(track::railWidth, track::RAIL_HEIGHT, 1.0);
+   glVertex3d(track::railWidth, 0.0, 1.0);
+   glVertex3d(track::railWidth, 0.0, 0.0);
+   glVertex3d(track::railWidth, track::RAIL_HEIGHT, 0.0);
    
    glEnd();
    glPopMatrix();
@@ -125,10 +128,10 @@ void renderStraightRail()
    glPushMatrix();
    glColor3d(0.7, 0.7, 0.7);
 
-   glTranslated(-Track::gauge/2.0, 0.0, -0.5);
+   glTranslated(-track::gauge/2.0, 0.0, -0.5);
    renderOneRail();
    
-   glTranslated(Track::gauge, 0.0, 0.0);
+   glTranslated(track::gauge, 0.0, 0.0);
    renderOneRail();
 
    glPopMatrix();
@@ -170,10 +173,10 @@ enum RailType {
 static void makeCurveRail(double baseRadius, double startAngle,
                           double finishAngle, RailType type)
 {
-   const double edgeWidth = (1 - Track::gauge - Track::railWidth)/2.0;
+   const double edgeWidth = (1 - track::gauge - track::railWidth)/2.0;
    const double R = baseRadius - edgeWidth
-      - (type == OuterRail ? 0 : Track::gauge);
-   const double r = R - Track::railWidth;
+      - (type == OuterRail ? 0 : track::gauge);
+   const double r = R - track::railWidth;
 
    const double step = 0.1;
 
@@ -278,7 +281,7 @@ void renderCurvedTrack(int baseRadius, double startAngle, double endAngle)
    makeCurveRail(baseRadiusD, startAngle, endAngle, InnerRail);
 
    const double length = (endAngle - startAngle) * baseRadius;
-   const int numSleepers = length * Track::sleepersPerUnit;
+   const int numSleepers = length * track::sleepersPerUnit;
    const double sleeperAngle =
       ((endAngle - startAngle) / numSleepers) * (180.0 / M_PI);
 

@@ -18,6 +18,7 @@
 #include "ITrain.hpp"
 #include "IRollingStock.hpp"
 #include "ILogger.hpp"
+#include "TrackCommon.hpp"
 
 #include <stdexcept>
 
@@ -107,6 +108,7 @@ void Train::render() const
    glPushMatrix();
 
    myTransformer(mySegmentDelta);
+   glTranslatef(0.0f, track::RAIL_HEIGHT, 0.0f);
    myEngine->render();
 
    glPopMatrix();
