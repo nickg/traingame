@@ -19,32 +19,43 @@
 #include "gui/IImage.hpp"
 
 using namespace gui;
+using namespace std;
 
 // Concrete implementation of push buttons
 class Button : public IControl {
 public:
-   Button(ITexturePtr aTexture);
+   Button(const string& aGlyphFile);
    ~Button() {}
 
    // IControl interace
    void render(int x, int y) const;
 private:
-   IImagePtr myBaseImage, myActiveImage;
+   IImagePtr myGlyphImage;
+   
+   static IImagePtr ourBaseImage, ourActiveImage;
 };
 
-Button::Button(ITexturePtr aTexture)
+IImagePtr Button::ourBaseImage, Button::ourActiveImage;
+
+Button::Button(const string& aGlyphFile)
 {
-   myBaseImage = makeImage("data/images/button_base.png");
-   myActiveImage = makeImage("data/images/button_active.png");
+   if (!ourBaseImage)
+      ourBaseImage = makeImage("data/images/button_base.png");
+
+   if (!ourActiveImage)
+      ourActiveImage = makeImage("data/images/button_active.png");
+
+   myGlyphImage = makeImage(aGlyphFile);
 }
 
 void Button::render(int x, int y) const
 {
-   myBaseImage->render(x, y);
+   ourBaseImage->render(x, y);
+   myGlyphImage->render(x, y);
 }
 
-IControlPtr gui::makeButton(ITexturePtr aTexture)
+IControlPtr gui::makeButton(const string& aGlyphFile)
 {
-   return IControlPtr(new Button(aTexture));
+   return IControlPtr(new Button(aGlyphFile));
 }
 

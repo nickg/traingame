@@ -19,8 +19,7 @@
 #define INC_GUI_ICONTROL_HPP
 
 #include <tr1/memory>
-
-#include "ITexture.hpp"
+#include <string>
 
 namespace gui {
 
@@ -35,7 +34,7 @@ namespace gui {
    typedef std::tr1::shared_ptr<IControl> IControlPtr;
 
    // Standard controls
-   IControlPtr makeButton(ITexturePtr aTexture);
+   IControlPtr makeButton(const std::string& aGlyphFile);
 }
 
 #endif

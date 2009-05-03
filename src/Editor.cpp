@@ -87,8 +87,7 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
    // Build the GUI
    myToolbar = makeFlowBox(FLOW_BOX_HORIZ);
 
-   IControlPtr trackButton =
-      makeButton(loadTexture("data/images/track_icon.png"));
+   IControlPtr trackButton = makeButton("data/images/track_icon.png");
    myToolbar->addChild(trackButton);
 
    myMap->setGrid(true);
