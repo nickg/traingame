@@ -26,7 +26,8 @@
 #include <SDL.h>
 
 enum MouseButton {
-   MOUSE_LEFT, MOUSE_MIDDLE, MOUSE_RIGHT
+   MOUSE_UNKNOWN, MOUSE_LEFT, MOUSE_MIDDLE, MOUSE_RIGHT,
+   MOUSE_WHEEL_UP, MOUSE_WHEEL_DOWN
 };
 
 // Interface for game screens

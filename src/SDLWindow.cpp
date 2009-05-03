@@ -157,6 +157,9 @@ SDLWindow::SDLWindow()
       throw runtime_error(ss.str());
    }
 
+   // Turn on key repeat
+   SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+
    // Hide the window manager cursor
    //SDL_ShowCursor(SDL_DISABLE);
    
@@ -326,9 +329,10 @@ MouseButton SDLWindow::fromSDLButton(Uint8 aSDLButton) const
    case SDL_BUTTON_LEFT: return MOUSE_LEFT;
    case SDL_BUTTON_MIDDLE: return MOUSE_MIDDLE;
    case SDL_BUTTON_RIGHT: return MOUSE_RIGHT;
+   case SDL_BUTTON_WHEELUP: return MOUSE_WHEEL_UP;
+   case SDL_BUTTON_WHEELDOWN: return MOUSE_WHEEL_DOWN;
    default:
-      throw runtime_error
-         ("Unrecognised button: " + lexical_cast<string>(aSDLButton));
+      return MOUSE_UNKNOWN;
    }
 }
 

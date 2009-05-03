@@ -40,9 +40,9 @@ public:
    void update(IPickBufferPtr aPickBuffer);
    void onKeyDown(SDLKey aKey);
    void onKeyUp(SDLKey aKey);
-   void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y) {}
+   void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y);
    void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
-                     MouseButton aButton) {}
+                     MouseButton aButton);
    void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
                        MouseButton aButton) {}
 private:
@@ -50,8 +50,8 @@ private:
    ITrainPtr myTrain;
    ILightPtr mySun;
 
-   Vector<float> myPosition;
-   Vector<float> myMovement;
+   // Camera position
+   float myHorizAngle, myVertAngle, myViewRadius;
 
    // GUI elements
    IContainerPtr myStatsPanel;
@@ -60,7 +60,7 @@ private:
 
 Game::Game(IMapPtr aMap)
    : myMap(aMap),
-     myPosition(makeVector(16.0f, 8.0f, 16.0f))
+     myHorizAngle(2.5f), myVertAngle(1.0f), myViewRadius(10.0f)
 {
    myTrain = makeTrain(myMap);
    mySun = makeSunLight();
@@ -82,7 +82,16 @@ Game::~Game()
 void Game::display(IGraphicsPtr aContext) const
 {
    Vector<float> trainPos = myTrain->front();
-   aContext->lookAt(myPosition, trainPos);
+
+   // Two angles give unique position on surface of a sphere
+   // Look up ``spherical coordinates''
+   const double yCentre = 0.8f;
+   Vector<float> position = trainPos;
+   position.x += myViewRadius * cosf(myHorizAngle) * sinf(myVertAngle);
+   position.z += myViewRadius * sinf(myHorizAngle) * sinf(myVertAngle);
+   position.y = myViewRadius * cosf(myVertAngle) + yCentre;
+   
+   aContext->lookAt(position, trainPos);
    
    mySun->apply();
    
@@ -97,8 +106,6 @@ void Game::overlay() const
 
 void Game::update(IPickBufferPtr aPickBuffer)
 {
-   myPosition += myMovement;
-
    myTrain->update();
 
    // Update the GUI elements
@@ -107,32 +114,13 @@ void Game::update(IPickBufferPtr aPickBuffer)
 }
 
 void Game::onKeyDown(SDLKey aKey)
-{
-   const double speed = 0.5;
-   const double yspeed = 0.2;
-   
+{   
    switch (aKey) {
-   case SDLK_a:
-      myMovement.z = speed;
-      //myMovement.x = speed;
+   case SDLK_PAGEUP:
+      myViewRadius -= 0.1f;
       break;
-   case SDLK_d:
-      myMovement.z = -speed;
-      //myMovement.x = -speed;
-      break;
-   case SDLK_w:
-      //myMovement.z = speed;
-      myMovement.x = -speed;
-      break;
-   case SDLK_s:
-      //myMovement.z = -speed;
-      myMovement.x = speed;
-      break;
-   case SDLK_UP:
-      myMovement.y = yspeed;
-      break;
-   case SDLK_DOWN:
-      myMovement.y = -yspeed;
+   case SDLK_PAGEDOWN:
+      myViewRadius += 0.1f;
       break;
    case SDLK_b:
       myTrain->controller()->actOn(BRAKE_TOGGLE);
@@ -153,21 +141,46 @@ void Game::onKeyDown(SDLKey aKey)
 
 void Game::onKeyUp(SDLKey aKey)
 {   
-   switch (aKey) {
-   case SDLK_w:
-   case SDLK_s:
-   case SDLK_a:
-   case SDLK_d:
-      myMovement.z = 0.0;
-      myMovement.x = 0.0;
+ 
+}
+
+void Game::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
+                        MouseButton aButton)
+{
+   switch (aButton) {
+   case MOUSE_WHEEL_UP:
+      myViewRadius -= 1.0f;
       break;
-   case SDLK_UP:
-   case SDLK_DOWN:
-      myMovement.y = 0.0;
+   case MOUSE_WHEEL_DOWN:
+      myViewRadius += 1.0f;
       break;
    default:
       break;
    }
+}
+
+void Game::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
+{
+   static int lastX = x, lastY = y;
+
+   const int xDelta = x - lastX;
+   const int yDelta = y - lastY;
+   
+   myHorizAngle -= xDelta / 100.0f;
+   myVertAngle += yDelta / 100.0f;
+
+   // Don't allow the camera to go under the ground
+   const double ground = (M_PI / 2.0f) - 0.01f;
+   if (myVertAngle > ground)
+      myVertAngle = ground;
+
+   // Don't let the camera flip over the top
+   const double top = 0.01f;
+   if (myVertAngle < top)
+      myVertAngle = top;
+
+   lastX = x;
+   lastY = y;
 }
 
 // Create an instance of the play screen with the given map
