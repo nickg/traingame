@@ -22,10 +22,16 @@
 #include "ITrain.hpp"
 #include "ILogger.hpp"
 #include "ILight.hpp"
+#include "gui/IFont.hpp"
 
 #include <GL/gl.h>
 
 using namespace std;
+using namespace gui;
+
+namespace {
+   IFontPtr theFont;
+}
 
 // Implementation of the main play screen
 class Game : public IScreen {
@@ -58,6 +64,9 @@ Game::Game(IMapPtr aMap)
 {
    myTrain = makeTrain(myMap);
    mySun = makeSunLight();
+   
+
+   theFont = loadFont("/usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf", 16);
 }
 
 Game::~Game()
@@ -78,7 +87,7 @@ void Game::display(IGraphicsPtr aContext) const
 
 void Game::overlay() const
 {
-
+   theFont->print(20, 20, "Hello, %s!", "World");
 }
 
 void Game::update(IPickBufferPtr aPickBuffer)

@@ -27,12 +27,14 @@ find_package (Boost REQUIRED COMPONENTS filesystem)
 include (FindPkgConfig)
 
 pkg_check_modules (XERCES REQUIRED xerces-c)
+pkg_check_modules (FREETYPE REQUIRED freetype2)
 
 include_directories (${CMAKE_SOURCE_DIR}/include)
 include_directories (include ${SDL_INCLUDE_DIR})
 include_directories (include ${SDL_IMAGE_INCLUDE_DIR})
 include_directories (include ${OPENGL_INCLUDE_DIR})
 include_directories (include ${XERCES_INCLUDE_DIRS})
+include_directories (include ${FREETYPE_INCLUDE_DIRS})
 
 if (NOT WIN32) # Unix
     add_definitions ("-Wall")
@@ -43,7 +45,8 @@ endif (NOT WIN32)
 add_executable (${PROJECT_NAME} WIN32 ${folder_source})
 
 target_link_libraries (${PROJECT_NAME} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY}
-  ${OPENGL_LIBRARY} ${XERCES_LIBRARIES} ${Boost_LIBRARIES})
+  ${OPENGL_LIBRARY} ${XERCES_LIBRARIES} ${Boost_LIBRARIES}
+  ${FREETYPE_LIBRARIES})
 
 # Profiling
 #set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS -pg)
