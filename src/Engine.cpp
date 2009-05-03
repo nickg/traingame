@@ -58,7 +58,7 @@ public:
 
    // IRollingStock interface
    void render() const;
-   void update();
+   void update(int aDelta);
    
    double speed() const { return mySpeed; }
    IControllerPtr controller() { return shared_from_this(); }
@@ -118,7 +118,7 @@ double Engine::resistance() const
 }
 
 // Compute the next state of the engine
-void Engine::update()
+void Engine::update(int aDelta)
 {
    const double P = tractiveEffort();
    const double Q = resistance();
@@ -126,16 +126,14 @@ void Engine::update()
    // The applied tractive effort is controlled by the throttle
    const double netP = P * static_cast<double>(myThrottle) / 10.0;
 
-   // Convert mass to Kg
-   const double massKg = myMass * 1000.0;
-
-   const double FPS = 30.0;
-   const double a = ((netP - Q) / massKg) * FPS;
+   const double deltaSeconds = aDelta / 1000.0f;
+   const double a = ((netP - Q) / myMass) * deltaSeconds;
 
    mySpeed = max(mySpeed + a, 0.0);
    
-   //debug() << "P=" << netP << ", Q=" << Q
-   //        << ", a=" << a << ", v=" << mySpeed;
+   /*debug() << "P=" << netP << ", Q=" << Q
+           << ", a=" << a << ", v=" << mySpeed
+           << " (delta=" << aDelta << ")";*/
 }
 
 // User interface to the engine

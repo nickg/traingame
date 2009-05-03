@@ -27,7 +27,7 @@ struct IRollingStock {
    virtual ~IRollingStock() {}
 
    // Update speed, fuel, etc.
-   virtual void update() = 0;
+   virtual void update(int aDelta) = 0;
    
    // Display the object and any animiation
    virtual void render() const = 0;

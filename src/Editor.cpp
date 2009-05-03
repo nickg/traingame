@@ -38,7 +38,7 @@ public:
    
    void display(IGraphicsPtr aContext) const;
    void overlay() const;
-   void update(IPickBufferPtr aPickBuffer);
+   void update(IPickBufferPtr aPickBuffer, int aDelta);
    void onKeyDown(SDLKey aKey);
    void onKeyUp(SDLKey aKey);
    void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y);
@@ -139,7 +139,7 @@ void Editor::overlay() const
 }
 
 // Prepare the next frame
-void Editor::update(IPickBufferPtr aPickBuffer)
+void Editor::update(IPickBufferPtr aPickBuffer, int aDelta)
 {
    myPosition += myMovement;
 }

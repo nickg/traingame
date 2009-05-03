@@ -33,7 +33,7 @@ public:
    Train(IMapPtr aMap);
    
    void render() const;
-   void update();
+   void update(int aDelta);
 
    Vector<float> front() const;
    
@@ -70,15 +70,15 @@ Train::Train(IMapPtr aMap)
 }
 
 // Move the train along the line a bit
-void Train::update()
+void Train::update(int aDelta)
 {
-   myEngine->update();
+   myEngine->update(aDelta);
 
    // How many metres does a tile correspond to?
    const double M_PER_UNIT = 5.0;
    
-   const double FPS = 30.0;
-   mySegmentDelta += myEngine->speed() / FPS / M_PER_UNIT;
+   const double deltaSeconds = static_cast<float>(aDelta) / 1000.0f;
+   mySegmentDelta += myEngine->speed() * deltaSeconds / M_PER_UNIT;
    
    if (mySegmentDelta >= mySegment->segmentLength()) {
       // Moved onto a new piece of track

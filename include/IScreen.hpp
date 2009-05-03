@@ -39,8 +39,11 @@ struct IScreen {
 
    // Draw the 2D part of the screen
    virtual void overlay() const = 0;
+
+   // Update the state of the game
+   // Delta delay is milliseconds since last frame
+   virtual void update(IPickBufferPtr aPickBuffer, int aDelta) = 0;
    
-   virtual void update(IPickBufferPtr aPickBuffer) = 0;
    virtual void onKeyDown(SDLKey aKey) = 0;
    virtual void onKeyUp(SDLKey aKey) = 0;
    virtual void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y) = 0;

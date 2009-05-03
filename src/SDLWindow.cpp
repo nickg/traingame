@@ -193,18 +193,21 @@ void SDLWindow::run(IScreenPtr aScreen)
    
    myScreen = aScreen;
 
-   const unsigned targetFramerate = 30;
-   const unsigned window = 1000 / targetFramerate;
-
    FrameTimerThread fpsTimer;
 
+   unsigned lastTick = SDL_GetTicks();
+
+   // Wait a few milliseconds to get a reasonable tick delta
+   SDL_Delay(1);
+   
    amRunning = true;
    do {
       unsigned tickStart = SDL_GetTicks();
+      int delta = static_cast<int>(tickStart - lastTick);
 
       try {
          processInput();
-         myScreen->update(shared_from_this());
+         myScreen->update(shared_from_this(), delta);
          
          if (!willSkipNextFrame)
             drawGLScene();
@@ -216,23 +219,12 @@ void SDLWindow::run(IScreenPtr aScreen)
          amRunning = false;
       }
 
-      // Limit the frame rate to `targetFramerate`
-      unsigned tickNow = SDL_GetTicks();
-      if (tickNow > tickStart + window) {
-         // Missed the timing window
-         // Try to catch up by skipping the next frame
-         willSkipNextFrame = true;
-      }
-      else {
-         // Got some time spare
-         while (tickNow < tickStart + window)	{
-            SDL_Delay(tickStart + window - tickNow);
-            tickNow = SDL_GetTicks();
-         }
-      }
+      // Release the CPU for a little while
+      SDL_Delay(1);
 
       frameComplete();
       fpsTimer.updateTitle();
+      lastTick = tickStart;
    } while (amRunning);
    
    myScreen.reset();

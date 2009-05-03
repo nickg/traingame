@@ -37,7 +37,7 @@ public:
    
    void display(IGraphicsPtr aContext) const;
    void overlay() const;
-   void update(IPickBufferPtr aPickBuffer);
+   void update(IPickBufferPtr aPickBuffer, int aDelta);
    void onKeyDown(SDLKey aKey);
    void onKeyUp(SDLKey aKey);
    void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y);
@@ -104,9 +104,9 @@ void Game::overlay() const
    myStatsPanel->render(10, 20);
 }
 
-void Game::update(IPickBufferPtr aPickBuffer)
+void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
 {
-   myTrain->update();
+   myTrain->update(aDelta);
 
    // Update the GUI elements
    const double msToMPH = 2.237;

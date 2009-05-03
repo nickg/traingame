@@ -28,7 +28,7 @@ struct ITrain {
    virtual ~ITrain() {}
    
    virtual void render() const = 0;
-   virtual void update() = 0;
+   virtual void update(int aDelta) = 0;
 
    // Return a vector of the absolute position of the front of
    // the train
