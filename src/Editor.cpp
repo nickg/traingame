@@ -21,12 +21,14 @@
 #include "IMap.hpp"
 #include "Maths.hpp"
 #include "ILight.hpp"
+#include "gui/IContainer.hpp"
 
 #include <algorithm>
 
 #include <GL/gl.h>
 
 using namespace std;
+using namespace gui;
 
 // Concrete editor class
 class Editor : public IScreen {
@@ -70,6 +72,9 @@ private:
       TRACK_TOOL, RAISE_TOOL
    };
    Tool myTool;
+
+   // GUI variables
+   IContainerPtr myToolbar;
 };
 
 Editor::Editor(IMapPtr aMap, const string& aFileName)
@@ -78,10 +83,13 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
 {
    mySun = makeSunLight();
 
-   log() << "Editing " << aFileName;
+   // Build the GUI
+   myToolbar = makeFlowBox(FLOW_BOX_HORIZ);
 
-   debug() << "Turning on grid";
+
    myMap->setGrid(true);
+
+   log() << "Editing " << aFileName;
 }
 
 Editor::~Editor()

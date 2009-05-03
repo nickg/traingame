@@ -14,7 +14,9 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/"
 set (CMAKE_BUILD_TYPE RelWithDebInfo)
 
 # Find all the source files
-file (GLOB folder_source ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+file (GLOB folder_source 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/*.cpp)
 source_group (${PROJECT_NAME} FILES ${folder_source})
 
 find_package (SDL REQUIRED)
