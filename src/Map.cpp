@@ -324,7 +324,7 @@ void Map::renderSector(IGraphicsPtr aContext,
          // Render tile
          glPushMatrix();
          glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
-         glColor3f(0.7f, 1.0f, 0.7f);
+         glColor3f(0.5f, 1.0f, 0.5f);
          glBegin(GL_POLYGON);
 
          for (int i = 0; i < 4; i++) {
