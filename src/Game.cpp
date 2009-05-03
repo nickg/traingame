@@ -102,7 +102,8 @@ void Game::update(IPickBufferPtr aPickBuffer)
    myTrain->update();
 
    // Update the GUI elements
-   mySpeedLabel->setText("Speed: %.1lfm/s\n", myTrain->speed());
+   const double msToMPH = 2.237;
+   mySpeedLabel->setText("Speed: %.1lfmph\n", myTrain->speed() * msToMPH);
 }
 
 void Game::onKeyDown(SDLKey aKey)

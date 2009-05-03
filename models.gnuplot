@@ -17,9 +17,9 @@ p(x) = x < knee ? ps(x) : pc(x)
 
 # Resistance
 # There should be at least an order of magnitude difference a << b << c
-a = 2
-b = 0.02
-c = 0.0035
+a = 4
+b = 0.05
+c = 0.006
 q(x) = a + b*x + c*x*x
 
 set xrange [0:100]

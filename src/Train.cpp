@@ -75,7 +75,7 @@ void Train::update()
    myEngine->update();
 
    // How many metres does a tile correspond to?
-   const double M_PER_UNIT = 10.0;
+   const double M_PER_UNIT = 5.0;
    
    const double FPS = 30.0;
    mySegmentDelta += myEngine->speed() / FPS / M_PER_UNIT;

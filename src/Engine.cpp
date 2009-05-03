@@ -111,9 +111,9 @@ double Engine::tractiveEffort() const
 // Calculate the magnitude of the resistance on the train
 double Engine::resistance() const
 {
-   const double a = 2.0;
-   const double b = 0.02;
-   const double c = 0.0035;
+   const double a = 4.0;
+   const double b = 0.05;
+   const double c = 0.006;
    return a + b*mySpeed + c*mySpeed*mySpeed;
 }
 
@@ -126,12 +126,13 @@ void Engine::update()
    // The applied tractive effort is controlled by the throttle
    const double netP = P * static_cast<double>(myThrottle) / 10.0;
 
-   // A fudge factor to make the acceleration look realistic
-   const double MASS_TWEAK = 10.0;
-   
-   const double a = (netP - Q) / (myMass * MASS_TWEAK);
+   // Convert mass to Kg
+   const double massKg = myMass * 1000.0;
 
-   mySpeed += a;
+   const double FPS = 30.0;
+   const double a = ((netP - Q) / massKg) * FPS;
+
+   mySpeed = max(mySpeed + a, 0.0);
    
    debug() << "P=" << netP << ", Q=" << Q
            << ", a=" << a << ", v=" << mySpeed;
