@@ -85,7 +85,7 @@ void Game::display(IGraphicsPtr aContext) const
 
    // Two angles give unique position on surface of a sphere
    // Look up ``spherical coordinates''
-   const double yCentre = 0.8f;
+   const double yCentre = 0.9f;
    Vector<float> position = trainPos;
    position.x += myViewRadius * cosf(myHorizAngle) * sinf(myVertAngle);
    position.z += myViewRadius * sinf(myHorizAngle) * sinf(myVertAngle);
@@ -117,10 +117,10 @@ void Game::onKeyDown(SDLKey aKey)
 {   
    switch (aKey) {
    case SDLK_PAGEUP:
-      myViewRadius -= 0.1f;
+      myViewRadius = max(myViewRadius - 0.2f, 0.1f);
       break;
    case SDLK_PAGEDOWN:
-      myViewRadius += 0.1f;
+      myViewRadius += 0.2f;
       break;
    case SDLK_b:
       myTrain->controller()->actOn(BRAKE_TOGGLE);
@@ -149,7 +149,7 @@ void Game::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
 {
    switch (aButton) {
    case MOUSE_WHEEL_UP:
-      myViewRadius -= 1.0f;
+      myViewRadius = max(myViewRadius - 1.0f, 0.1f);
       break;
    case MOUSE_WHEEL_DOWN:
       myViewRadius += 1.0f;
