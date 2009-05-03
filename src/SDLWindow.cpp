@@ -306,6 +306,9 @@ void SDLWindow::drawGLScene()
    glDisable(GL_TEXTURE_2D);
    glDisable(GL_CULL_FACE);
 
+   // Draw the 2D part
+   myScreen->overlay();
+
    // Check for OpenGL errors
    GLenum error = glGetError();
    if (error != GL_NO_ERROR) {   

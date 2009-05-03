@@ -268,9 +268,14 @@ void Map::render(IGraphicsPtr aContext) const
    
    glPushAttrib(GL_ALL_ATTRIB_BITS);
 
+   // Thick lines for grid
+   glLineWidth(2.0f);
+
    // Use the value of glColor rather than materials
    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
    glEnable(GL_COLOR_MATERIAL);
+
+   glDisable(GL_TEXTURE_2D);
    
    glPushMatrix();
    myQuadTree->render(aContext);

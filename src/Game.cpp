@@ -34,6 +34,7 @@ public:
    ~Game();
    
    void display(IGraphicsPtr aContext) const;
+   void overlay() const;
    void update(IPickBufferPtr aPickBuffer);
    void onKeyDown(SDLKey aKey);
    void onKeyUp(SDLKey aKey);
@@ -73,6 +74,11 @@ void Game::display(IGraphicsPtr aContext) const
    
    myMap->render(aContext);
    myTrain->render();
+}
+
+void Game::overlay() const
+{
+
 }
 
 void Game::update(IPickBufferPtr aPickBuffer)

@@ -15,27 +15,36 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GUI_ICONTROL_HPP
-#define INC_GUI_ICONTROL_HPP
+#include "gui/IControl.hpp"
+#include "gui/IImage.hpp"
 
-#include <tr1/memory>
+using namespace gui;
 
-#include "ITexture.hpp"
+// Concrete implementation of push buttons
+class Button : public IControl {
+public:
+   Button(ITexturePtr aTexture);
+   ~Button() {}
 
-namespace gui {
+   // IControl interace
+   void render(int x, int y) const;
+private:
+   IImagePtr myBaseImage, myActiveImage;
+};
 
-   // Interface to any UI control
-   struct IControl {
-      virtual ~IControl() {}
-
-      // Draw the control and any children
-      virtual void render(int x = 0, int y = 0) const = 0;
-   };
-
-   typedef std::tr1::shared_ptr<IControl> IControlPtr;
-
-   // Standard controls
-   IControlPtr makeButton(ITexturePtr aTexture);
+Button::Button(ITexturePtr aTexture)
+{
+   myBaseImage = makeImage("data/images/button_base.png");
+   myActiveImage = makeImage("data/images/button_active.png");
 }
 
-#endif
+void Button::render(int x, int y) const
+{
+   myBaseImage->render(x, y);
+}
+
+IControlPtr gui::makeButton(ITexturePtr aTexture)
+{
+   return IControlPtr(new Button(aTexture));
+}
+

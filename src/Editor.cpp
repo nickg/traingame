@@ -37,6 +37,7 @@ public:
    ~Editor();
    
    void display(IGraphicsPtr aContext) const;
+   void overlay() const;
    void update(IPickBufferPtr aPickBuffer);
    void onKeyDown(SDLKey aKey);
    void onKeyUp(SDLKey aKey);
@@ -86,6 +87,9 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
    // Build the GUI
    myToolbar = makeFlowBox(FLOW_BOX_HORIZ);
 
+   IControlPtr trackButton =
+      makeButton(loadTexture("data/images/track_icon.png"));
+   myToolbar->addChild(trackButton);
 
    myMap->setGrid(true);
 
@@ -127,6 +131,12 @@ void Editor::display(IGraphicsPtr aContext) const
             myMap->highlightTile(aContext, makePoint(x, y));
       }         
    }
+}
+
+// Render the overlay
+void Editor::overlay() const
+{
+   myToolbar->render();
 }
 
 // Prepare the next frame

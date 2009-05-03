@@ -17,7 +17,10 @@
 
 #include "gui/IContainer.hpp"
 
+#include <vector>
+
 using namespace gui;
+using namespace std;
 
 // A container which grows either horizontally or vertically as controls
 // are added
@@ -26,10 +29,16 @@ public:
    FlowBox(FlowBoxStyle aStyle);
    ~FlowBox() {}
 
+   // IContainer interface
    void addChild(IControlPtr aControl);
-   
+
+   // IControl interface
+   void render(int x, int y) const;
 private:
    FlowBoxStyle myStyle;
+
+   typedef vector<IControlPtr> ControlList;
+   ControlList myControls;
 };
 
 FlowBox::FlowBox(FlowBoxStyle aStyle)
@@ -38,9 +47,16 @@ FlowBox::FlowBox(FlowBoxStyle aStyle)
 
 }
 
+void FlowBox::render(int x, int y) const
+{
+   for (ControlList::const_iterator it = myControls.begin();
+        it != myControls.end(); ++it)
+      (*it)->render(x, y);
+}
+
 void FlowBox::addChild(IControlPtr aControl)
 {
-
+   myControls.push_back(aControl);
 }
 
 IContainerPtr gui::makeFlowBox(FlowBoxStyle aStyle)

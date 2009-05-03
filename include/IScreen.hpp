@@ -32,8 +32,13 @@ enum MouseButton {
 // Interface for game screens
 struct IScreen {
    virtual ~IScreen() {}
-   
+
+   // Draw the 3D part of the screen
    virtual void display(IGraphicsPtr aContext) const = 0;
+
+   // Draw the 2D part of the screen
+   virtual void overlay() const = 0;
+   
    virtual void update(IPickBufferPtr aPickBuffer) = 0;
    virtual void onKeyDown(SDLKey aKey) = 0;
    virtual void onKeyUp(SDLKey aKey) = 0;

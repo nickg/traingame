@@ -25,7 +25,7 @@
 // GUI objects that contain other controls
 namespace gui {
 
-   struct IContainer {
+   struct IContainer : IControl {
       virtual ~IContainer() {}
 
       // Add a control to the container in the next available position

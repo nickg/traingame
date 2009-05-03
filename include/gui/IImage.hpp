@@ -15,27 +15,25 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GUI_ICONTROL_HPP
-#define INC_GUI_ICONTROL_HPP
+#ifndef INC_IIMAGE_HPP
+#define INC_IIMAGE_HPP
 
 #include <tr1/memory>
-
-#include "ITexture.hpp"
+#include <string>
 
 namespace gui {
 
-   // Interface to any UI control
-   struct IControl {
-      virtual ~IControl() {}
+   // Displays a simple 2D image
+   // This is not a control but is used by some of them
+   struct IImage {
+      virtual ~IImage() {}
 
-      // Draw the control and any children
-      virtual void render(int x = 0, int y = 0) const = 0;
+      virtual void render(int x, int y) const = 0;
    };
 
-   typedef std::tr1::shared_ptr<IControl> IControlPtr;
+   typedef std::tr1::shared_ptr<IImage> IImagePtr;
 
-   // Standard controls
-   IControlPtr makeButton(ITexturePtr aTexture);
+   IImagePtr makeImage(const std::string& aFile);
 }
 
 #endif
