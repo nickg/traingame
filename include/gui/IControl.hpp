@@ -18,8 +18,12 @@
 #ifndef INC_GUI_ICONTROL_HPP
 #define INC_GUI_ICONTROL_HPP
 
+#include "IFont.hpp"
+
 #include <tr1/memory>
 #include <string>
+
+#include <boost/cast.hpp>
 
 namespace gui {
 
@@ -33,8 +37,19 @@ namespace gui {
 
    typedef std::tr1::shared_ptr<IControl> IControlPtr;
 
+   // Interface to a UI control that contains text
+   struct ITextControl : IControl {
+      virtual ~ITextControl() {}
+      
+      virtual void setText(const std::string& aString) = 0;
+      virtual void setText(const char* fmt, ...) = 0;
+   };
+
+   typedef std::tr1::shared_ptr<ITextControl> ITextControlPtr;
+
    // Standard controls
    IControlPtr makeButton(const std::string& aGlyphFile);
+   ITextControlPtr makeLabel(IFontPtr aFont, const std::string& aString="");
 }
 
 #endif

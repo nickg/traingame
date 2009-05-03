@@ -22,16 +22,12 @@
 #include "ITrain.hpp"
 #include "ILogger.hpp"
 #include "ILight.hpp"
-#include "gui/IFont.hpp"
+#include "gui/IContainer.hpp"
 
 #include <GL/gl.h>
 
 using namespace std;
 using namespace gui;
-
-namespace {
-   IFontPtr theFont;
-}
 
 // Implementation of the main play screen
 class Game : public IScreen {
@@ -56,6 +52,10 @@ private:
 
    Vector<float> myPosition;
    Vector<float> myMovement;
+
+   // GUI elements
+   IContainerPtr myStatsPanel;
+   ITextControlPtr mySpeedLabel;
 };
 
 Game::Game(IMapPtr aMap)
@@ -64,9 +64,14 @@ Game::Game(IMapPtr aMap)
 {
    myTrain = makeTrain(myMap);
    mySun = makeSunLight();
-   
 
-   theFont = loadFont("/usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf", 16);
+   // Build the GUI
+   myStatsPanel = makeFlowBox(FLOW_BOX_VERT);
+
+   IFontPtr stdFont = loadFont("data/fonts/Vera.ttf", 14);
+   
+   mySpeedLabel = makeLabel(stdFont);
+   myStatsPanel->addChild(mySpeedLabel);
 }
 
 Game::~Game()
@@ -87,14 +92,17 @@ void Game::display(IGraphicsPtr aContext) const
 
 void Game::overlay() const
 {
-   theFont->print(20, 20, "Hello, %s!", "World");
+   myStatsPanel->render(10, 20);
 }
 
 void Game::update(IPickBufferPtr aPickBuffer)
 {
    myPosition += myMovement;
 
-   myTrain->update();   
+   myTrain->update();
+
+   // Update the GUI elements
+   mySpeedLabel->setText("Speed: %.1lfm/s\n", myTrain->speed());
 }
 
 void Game::onKeyDown(SDLKey aKey)

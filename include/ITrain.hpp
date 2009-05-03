@@ -34,6 +34,9 @@ struct ITrain {
    // the train
    virtual Vector<float> front() const = 0;
 
+   // Return the speed of the train
+   virtual double speed() const = 0;
+
    // Return the controller for whatever's driving this train
    virtual IControllerPtr controller() = 0;
 };

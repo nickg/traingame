@@ -36,7 +36,8 @@ public:
    void update();
 
    Vector<float> front() const;
-
+   
+   double speed() const { return myEngine->speed(); }
    IControllerPtr controller() { return myEngine->controller(); }
 private:
    IRollingStockPtr myEngine;

@@ -109,9 +109,8 @@ Font::~Font()
    delete[] widths;
    delete[] buf;
    
-   if (--fontRefCount == 0) {
+   if (--fontRefCount == 0)
       FT_Done_FreeType(library);
-   }
 }
 
 void Font::setColour(float r, float g, float b, float a)
@@ -125,7 +124,6 @@ void Font::setColour(float r, float g, float b, float a)
 int Font::nextPowerOf2(int a)
 {
    int rval = 1;
-
    while (rval < a) 
       rval <<= 1;
 
@@ -136,8 +134,6 @@ void Font::makeDisplayList(FT_Face face, char ch, GLuint listBase,
                            GLuint* texBase, unsigned short* widths,
                            bool shadow)
 {
-   int i, j;
-
    // Load the character's glyph
    if (FT_Load_Glyph(face, FT_Get_Char_Index(face, ch), FT_LOAD_DEFAULT))
       throw runtime_error("FT_Load_Glyph failed");
@@ -162,8 +158,8 @@ void Font::makeDisplayList(FT_Face face, char ch, GLuint listBase,
    GLubyte* expandedData = new GLubyte[2 * width * height];
 
    // Fill in the bitmap's extended data
-   for (j = 0; j < height; j++) {
-      for (i = 0; i < width; i++) {
+   for (int j = 0; j < height; j++) {
+      for (int i = 0; i < width; i++) {
          expandedData[2*(i+j*width)] = expandedData[2*(i+j*width)+1] = 
             (i >= bitmap.width || j >= bitmap.rows)
             ? 0
@@ -204,7 +200,7 @@ void Font::makeDisplayList(FT_Face face, char ch, GLuint listBase,
       glPushAttrib(GL_CURRENT_BIT);
       glPushMatrix();
       
-      glTranslatef(2.0f, 2.0f, 0.0f);
+      glTranslatef(1.5f, 1.5f, 0.0f);
       glColor4f(0.0f, 0.0f, 0.0f, myA);
       
       glBegin(GL_QUADS);
