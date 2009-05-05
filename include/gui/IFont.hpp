@@ -30,6 +30,7 @@ namespace gui {
       virtual void setColour(float r, float g, float b, float a) = 0;
       virtual void print(int x, int y, const char* fmt, ...) const = 0;
       virtual int stringWidth(const char* fmt, ...) const = 0;
+      virtual int maxHeight() const = 0;
    };
 
    typedef std::tr1::shared_ptr<IFont> IFontPtr;

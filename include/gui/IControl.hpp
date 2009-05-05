@@ -33,6 +33,10 @@ namespace gui {
 
       // Draw the control and any children
       virtual void render(int x = 0, int y = 0) const = 0;
+
+      // Return the dimensions of the control
+      virtual int width() const = 0;
+      virtual int height() const = 0;
    };
 
    typedef std::tr1::shared_ptr<IControl> IControlPtr;
@@ -47,9 +51,19 @@ namespace gui {
 
    typedef std::tr1::shared_ptr<ITextControl> ITextControlPtr;
 
+   // Interface to controls that are progress meters, etc.
+   struct IMeterControl : IControl {
+      virtual ~IMeterControl() {}
+
+      virtual void setValue(int aValue) = 0;
+   };
+
+   typedef std::tr1::shared_ptr<IMeterControl> IMeterControlPtr;
+
    // Standard controls
    IControlPtr makeButton(const std::string& aGlyphFile);
    ITextControlPtr makeLabel(IFontPtr aFont, const std::string& aString="");
+   IMeterControlPtr makeThrottleMeter(IFontPtr aFont);
 }
 
 #endif

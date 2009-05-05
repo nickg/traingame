@@ -56,6 +56,7 @@ private:
    // GUI elements
    IContainerPtr myStatsPanel;
    ITextControlPtr mySpeedLabel;
+   IMeterControlPtr myThrottleMeter;
 };
 
 Game::Game(IMapPtr aMap)
@@ -72,6 +73,9 @@ Game::Game(IMapPtr aMap)
    
    mySpeedLabel = makeLabel(stdFont);
    myStatsPanel->addChild(mySpeedLabel);
+
+   myThrottleMeter = makeThrottleMeter(stdFont);
+   myStatsPanel->addChild(myThrottleMeter);
 }
 
 Game::~Game()

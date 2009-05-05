@@ -31,6 +31,8 @@ public:
    
    // IControl interface
    void render(int x, int y) const;
+   int width() const;
+   int height() const;
 
    // ITextControl interface
    void setText(const string& aString) { myText = aString; }
@@ -45,6 +47,16 @@ Label::Label(IFontPtr aFont, const std::string& aString)
    : myText(aString), myFont(aFont)
 {
 
+}
+
+int Label::width() const
+{
+   return myFont->stringWidth(myText.c_str());
+}
+
+int Label::height() const
+{
+   return myFont->maxHeight();
 }
 
 void Label::render(int x, int y) const

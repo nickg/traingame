@@ -29,6 +29,8 @@ public:
 
    // IControl interace
    void render(int x, int y) const;
+   int width() const;
+   int height() const;
 private:
    IImagePtr myGlyphImage;
    
@@ -46,6 +48,16 @@ Button::Button(const string& aGlyphFile)
       ourActiveImage = makeImage("data/images/button_active.png");
 
    myGlyphImage = makeImage(aGlyphFile);
+}
+
+int Button::width() const
+{
+   return myGlyphImage->width();
+}
+
+int Button::height() const
+{
+   return myGlyphImage->height();
 }
 
 void Button::render(int x, int y) const

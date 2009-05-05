@@ -40,6 +40,7 @@ public:
    void print(int x, int y, const char* fmt, ...) const;
    int stringWidth(const char* fmt, ...) const;
    void setColour(float r, float g, float b, float a);
+   int maxHeight() const { return myHeight; }
 private:
    int nextPowerOf2(int a);
    void makeDisplayList(FT_Face face, char ch, GLuint listBase,
@@ -53,6 +54,7 @@ private:
    float height;
    unsigned short* widths;
    char* buf;
+   int myHeight;
 
    static const int MAX_TXT_BUF = 1024;
    
@@ -64,7 +66,7 @@ int Font::fontRefCount = 0;
 FT_Library Font::library;
 
 Font::Font(const string& aFile, int aHeight, bool shadow)
-   : myR(1.0f), myG(1.0f), myB(1.0f), myA(1.0f)
+   : myR(1.0f), myG(1.0f), myB(1.0f), myA(1.0f), myHeight(aHeight)
 {
    if (++fontRefCount == 1) {
       if (FT_Init_FreeType(&library))

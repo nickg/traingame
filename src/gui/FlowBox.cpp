@@ -34,6 +34,8 @@ public:
 
    // IControl interface
    void render(int x, int y) const;
+   int width() const;
+   int height() const;
 private:
    FlowBoxStyle myStyle;
 
@@ -45,6 +47,38 @@ FlowBox::FlowBox(FlowBoxStyle aStyle)
    : myStyle(aStyle)
 {
 
+}
+
+int FlowBox::width() const
+{
+   int w = 0;
+   
+   // Width is the maximum for BOX_VERT and sum for BOX_HORIZ
+   for (ControlList::const_iterator it = myControls.begin();
+        it != myControls.end(); ++it) {
+      if (myStyle == FLOW_BOX_VERT)
+         w = max(w, (*it)->width());
+      else
+         w += (*it)->width();
+   }
+   
+   return w;
+}
+
+int FlowBox::height() const
+{
+   int h = 0;
+   
+   // Height is the sum for BOX_VERT and maximum for BOX_HORIZ
+   for (ControlList::const_iterator it = myControls.begin();
+        it != myControls.end(); ++it) {
+      if (myStyle == FLOW_BOX_VERT)
+         h = max(h, (*it)->height());
+      else
+         h += (*it)->height();
+   }
+   
+   return h;
 }
 
 void FlowBox::render(int x, int y) const

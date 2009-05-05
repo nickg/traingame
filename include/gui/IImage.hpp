@@ -29,6 +29,8 @@ namespace gui {
       virtual ~IImage() {}
 
       virtual void render(int x, int y) const = 0;
+      virtual int width() const = 0;
+      virtual int height() const = 0;
    };
 
    typedef std::tr1::shared_ptr<IImage> IImagePtr;

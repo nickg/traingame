@@ -30,6 +30,8 @@ public:
    ~Image() {}
 
    void render(int x, int y) const;
+   int width() const;
+   int height() const;
 private:
    ITexturePtr myTexture;
 };
@@ -37,6 +39,16 @@ private:
 Image::Image(const string& aFile)
 {
    myTexture = loadTexture(aFile);
+}
+
+int Image::width() const
+{
+   return myTexture->width();
+}
+
+int Image::height() const
+{
+   return myTexture->height();
 }
 
 void Image::render(int x, int y) const
