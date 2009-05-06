@@ -55,7 +55,7 @@ private:
 
    // GUI elements
    IContainerPtr myStatsPanel;
-   ITextControlPtr mySpeedLabel;
+   ITextControlPtr mySpeedLabel, myBrakeLabel;
    IMeterControlPtr myThrottleMeter;
 };
 
@@ -76,6 +76,10 @@ Game::Game(IMapPtr aMap)
 
    myThrottleMeter = makeThrottleMeter(stdFont);
    myStatsPanel->addChild(myThrottleMeter);
+
+   myBrakeLabel = makeLabel(stdFont, "Brake on");
+   myBrakeLabel->setColour(1.0f, 0.0f, 0.0f);
+   myStatsPanel->addChild(myBrakeLabel);
 }
 
 Game::~Game()
@@ -116,6 +120,7 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    const double msToMPH = 2.237;
    mySpeedLabel->setText("Speed: %.1lfmph\n", myTrain->speed() * msToMPH);
    myThrottleMeter->setValue(myTrain->controller()->throttle());
+   myBrakeLabel->setVisible(myTrain->controller()->brakeOn());
 }
 
 void Game::onKeyDown(SDLKey aKey)

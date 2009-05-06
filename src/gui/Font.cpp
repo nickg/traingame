@@ -40,6 +40,7 @@ public:
    void print(int x, int y, const char* fmt, ...) const;
    int stringWidth(const char* fmt, ...) const;
    void setColour(float r, float g, float b, float a);
+   void getColour(float& r, float& g, float& b, float& a) const;
    int maxHeight() const { return myHeight; }
 private:
    int nextPowerOf2(int a);
@@ -57,6 +58,7 @@ private:
    int myHeight;
 
    static const int MAX_TXT_BUF = 1024;
+   static const float VERTICAL_PADDING;
    
    static int fontRefCount;
    static FT_Library library;
@@ -64,15 +66,20 @@ private:
 
 int Font::fontRefCount = 0;
 FT_Library Font::library;
+const float Font::VERTICAL_PADDING = 0.63f;
 
 Font::Font(const string& aFile, int aHeight, bool shadow)
-   : myR(1.0f), myG(1.0f), myB(1.0f), myA(1.0f), myHeight(aHeight)
+   : myR(1.0f), myG(1.0f), myB(1.0f), myA(1.0f)
 {
    if (++fontRefCount == 1) {
       if (FT_Init_FreeType(&library))
          throw runtime_error("FT_Init_FreeType failed");
    }
 
+   // True height includes extra padding 
+   const float h = static_cast<float>(aHeight) / VERTICAL_PADDING;
+   myHeight = static_cast<int>(h);
+   
    unsigned char i;
 
    buf = new char[MAX_TXT_BUF];
@@ -113,6 +120,14 @@ Font::~Font()
    
    if (--fontRefCount == 0)
       FT_Done_FreeType(library);
+}
+
+void Font::getColour(float& r, float& g, float& b, float& a) const
+{
+   r = myR;
+   g = myG;
+   b = myB;
+   a = myA;
 }
 
 void Font::setColour(float r, float g, float b, float a)
@@ -265,7 +280,7 @@ void Font::print(int x, int y, const char* fmt, ...) const
    glPushAttrib(GL_ENABLE_BIT);
 
    GLuint font = listBase;
-   float h = height / 0.63f;		// Add some space between lines  
+   float h = height / VERTICAL_PADDING;		// Add some space between lines  
 
    vector<string> lines;
    va_list ap;

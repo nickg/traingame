@@ -28,6 +28,7 @@ namespace gui {
       virtual ~IFont() {}
 
       virtual void setColour(float r, float g, float b, float a) = 0;
+      virtual void getColour(float& r, float& g, float& b, float& a) const = 0;
       virtual void print(int x, int y, const char* fmt, ...) const = 0;
       virtual int stringWidth(const char* fmt, ...) const = 0;
       virtual int maxHeight() const = 0;

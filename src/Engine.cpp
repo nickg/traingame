@@ -66,9 +66,11 @@ public:
    // IController interface
    void actOn(Action anAction);
    int throttle() const { return myThrottle; }
+   bool brakeOn() const { return isBrakeOn; }
 private:
    double tractiveEffort() const;
    double resistance() const;
+   double brakeForce() const;
    
    IModelPtr myModel;
 
@@ -118,23 +120,33 @@ double Engine::resistance() const
    return a + b*mySpeed + c*mySpeed*mySpeed;
 }
 
+// Calculate the magnitude of the braking force
+double Engine::brakeForce() const
+{
+   const double beta = 0.09;
+   const double g = 9.78;
+   return myMass * g * beta;
+}
+
 // Compute the next state of the engine
 void Engine::update(int aDelta)
 {
    const double P = tractiveEffort();
    const double Q = resistance();
+   const double B = isBrakeOn ? brakeForce() : 0.0;
 
    // The applied tractive effort is controlled by the throttle
    const double netP = P * static_cast<double>(myThrottle) / 10.0;
 
    const double deltaSeconds = aDelta / 1000.0f;
-   const double a = ((netP - Q) / myMass) * deltaSeconds;
+   const double a = ((netP - Q - B) / myMass) * deltaSeconds;
 
    mySpeed = max(mySpeed + a, 0.0);
    
-   /*debug() << "P=" << netP << ", Q=" << Q
+   debug() << "P=" << netP << ", Q=" << Q
+           << ", B=" << B
            << ", a=" << a << ", v=" << mySpeed
-           << " (delta=" << aDelta << ")";*/
+           << " (delta=" << aDelta << ")";
 }
 
 // User interface to the engine

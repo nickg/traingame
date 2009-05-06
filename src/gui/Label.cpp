@@ -33,20 +33,31 @@ public:
    void render(int x, int y) const;
    int width() const;
    int height() const;
+   void setVisible(bool visible) { amVisible = visible; }
 
    // ITextControl interface
    void setText(const string& aString) { myText = aString; }
    void setText(const char* fmt, ...);
-   
+   void setColour(float r, float g, float b);
 private:
    string myText;
    IFontPtr myFont;
+   bool amVisible;
+   float myR, myG, myB;
 };
 
 Label::Label(IFontPtr aFont, const std::string& aString)
-   : myText(aString), myFont(aFont)
+   : myText(aString), myFont(aFont), amVisible(true),
+     myR(1.0f), myG(1.0f), myB(1.0f)
 {
 
+}
+
+void Label::setColour(float r, float g, float b)
+{
+   myR = r;
+   myG = g;
+   myB = b;
 }
 
 int Label::width() const
@@ -61,7 +72,16 @@ int Label::height() const
 
 void Label::render(int x, int y) const
 {
+   if (!amVisible)
+      return;
+
+   float r, g, b, a;
+   myFont->getColour(r, g, b, a);
+   
+   myFont->setColour(myR, myG, myB, 1.0f);
    myFont->print(x, y, myText.c_str());
+
+   myFont->setColour(r, g, b, a);
 }
 
 void Label::setText(const char* fmt, ...)

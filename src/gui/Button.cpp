@@ -31,8 +31,10 @@ public:
    void render(int x, int y) const;
    int width() const;
    int height() const;
+   void setVisible(bool visible) { amVisible = visible; } 
 private:
    IImagePtr myGlyphImage;
+   bool amVisible;
    
    static IImagePtr ourBaseImage, ourActiveImage;
 };
@@ -40,6 +42,7 @@ private:
 IImagePtr Button::ourBaseImage, Button::ourActiveImage;
 
 Button::Button(const string& aGlyphFile)
+   : amVisible(true)
 {
    if (!ourBaseImage)
       ourBaseImage = makeImage("data/images/button_base.png");
@@ -62,6 +65,9 @@ int Button::height() const
 
 void Button::render(int x, int y) const
 {
+   if (!amVisible)
+      return;
+   
    ourBaseImage->render(x, y);
    myGlyphImage->render(x, y);
 }

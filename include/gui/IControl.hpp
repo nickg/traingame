@@ -37,6 +37,9 @@ namespace gui {
       // Return the dimensions of the control
       virtual int width() const = 0;
       virtual int height() const = 0;
+
+      // Show / hide the control
+      virtual void setVisible(bool visible) = 0;
    };
 
    typedef std::tr1::shared_ptr<IControl> IControlPtr;
@@ -47,6 +50,8 @@ namespace gui {
       
       virtual void setText(const std::string& aString) = 0;
       virtual void setText(const char* fmt, ...) = 0;
+
+      virtual void setColour(float r, float g, float b) = 0;
    };
 
    typedef std::tr1::shared_ptr<ITextControl> ITextControlPtr;

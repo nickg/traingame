@@ -36,17 +36,19 @@ public:
    void render(int x, int y) const;
    int width() const;
    int height() const;
+   void setVisible(bool visible) { amVisible = visible; }
 private:
    FlowBoxStyle myStyle;
+   bool amVisible;
 
    typedef vector<IControlPtr> ControlList;
    ControlList myControls;
 
-   static const int SPACING = 10;
+   static const int SPACING = 3;
 };
 
 FlowBox::FlowBox(FlowBoxStyle aStyle)
-   : myStyle(aStyle)
+   : myStyle(aStyle), amVisible(true)
 {
 
 }
@@ -85,6 +87,9 @@ int FlowBox::height() const
 
 void FlowBox::render(int x, int y) const
 {
+   if (!amVisible)
+      return;
+   
    for (ControlList::const_iterator it = myControls.begin();
         it != myControls.end(); ++it) {
       (*it)->render(x, y);

@@ -33,6 +33,7 @@ public:
    void render(int x, int y) const;
    int width() const;
    int height() const;
+   void setVisible(bool visible) { amVisible = visible; }
 
    // IMeterControl interface
    void setValue(int aValue);
@@ -40,17 +41,20 @@ private:
    int myValue;
    IFontPtr myFont;
    const int myTextWidth;
+   bool amVisible;
 
    static const int THROTTLE_MAX = 10;
    static const int THROTTLE_MIN = 0;
 
    static const int METER_HEIGHT = 16;
    static const int METER_WIDTH = 100;
+   static const int METER_OFFSET = 7;
 };
 
 ThrottleMeter::ThrottleMeter(IFontPtr aFont)
    : myValue(0), myFont(aFont),
-     myTextWidth(myFont->stringWidth("Throttle: "))
+     myTextWidth(myFont->stringWidth("Throttle: ")),
+     amVisible(true)
 {
    
 }
@@ -72,12 +76,15 @@ void ThrottleMeter::setValue(int aValue)
 
 void ThrottleMeter::render(int x, int y) const
 {
+   if (!amVisible)
+      return;
+   
    myFont->print(x, y, "Throttle: ");
 
    glPushMatrix();
 
    glTranslatef(static_cast<float>(myTextWidth),
-                static_cast<float>(y), 0.0f);
+                static_cast<float>(y + METER_OFFSET), 0.0f);
 
    const int unit = METER_WIDTH / (THROTTLE_MAX + 1);
 

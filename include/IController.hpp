@@ -36,6 +36,7 @@ struct IController {
 
    // Get current values for the display
    virtual int throttle() const = 0;
+   virtual bool brakeOn() const = 0;
 };
 
 typedef std::tr1::shared_ptr<IController> IControllerPtr;
