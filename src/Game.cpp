@@ -105,7 +105,7 @@ void Game::display(IGraphicsPtr aContext) const
 
 void Game::overlay() const
 {
-   myStatsPanel->render(10, 20);
+   myStatsPanel->render(5, 5);
 }
 
 void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
@@ -115,6 +115,7 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    // Update the GUI elements
    const double msToMPH = 2.237;
    mySpeedLabel->setText("Speed: %.1lfmph\n", myTrain->speed() * msToMPH);
+   myThrottleMeter->setValue(myTrain->controller()->throttle());
 }
 
 void Game::onKeyDown(SDLKey aKey)
@@ -132,11 +133,11 @@ void Game::onKeyDown(SDLKey aKey)
    case SDLK_LCTRL:
       myTrain->controller()->actOn(SHOVEL_COAL);
       break;
-   case SDLK_c:
-      myTrain->controller()->actOn(THROTTLE_UP);
-      break;
-   case SDLK_v:
+   case SDLK_a:
       myTrain->controller()->actOn(THROTTLE_DOWN);
+      break;
+   case SDLK_s:
+      myTrain->controller()->actOn(THROTTLE_UP);
       break;
    default:
       break;

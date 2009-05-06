@@ -263,7 +263,6 @@ void Font::splitIntoLines(vector<string> &lines, const char* fmt, va_list ap) co
 void Font::print(int x, int y, const char* fmt, ...) const
 {
    glPushAttrib(GL_ENABLE_BIT);
-   glPushMatrix();
 
    GLuint font = listBase;
    float h = height / 0.63f;		// Add some space between lines  
@@ -286,14 +285,13 @@ void Font::print(int x, int y, const char* fmt, ...) const
    for (unsigned int i = 0; i < lines.size(); i++)	{
       glPushMatrix();
       glLoadIdentity();
-      glTranslatef((float)x, (float)y - h*i, 0.0f);
+      glTranslatef((float)x, (float)y - h*i + myHeight, 0.0f);
 
       glCallLists((GLsizei)lines[i].length(), GL_UNSIGNED_BYTE, lines[i].c_str());
 
       glPopMatrix();
    }
 
-   glPopMatrix();
    glPopAttrib();
 }
 

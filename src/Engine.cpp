@@ -65,6 +65,7 @@ public:
 
    // IController interface
    void actOn(Action anAction);
+   int throttle() const { return myThrottle; }
 private:
    double tractiveEffort() const;
    double resistance() const;

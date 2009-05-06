@@ -25,7 +25,7 @@
 
 // Interface to things that can be rendered by sector
 struct ISectorRenderable {
-	virtual ~ISectorRenderable() {}
+   virtual ~ISectorRenderable() {}
 
    virtual void renderSector(IGraphicsPtr aContext,
                              Point<int> botLeft, Point<int> topRight) = 0;
@@ -35,7 +35,7 @@ typedef std::tr1::shared_ptr<ISectorRenderable> ISectorRenderablePtr;
 
 // Inteface for constructing quad trees for space partioning
 struct IQuadTree {
-	virtual ~ISectorRenderable() {}
+   virtual ~IQuadTree() {}
 
    virtual void render(IGraphicsPtr aContext) = 0;
    virtual void rebuildDisplayLists() = 0;

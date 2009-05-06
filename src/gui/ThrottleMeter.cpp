@@ -39,18 +39,20 @@ public:
 private:
    int myValue;
    IFontPtr myFont;
+   const int myTextWidth;
 
    static const int THROTTLE_MAX = 10;
    static const int THROTTLE_MIN = 0;
 
-   static const int METER_HEIGHT = 20;
-   static const int METER_WIDTH = 50;
+   static const int METER_HEIGHT = 16;
+   static const int METER_WIDTH = 100;
 };
 
 ThrottleMeter::ThrottleMeter(IFontPtr aFont)
-   : myValue(0), myFont(aFont)
+   : myValue(0), myFont(aFont),
+     myTextWidth(myFont->stringWidth("Throttle: "))
 {
-
+   
 }
 
 int ThrottleMeter::height() const
@@ -60,9 +62,7 @@ int ThrottleMeter::height() const
 
 int ThrottleMeter::width() const
 {
-   static const int textWidth = myFont->stringWidth("Throttle: ");
-   
-   return textWidth + METER_WIDTH;
+   return myTextWidth + METER_WIDTH;
 }
 
 void ThrottleMeter::setValue(int aValue)
@@ -73,6 +73,51 @@ void ThrottleMeter::setValue(int aValue)
 void ThrottleMeter::render(int x, int y) const
 {
    myFont->print(x, y, "Throttle: ");
+
+   glPushMatrix();
+
+   glTranslatef(static_cast<float>(myTextWidth),
+                static_cast<float>(y), 0.0f);
+
+   const int unit = METER_WIDTH / (THROTTLE_MAX + 1);
+
+   // Neutral bit
+   glColor3f(1.0f, 1.0f, 0.0f);
+   glBegin(GL_QUADS);
+   glVertex2i(0, 0);
+   glVertex2i(0, METER_HEIGHT);
+   glVertex2i(unit, METER_HEIGHT);
+   glVertex2i(unit, 0);
+   glEnd();
+
+   int squareLen = myValue >= THROTTLE_MAX
+      ? (THROTTLE_MAX - 1) * unit
+      : (myValue > 0 ? unit * (myValue - 1) : 0);
+
+   glTranslatef(static_cast<float>(unit), 0.0f, 0.0f);
+   glColor3f(0.0f, 1.0f, 0.0f);
+   
+   // Forwards bit
+   if (squareLen > 0) {
+      glBegin(GL_QUADS);
+      glVertex2i(0, 0);
+      glVertex2i(0, METER_HEIGHT);
+      glVertex2i(squareLen, METER_HEIGHT);
+      glVertex2i(squareLen, 0);
+      glEnd();
+   }
+   
+   const bool wantTriangle = myValue < THROTTLE_MAX && myValue > 0;
+   if (wantTriangle) {
+      // Triangle bit
+      glBegin(GL_TRIANGLES);
+      glVertex2i(squareLen, 0);
+      glVertex2i(squareLen, METER_HEIGHT);
+      glVertex2i(squareLen + unit, METER_HEIGHT / 2);
+      glEnd();
+   }   
+   
+   glPopMatrix();
 }
 
 IMeterControlPtr gui::makeThrottleMeter(IFontPtr aFont)

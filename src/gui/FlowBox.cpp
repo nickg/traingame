@@ -41,6 +41,8 @@ private:
 
    typedef vector<IControlPtr> ControlList;
    ControlList myControls;
+
+   static const int SPACING = 10;
 };
 
 FlowBox::FlowBox(FlowBoxStyle aStyle)
@@ -84,8 +86,14 @@ int FlowBox::height() const
 void FlowBox::render(int x, int y) const
 {
    for (ControlList::const_iterator it = myControls.begin();
-        it != myControls.end(); ++it)
+        it != myControls.end(); ++it) {
       (*it)->render(x, y);
+
+      if (myStyle == FLOW_BOX_VERT)
+         y += (*it)->height() + SPACING;
+      else
+         x += (*it)->width() + SPACING;
+   }
 }
 
 void FlowBox::addChild(IControlPtr aControl)
