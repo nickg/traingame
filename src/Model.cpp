@@ -37,6 +37,12 @@ using namespace std;
 using namespace std::tr1;
 using namespace boost;
 
+// Cache of already loaded models
+namespace {
+   typedef map<string, IModelPtr> ModelCache;
+   ModelCache theCache;
+}
+
 // Abstracts a WaveFront material file
 class MaterialFile {
 public:
@@ -167,10 +173,16 @@ void Model::render() const
    glCallList(myDisplayList);
 }
 
-// Load a WaveFront .obj model from disk
+// Load a WaveFront .obj model from disk or the cache
 // Each vertex is scaled by `aScale'
 IModelPtr loadModel(const string& fileName, double aScale)
 {
+   ModelCache::iterator it = theCache.find(fileName);
+   if (it != theCache.end()) {
+      debug() << "Got model " << fileName << " from cache";
+      return (*it).second;
+   }
+   
    ifstream f(fileName.c_str());
    if (!f.good()) {
       ostringstream ss;
@@ -331,5 +343,9 @@ IModelPtr loadModel(const string& fileName, double aScale)
    glPopAttrib();
    glEndList();
    
-   return IModelPtr(new Model(displayList, dim));
+   IModelPtr ptr(new Model(displayList, dim));
+   
+   theCache[fileName] = ptr;
+   
+   return ptr;
 }

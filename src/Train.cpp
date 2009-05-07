@@ -81,8 +81,8 @@ Train::Train(IMapPtr aMap)
    
    enterSegment(engine(), aMap->startLocation());
 
-   double off = -engine().vehicle->length() / 2.0 - SEPARATION;
-   for (int i = 1; i <= 2; i++) {
+   double off = (-engine().vehicle->length() - SEPARATION) / 2.0;
+   for (int i = 1; i <= 3; i++) {
       Part coal(makeWaggon());
       enterSegment(coal, aMap->startLocation());
       coal.segmentDelta = off - coal.vehicle->length() / 2.0;
