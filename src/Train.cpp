@@ -116,10 +116,13 @@ void Train::update(int aDelta)
       
       const double deltaSeconds = static_cast<float>(aDelta) / 1000.0f;
       (*it).segmentDelta += engine().vehicle->speed() * deltaSeconds / M_PER_UNIT;
-      
-      if ((*it).segmentDelta >= (*it).segment->segmentLength()) {
+
+      const double segmentLength = (*it).segment->segmentLength();
+      if ((*it).segmentDelta >= segmentLength) {
          // Moved onto a new piece of track
+         const double over = (*it).segmentDelta - segmentLength;
          enterSegment(*it, (*it).segment->nextPosition((*it).direction));
+         (*it).segmentDelta = over;
       }
    }
 }
