@@ -37,6 +37,9 @@ struct IRollingStock {
 
    // Return the speed of the vehicle
    virtual double speed() const = 0;
+
+   // Return the length of the vehicle in game units
+   virtual double length() const = 0;
 };
 
 typedef std::tr1::shared_ptr<IRollingStock> IRollingStockPtr;

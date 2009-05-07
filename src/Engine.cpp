@@ -62,6 +62,7 @@ public:
    
    double speed() const { return mySpeed; }
    IControllerPtr controller() { return shared_from_this(); }
+   double length() const { return myModel->dimensions().x; }
 
    // IController interface
    void actOn(Action anAction);

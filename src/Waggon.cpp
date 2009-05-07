@@ -32,6 +32,7 @@ public:
    void render() const;
    IControllerPtr controller();
    double speed() const { return 0.0; }
+   double length() const { return myModel->dimensions().x; }
 private:
    IModelPtr myModel;
 

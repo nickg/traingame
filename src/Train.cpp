@@ -68,10 +68,11 @@ private:
    // Move part of the train across a connection
    void enterSegment(Part& aPart, const Track::Connection& aConnection);
 
-   static const double MODEL_YOFF;
+   // Seperation between waggons
+   static const double SEPARATION;
 };
 
-const double Train::MODEL_YOFF(0.05);
+const double Train::SEPARATION(0.1);
 
 Train::Train(IMapPtr aMap)
    : myMap(aMap)
@@ -80,10 +81,15 @@ Train::Train(IMapPtr aMap)
    
    enterSegment(engine(), aMap->startLocation());
 
-   Part coal(makeWaggon());
-   enterSegment(coal, aMap->startLocation());
-   myParts.push_back(coal);
-   
+   double off = -engine().vehicle->length() / 2.0 - SEPARATION;
+   for (int i = 1; i <= 2; i++) {
+      Part coal(makeWaggon());
+      enterSegment(coal, aMap->startLocation());
+      coal.segmentDelta = off - coal.vehicle->length() / 2.0;
+      myParts.push_back(coal);
+      
+      off -= coal.vehicle->length() + SEPARATION;
+   }
 }
 
 Train::Part& Train::engine()
@@ -125,8 +131,8 @@ void Train::enterSegment(Part& aPart, const Track::Connection& aConnection)
    Point<int> pos;
    tie(pos, aPart.direction) = aConnection;
    
-   debug() << "Train part entered segment at " << pos
-           << " moving " << aPart.direction;
+   //debug() << "Train part entered segment at " << pos
+   //        << " moving " << aPart.direction;
 
    if (!myMap->isValidTrack(pos))
       throw runtime_error("Train fell off end of track!");
