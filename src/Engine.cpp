@@ -143,10 +143,10 @@ void Engine::update(int aDelta)
 
    mySpeed = max(mySpeed + a, 0.0);
    
-   debug() << "P=" << netP << ", Q=" << Q
+   /*debug() << "P=" << netP << ", Q=" << Q
            << ", B=" << B
            << ", a=" << a << ", v=" << mySpeed
-           << " (delta=" << aDelta << ")";
+           << " (delta=" << aDelta << ")";*/
 }
 
 // User interface to the engine

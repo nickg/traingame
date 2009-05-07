@@ -21,6 +21,7 @@
 #include "TrackCommon.hpp"
 
 #include <stdexcept>
+#include <cassert>
 
 #include <GL/gl.h>
 
@@ -37,24 +38,35 @@ public:
 
    Vector<float> front() const;
    
-   double speed() const { return myEngine->speed(); }
-   IControllerPtr controller() { return myEngine->controller(); }
+   double speed() const { return myParts.front().vehicle->speed(); }
+   IControllerPtr controller() { return myParts.front().vehicle->controller(); }
 private:
-   IRollingStockPtr myEngine;
+   // The different parts of the train are on different track segments
+   struct Part {
+      explicit Part(IRollingStockPtr aVehicle)
+         : vehicle(aVehicle), segmentDelta(0.0) {}
+      
+      IRollingStockPtr vehicle;
+
+      // The length of a track segment can be found by calling segmentLength()
+      // This delta value ranges from 0 to that length and indicates how far
+      // along the segment the train is
+      ITrackSegmentPtr segment;
+      double segmentDelta;
+      ITrackSegment::TransformFunc transformer;
+      
+      // Direction train part is travelling along the track
+      Vector<int> direction;
+   };
+   list<Part> myParts;
+
+   const Part& engine() const;
+   Part& engine();
+   
    IMapPtr myMap;
 
-   // The length of a track segment can be found by calling segmentLength()
-   // This delta value ranges from 0 to that length and indicates how far
-   // along the segment the train is
-   ITrackSegmentPtr mySegment;
-   double mySegmentDelta;
-   ITrackSegment::TransformFunc myTransformer;
-
-   // Direction train is travelling along the track
-   Vector<int> myDirection;
-
-   // This updates the above two values
-   void enterSegment(const Track::Connection& aConnection);
+   // Move part of the train across a connection
+   void enterSegment(Part& aPart, const Track::Connection& aConnection);
 
    static const double MODEL_YOFF;
 };
@@ -64,55 +76,78 @@ const double Train::MODEL_YOFF(0.05);
 Train::Train(IMapPtr aMap)
    : myMap(aMap)
 {
-   enterSegment(aMap->startLocation());
+   myParts.push_front(Part(makeEngine()));
+   
+   enterSegment(engine(), aMap->startLocation());
 
-   myEngine = makeEngine();
+   Part coal(makeWaggon());
+   enterSegment(coal, aMap->startLocation());
+   myParts.push_back(coal);
+   
+}
+
+Train::Part& Train::engine()
+{
+   assert(myParts.size() > 0);
+   return myParts.front();
+}
+
+const Train::Part& Train::engine() const
+{
+   assert(myParts.size() > 0);
+   return myParts.front();
 }
 
 // Move the train along the line a bit
 void Train::update(int aDelta)
 {
-   myEngine->update(aDelta);
+   for (list<Part>::iterator it = myParts.begin();
+        it != myParts.end(); ++it) {
+      (*it).vehicle->update(aDelta);
 
-   // How many metres does a tile correspond to?
-   const double M_PER_UNIT = 5.0;
-   
-   const double deltaSeconds = static_cast<float>(aDelta) / 1000.0f;
-   mySegmentDelta += myEngine->speed() * deltaSeconds / M_PER_UNIT;
-   
-   if (mySegmentDelta >= mySegment->segmentLength()) {
-      // Moved onto a new piece of track
-      enterSegment(mySegment->nextPosition(myDirection));
+      // How many metres does a tile correspond to?
+      const double M_PER_UNIT = 5.0;
+      
+      const double deltaSeconds = static_cast<float>(aDelta) / 1000.0f;
+      (*it).segmentDelta += engine().vehicle->speed() * deltaSeconds / M_PER_UNIT;
+      
+      if ((*it).segmentDelta >= (*it).segment->segmentLength()) {
+         // Moved onto a new piece of track
+         enterSegment(*it, (*it).segment->nextPosition((*it).direction));
+      }
    }
 }
 
 // Called when the train enters a new segment
 // Resets the delta and gets the length of the new segment
-void Train::enterSegment(const Track::Connection& aConnection)
+void Train::enterSegment(Part& aPart, const Track::Connection& aConnection)
 {
    Point<int> pos;
-   tie(pos, myDirection) = aConnection;
+   tie(pos, aPart.direction) = aConnection;
    
-   debug() << "Train entered segment at " << pos
-           << " moving " << myDirection;
+   debug() << "Train part entered segment at " << pos
+           << " moving " << aPart.direction;
 
    if (!myMap->isValidTrack(pos))
       throw runtime_error("Train fell off end of track!");
 
-   mySegmentDelta = 0.0;
-   mySegment = myMap->trackAt(pos);
-   myTransformer = mySegment->transformFunc(myDirection);
+   aPart.segmentDelta = 0.0;
+   aPart.segment = myMap->trackAt(pos);
+   aPart.transformer = aPart.segment->transformFunc(aPart.direction);
 }
 
 void Train::render() const
 {
-   glPushMatrix();
-
-   myTransformer(mySegmentDelta);
-   glTranslatef(0.0f, track::RAIL_HEIGHT, 0.0f);
-   myEngine->render();
-
-   glPopMatrix();
+   for (list<Part>::const_iterator it = myParts.begin();
+        it != myParts.end(); ++it) {
+      glPushMatrix();
+      
+      (*it).transformer((*it).segmentDelta);
+      glTranslatef(0.0f, track::RAIL_HEIGHT, 0.0f);
+      (*it).vehicle->render();
+      
+      glPopMatrix();
+   }
 }
 
 Vector<float> Train::front() const
@@ -122,7 +157,8 @@ Vector<float> Train::front() const
    glPushMatrix();
    glLoadIdentity();
 
-   myTransformer(mySegmentDelta);
+   const Part& e = engine();
+   e.transformer(e.segmentDelta);
 
    float matrix[16];
    glGetFloatv(GL_MODELVIEW_MATRIX, matrix);

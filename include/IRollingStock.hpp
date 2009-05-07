@@ -43,5 +43,6 @@ typedef std::tr1::shared_ptr<IRollingStock> IRollingStockPtr;
 
 // Make various waggons and engines
 IRollingStockPtr makeEngine();
+IRollingStockPtr makeWaggon();
 
 #endif
