@@ -46,10 +46,11 @@ private:
    static const int THROTTLE_MAX = 10;
    static const int THROTTLE_MIN = 0;
 
-   static const int METER_HEIGHT = 16;
-   static const int METER_WIDTH = 100;
-   static const int METER_OFFSET = 7;
+   static const int METER_HEIGHT, METER_WIDTH;
 };
+
+const int ThrottleMeter::METER_HEIGHT(16);
+const int ThrottleMeter::METER_WIDTH(100);
 
 ThrottleMeter::ThrottleMeter(IFontPtr aFont)
    : myValue(0), myFont(aFont),
@@ -83,8 +84,10 @@ void ThrottleMeter::render(int x, int y) const
 
    glPushMatrix();
 
+   const int off = height() - METER_HEIGHT + 1;
+
    glTranslatef(static_cast<float>(myTextWidth),
-                static_cast<float>(y + METER_OFFSET), 0.0f);
+                static_cast<float>(y + off), 0.0f);
 
    const int unit = METER_WIDTH / (THROTTLE_MAX + 1);
 

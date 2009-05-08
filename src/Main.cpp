@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 
       const string mapFile(argv[2]);
       const string cmd(argv[1]);
-
+      
       IScreenPtr screen;
       if (cmd == "edit") {
          if (exists(mapFile))
