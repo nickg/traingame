@@ -19,6 +19,7 @@
 #include "IModel.hpp"
 #include "ITexture.hpp"
 #include "ILogger.hpp"
+#include "IMesh.hpp"
 
 #include <string>
 #include <fstream>
@@ -151,8 +152,12 @@ void MaterialFile::apply(const string& aName) const
 // A model contains the display list to render it
 class Model : public IModel {
 public:
-   Model(GLuint aDisplayList, const Vector<double>& aDim)
-      : myDisplayList(aDisplayList), myDimensions(aDim) {}
+   Model(GLuint aDisplayList, const Vector<double>& aDim,
+         const MeshBuffer& aBuffer)
+      : myDisplayList(aDisplayList), myDimensions(aDim)
+   {
+      myMesh = makeMesh(aBuffer);
+   }
    ~Model();
    
    void render() const;
@@ -160,6 +165,7 @@ public:
 private:
    GLuint myDisplayList;
    Vector<double> myDimensions;
+   IMeshPtr myMesh;
 };
 
 // Free the display list
@@ -170,7 +176,8 @@ Model::~Model()
 
 void Model::render() const
 {
-   glCallList(myDisplayList);
+   //glCallList(myDisplayList);
+   myMesh->render();
 }
 
 // Load a WaveFront .obj model from disk or the cache
@@ -195,6 +202,8 @@ IModelPtr loadModel(const string& fileName, double aScale)
    vector<Vector<double> > vertices, normals;
    vector<Point<double> > textureOffs;
 
+   MeshBuffer buffer;
+
    GLenum displayList = glGenLists(1);
    glNewList(displayList, GL_COMPILE);
    
@@ -214,6 +223,12 @@ IModelPtr loadModel(const string& fileName, double aScale)
 
    MaterialFilePtr materialFile;
    string materialName;
+
+   back_insert_iterator<vector<MeshBuffer::Vertex> > vertex_it =
+      back_inserter(buffer.vertices);
+   
+   back_insert_iterator<vector<MeshBuffer::Index> > vertex_idx_it =
+      back_inserter(buffer.indices);
    
    while (!f.eof()) {
       string first;
@@ -263,6 +278,7 @@ IModelPtr loadModel(const string& fileName, double aScale)
          }
 
          vertices.push_back(makeVector(x, y, z));
+         (*vertex_it++) = makeVector<float>(x, y, z);
       }
       else if (first == "vn") {
          // Normal
@@ -294,11 +310,15 @@ IModelPtr loadModel(const string& fileName, double aScale)
          if (materialFile)
             materialFile->apply(materialName);
 
-         glBegin(GL_POLYGON);
+         int vInThisFace = 0;
+         
+         glBegin(GL_TRIANGLES);
          while (!ss.eof()) {
             char delim1, delim2;
             unsigned vi, vti, vni;
             ss >> vi >> delim1;
+            if (ss.fail())
+               break;
 
             // Texture coordinate may be omitted
             ss >> vti;
@@ -320,6 +340,12 @@ IModelPtr loadModel(const string& fileName, double aScale)
 
             Vector<double>& v = vertices[vi - 1];
             glVertex3d(v.x, v.y, v.z);
+
+            (*vertex_idx_it++) = vi;
+
+            if (++vInThisFace > 3)
+               warn () << "All model faces must be triangles "
+                       << "(face with " << vInThisFace << " vertices)";
          }
          glEnd();
 
@@ -343,7 +369,7 @@ IModelPtr loadModel(const string& fileName, double aScale)
    glPopAttrib();
    glEndList();
    
-   IModelPtr ptr(new Model(displayList, dim));
+   IModelPtr ptr(new Model(displayList, dim, buffer));
    
    theCache[fileName] = ptr;
    
