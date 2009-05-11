@@ -106,30 +106,16 @@ public:
 
    void render() const;
 private:
-   IMeshBufferPtr myBuffer;
+   GLuint myDisplayList;
 };
 
 DisplayListMesh::DisplayListMesh(IMeshBufferPtr aBuffer)
-   : myBuffer(aBuffer)
 {
+   myDisplayList = glGenLists(1);
 
-}
+   glNewList(myDisplayList, GL_COMPILE);
 
-DisplayListMesh::~DisplayListMesh()
-{
-
-}
-
-void DisplayListMesh::render() const
-{
-   const MeshBuffer* buf = MeshBuffer::get(myBuffer);
-   
-   glPushAttrib(GL_ENABLE_BIT);
-
-   glDisable(GL_BLEND);
-   glDisable(GL_COLOR_MATERIAL);
-   glEnable(GL_CULL_FACE);
-   
+   const MeshBuffer* buf = MeshBuffer::get(aBuffer);
    const Material& m = buf->material;
 
    if (buf->hasTexture) {
@@ -166,6 +152,24 @@ void DisplayListMesh::render() const
    }        
            
    glEnd();
+   
+   glEndList();
+}
+
+DisplayListMesh::~DisplayListMesh()
+{
+   glDeleteLists(myDisplayList, 1);
+}
+
+void DisplayListMesh::render() const
+{   
+   glPushAttrib(GL_ENABLE_BIT);
+
+   glDisable(GL_BLEND);
+   glDisable(GL_COLOR_MATERIAL);
+   glEnable(GL_CULL_FACE);
+   
+   glCallList(myDisplayList);
 
    glPopAttrib();
 }
