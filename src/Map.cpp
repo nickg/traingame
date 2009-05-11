@@ -276,6 +276,7 @@ void Map::render(IGraphicsPtr aContext) const
    glEnable(GL_COLOR_MATERIAL);
 
    glDisable(GL_TEXTURE_2D);
+   glEnable(GL_CULL_FACE);
    
    glPushMatrix();
    myQuadTree->render(aContext);
@@ -328,7 +329,7 @@ void Map::renderSector(IGraphicsPtr aContext,
          glPushMatrix();
          glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
          glColor3f(0.7f, 1.0f, 0.7f);
-         glBegin(GL_POLYGON);
+         glBegin(GL_QUADS);
 
          for (int i = 0; i < 4; i++) {
             glNormal3d(v[i].normal.x, v[i].normal.y, v[i].normal.z);

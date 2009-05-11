@@ -30,7 +30,7 @@ struct MeshBuffer : IMeshBuffer {
    MeshBuffer();
    ~MeshBuffer() {}
 
-   void add(const Vertex& aVertex);
+   void add(const Vertex& aVertex, const Normal& aNormal);
 
    static MeshBuffer* get(IMeshBufferPtr aPtr)
    {
@@ -38,6 +38,7 @@ struct MeshBuffer : IMeshBuffer {
    }
    
    vector<Vertex> vertices;
+   vector<Normal> normals;
    vector<Index> indices;
 };
 
@@ -46,10 +47,11 @@ MeshBuffer::MeshBuffer()
 
 }
 
-void MeshBuffer::add(const Vertex& aVertex)
+void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal)
 {
    const int index = vertices.size();
    vertices.push_back(aVertex);
+   normals.push_back(aNormal);
    indices.push_back(index);
 }
 
@@ -84,6 +86,7 @@ void DisplayListMesh::render() const
    glEnable(GL_COLOR_MATERIAL);
    glDisable(GL_BLEND);
    glDisable(GL_TEXTURE_2D);
+   glEnable(GL_CULL_FACE);
 
    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
    
@@ -93,9 +96,11 @@ void DisplayListMesh::render() const
    for (it = buf->indices.begin();
         it != buf->indices.end(); ++it) {
 
-      const MeshBuffer::Vertex& v = buf->vertices[*it];
-      glVertex3f(v.x, v.y, v.z);
+      const MeshBuffer::Normal& n = buf->normals[*it];
+      glNormal3f(n.x, n.y, n.z);
       
+      const MeshBuffer::Vertex& v = buf->vertices[*it];
+      glVertex3f(v.x, v.y, v.z);      
    }        
            
    glEnd();

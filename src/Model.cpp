@@ -343,7 +343,7 @@ IModelPtr loadModel(const string& fileName, double aScale)
             glVertex3d(v.x, v.y, v.z);
 
             assert(buffer);
-            buffer->add(v);
+            buffer->add(v, vn);
          }
          glEnd();
 

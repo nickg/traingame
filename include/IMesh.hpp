@@ -30,7 +30,7 @@ struct IMeshBuffer {
 
    virtual ~IMeshBuffer() {}
    
-   virtual void add(const Vertex& aVertex) = 0;
+   virtual void add(const Vertex& aVertex, const Normal& aNormal) = 0;
 };
 
 typedef std::tr1::shared_ptr<IMeshBuffer> IMeshBufferPtr;
