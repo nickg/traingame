@@ -33,8 +33,6 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include <GL/gl.h>
-
 using namespace std;
 using namespace std::tr1;
 using namespace boost;
@@ -51,7 +49,6 @@ public:
    MaterialFile(const string& aFileName);
    ~MaterialFile() {}
 
-   void apply(const string& aName) const;
    const Material& get(const string& aName) const;
 private:
    typedef map<string, Material> MaterialSet;
@@ -119,43 +116,12 @@ const Material& MaterialFile::get(const string& aName) const
    return (*it).second;
 }
 
-void MaterialFile::apply(const string& aName) const
-{
-   MaterialSet::const_iterator it = myMaterials.find(aName);
-   if (it == myMaterials.end())
-      throw runtime_error("No material named " + aName);
-
-   const Material& m = (*it).second;
-
-   if (m.texture) {
-      m.texture->bind();
-      glEnable(GL_TEXTURE_2D);
-   }
-   else
-      glDisable(GL_TEXTURE_2D);
-
-   glDisable(GL_COLOR_MATERIAL);
-
-   float diffuse[] = { m.diffuseR, m.diffuseG, m.diffuseB, 1.0 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
-
-   float ambient[] = { m.ambientR, m.ambientG, m.ambientB, 1.0 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
-
-   // Note we're ignoring the specular values in the model
-   float specular[] = { 0, 0, 0, 1.0 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
-
-   float emission[] = { 0, 0, 0, 1 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emission);
-}
-
 // A model contains the display list to render it
 class Model : public IModel {
 public:
-   Model(GLuint aDisplayList, const Vector<float>& aDim,
+   Model(const Vector<float>& aDim,
          const list<IMeshPtr>& aMeshList)
-      : myDisplayList(aDisplayList), myDimensions(aDim)
+      : myDimensions(aDim)
    {
       copy(aMeshList.begin(), aMeshList.end(),
            back_inserter(myMeshes));
@@ -165,9 +131,7 @@ public:
    void render() const;
    Vector<float> dimensions() const { return myDimensions; }
 private:
-   GLuint myDisplayList;
    Vector<float> myDimensions;
-
    list<IMeshPtr> myMeshes;
 };
 
@@ -202,19 +166,12 @@ IModelPtr loadModel(const string& fileName, double aScale)
 
    log() << "Loading model " << fileName;
 
-   vector<IMeshBuffer::Vertex> vertices, normals;
-   vector<Point<float> > textureOffs;
+   vector<IMeshBuffer::Vertex> vertices;
+   vector<IMeshBuffer::Normal> normals;
+   vector<IMeshBuffer::TexCoord> textureOffs;
 
    IMeshBufferPtr buffer;
    list<IMeshPtr> meshes;
-
-   GLenum displayList = glGenLists(1);
-   glNewList(displayList, GL_COMPILE);
-   
-   glPushAttrib(GL_ENABLE_BIT);
-   glPushMatrix();
-   
-   glDisable(GL_BLEND);
 
    bool foundVertex = false;
    float ymin = 0, ymax = 0, xmin = 0, xmax = 0,
@@ -222,7 +179,6 @@ IModelPtr loadModel(const string& fileName, double aScale)
    int faceCount = 0;
 
    MaterialFilePtr materialFile;
-   string materialName;
    
    while (!f.eof()) {
       string first;
@@ -296,7 +252,9 @@ IModelPtr loadModel(const string& fileName, double aScale)
       }
       else if (first == "usemtl") {
          // Set the material for this group
+         string materialName;
          f >> materialName;
+         
          if (materialFile) {
             assert(buffer);
             buffer->bindMaterial(materialFile->get(materialName));
@@ -308,12 +266,8 @@ IModelPtr loadModel(const string& fileName, double aScale)
          getline(f, line);
          istringstream ss(line);
 
-         if (materialFile)
-            materialFile->apply(materialName);
-
          int vInThisFace = 0;
          
-         glBegin(GL_TRIANGLES);
          while (!ss.eof()) {
             char delim1, delim2;
             unsigned vi, vti, vni;
@@ -336,22 +290,17 @@ IModelPtr loadModel(const string& fileName, double aScale)
             assert(delim1 == '/' && delim2 == '/');
 
             Vector<float>& v = vertices[vi - 1];
-            glVertex3d(v.x, v.y, v.z);
-
             Vector<float>& vn = normals[vni - 1];
-            glNormal3d(vn.x, vn.y, vn.z);
 
             assert(buffer);
             
             if (vti - 1 < textureOffs.size()) {
                Point<float>& vt = textureOffs[vti - 1];
-               glTexCoord2d(vt.x, 1.0 - vt.y);
                buffer->add(v, vn, vt);
             }
             else
                buffer->add(v, vn);
          }
-         glEnd();
 
          faceCount++;
             
@@ -375,11 +324,7 @@ IModelPtr loadModel(const string& fileName, double aScale)
    log() << "Model loaded: " << vertices.size() << " vertices, "
          << faceCount << " faces";
    
-   glPopMatrix();
-   glPopAttrib();
-   glEndList();
-   
-   IModelPtr ptr(new Model(displayList, dim, meshes));
+   IModelPtr ptr(new Model(dim, meshes));
    
    theCache[fileName] = ptr;
    
