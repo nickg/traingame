@@ -27,7 +27,7 @@ struct IModel {
    virtual ~IModel() {}
    
    virtual void render() const = 0;
-   virtual Vector<double> dimensions() const = 0;
+   virtual Vector<float> dimensions() const = 0;
 };
 
 typedef std::tr1::shared_ptr<IModel> IModelPtr;

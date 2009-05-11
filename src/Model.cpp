@@ -19,6 +19,7 @@
 #include "IModel.hpp"
 #include "ITexture.hpp"
 #include "ILogger.hpp"
+#include "IMesh.hpp"
 
 #include <string>
 #include <fstream>
@@ -28,10 +29,9 @@
 #include <stdexcept>
 #include <algorithm>
 #include <map>
+#include <list>
 
 #include <boost/lexical_cast.hpp>
-
-#include <GL/gl.h>
 
 using namespace std;
 using namespace std::tr1;
@@ -49,15 +49,8 @@ public:
    MaterialFile(const string& aFileName);
    ~MaterialFile() {}
 
-   void apply(const string& aName) const;
+   const Material& get(const string& aName) const;
 private:
-   struct Material {
-      float diffuseR, diffuseG, diffuseB;
-      float ambientR, ambientG, ambientB;
-      float specularR, specularG, specularB;
-      ITexturePtr texture;
-   };
-
    typedef map<string, Material> MaterialSet;
    MaterialSet myMaterials;
 };
@@ -85,10 +78,7 @@ MaterialFile::MaterialFile(const string& aFileName)
          is >> activeMaterial;
          debug() << "Loading material " << activeMaterial;
 
-         Material m = { 0, 0, 0,    // Diffuse
-                        0, 0, 0,    // Ambient
-                        0, 0, 0 };  // Specular
-         myMaterials[activeMaterial] = m;
+         myMaterials[activeMaterial] = Material();
       }
       else if (word == "map_Kd") {
          // Texture
@@ -117,60 +107,44 @@ MaterialFile::MaterialFile(const string& aFileName)
    }
 }
 
-void MaterialFile::apply(const string& aName) const
+const Material& MaterialFile::get(const string& aName) const
 {
    MaterialSet::const_iterator it = myMaterials.find(aName);
    if (it == myMaterials.end())
       throw runtime_error("No material named " + aName);
 
-   const Material& m = (*it).second;
-
-   if (m.texture) {
-      m.texture->bind();
-      glEnable(GL_TEXTURE_2D);
-   }
-   else
-      glDisable(GL_TEXTURE_2D);
-
-   glDisable(GL_COLOR_MATERIAL);
-
-   float diffuse[] = { m.diffuseR, m.diffuseG, m.diffuseB, 1.0 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
-
-   float ambient[] = { m.ambientR, m.ambientG, m.ambientB, 1.0 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
-
-   // Note we're ignoring the specular values in the model
-   float specular[] = { 0, 0, 0, 1.0 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
-
-   float emission[] = { 0, 0, 0, 1 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emission);
+   return (*it).second;
 }
 
 // A model contains the display list to render it
 class Model : public IModel {
 public:
-   Model(GLuint aDisplayList, const Vector<double>& aDim)
-      : myDisplayList(aDisplayList), myDimensions(aDim) {}
+   Model(const Vector<float>& aDim,
+         const list<IMeshPtr>& aMeshList)
+      : myDimensions(aDim)
+   {
+      copy(aMeshList.begin(), aMeshList.end(),
+           back_inserter(myMeshes));
+   }
    ~Model();
    
    void render() const;
-   Vector<double> dimensions() const { return myDimensions; }
+   Vector<float> dimensions() const { return myDimensions; }
 private:
-   GLuint myDisplayList;
-   Vector<double> myDimensions;
+   Vector<float> myDimensions;
+   list<IMeshPtr> myMeshes;
 };
 
-// Free the display list
 Model::~Model()
 {
-   glDeleteLists(myDisplayList, 1);
+   
 }
 
 void Model::render() const
 {
-   glCallList(myDisplayList);
+   for (list<IMeshPtr>::const_iterator it = myMeshes.begin();
+        it != myMeshes.end(); ++it)
+      (*it)->render();
 }
 
 // Load a WaveFront .obj model from disk or the cache
@@ -192,28 +166,19 @@ IModelPtr loadModel(const string& fileName, double aScale)
 
    log() << "Loading model " << fileName;
 
-   vector<Vector<double> > vertices, normals;
-   vector<Point<double> > textureOffs;
+   vector<IMeshBuffer::Vertex> vertices;
+   vector<IMeshBuffer::Normal> normals;
+   vector<IMeshBuffer::TexCoord> textureOffs;
 
-   GLenum displayList = glGenLists(1);
-   glNewList(displayList, GL_COMPILE);
-   
-   glPushAttrib(GL_ENABLE_BIT);
-   glPushMatrix();
-   
-   glEnable(GL_DEPTH_TEST);
-   glDisable(GL_BLEND);
-   glEnable(GL_LIGHTING);
-   glEnable(GL_LIGHT0);
-   glEnable(GL_CULL_FACE);
+   IMeshBufferPtr buffer;
+   list<IMeshPtr> meshes;
 
    bool foundVertex = false;
-   double ymin = 0, ymax = 0, xmin = 0, xmax = 0,
+   float ymin = 0, ymax = 0, xmin = 0, xmax = 0,
       zmin = 0, zmax = 0;
    int faceCount = 0;
 
    MaterialFilePtr materialFile;
-   string materialName;
    
    while (!f.eof()) {
       string first;
@@ -237,7 +202,7 @@ IModelPtr loadModel(const string& fileName, double aScale)
       }
       else if (first == "v") {
          // Vertex
-         double x, y, z;
+         float x, y, z;
          f >> x >> y >> z;
 
          x *= aScale;
@@ -266,24 +231,34 @@ IModelPtr loadModel(const string& fileName, double aScale)
       }
       else if (first == "vn") {
          // Normal
-         double x, y, z;
+         float x, y, z;
          f >> x >> y >> z;
          
          normals.push_back(makeVector(x, y, z));
       }
       else if (first == "vt") {
          // Texture coordinate
-         double x, y;
+         float x, y;
          f >> x >> y;
 
          textureOffs.push_back(makePoint(x, y));
       }
       else if (first == "g") {
-         // Ignore it (texture file comes from material name)
+         // A group corresponds to meshes in the model
+         if (buffer)
+            meshes.push_back(makeMesh(buffer));
+         
+         buffer = makeMeshBuffer();
       }
       else if (first == "usemtl") {
-         // Set the material for this object
+         // Set the material for this group
+         string materialName;
          f >> materialName;
+         
+         if (materialFile) {
+            assert(buffer);
+            buffer->bindMaterial(materialFile->get(materialName));
+         }
       }
       else if (first == "f") {
          // Face
@@ -291,14 +266,18 @@ IModelPtr loadModel(const string& fileName, double aScale)
          getline(f, line);
          istringstream ss(line);
 
-         if (materialFile)
-            materialFile->apply(materialName);
-
-         glBegin(GL_POLYGON);
+         int vInThisFace = 0;
+         
          while (!ss.eof()) {
             char delim1, delim2;
             unsigned vi, vti, vni;
             ss >> vi >> delim1;
+            if (ss.fail())
+               break;
+
+            if (++vInThisFace > 3)
+               warn () << "All model faces must be triangles "
+                       << "(face with " << vInThisFace << " vertices)";
 
             // Texture coordinate may be omitted
             ss >> vti;
@@ -310,18 +289,18 @@ IModelPtr loadModel(const string& fileName, double aScale)
             ss >> delim2 >> vni;
             assert(delim1 == '/' && delim2 == '/');
 
-            Vector<double>& vn = normals[vni - 1];
-            glNormal3d(vn.x, vn.y, vn.z);
+            Vector<float>& v = vertices[vi - 1];
+            Vector<float>& vn = normals[vni - 1];
 
+            assert(buffer);
+            
             if (vti - 1 < textureOffs.size()) {
-               Point<double>& vt = textureOffs[vti - 1];
-               glTexCoord2d(vt.x, 1.0 - vt.y);
+               Point<float>& vt = textureOffs[vti - 1];
+               buffer->add(v, vn, vt);
             }
-
-            Vector<double>& v = vertices[vi - 1];
-            glVertex3d(v.x, v.y, v.z);
+            else
+               buffer->add(v, vn);
          }
-         glEnd();
 
          faceCount++;
             
@@ -333,17 +312,19 @@ IModelPtr loadModel(const string& fileName, double aScale)
       getline(f, first);
    }
 
-   Vector<double> dim = makeVector(xmax - xmin, ymax - ymin, zmax - zmin);
+   // Don't forget to add the last mesh
+   if (buffer) {
+      meshes.push_back(makeMesh(buffer));
+      buffer.reset();
+   }      
+
+   Vector<float> dim = makeVector(xmax - xmin, ymax - ymin, zmax - zmin);
    log() << dim;
 
    log() << "Model loaded: " << vertices.size() << " vertices, "
          << faceCount << " faces";
    
-   glPopMatrix();
-   glPopAttrib();
-   glEndList();
-   
-   IModelPtr ptr(new Model(displayList, dim));
+   IModelPtr ptr(new Model(dim, meshes));
    
    theCache[fileName] = ptr;
    
