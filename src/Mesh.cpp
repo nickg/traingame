@@ -16,8 +16,10 @@
 //
 
 #include "IMesh.hpp"
+#include "ITexture.hpp"
 
 #include <vector>
+#include <stdexcept>
 
 #include <GL/gl.h>
 #include <boost/cast.hpp>
@@ -31,7 +33,11 @@ struct MeshBuffer : IMeshBuffer {
    ~MeshBuffer() {}
 
    void add(const Vertex& aVertex, const Normal& aNormal);
+   void add(const Vertex& aVertex, const Normal& aNormal,
+            const TexCoord& aTexCoord);
 
+   void bindMaterial(const Material& aMaterial);
+   
    static MeshBuffer* get(IMeshBufferPtr aPtr)
    {
       return polymorphic_cast<MeshBuffer*>(aPtr.get());
@@ -40,19 +46,56 @@ struct MeshBuffer : IMeshBuffer {
    vector<Vertex> vertices;
    vector<Normal> normals;
    vector<Index> indices;
+   vector<TexCoord> texCoords;
+   bool hasTexture;
+   Material material;
 };
 
 MeshBuffer::MeshBuffer()
+   : hasTexture(false)
 {
+   
+}
 
+void MeshBuffer::bindMaterial(const Material& aMaterial)
+{
+   material = aMaterial;
+   hasTexture = aMaterial.texture;
 }
 
 void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal)
 {
+   if (hasTexture)
+      throw runtime_error("MeshBuffer::add called without texture coordinate "
+                          "on a mesh which has a texture");         
+   
    const int index = vertices.size();
    vertices.push_back(aVertex);
    normals.push_back(aNormal);
    indices.push_back(index);
+}
+
+void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal,
+                     const TexCoord& aTexCoord)
+{
+   if (!hasTexture)
+      throw runtime_error("MeshBuffer::add called with a texture coordinate "
+                          "on a mesh without a texture");
+
+   const int index = vertices.size();
+   vertices.push_back(aVertex);
+   normals.push_back(aNormal);
+   texCoords.push_back(aTexCoord);
+   indices.push_back(index);
+}
+
+
+// Default material
+Material::Material()
+  : diffuseR(1.0f), diffuseG(1.0f), diffuseB(1.0f),
+    ambientR(1.0f), ambientG(1.0f), ambientB(1.0f),
+    specularR(0.0f), specularG(0.0f), specularB(0.0f)
+{
 }
 
 // Simple implementation using display lists
@@ -83,12 +126,31 @@ void DisplayListMesh::render() const
    
    glPushAttrib(GL_ENABLE_BIT);
 
-   glEnable(GL_COLOR_MATERIAL);
    glDisable(GL_BLEND);
-   glDisable(GL_TEXTURE_2D);
+   glDisable(GL_COLOR_MATERIAL);
    glEnable(GL_CULL_FACE);
+   
+   const Material& m = buf->material;
 
-   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+   if (buf->hasTexture) {
+      glEnable(GL_TEXTURE_2D);
+      m.texture->bind();
+   }
+   else
+      glDisable(GL_TEXTURE_2D);
+   
+   float diffuse[] = { m.diffuseR, m.diffuseG, m.diffuseB, 1.0 };
+   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+
+   float ambient[] = { m.ambientR, m.ambientG, m.ambientB, 1.0 };
+   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+
+   // Note we're ignoring the specular values in the model
+   float specular[] = { 0, 0, 0, 1.0 };
+   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+
+   float emission[] = { 0, 0, 0, 1 };
+   glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emission);
    
    glBegin(GL_TRIANGLES);
 

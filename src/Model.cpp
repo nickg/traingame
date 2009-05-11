@@ -52,14 +52,8 @@ public:
    ~MaterialFile() {}
 
    void apply(const string& aName) const;
+   const Material& get(const string& aName) const;
 private:
-   struct Material {
-      float diffuseR, diffuseG, diffuseB;
-      float ambientR, ambientG, ambientB;
-      float specularR, specularG, specularB;
-      ITexturePtr texture;
-   };
-
    typedef map<string, Material> MaterialSet;
    MaterialSet myMaterials;
 };
@@ -87,10 +81,7 @@ MaterialFile::MaterialFile(const string& aFileName)
          is >> activeMaterial;
          debug() << "Loading material " << activeMaterial;
 
-         Material m = { 0, 0, 0,    // Diffuse
-                        0, 0, 0,    // Ambient
-                        0, 0, 0 };  // Specular
-         myMaterials[activeMaterial] = m;
+         myMaterials[activeMaterial] = Material();
       }
       else if (word == "map_Kd") {
          // Texture
@@ -117,6 +108,15 @@ MaterialFile::MaterialFile(const string& aFileName)
          continue;
       }
    }
+}
+
+const Material& MaterialFile::get(const string& aName) const
+{
+   MaterialSet::const_iterator it = myMaterials.find(aName);
+   if (it == myMaterials.end())
+      throw runtime_error("No material named " + aName);
+
+   return (*it).second;
 }
 
 void MaterialFile::apply(const string& aName) const
@@ -297,6 +297,10 @@ IModelPtr loadModel(const string& fileName, double aScale)
       else if (first == "usemtl") {
          // Set the material for this group
          f >> materialName;
+         if (materialFile) {
+            assert(buffer);
+            buffer->bindMaterial(materialFile->get(materialName));
+         }
       }
       else if (first == "f") {
          // Face
@@ -331,19 +335,21 @@ IModelPtr loadModel(const string& fileName, double aScale)
             ss >> delim2 >> vni;
             assert(delim1 == '/' && delim2 == '/');
 
-            Vector<float>& vn = normals[vni - 1];
-            glNormal3d(vn.x, vn.y, vn.z);
-
-            if (vti - 1 < textureOffs.size()) {
-               Point<float>& vt = textureOffs[vti - 1];
-               glTexCoord2d(vt.x, 1.0 - vt.y);
-            }
-
             Vector<float>& v = vertices[vi - 1];
             glVertex3d(v.x, v.y, v.z);
 
+            Vector<float>& vn = normals[vni - 1];
+            glNormal3d(vn.x, vn.y, vn.z);
+
             assert(buffer);
-            buffer->add(v, vn);
+            
+            if (vti - 1 < textureOffs.size()) {
+               Point<float>& vt = textureOffs[vti - 1];
+               glTexCoord2d(vt.x, 1.0 - vt.y);
+               buffer->add(v, vn, vt);
+            }
+            else
+               buffer->add(v, vn);
          }
          glEnd();
 

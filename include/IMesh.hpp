@@ -21,16 +21,32 @@
 #include <tr1/memory>
 
 #include "Maths.hpp"
+#include "ITexture.hpp"
+
+// Represent OpenGL materials
+struct Material {
+   Material();
+   
+   float diffuseR, diffuseG, diffuseB;
+   float ambientR, ambientG, ambientB;
+   float specularR, specularG, specularB;
+   ITexturePtr texture;
+};
 
 // Represents the vertices, normals, etc. in a mesh
 struct IMeshBuffer {
    typedef Vector<float> Vertex;
    typedef Vector<float> Normal;
+   typedef Point<float> TexCoord;
    typedef unsigned Index;
 
    virtual ~IMeshBuffer() {}
    
    virtual void add(const Vertex& aVertex, const Normal& aNormal) = 0;
+   virtual void add(const Vertex& aVertex, const Normal& aNormal,
+                    const TexCoord& aTexCoord) = 0;
+
+   virtual void bindMaterial(const Material& aMaterial) = 0;
 };
 
 typedef std::tr1::shared_ptr<IMeshBuffer> IMeshBufferPtr;
