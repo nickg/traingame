@@ -153,7 +153,7 @@ void MaterialFile::apply(const string& aName) const
 // A model contains the display list to render it
 class Model : public IModel {
 public:
-   Model(GLuint aDisplayList, const Vector<double>& aDim,
+   Model(GLuint aDisplayList, const Vector<float>& aDim,
          const list<IMeshPtr>& aMeshList)
       : myDisplayList(aDisplayList), myDimensions(aDim)
    {
@@ -163,23 +163,21 @@ public:
    ~Model();
    
    void render() const;
-   Vector<double> dimensions() const { return myDimensions; }
+   Vector<float> dimensions() const { return myDimensions; }
 private:
    GLuint myDisplayList;
-   Vector<double> myDimensions;
+   Vector<float> myDimensions;
 
    list<IMeshPtr> myMeshes;
 };
 
-// Free the display list
 Model::~Model()
 {
-   glDeleteLists(myDisplayList, 1);
+   
 }
 
 void Model::render() const
 {
-   //glCallList(myDisplayList);
    for (list<IMeshPtr>::const_iterator it = myMeshes.begin();
         it != myMeshes.end(); ++it)
       (*it)->render();
@@ -204,10 +202,10 @@ IModelPtr loadModel(const string& fileName, double aScale)
 
    log() << "Loading model " << fileName;
 
-   vector<Vector<double> > vertices, normals;
-   vector<Point<double> > textureOffs;
+   vector<IMeshBuffer::Vertex> vertices, normals;
+   vector<Point<float> > textureOffs;
 
-   MeshBuffer buffer;
+   IMeshBufferPtr buffer;
    list<IMeshPtr> meshes;
 
    GLenum displayList = glGenLists(1);
@@ -216,28 +214,15 @@ IModelPtr loadModel(const string& fileName, double aScale)
    glPushAttrib(GL_ENABLE_BIT);
    glPushMatrix();
    
-   glEnable(GL_DEPTH_TEST);
    glDisable(GL_BLEND);
-   glEnable(GL_LIGHTING);
-   glEnable(GL_LIGHT0);
-   glEnable(GL_CULL_FACE);
 
    bool foundVertex = false;
-   double ymin = 0, ymax = 0, xmin = 0, xmax = 0,
+   float ymin = 0, ymax = 0, xmin = 0, xmax = 0,
       zmin = 0, zmax = 0;
    int faceCount = 0;
 
-   unsigned vertexIdxBase = 0, vertexCount = 0;
-   bool buildingMesh = false;
-
    MaterialFilePtr materialFile;
    string materialName;
-
-   back_insert_iterator<vector<MeshBuffer::Vertex> > vertex_it =
-      back_inserter(buffer.vertices);
-   
-   back_insert_iterator<vector<MeshBuffer::Index> > vertex_idx_it =
-      back_inserter(buffer.indices);
    
    while (!f.eof()) {
       string first;
@@ -251,15 +236,6 @@ IModelPtr loadModel(const string& fileName, double aScale)
          string objName;
          f >> objName;
          debug() << "Building object " << objName;
-
-         if (buildingMesh) {
-            meshes.push_back(makeMesh(buffer));
-            buffer = MeshBuffer();
-         }
-
-         vertexIdxBase = vertexCount;
-
-         debug() << "Vertex base is " << vertexIdxBase;
       }
       else if (first == "mtllib") {
          // Material file
@@ -270,7 +246,7 @@ IModelPtr loadModel(const string& fileName, double aScale)
       }
       else if (first == "v") {
          // Vertex
-         double x, y, z;
+         float x, y, z;
          f >> x >> y >> z;
 
          x *= aScale;
@@ -296,29 +272,30 @@ IModelPtr loadModel(const string& fileName, double aScale)
          }
 
          vertices.push_back(makeVector(x, y, z));
-         (*vertex_it++) = makeVector<float>(x, y, z);
-
-         vertexCount++;
       }
       else if (first == "vn") {
          // Normal
-         double x, y, z;
+         float x, y, z;
          f >> x >> y >> z;
          
          normals.push_back(makeVector(x, y, z));
       }
       else if (first == "vt") {
          // Texture coordinate
-         double x, y;
+         float x, y;
          f >> x >> y;
 
          textureOffs.push_back(makePoint(x, y));
       }
       else if (first == "g") {
-         // Ignore it (texture file comes from material name)
+         // A group corresponds to meshes in the model
+         if (buffer)
+            meshes.push_back(makeMesh(buffer));
+         
+         buffer = makeMeshBuffer();
       }
       else if (first == "usemtl") {
-         // Set the material for this object
+         // Set the material for this group
          f >> materialName;
       }
       else if (first == "f") {
@@ -330,8 +307,6 @@ IModelPtr loadModel(const string& fileName, double aScale)
          if (materialFile)
             materialFile->apply(materialName);
 
-         buildingMesh = true;
-
          int vInThisFace = 0;
          
          glBegin(GL_TRIANGLES);
@@ -341,6 +316,10 @@ IModelPtr loadModel(const string& fileName, double aScale)
             ss >> vi >> delim1;
             if (ss.fail())
                break;
+
+            if (++vInThisFace > 3)
+               warn () << "All model faces must be triangles "
+                       << "(face with " << vInThisFace << " vertices)";
 
             // Texture coordinate may be omitted
             ss >> vti;
@@ -352,24 +331,19 @@ IModelPtr loadModel(const string& fileName, double aScale)
             ss >> delim2 >> vni;
             assert(delim1 == '/' && delim2 == '/');
 
-            Vector<double>& vn = normals[vni - 1];
+            Vector<float>& vn = normals[vni - 1];
             glNormal3d(vn.x, vn.y, vn.z);
 
             if (vti - 1 < textureOffs.size()) {
-               Point<double>& vt = textureOffs[vti - 1];
+               Point<float>& vt = textureOffs[vti - 1];
                glTexCoord2d(vt.x, 1.0 - vt.y);
             }
 
-            Vector<double>& v = vertices[vi - 1];
+            Vector<float>& v = vertices[vi - 1];
             glVertex3d(v.x, v.y, v.z);
 
-            assert(vi >= vertexIdxBase);
-
-            (*vertex_idx_it++) = vi;
-
-            if (++vInThisFace > 3)
-               warn () << "All model faces must be triangles "
-                       << "(face with " << vInThisFace << " vertices)";
+            assert(buffer);
+            buffer->add(v);
          }
          glEnd();
 
@@ -383,7 +357,13 @@ IModelPtr loadModel(const string& fileName, double aScale)
       getline(f, first);
    }
 
-   Vector<double> dim = makeVector(xmax - xmin, ymax - ymin, zmax - zmin);
+   // Don't forget to add the last mesh
+   if (buffer) {
+      meshes.push_back(makeMesh(buffer));
+      buffer.reset();
+   }      
+
+   Vector<float> dim = makeVector(xmax - xmin, ymax - ymin, zmax - zmin);
    log() << dim;
 
    log() << "Model loaded: " << vertices.size() << " vertices, "

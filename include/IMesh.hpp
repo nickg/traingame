@@ -19,19 +19,21 @@
 #define INC_IMESH_HPP
 
 #include <tr1/memory>
-#include <vector>
 
 #include "Maths.hpp"
 
 // Represents the vertices, normals, etc. in a mesh
-struct MeshBuffer {
+struct IMeshBuffer {
    typedef Vector<float> Vertex;
    typedef Vector<float> Normal;
    typedef unsigned Index;
+
+   virtual ~IMeshBuffer() {}
    
-   std::vector<Vertex> vertices;
-   std::vector<Index> indices;
+   virtual void add(const Vertex& aVertex) = 0;
 };
+
+typedef std::tr1::shared_ptr<IMeshBuffer> IMeshBufferPtr;
 
 // Generic interface to meshes
 struct IMesh {
@@ -42,6 +44,7 @@ struct IMesh {
 
 typedef std::tr1::shared_ptr<IMesh> IMeshPtr;
 
-IMeshPtr makeMesh(const MeshBuffer& aBuffer);
+IMeshPtr makeMesh(IMeshBufferPtr aBuffer);
+IMeshBufferPtr makeMeshBuffer();
 
 #endif

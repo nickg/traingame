@@ -17,22 +17,54 @@
 
 #include "IMesh.hpp"
 
+#include <vector>
+
 #include <GL/gl.h>
+#include <boost/cast.hpp>
 
 using namespace std;
+using namespace boost;
+
+// Concrete implementation of mesh buffers
+struct MeshBuffer : IMeshBuffer {
+   MeshBuffer();
+   ~MeshBuffer() {}
+
+   void add(const Vertex& aVertex);
+
+   static MeshBuffer* get(IMeshBufferPtr aPtr)
+   {
+      return polymorphic_cast<MeshBuffer*>(aPtr.get());
+   }
+   
+   vector<Vertex> vertices;
+   vector<Index> indices;
+};
+
+MeshBuffer::MeshBuffer()
+{
+
+}
+
+void MeshBuffer::add(const Vertex& aVertex)
+{
+   const int index = vertices.size();
+   vertices.push_back(aVertex);
+   indices.push_back(index);
+}
 
 // Simple implementation using display lists
 class DisplayListMesh : public IMesh {
 public:
-   DisplayListMesh(const MeshBuffer& aBuffer);
+   DisplayListMesh(IMeshBufferPtr aBuffer);
    ~DisplayListMesh();
 
    void render() const;
 private:
-   const MeshBuffer myBuffer;
+   IMeshBufferPtr myBuffer;
 };
 
-DisplayListMesh::DisplayListMesh(const MeshBuffer& aBuffer)
+DisplayListMesh::DisplayListMesh(IMeshBufferPtr aBuffer)
    : myBuffer(aBuffer)
 {
 
@@ -45,21 +77,23 @@ DisplayListMesh::~DisplayListMesh()
 
 void DisplayListMesh::render() const
 {
+   const MeshBuffer* buf = MeshBuffer::get(myBuffer);
+   
    glPushAttrib(GL_ENABLE_BIT);
 
    glEnable(GL_COLOR_MATERIAL);
    glDisable(GL_BLEND);
    glDisable(GL_TEXTURE_2D);
-   
+
    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
    
    glBegin(GL_TRIANGLES);
 
    vector<MeshBuffer::Index>::const_iterator it;
-   for (it = myBuffer.indices.begin();
-        it != myBuffer.indices.end(); ++it) {
+   for (it = buf->indices.begin();
+        it != buf->indices.end(); ++it) {
 
-      const MeshBuffer::Vertex& v = myBuffer.vertices[*it];
+      const MeshBuffer::Vertex& v = buf->vertices[*it];
       glVertex3f(v.x, v.y, v.z);
       
    }        
@@ -69,7 +103,12 @@ void DisplayListMesh::render() const
    glPopAttrib();
 }
 
-IMeshPtr makeMesh(const MeshBuffer& aBuffer)
+IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 {
    return IMeshPtr(new DisplayListMesh(aBuffer));
+}
+
+IMeshBufferPtr makeMeshBuffer()
+{
+   return IMeshBufferPtr(new MeshBuffer);
 }
