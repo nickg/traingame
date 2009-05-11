@@ -29,6 +29,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <map>
+#include <list>
 
 #include <boost/lexical_cast.hpp>
 
@@ -153,10 +154,11 @@ void MaterialFile::apply(const string& aName) const
 class Model : public IModel {
 public:
    Model(GLuint aDisplayList, const Vector<double>& aDim,
-         const MeshBuffer& aBuffer)
+         const list<IMeshPtr>& aMeshList)
       : myDisplayList(aDisplayList), myDimensions(aDim)
    {
-      myMesh = makeMesh(aBuffer);
+      copy(aMeshList.begin(), aMeshList.end(),
+           back_inserter(myMeshes));
    }
    ~Model();
    
@@ -165,7 +167,8 @@ public:
 private:
    GLuint myDisplayList;
    Vector<double> myDimensions;
-   IMeshPtr myMesh;
+
+   list<IMeshPtr> myMeshes;
 };
 
 // Free the display list
@@ -177,7 +180,9 @@ Model::~Model()
 void Model::render() const
 {
    //glCallList(myDisplayList);
-   myMesh->render();
+   for (list<IMeshPtr>::const_iterator it = myMeshes.begin();
+        it != myMeshes.end(); ++it)
+      (*it)->render();
 }
 
 // Load a WaveFront .obj model from disk or the cache
@@ -203,6 +208,7 @@ IModelPtr loadModel(const string& fileName, double aScale)
    vector<Point<double> > textureOffs;
 
    MeshBuffer buffer;
+   list<IMeshPtr> meshes;
 
    GLenum displayList = glGenLists(1);
    glNewList(displayList, GL_COMPILE);
@@ -220,6 +226,9 @@ IModelPtr loadModel(const string& fileName, double aScale)
    double ymin = 0, ymax = 0, xmin = 0, xmax = 0,
       zmin = 0, zmax = 0;
    int faceCount = 0;
+
+   unsigned vertexIdxBase = 0, vertexCount = 0;
+   bool buildingMesh = false;
 
    MaterialFilePtr materialFile;
    string materialName;
@@ -242,6 +251,15 @@ IModelPtr loadModel(const string& fileName, double aScale)
          string objName;
          f >> objName;
          debug() << "Building object " << objName;
+
+         if (buildingMesh) {
+            meshes.push_back(makeMesh(buffer));
+            buffer = MeshBuffer();
+         }
+
+         vertexIdxBase = vertexCount;
+
+         debug() << "Vertex base is " << vertexIdxBase;
       }
       else if (first == "mtllib") {
          // Material file
@@ -279,6 +297,8 @@ IModelPtr loadModel(const string& fileName, double aScale)
 
          vertices.push_back(makeVector(x, y, z));
          (*vertex_it++) = makeVector<float>(x, y, z);
+
+         vertexCount++;
       }
       else if (first == "vn") {
          // Normal
@@ -309,6 +329,8 @@ IModelPtr loadModel(const string& fileName, double aScale)
 
          if (materialFile)
             materialFile->apply(materialName);
+
+         buildingMesh = true;
 
          int vInThisFace = 0;
          
@@ -341,6 +363,8 @@ IModelPtr loadModel(const string& fileName, double aScale)
             Vector<double>& v = vertices[vi - 1];
             glVertex3d(v.x, v.y, v.z);
 
+            assert(vi >= vertexIdxBase);
+
             (*vertex_idx_it++) = vi;
 
             if (++vInThisFace > 3)
@@ -369,7 +393,7 @@ IModelPtr loadModel(const string& fileName, double aScale)
    glPopAttrib();
    glEndList();
    
-   IModelPtr ptr(new Model(displayList, dim, buffer));
+   IModelPtr ptr(new Model(displayList, dim, meshes));
    
    theCache[fileName] = ptr;
    
