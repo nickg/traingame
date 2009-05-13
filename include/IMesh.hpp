@@ -47,6 +47,8 @@ struct IMeshBuffer {
                     const TexCoord& aTexCoord) = 0;
 
    virtual void bindMaterial(const Material& aMaterial) = 0;
+   
+   virtual void printStats() const = 0;
 };
 
 typedef std::tr1::shared_ptr<IMeshBuffer> IMeshBufferPtr;

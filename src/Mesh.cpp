@@ -17,6 +17,7 @@
 
 #include "IMesh.hpp"
 #include "ITexture.hpp"
+#include "ILogger.hpp"
 
 #include <vector>
 #include <stdexcept>
@@ -38,9 +39,20 @@ struct MeshBuffer : IMeshBuffer {
 
    void bindMaterial(const Material& aMaterial);
    
+   void printStats() const;
+   
    static MeshBuffer* get(IMeshBufferPtr aPtr)
    {
       return polymorphic_cast<MeshBuffer*>(aPtr.get());
+   }
+
+   static bool mergeVector(const Vector<float>& v1, const Vector<float>& v2)
+   {
+      const float tolerance = 0.0001f;
+      
+      return abs(v1.x - v2.x) < tolerance
+         && abs(v1.y - v2.y) < tolerance
+         && abs(v1.z - v2.z) < tolerance;
    }
    
    vector<Vertex> vertices;
@@ -49,10 +61,11 @@ struct MeshBuffer : IMeshBuffer {
    vector<TexCoord> texCoords;
    bool hasTexture;
    Material material;
+   int reused;
 };
 
 MeshBuffer::MeshBuffer()
-   : hasTexture(false)
+   : hasTexture(false), reused(0)
 {
    
 }
@@ -63,11 +76,28 @@ void MeshBuffer::bindMaterial(const Material& aMaterial)
    hasTexture = aMaterial.texture;
 }
 
+void MeshBuffer::printStats() const
+{
+   debug() << "Mesh: " << vertices.size() << " vertices, "
+           << reused << " reused";
+}
+
 void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal)
 {
    if (hasTexture)
       throw runtime_error("MeshBuffer::add called without texture coordinate "
-                          "on a mesh which has a texture");         
+                          "on a mesh which has a texture");
+   
+   // See if this vertex has already been added
+   for (vector<Index>::iterator it = indices.begin();
+        it != indices.end(); ++it) {
+      if (mergeVector(aVertex, vertices[*it])
+          && mergeVector(aNormal, normals[*it])) {
+         indices.push_back(*it);
+         reused++;
+         return;
+      }
+   }
    
    const int index = vertices.size();
    vertices.push_back(aVertex);
@@ -81,7 +111,22 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal,
    if (!hasTexture)
       throw runtime_error("MeshBuffer::add called with a texture coordinate "
                           "on a mesh without a texture");
-
+   
+   // See if this vertex has already been added
+   for (vector<Index>::iterator it = indices.begin();
+        it != indices.end(); ++it) {
+      if (mergeVector(aVertex, vertices[*it])
+          && mergeVector(aNormal, normals[*it])) {
+         TexCoord& tc = texCoords[*it];
+         if (abs(tc.x - aTexCoord.x) < 0.001f
+             && abs(tc.y - aTexCoord.y) < 0.001f) {
+            indices.push_back(*it);
+            reused++;
+            return;
+         }
+      }
+   }
+   
    const int index = vertices.size();
    vertices.push_back(aVertex);
    normals.push_back(aNormal);
@@ -176,6 +221,7 @@ void DisplayListMesh::render() const
 
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 {
+   aBuffer->printStats();
    return IMeshPtr(new DisplayListMesh(aBuffer));
 }
 
