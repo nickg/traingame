@@ -208,8 +208,8 @@ void Game::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
    const int xDelta = x - lastX;
    const int yDelta = y - lastY;
    
-   myHorizAngle -= xDelta / 100.0f;
-   myVertAngle += yDelta / 100.0f;
+   myHorizAngle -= xDelta / 150.0f;
+   myVertAngle += yDelta / 150.0f;
 
    // Don't allow the camera to go under the ground
    const double ground = (M_PI / 2.0f) - 0.01f;

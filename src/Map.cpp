@@ -156,8 +156,8 @@ Map::Map()
      shouldDrawGridLines(false)
 {
    myFog = makeFog(0.6, 0.7, 0.8,  // Colour
-                   0.35,           // Density
-                   20.0, 30.0);    // Start and end distance
+                   0.25,           // Density
+                   40.0, 50.0);    // Start and end distance
 }
 
 Map::~Map()
