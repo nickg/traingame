@@ -54,8 +54,26 @@ namespace gui {
       template <typename... Args>
       Defaults(const Args&&... args)
          : Base(args...) {}
+
+      virtual ~Defaults() {}
       
       void handleClick(int x, int y) {}
+   };
+
+   // Mixin to provide screen placement
+   template <class Base>
+   class Moveable : public Base {
+   public:
+      template <typename... Args>
+      Moveable(const Args&&... args)
+         : Base(args...), myX(0), myY(0) {}
+
+      virtual ~Moveable() {}
+
+      void setOrigin(int x, int y) { myX = x; myY = y; }
+      void origin(int& x, int& y) const { x = myX; y = myY; }
+   private:
+      int myX, myY;
    };
    
 }

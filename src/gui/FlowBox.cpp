@@ -16,15 +16,17 @@
 //
 
 #include "gui/IContainer.hpp"
+#include "gui/Internal.hpp"
 
 #include <vector>
+#include <functional>
 
 using namespace gui;
 using namespace std;
 
 // A container which grows either horizontally or vertically as controls
 // are added
-class FlowBox : public IContainer {
+class FlowBox : public Moveable<IContainer> {
 public:
    FlowBox(FlowBoxStyle aStyle, bool doesWantSpacing);
    ~FlowBox() {}
@@ -33,14 +35,15 @@ public:
    void addChild(IControlPtr aControl);
 
    // IControl interface
-   void render(int x, int y) const;
    int width() const;
    int height() const;
-   void setVisible(bool visible) { amVisible = visible; }
    void handleClick(int x, int y);
+   void render(int x, int y) const = 0;
 private:
+   typedef function<void (IControlPtr, int, int)> PositionVisitor;
+   void eachControl(PositionVisitor aFunc) const;
+   
    FlowBoxStyle myStyle;
-   bool amVisible;
    bool wantSpacing;
 
    typedef vector<IControlPtr> ControlList;
@@ -50,15 +53,14 @@ private:
 };
 
 FlowBox::FlowBox(FlowBoxStyle aStyle, bool doesWantSpacing)
-   : myStyle(aStyle), amVisible(true),
-     wantSpacing(doesWantSpacing)
+   : myStyle(aStyle), wantSpacing(doesWantSpacing)
 {
 
 }
 
 void FlowBox::handleClick(int x, int y)
 {
-
+   
 }
 
 int FlowBox::width() const
@@ -93,20 +95,25 @@ int FlowBox::height() const
    return h;
 }
 
-void FlowBox::render(int x, int y) const
+void FlowBox::eachControl(PositionVisitor aFunc) const
 {
-   if (!amVisible)
-      return;
+   int x, y;
+   origin(x, y);
    
    for (ControlList::const_iterator it = myControls.begin();
         it != myControls.end(); ++it) {
-      (*it)->render(x, y);
+      aFunc(*it, x, y);
 
       if (myStyle == FLOW_BOX_VERT)
          y += (*it)->height() + (wantSpacing ? SPACING : 0);
       else
          x += (*it)->width() + (wantSpacing ? SPACING : 0);
    }
+}
+
+void FlowBox::render(int x, int y) const
+{
+   eachControl(&IControl::render);
 }
 
 void FlowBox::addChild(IControlPtr aControl)
@@ -116,6 +123,6 @@ void FlowBox::addChild(IControlPtr aControl)
 
 IContainerPtr gui::makeFlowBox(FlowBoxStyle aStyle, bool wantSpacing)
 {
-   return IContainerPtr(new FlowBox(aStyle, wantSpacing));
+   return IContainerPtr(new Hideable<FlowBox>(aStyle, wantSpacing));
 }
 

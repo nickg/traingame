@@ -33,9 +33,9 @@ namespace gui {
    // Interface to any UI control
    struct IControl {
       virtual ~IControl() {}
-
-      // Draw the control and any children
-      virtual void render(int x = 0, int y = 0) const = 0;
+      
+      // Render in a specific place
+      virtual void render(int x=0, int y=0) const = 0;
 
       // Return the dimensions of the control
       virtual int width() const = 0;

@@ -100,6 +100,8 @@ Game::Game(IMapPtr aMap)
    myBrakeLabel = makeLabel(stdFont, "Brake on");
    myBrakeLabel->setColour(1.0f, 0.0f, 0.0f);
    myStatsPanel->addChild(myBrakeLabel);
+
+   myStatsPanel->setOrigin(5, 5);
 }
 
 Game::~Game()
@@ -129,7 +131,7 @@ void Game::display(IGraphicsPtr aContext) const
 
 void Game::overlay() const
 {
-   myStatsPanel->render(5, 5);
+   myStatsPanel->render();
 }
 
 void Game::update(IPickBufferPtr aPickBuffer, int aDelta)

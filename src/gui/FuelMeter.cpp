@@ -94,7 +94,7 @@ void FuelMeter::setRange(int aLowValue, int aHighValue)
 }
 
 void FuelMeter::render(int x, int y) const
-{
+{   
    myFont->print(x, y, myCaption.c_str());
 
    glPushMatrix();
@@ -121,5 +121,5 @@ IMeterControlPtr gui::makeFuelMeter(IFontPtr aFont, const string& aCaption,
                                     const Colour& aColour)
 {
    return IMeterControlPtr
-      (new Defaults<Hideable<FuelMeter>>(aFont, aCaption, aColour));
+      (new Defaults<Moveable<Hideable<FuelMeter>>>(aFont, aCaption, aColour));
 }

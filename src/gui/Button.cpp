@@ -70,6 +70,6 @@ void Button::render(int x, int y) const
 IControlPtr gui::makeButton(const string& aGlyphFile)
 {
    return IControlPtr
-      (new Defaults<Hideable<Button>>(aGlyphFile));
+      (new Defaults<Moveable<Hideable<Button>>>(aGlyphFile));
 }
 

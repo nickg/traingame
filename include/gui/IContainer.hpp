@@ -20,7 +20,7 @@
 
 #include "IControl.hpp"
 
-#include <tr1/memory>
+#include <memory>
 
 // GUI objects that contain other controls
 namespace gui {
@@ -30,9 +30,17 @@ namespace gui {
 
       // Add a control to the container in the next available position
       virtual void addChild(IControlPtr aControl) = 0;
+
+      // Set the absolute position of the container
+      // Note that containers ignore the position on calls
+      // to render
+      virtual void setOrigin(int x, int y) = 0;
+
+      // Get the position of the origin
+      void origin(int& x, int& y) const;
    };
 
-   typedef std::tr1::shared_ptr<IContainer> IContainerPtr;
+   typedef std::shared_ptr<IContainer> IContainerPtr;
 
    enum FlowBoxStyle {
       FLOW_BOX_HORIZ, FLOW_BOX_VERT

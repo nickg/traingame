@@ -96,5 +96,5 @@ void Label::setText(const char* fmt, ...)
 ITextControlPtr gui::makeLabel(IFontPtr aFont, const std::string& aString)
 {
    return ITextControlPtr
-      (new Defaults<Hideable<Label>>(aFont, aString));
+      (new Defaults<Moveable<Hideable<Label>>>(aFont, aString));
 }
