@@ -16,6 +16,7 @@
 //
 
 #include "gui/IControl.hpp"
+#include "gui/Internal.hpp"
 
 #include <stdexcept>
 
@@ -27,17 +28,16 @@ using namespace std;
 using namespace std::tr1;
 using namespace boost;
 
-class FuelMeter : public IMeterControl {
+class FuelMeter : public IMeterControl, private ControlImpl {
 public:
    FuelMeter(IFontPtr aFont, const string& aCaption,
              const Colour& aColour);
    ~FuelMeter() {}
 
    // IControl interface   
-   void render(int x, int y) const;
+   void renderVisible(int x, int y) const;
    int width() const;
    int height() const;
-   void setVisible(bool visible) { amVisible = visible; }
 
    // IMeterControl interface
    void setValue(int aValue);
@@ -48,7 +48,6 @@ private:
    const string myCaption;
    const Colour myColour;
    const int myTextWidth;
-   bool amVisible;
    int myMin, myMax;
 
    static const int METER_HEIGHT, METER_WIDTH;
@@ -62,7 +61,7 @@ FuelMeter::FuelMeter(IFontPtr aFont, const string& aCaption,
    : myValue(0), myFont(aFont), myCaption(aCaption + ": "),
      myColour(aColour),
      myTextWidth(myFont->stringWidth(myCaption.c_str())),
-     amVisible(true), myMin(0), myMax(10)
+     myMin(0), myMax(10)
 {
    
 }
@@ -95,11 +94,8 @@ void FuelMeter::setRange(int aLowValue, int aHighValue)
    myMax = aHighValue;
 }
 
-void FuelMeter::render(int x, int y) const
+void FuelMeter::renderVisible(int x, int y) const
 {
-   if (!amVisible)
-      return;
-
    myFont->print(x, y, myCaption.c_str());
 
    glPushMatrix();

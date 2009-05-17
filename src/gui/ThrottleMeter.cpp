@@ -16,6 +16,7 @@
 //
 
 #include "gui/IControl.hpp"
+#include "gui/Internal.hpp"
 
 #include <stdexcept>
 
@@ -24,16 +25,17 @@
 using namespace std;
 using namespace gui;
 
-class ThrottleMeter : public IMeterControl {
+class ThrottleMeter : public IMeterControl, private ControlImpl {
 public:
    ThrottleMeter(IFontPtr aFont);
    ~ThrottleMeter() {}
 
    // IControl interface
-   void render(int x, int y) const;
    int width() const;
    int height() const;
-   void setVisible(bool visible) { amVisible = visible; }
+
+   // ControlImpl interface
+   void renderVisible(int x, int y) const;
 
    // IMeterControl interface
    void setValue(int aValue);
@@ -42,7 +44,6 @@ private:
    int myValue;
    IFontPtr myFont;
    const int myTextWidth;
-   bool amVisible;
    int myMin, myMax;
 
    static const int THROTTLE_MAX = 10;
@@ -57,7 +58,6 @@ const int ThrottleMeter::METER_WIDTH(100);
 ThrottleMeter::ThrottleMeter(IFontPtr aFont)
    : myValue(0), myFont(aFont),
      myTextWidth(myFont->stringWidth("Throttle: ")),
-     amVisible(true),
      myMin(THROTTLE_MIN), myMax(THROTTLE_MAX)
 {
    
@@ -84,11 +84,8 @@ void ThrottleMeter::setRange(int aLowValue, int aHighValue)
    myMax = aHighValue;
 }
 
-void ThrottleMeter::render(int x, int y) const
-{
-   if (!amVisible)
-      return;
-   
+void ThrottleMeter::renderVisible(int x, int y) const
+{   
    myFont->print(x, y, "Throttle: ");
 
    glPushMatrix();

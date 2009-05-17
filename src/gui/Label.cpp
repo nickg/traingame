@@ -16,6 +16,7 @@
 //
 
 #include "gui/IControl.hpp"
+#include "gui/Internal.hpp"
 
 #include <cstdarg>
 #include <cstring>
@@ -24,16 +25,17 @@ using namespace gui;
 using namespace std;
 
 // A simple text label
-class Label : public ITextControl {
+class Label : public ITextControl, public ControlImpl {
 public:
    Label(IFontPtr aFont, const std::string& aString);
    ~Label() {}
    
    // IControl interface
-   void render(int x, int y) const;
    int width() const;
    int height() const;
-   void setVisible(bool visible) { amVisible = visible; }
+
+   // ControlImpl interface
+   void renderVisible(int x, int y) const;
 
    // ITextControl interface
    void setText(const string& aString) { myText = aString; }
@@ -42,12 +44,11 @@ public:
 private:
    string myText;
    IFontPtr myFont;
-   bool amVisible;
    float myR, myG, myB;
 };
 
 Label::Label(IFontPtr aFont, const std::string& aString)
-   : myText(aString), myFont(aFont), amVisible(true),
+   : myText(aString), myFont(aFont),
      myR(1.0f), myG(1.0f), myB(1.0f)
 {
 
@@ -70,11 +71,8 @@ int Label::height() const
    return myFont->maxHeight();
 }
 
-void Label::render(int x, int y) const
+void Label::renderVisible(int x, int y) const
 {
-   if (!amVisible)
-      return;
-
    float r, g, b, a;
    myFont->getColour(r, g, b, a);
    

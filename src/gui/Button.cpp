@@ -17,24 +17,25 @@
 
 #include "gui/IControl.hpp"
 #include "gui/IImage.hpp"
+#include "gui/Internal.hpp"
 
 using namespace gui;
 using namespace std;
 
 // Concrete implementation of push buttons
-class Button : public IControl {
+class Button : public ControlImpl {
 public:
    Button(const string& aGlyphFile);
    ~Button() {}
 
-   // IControl interace
-   void render(int x, int y) const;
+   // IControl interface
    int width() const;
    int height() const;
-   void setVisible(bool visible) { amVisible = visible; } 
+
+   // ControlImpl interface
+   void renderVisible(int x, int y) const;
 private:
    IImagePtr myGlyphImage;
-   bool amVisible;
    
    static IImagePtr ourBaseImage, ourActiveImage;
 };
@@ -42,7 +43,6 @@ private:
 IImagePtr Button::ourBaseImage, Button::ourActiveImage;
 
 Button::Button(const string& aGlyphFile)
-   : amVisible(true)
 {
    if (!ourBaseImage)
       ourBaseImage = makeImage("data/images/button_base.png");
@@ -63,11 +63,8 @@ int Button::height() const
    return myGlyphImage->height();
 }
 
-void Button::render(int x, int y) const
-{
-   if (!amVisible)
-      return;
-   
+void Button::renderVisible(int x, int y) const
+{   
    ourBaseImage->render(x, y);
    myGlyphImage->render(x, y);
 }

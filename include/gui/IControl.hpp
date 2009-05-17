@@ -43,12 +43,15 @@ namespace gui {
 
       // Show / hide the control
       virtual void setVisible(bool visible) = 0;
+
+      // Events
+      virtual void handleClick(int x, int y) = 0;
    };
 
    typedef std::tr1::shared_ptr<IControl> IControlPtr;
 
    // Interface to a UI control that contains text
-   struct ITextControl : IControl {
+   struct ITextControl : virtual IControl {
       virtual ~ITextControl() {}
       
       virtual void setText(const std::string& aString) = 0;
@@ -60,7 +63,7 @@ namespace gui {
    typedef std::tr1::shared_ptr<ITextControl> ITextControlPtr;
 
    // Interface to controls that are progress meters, etc.
-   struct IMeterControl : IControl {
+   struct IMeterControl : virtual IControl {
       virtual ~IMeterControl() {}
 
       virtual void setValue(int aValue) = 0;

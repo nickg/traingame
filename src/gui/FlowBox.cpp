@@ -37,6 +37,7 @@ public:
    int width() const;
    int height() const;
    void setVisible(bool visible) { amVisible = visible; }
+   void handleClick(int x, int y);
 private:
    FlowBoxStyle myStyle;
    bool amVisible;
@@ -51,6 +52,11 @@ private:
 FlowBox::FlowBox(FlowBoxStyle aStyle, bool doesWantSpacing)
    : myStyle(aStyle), amVisible(true),
      wantSpacing(doesWantSpacing)
+{
+
+}
+
+void FlowBox::handleClick(int x, int y)
 {
 
 }
