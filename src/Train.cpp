@@ -62,6 +62,7 @@ private:
 
    const Part& engine() const;
    Part& engine();
+   void move(double aDistance);
    
    IMapPtr myMap;
 
@@ -81,14 +82,17 @@ Train::Train(IMapPtr aMap)
    
    enterSegment(engine(), aMap->startLocation());
 
-   double off = (-engine().vehicle->length() - SEPARATION) / 2.0;
+   // Bit of a hack to put the engine in the right place
+   move(0.275);
+   
    for (int i = 1; i <= 5; i++) {
       Part coal(makeWaggon());
       enterSegment(coal, aMap->startLocation());
-      coal.segmentDelta = off - coal.vehicle->length() / 2.0;
-      myParts.push_back(coal);
+
+      // Push the rest of the train along some
+      move(coal.vehicle->length() + SEPARATION);
       
-      off -= coal.vehicle->length() + SEPARATION;
+      myParts.push_back(coal);
    }
 }
 
@@ -105,26 +109,41 @@ const Train::Part& Train::engine() const
 }
 
 // Move the train along the line a bit
-void Train::update(int aDelta)
+void Train::move(double aDistance)
 {
    for (list<Part>::iterator it = myParts.begin();
         it != myParts.end(); ++it) {
-      (*it).vehicle->update(aDelta);
 
-      // How many metres does a tile correspond to?
-      const double M_PER_UNIT = 5.0;
-      
-      const double deltaSeconds = static_cast<float>(aDelta) / 1000.0f;
-      (*it).segmentDelta += engine().vehicle->speed() * deltaSeconds / M_PER_UNIT;
+      // Never move in units greater than 1.0
+      double d = aDistance;
+      const double step = 0.25;
+      do {
+         (*it).segmentDelta += min(step, d);
+         
+         const double segmentLength = (*it).segment->segmentLength();
+         if ((*it).segmentDelta >= segmentLength) {
+            // Moved onto a new piece of track
+            const double over = (*it).segmentDelta - segmentLength;
+            enterSegment(*it, (*it).segment->nextPosition((*it).direction));
+            (*it).segmentDelta = over;
+         }
 
-      const double segmentLength = (*it).segment->segmentLength();
-      if ((*it).segmentDelta >= segmentLength) {
-         // Moved onto a new piece of track
-         const double over = (*it).segmentDelta - segmentLength;
-         enterSegment(*it, (*it).segment->nextPosition((*it).direction));
-         (*it).segmentDelta = over;
-      }
+         d -= step;
+      } while (d > 0.0);
    }
+}
+
+void Train::update(int aDelta)
+{
+   for (list<Part>::iterator it = myParts.begin();
+        it != myParts.end(); ++it)
+      (*it).vehicle->update(aDelta);
+   
+   // How many metres does a tile correspond to?
+   const double M_PER_UNIT = 5.0;
+   
+   const double deltaSeconds = static_cast<float>(aDelta) / 1000.0f;
+   move(engine().vehicle->speed() * deltaSeconds / M_PER_UNIT);
 }
 
 // Called when the train enters a new segment
