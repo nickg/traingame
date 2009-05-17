@@ -19,6 +19,8 @@
 #include "gui/IImage.hpp"
 #include "gui/Internal.hpp"
 
+#include "ILogger.hpp"
+
 using namespace gui;
 using namespace std;
 
@@ -32,6 +34,7 @@ public:
    int width() const;
    int height() const;
    void render(int x, int y) const;
+   bool handleClick(int x, int y);
 private:
    IImagePtr myGlyphImage;
    
@@ -67,9 +70,14 @@ void Button::render(int x, int y) const
    myGlyphImage->render(x, y);
 }
 
+bool Button::handleClick(int x, int y)
+{
+   return true;
+}
+
 IControlPtr gui::makeButton(const string& aGlyphFile)
 {
    return IControlPtr
-      (new Defaults<Moveable<Hideable<Button>>>(aGlyphFile));
+      (new Moveable<Hideable<Button>>(aGlyphFile));
 }
 

@@ -57,7 +57,7 @@ namespace gui {
 
       virtual ~Defaults() {}
       
-      void handleClick(int x, int y) {}
+      bool handleClick(int x, int y) { return false; }
    };
 
    // Mixin to provide screen placement

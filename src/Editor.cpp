@@ -384,6 +384,12 @@ void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
 void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
                           MouseButton aButton)
 {
+   // See if the GUI can handle it
+   if (myToolbar->handleClick(x, y))
+      return;
+
+   debug() << "Not in GUI";
+   
    IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
    display(pickContext);
    int id = aPickBuffer->endPick();

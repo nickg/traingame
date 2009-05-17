@@ -45,7 +45,8 @@ namespace gui {
       virtual void setVisible(bool visible) = 0;
 
       // Events
-      virtual void handleClick(int x, int y) = 0;
+      // Return true if handled
+      virtual bool handleClick(int x, int y) = 0;
    };
 
    typedef std::shared_ptr<IControl> IControlPtr;

@@ -23,6 +23,7 @@
 
 using namespace gui;
 using namespace std;
+using namespace std::placeholders;
 
 // A container which grows either horizontally or vertically as controls
 // are added
@@ -37,11 +38,14 @@ public:
    // IControl interface
    int width() const;
    int height() const;
-   void handleClick(int x, int y);
+   bool handleClick(int x, int y);
    void render(int x, int y) const = 0;
 private:
    typedef function<void (IControlPtr, int, int)> PositionVisitor;
    void eachControl(PositionVisitor aFunc) const;
+
+   static void clickTest(IControlPtr aControl, int ctrlX, int ctrlY,
+                         int mouseX, int mouseY, bool* handled);
    
    FlowBoxStyle myStyle;
    bool wantSpacing;
@@ -58,9 +62,21 @@ FlowBox::FlowBox(FlowBoxStyle aStyle, bool doesWantSpacing)
 
 }
 
-void FlowBox::handleClick(int x, int y)
+bool FlowBox::handleClick(int x, int y)
 {
-   
+   bool handled = false;
+   eachControl(bind(&FlowBox::clickTest, _1, _2, _3, x, y, &handled));
+   return handled;
+}
+
+void FlowBox::clickTest(IControlPtr aControl, int ctrlX, int ctrlY,
+                        int mouseX, int mouseY, bool* handled)
+{
+   if (mouseX >= ctrlX && mouseX < ctrlX + aControl->width()
+       && mouseY >= mouseY && mouseY < ctrlY + aControl->height()) {
+      aControl->handleClick(mouseX, mouseY);
+      *handled = true;
+   }
 }
 
 int FlowBox::width() const
