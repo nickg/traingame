@@ -305,7 +305,7 @@ void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
    
    for (int i = 0; i < 4; i++) {
       glNormal3d(v[i].normal.x, v[i].normal.y, v[i].normal.z);
-      glVertex3d(v[i].pos.x, v[i].pos.y, v[i].pos.z);
+      glVertex3d(v[i].pos.x, v[i].pos.y + 0.1, v[i].pos.z);
    }
    
    glEnd();

@@ -85,10 +85,13 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
    mySun = makeSunLight();
 
    // Build the GUI
-   myToolbar = makeFlowBox(FLOW_BOX_HORIZ);
+   myToolbar = makeFlowBox(FLOW_BOX_HORIZ, false);
 
    IControlPtr trackButton = makeButton("data/images/track_icon.png");
    myToolbar->addChild(trackButton);
+
+   IControlPtr raiseButton = makeButton("data/images/raise_icon.png");
+   myToolbar->addChild(raiseButton);
 
    myMap->setGrid(true);
 

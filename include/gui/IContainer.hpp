@@ -39,7 +39,7 @@ namespace gui {
    };
    
    // Standard containers
-   IContainerPtr makeFlowBox(FlowBoxStyle aStyle);
+   IContainerPtr makeFlowBox(FlowBoxStyle aStyle, bool wantSpacing=true);
 }
 
 #endif

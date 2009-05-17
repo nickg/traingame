@@ -26,7 +26,7 @@ using namespace std;
 // are added
 class FlowBox : public IContainer {
 public:
-   FlowBox(FlowBoxStyle aStyle);
+   FlowBox(FlowBoxStyle aStyle, bool doesWantSpacing);
    ~FlowBox() {}
 
    // IContainer interface
@@ -40,6 +40,7 @@ public:
 private:
    FlowBoxStyle myStyle;
    bool amVisible;
+   bool wantSpacing;
 
    typedef vector<IControlPtr> ControlList;
    ControlList myControls;
@@ -47,8 +48,9 @@ private:
    static const int SPACING = 3;
 };
 
-FlowBox::FlowBox(FlowBoxStyle aStyle)
-   : myStyle(aStyle), amVisible(true)
+FlowBox::FlowBox(FlowBoxStyle aStyle, bool doesWantSpacing)
+   : myStyle(aStyle), amVisible(true),
+     wantSpacing(doesWantSpacing)
 {
 
 }
@@ -95,9 +97,9 @@ void FlowBox::render(int x, int y) const
       (*it)->render(x, y);
 
       if (myStyle == FLOW_BOX_VERT)
-         y += (*it)->height() + SPACING;
+         y += (*it)->height() + (wantSpacing ? SPACING : 0);
       else
-         x += (*it)->width() + SPACING;
+         x += (*it)->width() + (wantSpacing ? SPACING : 0);
    }
 }
 
@@ -106,8 +108,8 @@ void FlowBox::addChild(IControlPtr aControl)
    myControls.push_back(aControl);
 }
 
-IContainerPtr gui::makeFlowBox(FlowBoxStyle aStyle)
+IContainerPtr gui::makeFlowBox(FlowBoxStyle aStyle, bool wantSpacing)
 {
-   return IContainerPtr(new FlowBox(aStyle));
+   return IContainerPtr(new FlowBox(aStyle, wantSpacing));
 }
 
