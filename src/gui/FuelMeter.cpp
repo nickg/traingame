@@ -109,14 +109,14 @@ void FuelMeter::render(int x, int y) const
    glTranslatef(static_cast<float>(myTextWidth),
                 static_cast<float>(y + off), 0.0f);
 
-   const int unit = METER_WIDTH / (myMax + 1);
+   const float unit = METER_WIDTH / static_cast<float>(myMax + 1);
 
    glColor3f(get<0>(myColour), get<1>(myColour), get<2>(myColour));
    glBegin(GL_QUADS);
    glVertex2i(0, 0);
    glVertex2i(0, METER_HEIGHT);
-   glVertex2i(unit * myValue, METER_HEIGHT);
-   glVertex2i(unit * myValue, 0);
+   glVertex2f(unit * myValue, METER_HEIGHT);
+   glVertex2f(unit * myValue, 0);
    glEnd();
 
    glPopMatrix();

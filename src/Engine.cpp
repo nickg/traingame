@@ -71,7 +71,8 @@ public:
    void actOn(Action anAction);
    int throttle() const { return myThrottle; }
    bool brakeOn() const { return isBrakeOn; }
-   double pressure() const { return myPressure; }
+   double pressure() const { return myBoilerPressure; }
+   double temp() const { return myFireTemp; }
 private:
    double tractiveEffort() const;
    double resistance() const;
@@ -80,28 +81,27 @@ private:
    IModelPtr myModel;
 
    double mySpeed, myMass, myBoilerPressure, myFireTemp;
-   double myFuelOnFire;
    double myStatTractiveEffort;
    bool isBrakeOn;
    int myThrottle;     // Ratio measured in tenths
-   double myPressure;  // Boiler pressure
    
    static const double MODEL_SCALE;
    static const double TRACTIVE_EFFORT_KNEE;
 
-   static const double INIT_PRESSURE;
+   static const double INIT_PRESSURE, INIT_TEMP;
 };
 
 const double Engine::MODEL_SCALE(0.4);
 const double Engine::TRACTIVE_EFFORT_KNEE(10.0);
 const double Engine::INIT_PRESSURE(0.2);
+const double Engine::INIT_TEMP(50.0);
 
 Engine::Engine()
-   : mySpeed(0.0), myMass(29.0), myBoilerPressure(1.0),
-     myFireTemp(0.0), myFuelOnFire(0.0),
+   : mySpeed(0.0), myMass(29.0),
+     myBoilerPressure(INIT_PRESSURE),
+     myFireTemp(INIT_TEMP),
      myStatTractiveEffort(34.7),
-     isBrakeOn(true), myThrottle(0),
-     myPressure(INIT_PRESSURE)
+     isBrakeOn(true), myThrottle(0)
 {
    myModel = loadModel("pclass.obj", MODEL_SCALE);
 }
@@ -168,7 +168,7 @@ void Engine::actOn(Action anAction)
       debug() << "Brake is" << (isBrakeOn ? "" : " not") << " on";
       break;
    case SHOVEL_COAL:
-      myFuelOnFire += 1.0;
+      myFireTemp += 10.0;
       break;
    case THROTTLE_UP:
       myThrottle = min(myThrottle + 1, 10);

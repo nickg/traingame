@@ -38,6 +38,7 @@ struct IController {
    virtual int throttle() const = 0;
    virtual bool brakeOn() const = 0;
    virtual double pressure() const = 0;
+   virtual double temp() const = 0;
 };
 
 typedef std::tr1::shared_ptr<IController> IControllerPtr;

@@ -90,11 +90,12 @@ Game::Game(IMapPtr aMap)
 
    myTempMeter = makeFuelMeter(stdFont, "Temp",
                                make_tuple(0.8f, 0.1f, 0.1f));
+   myTempMeter->setRange(0, 1050);
    myStatsPanel->addChild(myTempMeter);
 
    myPressureMeter = makeFuelMeter(stdFont, "Pressure",
                                    make_tuple(0.1f, 0.3f, 0.5f));
-   myPressureMeter->setRange(0, 60);
+   myPressureMeter->setRange(0, 110);
    myStatsPanel->addChild(myPressureMeter);
 
    myBrakeLabel = makeLabel(stdFont, "Brake on");
@@ -144,6 +145,9 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
 
    const double pressure = myTrain->controller()->pressure();
    myPressureMeter->setValue(static_cast<int>(pressure * 100.0));
+
+   const double temp = myTrain->controller()->temp();
+   myTempMeter->setValue(static_cast<int>(temp));
 
    myWaterMeter->setValue(8);
 }
