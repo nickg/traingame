@@ -20,16 +20,20 @@
 #include <stdexcept>
 
 #include <GL/gl.h>
+#include <boost/lexical_cast.hpp>
 
-using namespace std;
 using namespace gui;
+using namespace std;
+using namespace std::tr1;
+using namespace boost;
 
-class ThrottleMeter : public IMeterControl {
+class FuelMeter : public IMeterControl {
 public:
-   ThrottleMeter(IFontPtr aFont);
-   ~ThrottleMeter() {}
+   FuelMeter(IFontPtr aFont, const string& aCaption,
+             const Colour& aColour);
+   ~FuelMeter() {}
 
-   // IControl interface
+   // IControl interface   
    void render(int x, int y) const;
    int width() const;
    int height() const;
@@ -41,105 +45,85 @@ public:
 private:
    int myValue;
    IFontPtr myFont;
+   const string myCaption;
+   const Colour myColour;
    const int myTextWidth;
    bool amVisible;
    int myMin, myMax;
 
-   static const int THROTTLE_MAX = 10;
-   static const int THROTTLE_MIN = 0;
-
    static const int METER_HEIGHT, METER_WIDTH;
 };
 
-const int ThrottleMeter::METER_HEIGHT(16);
-const int ThrottleMeter::METER_WIDTH(100);
+const int FuelMeter::METER_HEIGHT(16);
+const int FuelMeter::METER_WIDTH(100);
 
-ThrottleMeter::ThrottleMeter(IFontPtr aFont)
-   : myValue(0), myFont(aFont),
-     myTextWidth(myFont->stringWidth("Throttle: ")),
-     amVisible(true),
-     myMin(THROTTLE_MIN), myMax(THROTTLE_MAX)
+FuelMeter::FuelMeter(IFontPtr aFont, const string& aCaption,
+                     const Colour& aColour)
+   : myValue(0), myFont(aFont), myCaption(aCaption + ": "),
+     myColour(aColour),
+     myTextWidth(myFont->stringWidth(myCaption.c_str())),
+     amVisible(true), myMin(0), myMax(10)
 {
    
 }
 
-int ThrottleMeter::height() const
+int FuelMeter::height() const
 {
    return max(myFont->maxHeight(), METER_HEIGHT);
 }
 
-int ThrottleMeter::width() const
+int FuelMeter::width() const
 {
    return myTextWidth + METER_WIDTH;
 }
 
-void ThrottleMeter::setValue(int aValue)
+void FuelMeter::setValue(int aValue)
 {
+   if (aValue < myMin)
+      throw runtime_error("Fuel meter underflow: "
+                          + lexical_cast<string>(aValue));
+   else if (aValue > myMax)
+      throw runtime_error("Fuel meter overflow: "
+                          + lexical_cast<string>(aValue));
+   
    myValue = aValue;
 }
 
-void ThrottleMeter::setRange(int aLowValue, int aHighValue)
+void FuelMeter::setRange(int aLowValue, int aHighValue)
 {
    myMin = aLowValue;
    myMax = aHighValue;
 }
 
-void ThrottleMeter::render(int x, int y) const
+void FuelMeter::render(int x, int y) const
 {
    if (!amVisible)
       return;
-   
-   myFont->print(x, y, "Throttle: ");
+
+   myFont->print(x, y, myCaption.c_str());
 
    glPushMatrix();
 
    const int off = height() - METER_HEIGHT + 1;
-
+   
    glTranslatef(static_cast<float>(myTextWidth),
                 static_cast<float>(y + off), 0.0f);
 
    const int unit = METER_WIDTH / (myMax + 1);
 
-   // Neutral bit
-   glColor3f(1.0f, 1.0f, 0.0f);
+   glColor3f(get<0>(myColour), get<1>(myColour), get<2>(myColour));
    glBegin(GL_QUADS);
    glVertex2i(0, 0);
    glVertex2i(0, METER_HEIGHT);
-   glVertex2i(unit, METER_HEIGHT);
-   glVertex2i(unit, 0);
+   glVertex2i(unit * myValue, METER_HEIGHT);
+   glVertex2i(unit * myValue, 0);
    glEnd();
 
-   int squareLen = myValue >= myMax
-      ? (myMax - 1) * unit
-      : (myValue > 0 ? unit * (myValue - 1) : 0);
-
-   glTranslatef(static_cast<float>(unit), 0.0f, 0.0f);
-   glColor3f(0.0f, 1.0f, 0.0f);
-   
-   // Forwards bit
-   if (squareLen > 0) {
-      glBegin(GL_QUADS);
-      glVertex2i(0, 0);
-      glVertex2i(0, METER_HEIGHT);
-      glVertex2i(squareLen, METER_HEIGHT);
-      glVertex2i(squareLen, 0);
-      glEnd();
-   }
-   
-   const bool wantTriangle = myValue < myMax && myValue > 0;
-   if (wantTriangle) {
-      // Triangle bit
-      glBegin(GL_TRIANGLES);
-      glVertex2i(squareLen, 0);
-      glVertex2i(squareLen, METER_HEIGHT);
-      glVertex2i(squareLen + unit, METER_HEIGHT / 2);
-      glEnd();
-   }   
-   
    glPopMatrix();
 }
 
-IMeterControlPtr gui::makeThrottleMeter(IFontPtr aFont)
+IMeterControlPtr gui::makeFuelMeter(IFontPtr aFont, const string& aCaption,
+                                    const Colour& aColour)
 {
-   return IMeterControlPtr(new ThrottleMeter(aFont));
+   return IMeterControlPtr(new FuelMeter(aFont, aCaption, aColour));
 }

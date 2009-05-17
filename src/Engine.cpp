@@ -48,6 +48,9 @@ using namespace std::tr1;
 // Run models.gnuplot to see an example of these curves. The functions
 // in that file should match the code here!!
 //
+// Currently pressure varies between 0 and 1. <0.1 and >1.0 are bad, but
+// currently don't correspond to real values
+//
 
 // Concrete implementation of a steam engine
 class Engine : public IRollingStock,
@@ -68,6 +71,7 @@ public:
    void actOn(Action anAction);
    int throttle() const { return myThrottle; }
    bool brakeOn() const { return isBrakeOn; }
+   double pressure() const { return myPressure; }
 private:
    double tractiveEffort() const;
    double resistance() const;
@@ -79,20 +83,25 @@ private:
    double myFuelOnFire;
    double myStatTractiveEffort;
    bool isBrakeOn;
-   int myThrottle;   // Ratio measured in tenths
+   int myThrottle;     // Ratio measured in tenths
+   double myPressure;  // Boiler pressure
    
    static const double MODEL_SCALE;
    static const double TRACTIVE_EFFORT_KNEE;
+
+   static const double INIT_PRESSURE;
 };
 
 const double Engine::MODEL_SCALE(0.4);
 const double Engine::TRACTIVE_EFFORT_KNEE(10.0);
+const double Engine::INIT_PRESSURE(0.2);
 
 Engine::Engine()
    : mySpeed(0.0), myMass(29.0), myBoilerPressure(1.0),
      myFireTemp(0.0), myFuelOnFire(0.0),
      myStatTractiveEffort(34.7),
-     isBrakeOn(true), myThrottle(0)
+     isBrakeOn(true), myThrottle(0),
+     myPressure(INIT_PRESSURE)
 {
    myModel = loadModel("pclass.obj", MODEL_SCALE);
 }

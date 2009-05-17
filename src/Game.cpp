@@ -27,6 +27,7 @@
 #include <GL/gl.h>
 
 using namespace std;
+using namespace std::tr1;
 using namespace gui;
 
 // Implementation of the main play screen
@@ -57,6 +58,8 @@ private:
    IContainerPtr myStatsPanel;
    ITextControlPtr mySpeedLabel, myBrakeLabel;
    IMeterControlPtr myThrottleMeter;
+   IMeterControlPtr myCoalMeter, myWaterMeter;
+   IMeterControlPtr myTempMeter, myPressureMeter;
 };
 
 Game::Game(IMapPtr aMap)
@@ -76,6 +79,23 @@ Game::Game(IMapPtr aMap)
 
    myThrottleMeter = makeThrottleMeter(stdFont);
    myStatsPanel->addChild(myThrottleMeter);
+
+   myCoalMeter = makeFuelMeter(stdFont, "Coal",
+                               make_tuple(0.1f, 0.1f, 0.1f));
+   myStatsPanel->addChild(myCoalMeter);
+   
+   myWaterMeter = makeFuelMeter(stdFont, "Water",
+                                make_tuple(0.1f, 0.1f, 0.8f));
+   myStatsPanel->addChild(myWaterMeter);
+
+   myTempMeter = makeFuelMeter(stdFont, "Temp",
+                               make_tuple(0.8f, 0.1f, 0.1f));
+   myStatsPanel->addChild(myTempMeter);
+
+   myPressureMeter = makeFuelMeter(stdFont, "Pressure",
+                                   make_tuple(0.1f, 0.3f, 0.5f));
+   myPressureMeter->setRange(0, 60);
+   myStatsPanel->addChild(myPressureMeter);
 
    myBrakeLabel = makeLabel(stdFont, "Brake on");
    myBrakeLabel->setColour(1.0f, 0.0f, 0.0f);
@@ -121,6 +141,11 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    mySpeedLabel->setText("Speed: %.1lfmph\n", myTrain->speed() * msToMPH);
    myThrottleMeter->setValue(myTrain->controller()->throttle());
    myBrakeLabel->setVisible(myTrain->controller()->brakeOn());
+
+   const double pressure = myTrain->controller()->pressure();
+   myPressureMeter->setValue(static_cast<int>(pressure * 100.0));
+
+   myWaterMeter->setValue(8);
 }
 
 void Game::onKeyDown(SDLKey aKey)
