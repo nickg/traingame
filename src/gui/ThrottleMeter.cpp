@@ -25,7 +25,7 @@
 using namespace std;
 using namespace gui;
 
-class ThrottleMeter : public IMeterControl, private ControlImpl {
+class ThrottleMeter : public IMeterControl {
 public:
    ThrottleMeter(IFontPtr aFont);
    ~ThrottleMeter() {}
@@ -33,9 +33,7 @@ public:
    // IControl interface
    int width() const;
    int height() const;
-
-   // ControlImpl interface
-   void renderVisible(int x, int y) const;
+   void render(int x, int y) const;
 
    // IMeterControl interface
    void setValue(int aValue);
@@ -84,7 +82,7 @@ void ThrottleMeter::setRange(int aLowValue, int aHighValue)
    myMax = aHighValue;
 }
 
-void ThrottleMeter::renderVisible(int x, int y) const
+void ThrottleMeter::render(int x, int y) const
 {   
    myFont->print(x, y, "Throttle: ");
 
@@ -138,5 +136,6 @@ void ThrottleMeter::renderVisible(int x, int y) const
 
 IMeterControlPtr gui::makeThrottleMeter(IFontPtr aFont)
 {
-   return IMeterControlPtr(new ThrottleMeter(aFont));
+   return IMeterControlPtr
+      (new Defaults<Hideable<ThrottleMeter>>(aFont));
 }

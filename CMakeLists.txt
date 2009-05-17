@@ -22,7 +22,7 @@ source_group (${PROJECT_NAME} FILES ${folder_source})
 find_package (SDL REQUIRED)
 find_package (SDL_image REQUIRED)
 find_package (OpenGL REQUIRED)
-find_package (Boost REQUIRED COMPONENTS filesystem) 
+find_package (Boost REQUIRED COMPONENTS filesystem signals) 
 
 include (FindPkgConfig)
 
@@ -37,7 +37,7 @@ include_directories (include ${XERCES_INCLUDE_DIRS})
 include_directories (include ${FREETYPE_INCLUDE_DIRS})
 
 if (NOT WIN32) # Unix
-    add_definitions ("-Wall")
+    add_definitions ("-Wall -std=c++0x")
 endif (NOT WIN32)
 
 

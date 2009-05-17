@@ -21,7 +21,7 @@
 #include "Maths.hpp"
 #include "IGraphics.hpp"
 
-#include <tr1/memory>
+#include <memory>
 
 // Interface to things that can be rendered by sector
 struct ISectorRenderable {
@@ -31,7 +31,7 @@ struct ISectorRenderable {
                              Point<int> botLeft, Point<int> topRight) = 0;
 };
 
-typedef std::tr1::shared_ptr<ISectorRenderable> ISectorRenderablePtr;
+typedef std::shared_ptr<ISectorRenderable> ISectorRenderablePtr;
 
 // Inteface for constructing quad trees for space partioning
 struct IQuadTree {
@@ -41,7 +41,7 @@ struct IQuadTree {
    virtual void rebuildDisplayLists() = 0;
 };
 
-typedef std::tr1::shared_ptr<IQuadTree> IQuadTreePtr;
+typedef std::shared_ptr<IQuadTree> IQuadTreePtr;
 
 // Produce a quad tree of given square dimension
 IQuadTreePtr makeQuadTree(ISectorRenderablePtr aRenderable, int aDim);

@@ -1,7 +1,7 @@
 #ifndef INC_IWINDOW_HPP
 #define INC_IWINDOW_HPP
 
-#include <tr1/memory>
+#include <memory>
 
 #include "IScreen.hpp"
 
@@ -15,7 +15,7 @@ public:
    virtual void quit() = 0;
 };
 
-typedef std::tr1::shared_ptr<IWindow> IWindowPtr;
+typedef std::shared_ptr<IWindow> IWindowPtr;
 
 // Implementors
 IWindowPtr makeSDLWindow();

@@ -26,7 +26,6 @@
 #include <GL/gl.h>
 
 using namespace std;
-using namespace std::tr1;
 
 // Concrete implementation of trains
 class Train : public ITrain {

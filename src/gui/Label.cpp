@@ -25,17 +25,15 @@ using namespace gui;
 using namespace std;
 
 // A simple text label
-class Label : public ITextControl, public ControlImpl {
+class Label : public ITextControl {
 public:
    Label(IFontPtr aFont, const std::string& aString);
-   ~Label() {}
+   virtual ~Label() {}
    
    // IControl interface
    int width() const;
    int height() const;
-
-   // ControlImpl interface
-   void renderVisible(int x, int y) const;
+   void render(int x, int y) const;
 
    // ITextControl interface
    void setText(const string& aString) { myText = aString; }
@@ -71,7 +69,7 @@ int Label::height() const
    return myFont->maxHeight();
 }
 
-void Label::renderVisible(int x, int y) const
+void Label::render(int x, int y) const
 {
    float r, g, b, a;
    myFont->getColour(r, g, b, a);
@@ -97,5 +95,6 @@ void Label::setText(const char* fmt, ...)
 
 ITextControlPtr gui::makeLabel(IFontPtr aFont, const std::string& aString)
 {
-   return ITextControlPtr(new Label(aFont, aString));
+   return ITextControlPtr
+      (new Defaults<Hideable<Label>>(aFont, aString));
 }

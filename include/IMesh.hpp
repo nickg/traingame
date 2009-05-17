@@ -18,7 +18,7 @@
 #ifndef INC_IMESH_HPP
 #define INC_IMESH_HPP
 
-#include <tr1/memory>
+#include <memory>
 
 #include "Maths.hpp"
 #include "ITexture.hpp"
@@ -51,7 +51,7 @@ struct IMeshBuffer {
    virtual void printStats() const = 0;
 };
 
-typedef std::tr1::shared_ptr<IMeshBuffer> IMeshBufferPtr;
+typedef std::shared_ptr<IMeshBuffer> IMeshBufferPtr;
 
 // Generic interface to meshes
 struct IMesh {
@@ -60,7 +60,7 @@ struct IMesh {
    virtual void render() const = 0;
 };
 
-typedef std::tr1::shared_ptr<IMesh> IMeshPtr;
+typedef std::shared_ptr<IMesh> IMeshPtr;
 
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer);
 IMeshBufferPtr makeMeshBuffer();

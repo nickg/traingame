@@ -18,7 +18,7 @@
 #ifndef INC_ILOGGER_HPP
 #define INC_ILOGGER_HPP
 
-#include <tr1/memory>
+#include <memory>
 #include <ostream>
 
 // Stream surrogate for writing log data to
@@ -28,7 +28,7 @@ struct PrintLine {
    std::ostream& stream;
 };
 
-typedef std::tr1::shared_ptr<PrintLine> PrintLinePtr;
+typedef std::shared_ptr<PrintLine> PrintLinePtr;
 
 template <typename T>
 inline PrintLinePtr operator<<(PrintLinePtr aPrintLine, const T& aThing)
@@ -52,7 +52,7 @@ struct ILogger {
    virtual PrintLinePtr writeMsg(LogMsg::Type type = LogMsg::NORMAL) = 0;
 };
 
-typedef std::tr1::shared_ptr<ILogger> ILoggerPtr;
+typedef std::shared_ptr<ILogger> ILoggerPtr;
 
 ILoggerPtr getLogger();
 

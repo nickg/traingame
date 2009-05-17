@@ -18,7 +18,7 @@
 #ifndef INC_ILIGHT_HPP
 #define INC_ILIGHT_HPP
 
-#include <tr1/memory>
+#include <memory>
 
 // Interface to OpenGL fog effects
 struct IFog {
@@ -27,7 +27,7 @@ struct IFog {
    virtual void apply() const = 0;
 };
 
-typedef std::tr1::shared_ptr<IFog> IFogPtr;
+typedef std::shared_ptr<IFog> IFogPtr;
 
 // Construct a generic fog
 IFogPtr makeFog(float r, float g, float b,

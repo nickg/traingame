@@ -23,7 +23,7 @@ using namespace gui;
 using namespace std;
 
 // Concrete implementation of push buttons
-class Button : public ControlImpl {
+class Button : public IControl {
 public:
    Button(const string& aGlyphFile);
    ~Button() {}
@@ -31,9 +31,7 @@ public:
    // IControl interface
    int width() const;
    int height() const;
-
-   // ControlImpl interface
-   void renderVisible(int x, int y) const;
+   void render(int x, int y) const;
 private:
    IImagePtr myGlyphImage;
    
@@ -63,7 +61,7 @@ int Button::height() const
    return myGlyphImage->height();
 }
 
-void Button::renderVisible(int x, int y) const
+void Button::render(int x, int y) const
 {   
    ourBaseImage->render(x, y);
    myGlyphImage->render(x, y);
@@ -71,6 +69,7 @@ void Button::renderVisible(int x, int y) const
 
 IControlPtr gui::makeButton(const string& aGlyphFile)
 {
-   return IControlPtr(new Button(aGlyphFile));
+   return IControlPtr
+      (new Defaults<Hideable<Button>>(aGlyphFile));
 }
 

@@ -34,7 +34,6 @@
 #include <boost/lexical_cast.hpp>
 
 using namespace std;
-using namespace std::tr1;
 using namespace boost;
 
 // Cache of already loaded models

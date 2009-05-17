@@ -18,7 +18,7 @@
 #ifndef INC_IFONT_HPP
 #define INC_IFONT_HPP
 
-#include <tr1/memory>
+#include <memory>
 #include <string>
 
 namespace gui {
@@ -34,7 +34,7 @@ namespace gui {
       virtual int maxHeight() const = 0;
    };
 
-   typedef std::tr1::shared_ptr<IFont> IFontPtr;
+   typedef std::shared_ptr<IFont> IFontPtr;
 
    IFontPtr loadFont(const std::string& aFile, int aHeight, bool shadow=true);
 }

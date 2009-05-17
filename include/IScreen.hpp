@@ -53,6 +53,6 @@ struct IScreen {
                                MouseButton aButton) = 0;
 };
 
-typedef std::tr1::shared_ptr<IScreen> IScreenPtr;
+typedef std::shared_ptr<IScreen> IScreenPtr;
 
 #endif

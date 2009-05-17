@@ -23,28 +23,39 @@
 // Common implementation details for GUI components
 namespace gui {
 
-   // Default implementations of some IControl methods
-   class ControlImpl : virtual public IControl {
+   // Mixin to add hide/show ability
+   template <class Base>
+   class Hideable : public Base {
    public:
-      ControlImpl() : amVisible(true) {}
+      template <typename... Args>
+      Hideable(const Args&&... args)
+         : Base(args...), amVisible(true) {}
+
+      virtual ~Hideable() {}
       
       void setVisible(bool visible)
       {
          amVisible = visible;
       }
 
-      virtual void render(int x, int y) const
+      void render(int x, int y) const
       {
          if (amVisible)
-            renderVisible(x, y);
+            Base::render(x, y);
       }
-
-      virtual void renderVisible(int x, int y) const = 0;
-
-      void handleClick(int x, int y) {}
-      
-   protected:
+   private:
       bool amVisible;
+   };
+
+   // Mixin to provide default event handlers
+   template <class Base>
+   class Defaults : public Base {
+   public:
+      template <typename... Args>
+      Defaults(const Args&&... args)
+         : Base(args...) {}
+      
+      void handleClick(int x, int y) {}
    };
    
 }

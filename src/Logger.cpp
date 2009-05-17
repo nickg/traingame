@@ -21,7 +21,6 @@
 #include <cstdio>
 
 using namespace std;
-using namespace std::tr1;
 
 // Concrete logger implementation
 class LoggerImpl : public ILogger {

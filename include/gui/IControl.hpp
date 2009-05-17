@@ -20,15 +20,15 @@
 
 #include "IFont.hpp"
 
-#include <tr1/memory>
-#include <tr1/tuple>
+#include <memory>
+#include <tuple>
 #include <string>
 
 #include <boost/cast.hpp>
 
 namespace gui {
 
-   typedef std::tr1::tuple<float, float, float> Colour;
+   typedef std::tuple<float, float, float> Colour;
 
    // Interface to any UI control
    struct IControl {
@@ -48,7 +48,7 @@ namespace gui {
       virtual void handleClick(int x, int y) = 0;
    };
 
-   typedef std::tr1::shared_ptr<IControl> IControlPtr;
+   typedef std::shared_ptr<IControl> IControlPtr;
 
    // Interface to a UI control that contains text
    struct ITextControl : virtual IControl {
@@ -60,7 +60,7 @@ namespace gui {
       virtual void setColour(float r, float g, float b) = 0;
    };
 
-   typedef std::tr1::shared_ptr<ITextControl> ITextControlPtr;
+   typedef std::shared_ptr<ITextControl> ITextControlPtr;
 
    // Interface to controls that are progress meters, etc.
    struct IMeterControl : virtual IControl {
@@ -70,7 +70,7 @@ namespace gui {
       virtual void setRange(int aLowValue, int aHighValue) = 0;
    };
 
-   typedef std::tr1::shared_ptr<IMeterControl> IMeterControlPtr;
+   typedef std::shared_ptr<IMeterControl> IMeterControlPtr;
 
    // Standard controls
    IControlPtr makeButton(const std::string& aGlyphFile);

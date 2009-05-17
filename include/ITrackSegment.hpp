@@ -20,9 +20,9 @@
 
 #include "Maths.hpp"
 
-#include <tr1/memory>
-#include <tr1/functional>
-#include <tr1/tuple>
+#include <memory>
+#include <functional>
+#include <tuple>
 #include <list>
 
 namespace xml {
@@ -52,14 +52,14 @@ namespace Axis {
 }
 
 struct ITrackSegment;
-typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;
+typedef std::shared_ptr<ITrackSegment> ITrackSegmentPtr;
 
 // A segment of track which fits over a number of tiles
 // Each track segment has an origin and one or more exits
 struct ITrackSegment {   
    virtual ~ITrackSegment() {}
 
-   typedef std::tr1::function<void (double)> TransformFunc;
+   typedef std::function<void (double)> TransformFunc;
    
    // Render the track with the origin in the centre
    virtual void render() const = 0;

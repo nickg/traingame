@@ -25,17 +25,16 @@
 
 using namespace gui;
 using namespace std;
-using namespace std::tr1;
 using namespace boost;
 
-class FuelMeter : public IMeterControl, private ControlImpl {
+class FuelMeter : public IMeterControl {
 public:
    FuelMeter(IFontPtr aFont, const string& aCaption,
              const Colour& aColour);
    ~FuelMeter() {}
 
    // IControl interface   
-   void renderVisible(int x, int y) const;
+   void render(int x, int y) const;
    int width() const;
    int height() const;
 
@@ -94,7 +93,7 @@ void FuelMeter::setRange(int aLowValue, int aHighValue)
    myMax = aHighValue;
 }
 
-void FuelMeter::renderVisible(int x, int y) const
+void FuelMeter::render(int x, int y) const
 {
    myFont->print(x, y, myCaption.c_str());
 
@@ -121,5 +120,6 @@ void FuelMeter::renderVisible(int x, int y) const
 IMeterControlPtr gui::makeFuelMeter(IFontPtr aFont, const string& aCaption,
                                     const Colour& aColour)
 {
-   return IMeterControlPtr(new FuelMeter(aFont, aCaption, aColour));
+   return IMeterControlPtr
+      (new Defaults<Hideable<FuelMeter>>(aFont, aCaption, aColour));
 }

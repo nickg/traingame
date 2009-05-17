@@ -21,7 +21,7 @@
 #include "IGraphics.hpp"
 #include "ITrackSegment.hpp"
 
-#include <tr1/memory>
+#include <memory>
 #include <string>
 
 // A map is a MxN array of floating point height values
@@ -76,7 +76,7 @@ public:
    virtual void setGrid(bool onOff) = 0;
 };
 
-typedef std::tr1::shared_ptr<IMap> IMapPtr;
+typedef std::shared_ptr<IMap> IMapPtr;
 
 // Make an empty map
 IMapPtr makeEmptyMap(int aWidth, int aHeight);

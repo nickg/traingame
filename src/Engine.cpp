@@ -20,7 +20,6 @@
 #include "ILogger.hpp"
 
 using namespace std;
-using namespace std::tr1;
 
 //
 //    READ THIS FIRST: physics model used by the steam engine
@@ -55,7 +54,7 @@ using namespace std::tr1;
 // Concrete implementation of a steam engine
 class Engine : public IRollingStock,
                public IController,
-               public enable_shared_from_this<Engine> {
+               public std::enable_shared_from_this<Engine> {
 public:
    Engine();
 

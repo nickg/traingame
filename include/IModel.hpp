@@ -20,7 +20,7 @@
 
 #include "Maths.hpp"
 
-#include <tr1/memory>
+#include <memory>
 #include <string>
 
 struct IModel {
@@ -30,7 +30,7 @@ struct IModel {
    virtual Vector<float> dimensions() const = 0;
 };
 
-typedef std::tr1::shared_ptr<IModel> IModelPtr;
+typedef std::shared_ptr<IModel> IModelPtr;
 
 // Load a model from a WaveFront .obj file
 IModelPtr loadModel(const std::string& fileName, double aScale = 1.0);
