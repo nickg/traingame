@@ -68,6 +68,8 @@ Game::Game(IMapPtr aMap)
    myTrain = makeTrain(myMap);
    mySun = makeSunLight();
 
+   myMap->setGrid(false);
+
    // Build the GUI
    myStatsPanel = makeFlowBox(FLOW_BOX_VERT);
 
