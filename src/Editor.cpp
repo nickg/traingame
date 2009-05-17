@@ -55,6 +55,11 @@ private:
    bool canConnect(const Point<int>& aFirstPoint,
                    const Point<int>& aSecondPoint) const;
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
+   void raiseTerrain();
+
+   // Signal handlers
+   void onRaiseTerrainSelect();
+   void onTrackSelect();
    
    IMapPtr myMap;
    
@@ -87,10 +92,12 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
    // Build the GUI
    myToolbar = makeFlowBox(FLOW_BOX_HORIZ, false);
 
-   IControlPtr trackButton = makeButton("data/images/track_icon.png");
+   IButtonPtr trackButton = makeButton("data/images/track_icon.png");
+   trackButton->onClick(bind(&Editor::onTrackSelect, this));
    myToolbar->addChild(trackButton);
 
-   IControlPtr raiseButton = makeButton("data/images/raise_icon.png");
+   IButtonPtr raiseButton = makeButton("data/images/raise_icon.png");
+   raiseButton->onClick(bind(&Editor::onRaiseTerrainSelect, this));
    myToolbar->addChild(raiseButton);
 
    myMap->setGrid(true);
@@ -368,6 +375,12 @@ void Editor::drawDraggedTrack()
    myMap->rebuildDisplayLists();
 }
 
+// Raise the terrain the user has dragged
+void Editor::raiseTerrain()
+{
+
+}
+
 void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
 {
    if (amDragging) {
@@ -381,14 +394,26 @@ void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
    }      
 }
 
+// Change to the terrain raising mode
+void Editor::onRaiseTerrainSelect()
+{
+   log() << "Raise terrain mode";
+   myTool = RAISE_TOOL;
+}
+
+// Change to the track placing mode
+void Editor::onTrackSelect()
+{
+   log() << "Track placing mode";
+   myTool = TRACK_TOOL;
+}
+
 void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
                           MouseButton aButton)
 {
    // See if the GUI can handle it
    if (myToolbar->handleClick(x, y))
       return;
-
-   debug() << "Not in GUI";
    
    IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
    display(pickContext);
@@ -407,8 +432,16 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
                             MouseButton aButton)
 {
    if (amDragging) {
-      // Stop dragging and draw the track
-      drawDraggedTrack();
+      // Stop dragging and perform the action
+      switch (myTool) {
+      case TRACK_TOOL:
+         drawDraggedTrack();
+         break;
+      case RAISE_TOOL:
+         raiseTerrain();
+         break;
+      }
+         
       amDragging = false;
    }
 }

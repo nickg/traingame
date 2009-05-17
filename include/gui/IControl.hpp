@@ -51,8 +51,19 @@ namespace gui {
 
    typedef std::shared_ptr<IControl> IControlPtr;
 
+   // Interface to clickable controls
+   struct IButton : IControl {
+      virtual ~IButton() {}
+
+      typedef std::function<void (void)> ClickHandler;
+      
+      virtual void onClick(ClickHandler aHandler) = 0;
+   };
+
+   typedef std::shared_ptr<IButton> IButtonPtr;
+   
    // Interface to a UI control that contains text
-   struct ITextControl : virtual IControl {
+   struct ITextControl : IControl {
       virtual ~ITextControl() {}
       
       virtual void setText(const std::string& aString) = 0;
@@ -64,7 +75,7 @@ namespace gui {
    typedef std::shared_ptr<ITextControl> ITextControlPtr;
 
    // Interface to controls that are progress meters, etc.
-   struct IMeterControl : virtual IControl {
+   struct IMeterControl : IControl {
       virtual ~IMeterControl() {}
 
       virtual void setValue(int aValue) = 0;
@@ -74,7 +85,7 @@ namespace gui {
    typedef std::shared_ptr<IMeterControl> IMeterControlPtr;
 
    // Standard controls
-   IControlPtr makeButton(const std::string& aGlyphFile);
+   IButtonPtr makeButton(const std::string& aGlyphFile);
    ITextControlPtr makeLabel(IFontPtr aFont, const std::string& aString="");
    IMeterControlPtr makeThrottleMeter(IFontPtr aFont);
    IMeterControlPtr makeFuelMeter(IFontPtr aFont, const std::string& aCaption,

@@ -19,24 +19,28 @@
 #include "gui/IImage.hpp"
 #include "gui/Internal.hpp"
 
-#include "ILogger.hpp"
+#include <boost/signals.hpp>
 
 using namespace gui;
 using namespace std;
 
 // Concrete implementation of push buttons
-class Button : public IControl {
+class Button : public IButton {
 public:
    Button(const string& aGlyphFile);
-   ~Button() {}
+   virtual ~Button() {}
 
    // IControl interface
    int width() const;
    int height() const;
    void render(int x, int y) const;
    bool handleClick(int x, int y);
+
+   // IButton interface
+   void onClick(ClickHandler aHandler);
 private:
    IImagePtr myGlyphImage;
+   boost::signal<void (void)> myClickSignal;
    
    static IImagePtr ourBaseImage, ourActiveImage;
 };
@@ -52,6 +56,11 @@ Button::Button(const string& aGlyphFile)
       ourActiveImage = makeImage("data/images/button_active.png");
 
    myGlyphImage = makeImage(aGlyphFile);
+}
+
+void Button::onClick(ClickHandler aHandler)
+{
+   myClickSignal.connect(aHandler);
 }
 
 int Button::width() const
@@ -72,12 +81,13 @@ void Button::render(int x, int y) const
 
 bool Button::handleClick(int x, int y)
 {
+   myClickSignal();
    return true;
 }
 
-IControlPtr gui::makeButton(const string& aGlyphFile)
+IButtonPtr gui::makeButton(const string& aGlyphFile)
 {
-   return IControlPtr
+   return IButtonPtr
       (new Moveable<Hideable<Button>>(aGlyphFile));
 }
 
