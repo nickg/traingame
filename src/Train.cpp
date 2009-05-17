@@ -63,6 +63,7 @@ private:
    const Part& engine() const;
    Part& engine();
    void move(double aDistance);
+   void addPart(IRollingStockPtr aVehicle);
    
    IMapPtr myMap;
 
@@ -85,15 +86,19 @@ Train::Train(IMapPtr aMap)
    // Bit of a hack to put the engine in the right place
    move(0.275);
    
-   for (int i = 1; i <= 5; i++) {
-      Part coal(makeWaggon());
-      enterSegment(coal, aMap->startLocation());
+   for (int i = 1; i <= 5; i++)
+      addPart(makeWaggon());
+}
 
-      // Push the rest of the train along some
-      move(coal.vehicle->length() + SEPARATION);
-      
-      myParts.push_back(coal);
-   }
+void Train::addPart(IRollingStockPtr aVehicle)
+{
+   Part part(makeWaggon());
+   enterSegment(part, myMap->startLocation());
+   
+   // Push the rest of the train along some
+   move(part.vehicle->length() + SEPARATION);
+   
+   myParts.push_back(part);
 }
 
 Train::Part& Train::engine()
