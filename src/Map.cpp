@@ -326,7 +326,7 @@ void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
 // Render a small part of the map as directed by the quad tree
 void Map::renderSector(IGraphicsPtr aContext,
                        Point<int> botLeft, Point<int> topRight)
-{      
+{
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
       for (int y = botLeft.y; y < topRight.y; y++) {
          // Name this tile
@@ -346,6 +346,10 @@ void Map::renderSector(IGraphicsPtr aContext,
          }
          
          glEnd();
+
+         for (int i = 0; i < 4; i++)
+            drawNormal(v[i].pos, v[i].normal);
+         
          glPopMatrix();
 
          if (shouldDrawGridLines) {

@@ -53,7 +53,7 @@ int main(int argc, char** argv)
          if (exists(mapFile))
             screen = makeEditorScreen(loadMap(mapFile), mapFile);
          else
-            screen = makeEditorScreen(makeEmptyMap(32, 32), mapFile);
+            screen = makeEditorScreen(makeEmptyMap(16, 16), mapFile);
       }
       else if (cmd == "play")
          screen = makeGameScreen(loadMap(mapFile));

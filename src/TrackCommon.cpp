@@ -137,35 +137,6 @@ void renderStraightRail()
    glPopMatrix();
 }
 
-// A utility function for debugging normal calculation
-namespace {
-   void drawNormal(const Vector<double>& aPosition,
-                   const Vector<double>& aNormal)
-   {
-      glPushAttrib(GL_ENABLE_BIT);
-      
-      glDisable(GL_CULL_FACE);
-      glDisable(GL_LIGHTING);
-      glDisable(GL_BLEND);
-      glDisable(GL_TEXTURE_2D);
-
-      glPushAttrib(GL_CURRENT_BIT);
-      glColor3d(1.0, 0.0, 0.0);
-
-      Vector<double> normPos = aPosition + aNormal;
-      
-      glBegin(GL_LINES);
-
-      glVertex3d(aPosition.x, aPosition.y, aPosition.z);
-      glVertex3d(normPos.x, normPos.y, normPos.z);
-
-      glEnd();
-      
-      glPopAttrib();
-      glPopAttrib();
-   }
-}
-
 enum RailType {
    InnerRail, OuterRail
 };

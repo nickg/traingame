@@ -131,6 +131,10 @@ Vector<T> surfaceNormal(const Vector<T>& a, const Vector<T>& b,
    return n;
 }
 
+// Useful debugging function
+void drawNormal(const Vector<double>& aPosition,
+                const Vector<double>& aNormal);
+
 // A 2D point in space
 template <typename T>
 struct Point {
