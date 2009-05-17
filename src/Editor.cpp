@@ -378,7 +378,7 @@ void Editor::drawDraggedTrack()
 // Raise the terrain the user has dragged
 void Editor::raiseTerrain()
 {
-
+   myMap->raiseArea(myDragBegin, myDragEnd);
 }
 
 void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)

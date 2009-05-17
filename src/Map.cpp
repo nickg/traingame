@@ -83,6 +83,9 @@ public:
    void rebuildDisplayLists();
    void resetMap(int aWidth, int aDepth);
 
+   void raiseArea(const Point<int>& aStartPos,
+                  const Point<int>& aFinishPos);
+   
    void save(const string& aFileName);
    
    // ISectorRenderable interface
@@ -132,6 +135,13 @@ private:
    }
 
    void resetMarks() const;
+
+   // Terrain modification
+   void raiseVertex(int x, int y, int vertex, float deltaHeight);
+   void setVertexHeight(int x, int y, int vertex, float height);
+   void normaliseVertex(int x, int y, int vertex);
+   void raiseTile(int x, int y, float deltaHeight);
+   void levelTile(int x, int y);
    
    int myWidth, myDepth;
    Point<int> myStartLocation;
@@ -367,6 +377,142 @@ void Map::renderSector(IGraphicsPtr aContext,
          glPopName();
       }			
    }
+}
+
+// Change the height of a single vertex
+void Map::raiseVertex(int x, int y, int vertex, float deltaHeight)
+{
+   if ((x < 0) || (y < 0) || (x >= myWidth) || (y >= myDepth))
+      return;
+   
+   assert(vertex >= 0 && vertex < 4);
+   tileAt(x, y).v[vertex].pos.y += deltaHeight;
+}
+
+// Set the absolute height of a vertex
+void Map::setVertexHeight(int x, int y, int vertex, float height)
+{
+   if ((x < 0) || (y < 0) || (x >= myWidth) || (y >= myDepth))
+      return;
+   
+   assert(vertex >= 0 && vertex < 4);
+   tileAt(x, y).v[vertex].pos.y = height;
+}
+
+// Find the normal at a vertex
+void Map::normaliseVertex(int x, int y, int vertex)
+{
+   if ((x < 0) || (y < 0) || (x >= myWidth) || (y >= myDepth))
+      return;
+   
+   assert(vertex >= 0 && vertex < 4);
+
+   // TODO: I don't think this is quite right...
+   Vector<double> n = surfaceNormal(tileAt(x, y).v[vertex].pos,
+                                    tileAt(x, y).v[(vertex+1)%4].pos,
+                                    tileAt(x, y).v[(vertex-1)%4].pos);
+   
+   tileAt(x, y).v[vertex].normal = n; 
+}
+
+// Changes the height of a complete tile
+void Map::raiseTile(int x, int y, float deltaHeight)
+{   
+   // Raise all the points
+   for (int i = 0; i < 4; i++)
+      raiseVertex(x, y, i, deltaHeight);
+   
+   raiseVertex(x, y - 1, 1, deltaHeight);
+   raiseVertex(x, y - 1, 2, deltaHeight);
+   normaliseVertex(x, y - 1, 1);
+   normaliseVertex(x, y - 1, 2);
+   
+   raiseVertex(x, y + 1, 3, deltaHeight);
+   raiseVertex(x, y + 1, 0, deltaHeight);
+   normaliseVertex(x, y + 1, 3);
+   normaliseVertex(x, y + 1, 0);
+   
+   raiseVertex(x - 1, y, 2, deltaHeight);
+   raiseVertex(x - 1, y, 3, deltaHeight);
+   normaliseVertex(x - 1, y, 2);
+   normaliseVertex(x - 1, y, 3);
+   
+   raiseVertex(x + 1, y, 0, deltaHeight);
+   raiseVertex(x + 1, y, 1, deltaHeight);
+   normaliseVertex(x + 1, y, 0);
+   normaliseVertex(x + 1, y, 1);
+   
+   raiseVertex(x + 1, y + 1, 0, deltaHeight);
+   raiseVertex(x + 1, y - 1, 1, deltaHeight);
+   raiseVertex(x - 1, y + 1, 3, deltaHeight);
+   raiseVertex(x - 1, y - 1, 2, deltaHeight);
+   normaliseVertex(x + 1, y + 1, 0);
+   normaliseVertex(x + 1, y - 1, 1);
+   normaliseVertex(x - 1, y + 1, 3);
+   normaliseVertex(x - 1, y - 1, 2);
+}
+
+// Levels off a tile
+void Map::levelTile(int x, int y)
+{
+   // Adjust to the average height
+   float heights[4];
+   float sum = 0.0f, average = 0.0f;
+   for (int i = 0; i < 4; i++)
+      sum += tileAt(x, y).v[i].pos.y;
+   
+   average = sum / 4.0f;
+   
+   for (int j = 0; j < 4; j++) {
+      setVertexHeight(x, y, j, average);
+      heights[j] = tileAt(x, y).v[j].pos.y;
+   }
+
+   setVertexHeight(x, y - 1, 1, heights[0]);
+   setVertexHeight(x, y - 1, 2, heights[1]);
+   normaliseVertex(x, y - 1, 1);
+   normaliseVertex(x, y - 1, 2);
+   
+   setVertexHeight(x, y + 1, 3, heights[2]);
+   setVertexHeight(x, y + 1, 0, heights[3]);
+   normaliseVertex(x, y + 1, 3);
+   normaliseVertex(x, y + 1, 0);
+
+   setVertexHeight(x - 1, y, 2, heights[1]);
+   setVertexHeight(x - 1, y, 3, heights[2]);
+   normaliseVertex(x - 1, y, 2);
+   normaliseVertex(x - 1, y, 3);
+   
+   setVertexHeight(x + 1, y, 0, heights[3]);
+   setVertexHeight(x + 1, y, 1, heights[0]);
+   normaliseVertex(x + 1, y, 0);
+   normaliseVertex(x + 1, y, 1);
+   
+   setVertexHeight(x + 1, y + 1, 0, heights[3]);
+   setVertexHeight(x + 1, y - 1, 1, heights[0]);
+   setVertexHeight(x - 1, y + 1, 3, heights[2]);
+   setVertexHeight(x - 1, y - 1, 2, heights[1]);
+   normaliseVertex(x + 1, y + 1, 0);
+   normaliseVertex(x + 1, y - 1, 1);
+   normaliseVertex(x - 1, y + 1, 3);
+   normaliseVertex(x - 1, y - 1, 2);
+}
+
+void Map::raiseArea(const Point<int>& aStartPos,
+                    const Point<int>& aFinishPos)
+{
+   const int xmin = min(aStartPos.x, aFinishPos.x);
+   const int xmax = max(aStartPos.x, aFinishPos.x);
+
+   const int ymin = min(aStartPos.y, aFinishPos.y);
+   const int ymax = max(aStartPos.y, aFinishPos.y);
+   
+   for (int x = xmin; x <= xmax; x++) {
+      for (int y = ymin; y <= ymax; y++)
+         raiseTile(x, y, 0.2f);
+   }
+   
+   rebuildDisplayLists();
 }
 
 // Turn the map into XML

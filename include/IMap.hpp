@@ -74,6 +74,10 @@ public:
 
    // Toggle display of grid lines
    virtual void setGrid(bool onOff) = 0;
+
+   // Make a hill in the given area
+   virtual void raiseArea(const Point<int>& aStartPos,
+                          const Point<int>& aFinishPos) = 0;
 };
 
 typedef std::shared_ptr<IMap> IMapPtr;
