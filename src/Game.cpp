@@ -23,6 +23,7 @@
 #include "ILogger.hpp"
 #include "ILight.hpp"
 #include "gui/IContainer.hpp"
+#include "GameScreens.hpp"
 
 #include <GL/gl.h>
 
@@ -175,6 +176,9 @@ void Game::onKeyDown(SDLKey aKey)
       break;
    case SDLK_s:
       myTrain->controller()->actOn(THROTTLE_UP);
+      break;
+   case SDLK_PRINT:
+      getGameWindow()->takeScreenShot();
       break;
    default:
       break;

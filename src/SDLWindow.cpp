@@ -44,6 +44,7 @@ public:
    void run(IScreenPtr aScreen);
    void switchScreen(IScreenPtr aScreen);
    void quit();
+   void takeScreenShot();
 
    // IGraphics interface
    bool cuboidInViewFrustum(double x, double y, double z,
@@ -63,12 +64,14 @@ private:
    void processInput();
    void drawGLScene();
    MouseButton fromSDLButton(Uint8 aSDLButton) const;
+   void captureFrame() const;
    
    bool amRunning;
    int myWidth, myHeight;
    IScreenPtr myScreen;
    Frustum myViewFrustum;
    bool willSkipNextFrame;
+   bool willTakeScreenShot;
 
    // Picking data
    static const int SELECT_BUFFER_SZ = 128;
@@ -132,7 +135,8 @@ namespace {
 
 // Create the game window
 SDLWindow::SDLWindow()
-   : amRunning(false), willSkipNextFrame(false)
+   : amRunning(false), willSkipNextFrame(false),
+     willTakeScreenShot(false)
 {
    // Start SDL
    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
@@ -176,6 +180,12 @@ SDLWindow::~SDLWindow()
    
 }
 
+// Make a screen capture at the end of this frame
+void SDLWindow::takeScreenShot()
+{
+   willTakeScreenShot = true;
+}
+
 // Change the active screen while the game is running
 void SDLWindow::switchScreen(IScreenPtr aScreen)
 {
@@ -216,6 +226,11 @@ void SDLWindow::run(IScreenPtr aScreen)
       catch (runtime_error& e) {
          error() << "Caught exception: " << e.what();
          amRunning = false;
+      }
+
+      if (willTakeScreenShot) {
+         captureFrame();
+         willTakeScreenShot = false;
       }
 
       // Release the CPU for a little while
@@ -478,6 +493,37 @@ unsigned SDLWindow::endPick()
    }
    else
       return 0;
+}
+
+// Capture the OpenGL pixels and save them to a file
+void SDLWindow::captureFrame() const
+{
+   const string fileName("screenshot.bmp");
+
+   SDL_Surface* temp = SDL_CreateRGBSurface
+      (SDL_SWSURFACE, myWidth, myHeight, 24,
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+       0x000000FF, 0x0000FF00, 0x00FF0000, 0
+#else
+       0x00FF0000, 0x0000FF00, 0x000000FF, 0
+#endif
+       );
+   assert(temp);
+
+   const int w = myWidth;
+   const int h = myHeight;
+   unsigned char* pixels = new unsigned char[3 * w * h];
+
+   glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+
+   for (int i = 0; i < h; i++)
+      memcpy(((char*)temp->pixels) + temp->pitch * i, pixels + 3*w * (h-i-1), w*3);
+   delete[] pixels;
+
+   SDL_SaveBMP(temp, fileName.c_str());
+   SDL_FreeSurface(temp);
+
+   log() << "Wrote screen shot to " << fileName;
 }
 
 // Construct and initialise an OpenGL SDL window
