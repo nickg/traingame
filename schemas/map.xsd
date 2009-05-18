@@ -12,6 +12,8 @@
           </xs:complexType>
         </xs:element>
 
+        <xs:element name="heightmap" type="xs:string"/>
+
         <xs:element name="tileset">
           <xs:complexType>
             <xs:sequence>
@@ -49,12 +51,13 @@
               </xs:element>
 
             </xs:sequence>
-
-            <xs:attribute name="width" type="xs:positiveInteger" use="required"/>
-            <xs:attribute name="height" type="xs:positiveInteger" use="required"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
+
+      <xs:attribute name="width" type="xs:positiveInteger" use="required"/>
+      <xs:attribute name="height" type="xs:positiveInteger" use="required"/>
+      
     </xs:complexType>
   </xs:element>
 </xs:schema>

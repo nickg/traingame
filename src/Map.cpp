@@ -30,6 +30,7 @@
 #include <fstream>
 
 #include <GL/gl.h>
+#include <boost/filesystem.hpp>
 
 using namespace std;
 
@@ -62,6 +63,7 @@ typedef shared_ptr<TrackNode> TrackNodePtr;
 
 class Map : public IMap, public ISectorRenderable,
             public enable_shared_from_this<Map> {
+   friend class MapLoader;
 public:
    Map();
    ~Map();
@@ -135,6 +137,8 @@ private:
    }
 
    void resetMarks() const;
+   void writeHeightMap(const string& aFileName) const;
+   void readHeightMap(const string& aFileName);
 
    // Terrain modification
    void raiseVertex(int x, int y, int vertex, float deltaHeight);
@@ -509,15 +513,75 @@ void Map::raiseArea(const Point<int>& aStartPos,
    
    for (int x = xmin; x <= xmax; x++) {
       for (int y = ymin; y <= ymax; y++)
-         raiseTile(x, y, 0.2f);
+         raiseTile(x, y, 0.1f);
    }
    
    rebuildDisplayLists();
 }
 
+// Write the terrain height map into a binary file
+// Binary file format is very simple:
+//   Bytes 0-3   Width of map
+//   Bytes 4-7   Depth of map
+//   Bytes 8+    Raw height data
+void Map::writeHeightMap(const string& aFileName) const
+{
+   log() << "Writing terrain height map to " << aFileName;
+
+   ofstream of(aFileName.c_str(), ios::binary);
+   if (!of.good())
+      throw runtime_error("Failed to open " + aFileName + " for writing");
+
+   const long wl = static_cast<long>(myWidth);
+   const long dl = static_cast<long>(myDepth);
+   of.write(reinterpret_cast<const char*>(&wl), sizeof(long));
+   of.write(reinterpret_cast<const char*>(&dl), sizeof(long));
+
+   for (int t = 0; t < myWidth * myDepth; t++) {
+      for (int i = 0; i < 4; i++)
+         of.write(reinterpret_cast<const char*>(&myTiles[t].v[i].pos.y),
+                  sizeof(double));
+   }            
+}
+
+// Read the height data back out of a binary file
+void Map::readHeightMap(const string& aFileName)
+{
+   log() << "Reading height map from " << aFileName;
+   
+   ifstream is(aFileName.c_str(), ios::binary);
+   if (!is.good())
+      throw runtime_error("Failed to open " + aFileName + " for reading");
+
+   // Check the dimensions of the binary file match the XML file
+   long wl, dl;
+   is.read(reinterpret_cast<char*>(&wl), sizeof(long));
+   is.read(reinterpret_cast<char*>(&dl), sizeof(long));
+
+   if (wl != myWidth || dl != myDepth) {
+      error() << "Expected width " << myWidth << " got " << wl;
+      error() << "Expected height " << myDepth << " got " << dl;
+      throw runtime_error
+         ("Binary file " + aFileName + " dimensions are incorrect");
+   }
+
+   for (int t = 0; t < myWidth * myDepth; t++) {
+      for (int i = 0; i < 4; i++)
+         is.read(reinterpret_cast<char*>(&myTiles[t].v[i].pos.y),
+                 sizeof(double));
+   }
+
+   for (int x = 0; x < myWidth; x++) {
+      for (int y = 0; y < myDepth; y++)
+         fixNormals(x, y);
+   }
+}
+
 // Turn the map into XML
 void Map::save(const string& aFileName)
 {
+   using namespace boost::filesystem;
+   
    log() << "Saving map to " << aFileName;
 
    ofstream of(aFileName.c_str());
@@ -525,6 +589,8 @@ void Map::save(const string& aFileName)
       throw runtime_error("Failed to open " + aFileName + " for writing");
 
    xml::element root("map");
+   root.addAttribute("width", myWidth);
+   root.addAttribute("height", myDepth);
 
    root.addChild(xml::element("name").addText("No Name"));
    
@@ -533,9 +599,17 @@ void Map::save(const string& aFileName)
        .addAttribute("x", 1)
        .addAttribute("y", 1));
 
+   // Generate the height map
+   // Note: basename is deprecated (use .replace_extension() instead when
+   // boost is updated in Debian)
+   const string binFile(change_extension(path(aFileName), ".bin").file_string());
+   writeHeightMap(binFile);
+
+   root.addChild
+      (xml::element("heightmap")
+       .addText(binFile));
+
    xml::element tileset("tileset");
-   tileset.addAttribute("width", myWidth);
-   tileset.addAttribute("height", myDepth);
    
    for (int x = 0; x < myWidth; x++) {
       for (int y = 0; y < myDepth; y++) {
@@ -556,7 +630,7 @@ void Map::save(const string& aFileName)
 
    root.addChild(tileset);
    
-   of << xml::document(root);                 
+   of << xml::document(root);
 }
 
 IMapPtr makeEmptyMap(int aWidth, int aDepth)
@@ -575,8 +649,8 @@ public:
    void startElement(const std::string& localName,
                      const AttributeSet& attrs)
    {
-      if (localName == "tileset")
-         handleTileset(attrs);
+      if (localName == "map")
+         handleMap(attrs);
       else if (localName == "tile")
          handleTile(attrs);
       else if (localName == "start")
@@ -588,9 +662,15 @@ public:
       else if (localName == "crossoverTrack")
          handleCrossoverTrack(attrs);
    }
+
+   void text(const string& localName, const string& aString)
+   {
+      if (localName == "heightmap")
+         myMap->readHeightMap(aString);
+   }
    
 private:
-   void handleTileset(const AttributeSet& attrs)
+   void handleMap(const AttributeSet& attrs)
    {
       int width, height;
       attrs.get("width", width);

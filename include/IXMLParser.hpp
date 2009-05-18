@@ -65,6 +65,8 @@ struct IXMLCallback {
 
    virtual void startElement(const std::string& localName,
                              const AttributeSet& attrs) = 0;
+   virtual void text(const std::string& localName,
+                     const std::string& aString) = 0;
 };
 
 // Interface to a validating XML parser

@@ -19,6 +19,7 @@
 #include "ILogger.hpp"
 
 #include <stdexcept>
+#include <sstream>
 
 #include <xercesc/sax2/DefaultHandler.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
@@ -47,10 +48,34 @@ struct SAX2WrapperHandler : public DefaultHandler {
       XMLString::release(&chLocalname);
    }
 
+   void characters(const XMLCh* buf, const XMLSize_t length)
+   {
+      char* chBuf = XMLString::transcode(buf);
+
+      charBuf << chBuf;
+
+      XMLString::release(&chBuf);
+   }
+
+   void endElement(const XMLCh* const uri,
+                   const XMLCh* const localname,
+                   const XMLCh* const qname)
+   {
+      char* chLocalname = XMLString::transcode(localname);
+
+      if (charBuf.str().size() > 0) {
+         callbackPtr->text(chLocalname, charBuf.str());
+         charBuf.str("");
+      }
+      
+      XMLString::release(&chLocalname);
+   }
+   
    void error(const SAXParseException& e) { throw e; }
    void fatalError(const SAXParseException& e) { throw e; }
 
    IXMLCallback* callbackPtr;
+   ostringstream charBuf;
 };
 
 // Concrete XML parser using Xerces
