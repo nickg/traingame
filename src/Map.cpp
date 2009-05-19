@@ -102,6 +102,11 @@ private:
       TrackNodePtr track;  // Track at this location, if any
    } *myTiles;
 
+   // Vertices on the terrain
+   struct Vertex {
+      Vector<float> pos, normal;
+   } *myHeightMap;
+
    static const unsigned TILE_NAME_BASE	= 1000;	  // Base of tile naming
    static const unsigned NULL_OBJECT		= 0;		  // Non-existant object
    static const double TILE_HEIGHT		  = 0.2;	  // Standard height increment
@@ -139,7 +144,8 @@ private:
    void resetMarks() const;
    void writeHeightMap(const string& aFileName) const;
    void readHeightMap(const string& aFileName);
-
+   void tileVertices(int x, int y, int* indexes) const;
+      
    // Terrain modification
    void raiseVertex(int x, int y, int vertex, float deltaHeight);
    void setVertexHeight(int x, int y, int vertex, float height);
@@ -155,7 +161,7 @@ private:
 };
 
 Map::Map()
-   : myTiles(NULL), myWidth(0), myDepth(0),
+   : myTiles(NULL), myHeightMap(NULL), myWidth(0), myDepth(0),
      myStartLocation(makePoint(1, 1)),
      shouldDrawGridLines(false)
 {
@@ -239,21 +245,22 @@ void Map::resetMap(int aWidth, int aDepth)
    if (myTiles)
       delete[] myTiles;
    myTiles = new Tile[aWidth * aDepth];
+
+   if (myHeightMap)
+      delete[] myHeightMap;
+   myHeightMap = new Vertex[(aWidth + 1) * (aDepth + 1)];
    
-   // Clear map
-   for (int i = 0; i < aWidth * aDepth; i++) {
-      myTiles[i].v[0].pos = makeVector(-0.5, 0.0, -0.5);
-      myTiles[i].v[1].pos = makeVector(-0.5, 0.0, 0.5);
-      myTiles[i].v[2].pos = makeVector(0.5, 0.0, 0.5);
-      myTiles[i].v[3].pos = makeVector(0.5, 0.0, -0.5);
-      
-      Vector<double> n = surfaceNormal(myTiles[i].v[0].pos,
-                                       myTiles[i].v[1].pos,
-                                       myTiles[i].v[2].pos);
-      myTiles[i].v[0].normal = n;
-      myTiles[i].v[1].normal = n;
-      myTiles[i].v[2].normal = n;
-      myTiles[i].v[3].normal = n;
+   // Make a flat map
+   for (int x = 0; x <= aWidth; x++) {
+      for (int y = 0; y <= aDepth; y++) {
+         Vertex& v = myHeightMap[x + y*(aWidth+1)];
+
+         const float xf = static_cast<float>(x) - 0.5f;
+         const float yf = static_cast<float>(y) - 0.5f;
+
+         v.pos = makeVector(xf, 0.0f, yf);
+         v.normal = makeVector(0.0f, 1.0f, 0.0f);
+      }
    }
    
    // Create quad tree
@@ -301,8 +308,6 @@ void Map::render(IGraphicsPtr aContext) const
 // Draw a thick border around a single tile
 void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
 {
-   Tile::Vertex* v = myTiles[index(aPoint.x, aPoint.y)].v;
-
    // User should be able to click on the highlight as well
    glPushName(tileName(aPoint.x, aPoint.y));
          
@@ -311,14 +316,16 @@ void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
    glDisable(GL_LIGHTING);
    
    glPushMatrix();
-   glTranslated(static_cast<double>(aPoint.x), 0,
-                static_cast<double>(aPoint.y));
-   glColor4d(1.0, 1.0, 1.0, 0.5);
+   glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
    glBegin(GL_POLYGON);
+
+   int indexes[4];
+   tileVertices(aPoint.x, aPoint.y, indexes);
    
    for (int i = 0; i < 4; i++) {
-      glNormal3d(v[i].normal.x, v[i].normal.y, v[i].normal.z);
-      glVertex3d(v[i].pos.x, v[i].pos.y + 0.1, v[i].pos.z);
+      Vertex& v = myHeightMap[indexes[i]];
+      glNormal3f(v.normal.x, v.normal.y, v.normal.z);
+      glVertex3f(v.pos.x, v.pos.y + 0.1, v.pos.z);
    }
    
    glEnd();
@@ -336,17 +343,17 @@ void Map::renderSector(IGraphicsPtr aContext,
          // Name this tile
          glPushName(tileName(x, y));
 
-         Tile::Vertex* v = myTiles[index(x, y)].v;
-            
          // Render tile
-         glPushMatrix();
-         glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
          glColor3f(0.7f, 1.0f, 0.7f);
+
          glBegin(GL_QUADS);
 
+         int indexes[4];
+         tileVertices(x, y, indexes);
          for (int i = 0; i < 4; i++) {
-            glNormal3d(v[i].normal.x, v[i].normal.y, v[i].normal.z);
-            glVertex3d(v[i].pos.x, v[i].pos.y, v[i].pos.z);
+            const Vertex& v = myHeightMap[indexes[i]];
+            glNormal3f(v.normal.x, v.normal.y, v.normal.z);
+            glVertex3f(v.pos.x, v.pos.y, v.pos.z);
          }
          
          glEnd();
@@ -354,20 +361,19 @@ void Map::renderSector(IGraphicsPtr aContext,
          //for (int i = 0; i < 4; i++)
          //   drawNormal(v[i].pos, v[i].normal);
          
-         glPopMatrix();
-
          if (shouldDrawGridLines) {
             // Render grid lines
-            glPushMatrix();
-            glTranslated(static_cast<double>(x), 0, static_cast<double>(y));
             glColor3f(0.0f, 0.0f, 0.0f);
             glBegin(GL_LINE_LOOP);
-            
-            for (int i = 0; i < 4; i++) 
-               glVertex3d(v[i].pos.x, v[i].pos.y, v[i].pos.z);
+
+            int indexes[4];
+            tileVertices(x, y, indexes);
+            for (int i = 0; i < 4; i++) {
+               const Vertex& v = myHeightMap[indexes[i]];
+               glVertex3f(v.pos.x, v.pos.y, v.pos.z);
+            }
             
             glEnd();
-            glPopMatrix();
          }
 
          // Draw the track, if any
@@ -439,31 +445,25 @@ void Map::fixNormals(int x, int y)
    tileAt(x, y).v[2].normal = avg;
 }
 
+// Find the terrain vertices that border a tile
+void Map::tileVertices(int x, int y, int* indexes) const
+{
+   assert(x >= 0 && x < myWidth && y >= 0 && y < myDepth);
+          
+   indexes[3] = x + (y * (myWidth+1));
+   indexes[2] = (x+1) + (y * (myWidth+1));
+   indexes[1] = (x+1) + ((y+1) * (myWidth+1));
+   indexes[0] = x + ((y+1) * (myWidth+1));          
+}
+
 // Changes the height of a complete tile
 void Map::raiseTile(int x, int y, float deltaHeight)
-{   
-   // Raise all the points
-   for (int i = 0; i < 4; i++)
-      raiseVertex(x, y, i, deltaHeight);
-   
-   raiseVertex(x, y - 1, 1, deltaHeight);
-   raiseVertex(x, y - 1, 2, deltaHeight);
-   
-   raiseVertex(x, y + 1, 3, deltaHeight);
-   raiseVertex(x, y + 1, 0, deltaHeight);
-   
-   raiseVertex(x - 1, y, 2, deltaHeight);
-   raiseVertex(x - 1, y, 3, deltaHeight);
-   
-   raiseVertex(x + 1, y, 0, deltaHeight);
-   raiseVertex(x + 1, y, 1, deltaHeight);
-   
-   raiseVertex(x + 1, y + 1, 0, deltaHeight);
-   raiseVertex(x + 1, y - 1, 1, deltaHeight);
-   raiseVertex(x - 1, y + 1, 3, deltaHeight);
-   raiseVertex(x - 1, y - 1, 2, deltaHeight);
+{
+   int indexes[4];
+   tileVertices(x, y, indexes);
 
-   fixNormals(x, y);
+   for (int i = 0; i < 4; i++)
+      myHeightMap[indexes[i]].pos.y += deltaHeight;
 }
 
 // Levels off a tile
