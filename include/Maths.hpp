@@ -132,8 +132,8 @@ Vector<T> surfaceNormal(const Vector<T>& a, const Vector<T>& b,
 }
 
 // Useful debugging function
-void drawNormal(const Vector<double>& aPosition,
-                const Vector<double>& aNormal);
+void drawNormal(const Vector<float>& aPosition,
+                const Vector<float>& aNormal);
 
 // A 2D point in space
 template <typename T>

@@ -20,8 +20,8 @@
 #include <GL/gl.h>
 
 // A utility function for debugging normal calculation
-void drawNormal(const Vector<double>& aPosition,
-                const Vector<double>& aNormal)
+void drawNormal(const Vector<float>& aPosition,
+                const Vector<float>& aNormal)
 {
    glPushAttrib(GL_ENABLE_BIT);
    
@@ -31,7 +31,7 @@ void drawNormal(const Vector<double>& aPosition,
    glPushAttrib(GL_CURRENT_BIT);
    glColor3d(1.0, 0.0, 0.0);
    
-   Vector<double> normPos = aPosition + aNormal;
+   Vector<float> normPos = aPosition + aNormal;
    
    glBegin(GL_LINES);
    

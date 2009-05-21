@@ -358,8 +358,10 @@ void Map::renderSector(IGraphicsPtr aContext,
          
          glEnd();
 
-         //for (int i = 0; i < 4; i++)
-         //   drawNormal(v[i].pos, v[i].normal);
+         for (int i = 0; i < 4; i++) {
+            const Vertex& v = myHeightMap[indexes[i]];
+            drawNormal(v.pos, v.normal);
+         }
          
          if (shouldDrawGridLines) {
             // Render grid lines
@@ -421,28 +423,39 @@ void Map::fixNormals(int x, int y)
    if ((x < 0) || (y < 0) || (x >= myWidth) || (y >= myDepth))
       return;
 
-   // A square is made of two triangles which have separate normals
-   // The vertices are always {0, 1, 2} and {1, 2, 3}
+   int indexes[4];
+   tileVertices(x, y, indexes);
 
-   Vector<double> n1 = surfaceNormal(tileAt(x, y).v[0].pos,
-                                     tileAt(x, y).v[1].pos,
-                                     tileAt(x, y).v[2].pos);
+   for (int n = 0; n < 4; n++) {
+      const int i = indexes[n];
+      Vertex& v = myHeightMap[i];
 
-   Vector<double> n2 = surfaceNormal(tileAt(x, y).v[1].pos,
-                                     tileAt(x, y).v[2].pos,
-                                     tileAt(x, y).v[3].pos);
+      const Vector<float> outside = makeVector(0.0f, 1.0f, 0.0f);
+      
+      const Vector<float>& west =
+         i > 0 ? myHeightMap[i-1].pos : outside;
+      const Vector<float>& north =
+         i < (myWidth + 1) * myDepth - 1
+         ? myHeightMap[i + (myWidth + 1)].pos : outside;
+      const Vector<float>& east =
+         i < (myWidth + 1) * (myDepth + 1) - 1
+         ? myHeightMap[i + 1].pos : outside;
+      const Vector<float>& south =
+         i > (myWidth + 1)
+         ? myHeightMap[i - (myWidth + 1)].pos : outside;
 
-   // Vertices 0 and 3 do not share triangles so we can use the
-   // normals directly
-   tileAt(x, y).v[0].normal = n1;
-   tileAt(x, y).v[3].normal = n2;
+      Vector<float> n1 = surfaceNormal(north, v.pos, west);
+      Vector<float> n2 = surfaceNormal(east, v.pos, north);
+      Vector<float> n3 = surfaceNormal(south, v.pos, east);
+      Vector<float> n4 = surfaceNormal(west, v.pos, south);
 
-   // Average the other two normals;
-   Vector<double> avg = makeVector((n1.x + n2.x) / 2.0,
-                                   (n1.y + n2.y) / 2.0,
-                                   (n1.z + n2.z) / 2.0);
-   tileAt(x, y).v[1].normal = avg;
-   tileAt(x, y).v[2].normal = avg;
+      const float x = (n1.x + n2.x + n3.x + n4.x) / 4.0f;
+      const float y = (n1.y + n2.y + n3.y + n4.y) / 4.0f;
+      const float z = (n1.z + n2.z + n3.z + n4.z) / 4.0f;
+
+      v.normal = makeVector(x, y, z);
+      debug() << v.normal;
+   }
 }
 
 // Find the terrain vertices that border a tile
@@ -464,6 +477,8 @@ void Map::raiseTile(int x, int y, float deltaHeight)
 
    for (int i = 0; i < 4; i++)
       myHeightMap[indexes[i]].pos.y += deltaHeight;
+
+   fixNormals(x, y);
 }
 
 // Levels off a tile
