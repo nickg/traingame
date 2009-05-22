@@ -127,6 +127,12 @@ private:
       return myTiles[index(x, z)];
    }
 
+   inline Vertex& heightAt(int i) const
+   {
+      assert(i >= 0 && i < (myWidth + 1) * (myDepth + 1));
+      return myHeightMap[i];
+   }
+   
    bool isValidTileName(unsigned aName) const
    {
       return aName >= TILE_NAME_BASE
@@ -358,10 +364,10 @@ void Map::renderSector(IGraphicsPtr aContext,
          
          glEnd();
 
-         for (int i = 0; i < 4; i++) {
-            const Vertex& v = myHeightMap[indexes[i]];
-            drawNormal(v.pos, v.normal);
-         }
+         //for (int i = 0; i < 4; i++) {
+         //   const Vertex& v = myHeightMap[indexes[i]];
+         //   drawNormal(v.pos, v.normal);
+         //}
          
          if (shouldDrawGridLines) {
             // Render grid lines
@@ -430,31 +436,55 @@ void Map::fixNormals(int x, int y)
       const int i = indexes[n];
       Vertex& v = myHeightMap[i];
 
-      const Vector<float> outside = makeVector(0.0f, 1.0f, 0.0f);
+      Vector<float> west, north, east, south;
+      bool haveWest = true, haveNorth = true,
+         haveEast = true, haveSouth = true;
       
-      const Vector<float>& west =
-         i > 0 ? myHeightMap[i-1].pos : outside;
-      const Vector<float>& north =
-         i < (myWidth + 1) * myDepth - 1
-         ? myHeightMap[i + (myWidth + 1)].pos : outside;
-      const Vector<float>& east =
-         i < (myWidth + 1) * (myDepth + 1) - 1
-         ? myHeightMap[i + 1].pos : outside;
-      const Vector<float>& south =
-         i > (myWidth + 1)
-         ? myHeightMap[i - (myWidth + 1)].pos : outside;
+      if (i > 0 && i % (myWidth + 1) > 0)
+         west = heightAt(i-1).pos;
+      else
+         haveWest = false;
+         
+      if (i < (myWidth + 1) * myDepth - 1)
+         north = heightAt(i + (myWidth + 1)).pos;
+      else
+         haveNorth = false;
 
-      Vector<float> n1 = surfaceNormal(north, v.pos, west);
-      Vector<float> n2 = surfaceNormal(east, v.pos, north);
-      Vector<float> n3 = surfaceNormal(south, v.pos, east);
-      Vector<float> n4 = surfaceNormal(west, v.pos, south);
+      if (i < (myWidth + 1) * (myDepth + 1) - 1
+          && i % (myWidth + 1) < myWidth)
+         east = heightAt(i + 1).pos;
+      else
+         haveEast = false;
+      
+      if (i > (myWidth + 1))
+         south = heightAt(i - (myWidth + 1)).pos;
+      else
+         haveSouth = false;
 
-      const float x = (n1.x + n2.x + n3.x + n4.x) / 4.0f;
-      const float y = (n1.y + n2.y + n3.y + n4.y) / 4.0f;
-      const float z = (n1.z + n2.z + n3.z + n4.z) / 4.0f;
+      float count = 4.0f;
+      Vector<float> avg = makeVector(0.0f, 0.0f, 0.0f);
 
-      v.normal = makeVector(x, y, z);
-      debug() << v.normal;
+      if (haveWest && haveNorth)
+         avg += surfaceNormal(north, v.pos, west);
+      else
+         count -= 1.0f;
+
+      if (haveEast && haveNorth)
+         avg += surfaceNormal(east, v.pos, north);
+      else
+         count -= 1.0f;
+
+      if (haveSouth && haveEast)
+         avg += surfaceNormal(south, v.pos, east);
+      else
+         count -= 1.0f;
+
+      if (haveWest && haveSouth)      
+         avg += surfaceNormal(west, v.pos, south);
+      else
+         count -= 1.0f;
+
+      v.normal = avg / count;
    }
 }
 
