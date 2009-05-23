@@ -81,7 +81,7 @@ private:
 };
 
 const float SDLWindow::NEAR_CLIP(0.1f);
-const float SDLWindow::FAR_CLIP(50.0f);
+const float SDLWindow::FAR_CLIP(70.0f);
 
 // Calculation and display of the FPS rate
 namespace {
@@ -497,7 +497,10 @@ unsigned SDLWindow::endPick()
 // Capture the OpenGL pixels and save them to a file
 void SDLWindow::captureFrame() const
 {
-   const string fileName("screenshot.bmp");
+   static int fileNumber = 1;
+   
+   const string fileName
+      ("screenshot" + lexical_cast<string>(fileNumber++) + ".bmp");
 
    SDL_Surface* temp = SDL_CreateRGBSurface
       (SDL_SWSURFACE, myWidth, myHeight, 24,
