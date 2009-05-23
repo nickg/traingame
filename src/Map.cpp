@@ -95,6 +95,8 @@ public:
    // ISectorRenderable interface
    void renderSector(IGraphicsPtr aContext,
                      Point<int> botLeft, Point<int> topRight);
+   void postRenderSector(IGraphicsPtr aContext,
+                         Point<int> botLeft, Point<int> topRight);
 private:
    // Tiles on the map
    struct Tile {
@@ -410,7 +412,12 @@ void Map::renderSector(IGraphicsPtr aContext,
          glPopName();
       }			
    }
+}
 
+// Render the semi-transparent overlays such as water
+void Map::postRenderSector(IGraphicsPtr aContext,
+                           Point<int> botLeft, Point<int> topRight)
+{
    // Draw the water
    if (!inPickMode) {
       glPushName(NULL_OBJECT);

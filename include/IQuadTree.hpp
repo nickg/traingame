@@ -29,6 +29,8 @@ struct ISectorRenderable {
 
    virtual void renderSector(IGraphicsPtr aContext,
                              Point<int> botLeft, Point<int> topRight) = 0;
+   virtual void postRenderSector(IGraphicsPtr aContext,
+                                 Point<int> botLeft, Point<int> topRight) = 0;
 };
 
 typedef std::shared_ptr<ISectorRenderable> ISectorRenderablePtr;

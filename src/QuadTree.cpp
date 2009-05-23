@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <cstdlib>
+#include <list>
 
 using namespace std;
 
@@ -31,15 +32,11 @@ public:
 
    void buildTree(int aDim);
    
-   void render(IGraphicsPtr aContext)
-   {
-      myKillCount = 0;
-      displaySector(aContext, 0);
-   }
+   void render(IGraphicsPtr aContext);
 
 private:
    enum QuadType { QT_LEAF, QT_BRANCH };
-   
+
    struct Sector {
       Point<int> botLeft, topRight;
       unsigned int id;
@@ -49,7 +46,7 @@ private:
 
    int calcNumSectors(int aWidth);
    int buildNode(int anId, int aParent, int x1, int y1, int x2, int y2);
-   void displaySector(IGraphicsPtr aContext, int aSector);
+   void visibleSectors(IGraphicsPtr aContext, list<Sector*>& aList, int aSector);
    
    int mySize, myNumSectors, myUsedSectors;
    ISectorRenderablePtr myRenderer;
@@ -70,6 +67,21 @@ QuadTree::~QuadTree()
 {
    if (mySectors)
       delete[] mySectors;
+}
+
+void QuadTree::render(IGraphicsPtr aContext)
+{
+   list<Sector*> visible;
+   myKillCount = 0;
+   visibleSectors(aContext, visible, 0);
+
+   list<Sector*>::const_iterator it;
+   
+   for (it = visible.begin(); it != visible.end(); ++it)
+      myRenderer->renderSector(aContext, (*it)->botLeft, (*it)->topRight);
+
+   for (it = visible.begin(); it != visible.end(); ++it)
+      myRenderer->postRenderSector(aContext, (*it)->botLeft, (*it)->topRight);
 }
 
 // Creates a blank QuadTree
@@ -136,9 +148,10 @@ int QuadTree::calcNumSectors(int aWidth)
       return 1;		
 }
 
-// Render all the visible sectors
-void QuadTree::displaySector(IGraphicsPtr aContext, int aSector)
-{  
+// Find all the visible sectors
+void QuadTree::visibleSectors(IGraphicsPtr aContext, list<Sector*>& aList,
+                              int aSector)
+{
    if (aSector >= myNumSectors) {
       ostringstream ss;
       ss << "displaySector(" << aSector << ") out of range";
@@ -147,8 +160,7 @@ void QuadTree::displaySector(IGraphicsPtr aContext, int aSector)
  
    // See if it's a leaf
    if (mySectors[aSector].type == QT_LEAF)
-      myRenderer->renderSector
-         (aContext, mySectors[aSector].botLeft, mySectors[aSector].topRight);
+      aList.push_back(&mySectors[aSector]);
    else {
       // Loop through each sector
       for (int i = 3; i >= 0; i--) {
@@ -162,7 +174,7 @@ void QuadTree::displaySector(IGraphicsPtr aContext, int aSector)
          int y = child->botLeft.y + h/2;
 
          if (aContext->cubeInViewFrustum((float)x, 0.0f, (float)y, (float)w/2))
-            displaySector(aContext, childID);
+            visibleSectors(aContext, aList, childID);
          else
             myKillCount++;
       }
