@@ -87,6 +87,8 @@ public:
 
    void raiseArea(const Point<int>& aStartPos,
                   const Point<int>& aFinishPos);
+   void lowerArea(const Point<int>& aStartPos,
+                  const Point<int>& aFinishPos);
    
    void save(const string& aFileName);
    
@@ -150,6 +152,8 @@ private:
    void tileVertices(int x, int y, int* indexes) const;
       
    // Terrain modification
+   void changeAreaHeight(const Point<int>& aStartPos,
+                         const Point<int>& aFinishPos, float aHeightDelta);
    void raiseTile(int x, int y, float deltaHeight);
    void levelTile(int x, int y);
    void fixNormals(int x, int y);
@@ -540,8 +544,9 @@ void Map::levelTile(int x, int y)
    fixNormals(x, y);*/
 }
 
-void Map::raiseArea(const Point<int>& aStartPos,
-                    const Point<int>& aFinishPos)
+void Map::changeAreaHeight(const Point<int>& aStartPos,
+                           const Point<int>& aFinishPos,
+                           float aHeightDelta)
 {
    const int xmin = min(aStartPos.x, aFinishPos.x);
    const int xmax = max(aStartPos.x, aFinishPos.x);
@@ -551,10 +556,22 @@ void Map::raiseArea(const Point<int>& aStartPos,
    
    for (int x = xmin; x <= xmax; x++) {
       for (int y = ymin; y <= ymax; y++)
-         raiseTile(x, y, 0.1f);
+         raiseTile(x, y, aHeightDelta);
    }
    
    rebuildDisplayLists();
+}
+
+void Map::raiseArea(const Point<int>& aStartPos,
+                    const Point<int>& aFinishPos)
+{
+   changeAreaHeight(aStartPos, aFinishPos, 0.1f);
+}
+
+void Map::lowerArea(const Point<int>& aStartPos,
+                    const Point<int>& aFinishPos)
+{
+   changeAreaHeight(aStartPos, aFinishPos, -0.1f);
 }
 
 // Write the terrain height map into a binary file

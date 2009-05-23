@@ -56,10 +56,12 @@ private:
                    const Point<int>& aSecondPoint) const;
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
    void raiseTerrain();
-
+   void lowerTerrain();
+   
    // Signal handlers
    void onRaiseTerrainSelect();
    void onTrackSelect();
+   void onLowerTerrainSelect();
    
    IMapPtr myMap;
    
@@ -75,7 +77,7 @@ private:
 
    // Different tools the user can be using
    enum Tool {
-      TRACK_TOOL, RAISE_TOOL
+      TRACK_TOOL, RAISE_TOOL, LOWER_TOOL
    };
    Tool myTool;
 
@@ -99,6 +101,10 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
    IButtonPtr raiseButton = makeButton("data/images/raise_icon.png");
    raiseButton->onClick(bind(&Editor::onRaiseTerrainSelect, this));
    myToolbar->addChild(raiseButton);
+
+   IButtonPtr lowerButton = makeButton("data/images/lower_icon.png");
+   lowerButton->onClick(bind(&Editor::onLowerTerrainSelect, this));
+   myToolbar->addChild(lowerButton);
 
    myMap->setGrid(true);
 
@@ -381,6 +387,12 @@ void Editor::raiseTerrain()
    myMap->raiseArea(myDragBegin, myDragEnd);
 }
 
+// Lower the terrain the user has dragged
+void Editor::lowerTerrain()
+{
+   myMap->lowerArea(myDragBegin, myDragEnd);
+}
+
 void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
 {
    if (amDragging) {
@@ -399,6 +411,13 @@ void Editor::onRaiseTerrainSelect()
 {
    log() << "Raise terrain mode";
    myTool = RAISE_TOOL;
+}
+
+// Change to the terrain lowering mode
+void Editor::onLowerTerrainSelect()
+{
+   log() << "Lower terrain mode";
+   myTool = LOWER_TOOL;
 }
 
 // Change to the track placing mode
@@ -439,6 +458,9 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
          break;
       case RAISE_TOOL:
          raiseTerrain();
+         break;
+      case LOWER_TOOL:
+         lowerTerrain();
          break;
       }
          
