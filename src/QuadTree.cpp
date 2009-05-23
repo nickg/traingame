@@ -78,10 +78,11 @@ void QuadTree::render(IGraphicsPtr aContext)
    list<Sector*>::const_iterator it;
    
    for (it = visible.begin(); it != visible.end(); ++it)
-      myRenderer->renderSector(aContext, (*it)->botLeft, (*it)->topRight);
+      myRenderer->renderSector(aContext, (*it)->id, (*it)->botLeft, (*it)->topRight);
 
    for (it = visible.begin(); it != visible.end(); ++it)
-      myRenderer->postRenderSector(aContext, (*it)->botLeft, (*it)->topRight);
+      myRenderer->postRenderSector(aContext, (*it)->id,
+                                   (*it)->botLeft, (*it)->topRight);
 }
 
 // Creates a blank QuadTree

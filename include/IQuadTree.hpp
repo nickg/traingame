@@ -27,9 +27,9 @@
 struct ISectorRenderable {
    virtual ~ISectorRenderable() {}
 
-   virtual void renderSector(IGraphicsPtr aContext,
+   virtual void renderSector(IGraphicsPtr aContext, int id,
                              Point<int> botLeft, Point<int> topRight) = 0;
-   virtual void postRenderSector(IGraphicsPtr aContext,
+   virtual void postRenderSector(IGraphicsPtr aContext, int id,
                                  Point<int> botLeft, Point<int> topRight) = 0;
 };
 

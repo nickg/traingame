@@ -240,11 +240,16 @@ DisplayListMesh::DisplayListMesh(IMeshBufferPtr aBuffer)
    for (it = buf->indices.begin();
         it != buf->indices.end(); ++it) {
 
+      if (!buf->hasMaterial) {
+         const MeshBuffer::Colour& c = buf->colours[*it];
+         glColor3f(get<0>(c), get<1>(c), get<2>(c));
+      }
+      
       const MeshBuffer::Normal& n = buf->normals[*it];
       glNormal3f(n.x, n.y, n.z);
       
       const MeshBuffer::Vertex& v = buf->vertices[*it];
-      glVertex3f(v.x, v.y, v.z);      
+      glVertex3f(v.x, v.y, v.z);
    }        
            
    glEnd();

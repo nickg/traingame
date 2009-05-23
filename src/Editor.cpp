@@ -438,9 +438,11 @@ void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
    if (myToolbar->handleClick(x, y))
       return;
    
+   myMap->setPickMode(true);
    IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
    display(pickContext);
    int id = aPickBuffer->endPick();
+   myMap->setPickMode(false);
 
    if (aButton == MOUSE_LEFT && id > 0) {
       // Begin dragging a selection rectangle

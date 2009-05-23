@@ -23,6 +23,7 @@
 #include "IFog.hpp"
 #include "IXMLParser.hpp"
 #include "XMLBuilder.hpp"
+#include "IMesh.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -93,9 +94,9 @@ public:
    void save(const string& aFileName);
    
    // ISectorRenderable interface
-   void renderSector(IGraphicsPtr aContext,
+   void renderSector(IGraphicsPtr aContext, int id,
                      Point<int> botLeft, Point<int> topRight);
-   void postRenderSector(IGraphicsPtr aContext,
+   void postRenderSector(IGraphicsPtr aContext, int id,
                          Point<int> botLeft, Point<int> topRight);
 private:
    // Tiles on the map
@@ -112,6 +113,9 @@ private:
    static const unsigned NULL_OBJECT		= 0;		  // Non-existant object
    static const double TILE_HEIGHT		  = 0.2;	  // Standard height increment
 
+   // Meshes for each terrain sector
+   vector<IMeshPtr> myTerrainMeshes;
+   
    inline int index(int x, int y) const
    {
       assert(x < myWidth && y < myDepth && x >= 0 && y >= 0);
@@ -152,6 +156,12 @@ private:
    void writeHeightMap(const string& aFileName) const;
    void readHeightMap(const string& aFileName);
    void tileVertices(int x, int y, int* indexes) const;
+   void renderPickSector(Point<int> botLeft, Point<int> topRight);
+
+   // Mesh modification
+   void buildMesh(int id, Point<int> botLeft, Point<int> topRight);
+   bool haveMesh(int id, Point<int> botLeft, Point<int> topRight);
+   void dirtyTile(int x, int y);
       
    // Terrain modification
    void changeAreaHeight(const Point<int>& aStartPos,
@@ -165,6 +175,7 @@ private:
    IQuadTreePtr myQuadTree;
    IFogPtr myFog;
    bool shouldDrawGridLines, inPickMode;
+   list<Point<int>> myDirtyTiles;
 };
 
 Map::Map()
@@ -333,10 +344,48 @@ void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
    glPopName();
 }
 
-// Render a small part of the map as directed by the quad tree
-void Map::renderSector(IGraphicsPtr aContext,
-                       Point<int> botLeft, Point<int> topRight)
+// Check to see if the given id contains a valid mesh and ensure the
+// array is large enough to hold it
+bool Map::haveMesh(int id, Point<int> botLeft, Point<int> topRight)
 {
+   if (id >= static_cast<int>(myTerrainMeshes.size())) {
+      myTerrainMeshes.resize(id + 1);
+      return false;
+   }
+   else if (myDirtyTiles.empty())
+      return myTerrainMeshes[id];
+   else {
+      bool ok = myTerrainMeshes[id];
+      for (list<Point<int>>::iterator it = myDirtyTiles.begin();
+           it != myDirtyTiles.end(); ++it) {
+         if ((*it).x >= botLeft.x && (*it).x < topRight.x
+             && (*it).y >= botLeft.y && (*it).y < topRight.y) {
+            ok = false;
+            it = myDirtyTiles.erase(it);
+         }
+      }
+      return ok;
+   }
+}
+
+// Record that the mesh containing a tile needs rebuilding
+void Map::dirtyTile(int x, int y)
+{
+   myDirtyTiles.push_back(makePoint(x, y));
+
+   // Push its neighbours as well since the vertices of a tile sit
+   // on mesh boundaries
+   myDirtyTiles.push_back(makePoint(x, y + 1));
+   myDirtyTiles.push_back(makePoint(x, y - 1));
+   myDirtyTiles.push_back(makePoint(x + 1, y));
+   myDirtyTiles.push_back(makePoint(x - 1, y));
+}
+
+// Generate a terrain mesh for a particular sector
+void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
+{
+   debug() << "Rebuilding mesh for id " << id;
+   
 #define RGB(r, g, b) r/255.0f, g/255.0f, b/255.0f
    
    static const tuple<float, float, float, float> colourMap[] = {
@@ -346,41 +395,88 @@ void Map::renderSector(IGraphicsPtr aContext,
       make_tuple(    0.0f,      RGB(133, 204, 98) ),
       make_tuple(   -1e10f,     RGB(178, 247, 220) )
    };
-      
+   
+   IMeshBufferPtr buf = makeMeshBuffer();
+   
+   for (int x = topRight.x-1; x >= botLeft.x; x--) {
+      for (int y = botLeft.y; y < topRight.y; y++) {
+         int indexes[4];
+         tileVertices(x, y, indexes);
+         
+         int order[6] = {
+            indexes[1], indexes[2], indexes[3],
+            indexes[3], indexes[0], indexes[1]
+         };
+         
+         for (int i = 0; i < 6; i++) {
+            const Vertex& v = myHeightMap[order[i]];
+            
+            const float h = v.pos.y;
+            tuple<float, float, float, float> hcol;
+            int j = 0;
+            do {
+               hcol = colourMap[j++];
+            } while (get<0>(hcol) > h);
+
+            buf->add(makeVector(v.pos.x, v.pos.y, v.pos.z),
+                     makeVector(v.normal.x, v.normal.y, v.normal.z),
+                     make_tuple(get<1>(hcol), get<2>(hcol), get<3>(hcol)));
+         }
+      }			
+   }
+
+   myTerrainMeshes[id] = makeMesh(buf);
+}
+
+// A special rendering mode when selecting tiles
+void Map::renderPickSector(Point<int> botLeft, Point<int> topRight)
+{
+   glColor3f(1.0f, 1.0f, 1.0f);
+   
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
       for (int y = botLeft.y; y < topRight.y; y++) {
          // Name this tile
          glPushName(tileName(x, y));
 
-         // Render tile
-         glBegin(GL_QUADS);
-
          int indexes[4];
          tileVertices(x, y, indexes);
+
+         glBegin(GL_QUADS);
          for (int i = 0; i < 4; i++) {
             const Vertex& v = myHeightMap[indexes[i]];
-            
-            const float h = v.pos.y;
-            tuple<float, float, float, float> hcol;
-            int i = 0;
-            do {
-               hcol = colourMap[i++];
-            } while (get<0>(hcol) > h);
-
-            glColor3f(get<1>(hcol), get<2>(hcol), get<3>(hcol));
-            
             glNormal3f(v.normal.x, v.normal.y, v.normal.z);
             glVertex3f(v.pos.x, v.pos.y, v.pos.z);
          }
-         
          glEnd();
+         
+         glPopName();
+      }			
+   }
+}
 
+// Render a small part of the map as directed by the quad tree
+void Map::renderSector(IGraphicsPtr aContext, int id,
+                       Point<int> botLeft, Point<int> topRight)
+{
+   if (inPickMode) {
+      renderPickSector(botLeft, topRight);
+      return;
+   }
+   
+   if (!haveMesh(id, botLeft, topRight))
+      buildMesh(id, botLeft, topRight);
+
+   myTerrainMeshes[id]->render();
+
+   // Draw the overlays
+   for (int x = topRight.x-1; x >= botLeft.x; x--) {
+      for (int y = botLeft.y; y < topRight.y; y++) {
          //for (int i = 0; i < 4; i++) {
          //   const Vertex& v = myHeightMap[indexes[i]];
          //   drawNormal(v.pos, v.normal);
          //}
          
-         if (shouldDrawGridLines && !inPickMode) {
+         if (shouldDrawGridLines) {
             // Render grid lines
             glColor3f(0.0f, 0.0f, 0.0f);
             glBegin(GL_LINE_LOOP);
@@ -395,33 +491,27 @@ void Map::renderSector(IGraphicsPtr aContext,
             glEnd();
          }
 
-         if (!inPickMode) {
-            // Draw the track, if any
-            Tile& tile = tileAt(x, y);
-            if (tile.track && !tile.track->marked()) {
-               glPushMatrix();
-               glTranslated(static_cast<double>(tile.track->originX()), 0,
-                            static_cast<double>(tile.track->originY()));
-               tile.track->get()->render();
-               glPopMatrix();
-               
-               tile.track->setMark();
-            }
-         }
+         // Draw the track, if any
+         Tile& tile = tileAt(x, y);
+         if (tile.track && !tile.track->marked()) {
+            glPushMatrix();
+            glTranslated(static_cast<double>(tile.track->originX()), 0,
+                         static_cast<double>(tile.track->originY()));
+            tile.track->get()->render();
+            glPopMatrix();
             
-         glPopName();
+            tile.track->setMark();
+         }
       }			
    }
 }
 
 // Render the semi-transparent overlays such as water
-void Map::postRenderSector(IGraphicsPtr aContext,
+void Map::postRenderSector(IGraphicsPtr aContext, int id,
                            Point<int> botLeft, Point<int> topRight)
 {
    // Draw the water
-   if (!inPickMode) {
-      glPushName(NULL_OBJECT);
-      
+   if (!inPickMode) {            
       static const float seaLevel = -0.1f;
       glColor4f(0.0f, 0.0f, 1.0f, 0.5f);
       glNormal3f(0.0f, 1.0f, 0.0f);
@@ -431,8 +521,6 @@ void Map::postRenderSector(IGraphicsPtr aContext,
       glVertex3f(topRight.x - 0.5f, seaLevel, topRight.y - 0.5f);
       glVertex3f(topRight.x - 0.5f, seaLevel, botLeft.y - 0.5f);
       glEnd();
-
-      glPopName();
    }
 }
 
@@ -524,6 +612,7 @@ void Map::raiseTile(int x, int y, float deltaHeight)
       myHeightMap[indexes[i]].pos.y += deltaHeight;
 
    fixNormals(x, y);
+   dirtyTile(x, y);
 }
 
 // Levels off a tile
