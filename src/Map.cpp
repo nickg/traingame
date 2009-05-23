@@ -75,6 +75,7 @@ public:
 
    void setStart(int x, int y) { myStartLocation = makePoint(x, y); }
    void setGrid(bool onOff);
+   void setPickMode(bool onOff) { inPickMode = onOff; }
    
    Track::Connection startLocation() const;
    ITrackSegmentPtr trackAt(const Point<int>& aPoint) const;
@@ -93,7 +94,7 @@ public:
    
    // ISectorRenderable interface
    void renderSector(IGraphicsPtr aContext,
-                     Point<int> botLeft, Point<int> topRight, bool pickMode);
+                     Point<int> botLeft, Point<int> topRight);
 private:
    // Tiles on the map
    struct Tile {
@@ -161,13 +162,13 @@ private:
    Point<int> myStartLocation;
    IQuadTreePtr myQuadTree;
    IFogPtr myFog;
-   bool shouldDrawGridLines;
+   bool shouldDrawGridLines, inPickMode;
 };
 
 Map::Map()
    : myTiles(NULL), myHeightMap(NULL), myWidth(0), myDepth(0),
      myStartLocation(makePoint(1, 1)),
-     shouldDrawGridLines(false)
+     shouldDrawGridLines(false), inPickMode(false)
 {
    myFog = makeFog(0.6, 0.7, 0.8,  // Colour
                    0.25,           // Density
@@ -332,7 +333,7 @@ void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
 
 // Render a small part of the map as directed by the quad tree
 void Map::renderSector(IGraphicsPtr aContext,
-                       Point<int> botLeft, Point<int> topRight, bool pickMode)
+                       Point<int> botLeft, Point<int> topRight)
 {
 #define RGB(r, g, b) r/255.0f, g/255.0f, b/255.0f
    
@@ -343,21 +344,6 @@ void Map::renderSector(IGraphicsPtr aContext,
       make_tuple(    0.0f,      RGB(133, 204, 98) ),
       make_tuple(   -1e10f,     RGB(178, 247, 220) )
    };
-
-   debug() << botLeft << topRight;
-
-   // Draw the water
-   if (!pickMode) {
-      static const float seaLevel = -1.0f;
-      glColor3f(0.0f, 0.0f, 1.0f);
-      glNormal3f(0.0f, 1.0f, 0.0f);
-      glBegin(GL_QUADS);
-      glVertex3f(botLeft.x, seaLevel, botLeft.y);
-      glVertex3f(botLeft.x, seaLevel, topRight.y);
-      glVertex3f(topRight.x, seaLevel, topRight.y);
-      glVertex3f(topRight.x, seaLevel, botLeft.y);
-      glEnd();
-   }
       
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
       for (int y = botLeft.y; y < topRight.y; y++) {
@@ -392,7 +378,7 @@ void Map::renderSector(IGraphicsPtr aContext,
          //   drawNormal(v.pos, v.normal);
          //}
          
-         if (shouldDrawGridLines && !pickMode) {
+         if (shouldDrawGridLines && !inPickMode) {
             // Render grid lines
             glColor3f(0.0f, 0.0f, 0.0f);
             glBegin(GL_LINE_LOOP);
@@ -407,7 +393,7 @@ void Map::renderSector(IGraphicsPtr aContext,
             glEnd();
          }
 
-         if (!pickMode) {
+         if (!inPickMode) {
             // Draw the track, if any
             Tile& tile = tileAt(x, y);
             if (tile.track && !tile.track->marked()) {
@@ -423,6 +409,23 @@ void Map::renderSector(IGraphicsPtr aContext,
             
          glPopName();
       }			
+   }
+
+   // Draw the water
+   if (!inPickMode) {
+      glPushName(NULL_OBJECT);
+      
+      static const float seaLevel = -0.1f;
+      glColor4f(0.0f, 0.0f, 1.0f, 0.5f);
+      glNormal3f(0.0f, 1.0f, 0.0f);
+      glBegin(GL_QUADS);
+      glVertex3f(botLeft.x - 0.5f, seaLevel, botLeft.y - 0.5f);
+      glVertex3f(botLeft.x - 0.5f, seaLevel, topRight.y - 0.5f);
+      glVertex3f(topRight.x - 0.5f, seaLevel, topRight.y - 0.5f);
+      glVertex3f(topRight.x - 0.5f, seaLevel, botLeft.y - 0.5f);
+      glEnd();
+
+      glPopName();
    }
 }
 

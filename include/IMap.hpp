@@ -72,6 +72,11 @@ public:
    // Toggle display of grid lines
    virtual void setGrid(bool onOff) = 0;
 
+   // Toggle pick mode on and off
+   // This turns of display of everything but the terrain
+   // and things that can be clicked on
+   virtual void setPickMode(bool onOff) = 0;
+
    // Make a hill or valley in the given area
    virtual void raiseArea(const Point<int>& aStartPos,
                           const Point<int>& aFinishPos) = 0;

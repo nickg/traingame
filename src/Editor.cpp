@@ -399,9 +399,11 @@ void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
 {
    if (amDragging) {
       // Extend the selection rectangle
+      myMap->setPickMode(true);
       IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
       display(pickContext);
       int id = aPickBuffer->endPick();
+      myMap->setPickMode(false);
 
       if (id > 0)
          myDragEnd = myMap->pickPosition(id);

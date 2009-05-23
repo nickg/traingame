@@ -28,8 +28,7 @@ struct ISectorRenderable {
    virtual ~ISectorRenderable() {}
 
    virtual void renderSector(IGraphicsPtr aContext,
-                             Point<int> botLeft, Point<int> topRight,
-                             bool pickMode) = 0;
+                             Point<int> botLeft, Point<int> topRight) = 0;
 };
 
 typedef std::shared_ptr<ISectorRenderable> ISectorRenderablePtr;
