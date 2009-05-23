@@ -96,9 +96,6 @@ public:
 private:
    // Tiles on the map
    struct Tile {
-      struct Vertex {
-         Vector<double> pos, normal;
-      } v[4];
       TrackNodePtr track;  // Track at this location, if any
    } *myTiles;
 
@@ -153,8 +150,6 @@ private:
    void tileVertices(int x, int y, int* indexes) const;
       
    // Terrain modification
-   void raiseVertex(int x, int y, int vertex, float deltaHeight);
-   void setVertexHeight(int x, int y, int vertex, float height);
    void raiseTile(int x, int y, float deltaHeight);
    void levelTile(int x, int y);
    void fixNormals(int x, int y);
@@ -401,26 +396,6 @@ void Map::renderSector(IGraphicsPtr aContext,
    }
 }
 
-// Change the height of a single vertex
-void Map::raiseVertex(int x, int y, int vertex, float deltaHeight)
-{
-   if ((x < 0) || (y < 0) || (x >= myWidth) || (y >= myDepth))
-      return;
-   
-   assert(vertex >= 0 && vertex < 4);
-   tileAt(x, y).v[vertex].pos.y += deltaHeight;
-}
-
-// Set the absolute height of a vertex
-void Map::setVertexHeight(int x, int y, int vertex, float height)
-{
-   if ((x < 0) || (y < 0) || (x >= myWidth) || (y >= myDepth))
-      return;
-   
-   assert(vertex >= 0 && vertex < 4);
-   tileAt(x, y).v[vertex].pos.y = height;
-}
-
 // Called when we've changed the height of part of a tile
 // This readjusts all the normals and those of its neighbours
 // to point in the right direction
@@ -515,7 +490,7 @@ void Map::raiseTile(int x, int y, float deltaHeight)
 void Map::levelTile(int x, int y)
 {
    // Adjust to the average height
-   float heights[4];
+   /* float heights[4];
    float sum = 0.0f, average = 0.0f;
    for (int i = 0; i < 4; i++)
       sum += tileAt(x, y).v[i].pos.y;
@@ -544,7 +519,7 @@ void Map::levelTile(int x, int y)
    setVertexHeight(x - 1, y + 1, 3, heights[2]);
    setVertexHeight(x - 1, y - 1, 2, heights[1]);
 
-   fixNormals(x, y);
+   fixNormals(x, y);*/
 }
 
 void Map::raiseArea(const Point<int>& aStartPos,
