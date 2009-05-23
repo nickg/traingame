@@ -339,20 +339,38 @@ void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
 void Map::renderSector(IGraphicsPtr aContext,
                        Point<int> botLeft, Point<int> topRight)
 {
+#define RGB(r, g, b) r/255.0f, g/255.0f, b/255.0f
+   
+   static const tuple<float, float, float, float> colourMap[] = {
+      //          Start height         colour
+      make_tuple(    5.0f,      RGB(255, 255, 255) ),
+      make_tuple(    3.0f,      RGB(187, 156, 83) ),
+      make_tuple(    0.0f,      RGB(133, 204, 98) ),
+      make_tuple(   -1e10f,     0.0f, 0.0f, 1.0f )
+   };
+   
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
       for (int y = botLeft.y; y < topRight.y; y++) {
          // Name this tile
          glPushName(tileName(x, y));
 
          // Render tile
-         glColor3f(0.7f, 1.0f, 0.7f);
-
          glBegin(GL_QUADS);
 
          int indexes[4];
          tileVertices(x, y, indexes);
          for (int i = 0; i < 4; i++) {
             const Vertex& v = myHeightMap[indexes[i]];
+            
+            const float h = v.pos.y;
+            tuple<float, float, float, float> hcol;
+            int i = 0;
+            do {
+               hcol = colourMap[i++];
+            } while (get<0>(hcol) > h);
+
+            glColor3f(get<1>(hcol), get<2>(hcol), get<3>(hcol));
+            
             glNormal3f(v.normal.x, v.normal.y, v.normal.z);
             glVertex3f(v.pos.x, v.pos.y, v.pos.z);
          }
@@ -612,8 +630,8 @@ void Map::save(const string& aFileName)
    
    root.addChild
       (xml::element("start")
-       .addAttribute("x", 1)
-       .addAttribute("y", 1));
+       .addAttribute("x", myStartLocation.x)
+       .addAttribute("y", myStartLocation.y));
 
    // Generate the height map
    // Note: basename is deprecated (use .replace_extension() instead when
