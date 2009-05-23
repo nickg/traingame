@@ -384,8 +384,6 @@ void Map::dirtyTile(int x, int y)
 // Generate a terrain mesh for a particular sector
 void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
 {
-   debug() << "Rebuilding mesh for id " << id;
-   
 #define RGB(r, g, b) r/255.0f, g/255.0f, b/255.0f
    
    static const tuple<float, float, float, float> colourMap[] = {
@@ -393,6 +391,7 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
       make_tuple(    5.0f,      RGB(255, 255, 255) ),
       make_tuple(    3.0f,      RGB(187, 156, 83) ),
       make_tuple(    0.0f,      RGB(133, 204, 98) ),
+      make_tuple(   -1.0f,     RGB(224, 223, 134) ),
       make_tuple(   -1e10f,     RGB(178, 247, 220) )
    };
    
@@ -403,7 +402,7 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
          int indexes[4];
          tileVertices(x, y, indexes);
          
-         int order[6] = {
+         const int order[6] = {
             indexes[1], indexes[2], indexes[3],
             indexes[3], indexes[0], indexes[1]
          };
@@ -511,9 +510,9 @@ void Map::postRenderSector(IGraphicsPtr aContext, int id,
                            Point<int> botLeft, Point<int> topRight)
 {
    // Draw the water
-   if (!inPickMode) {            
-      static const float seaLevel = -0.1f;
-      glColor4f(0.0f, 0.0f, 1.0f, 0.5f);
+   if (!inPickMode) {      
+      static const float seaLevel = -0.6f;
+      glColor4f(0.0f, 0.2f, 0.8f, 0.4f);
       glNormal3f(0.0f, 1.0f, 0.0f);
       glBegin(GL_QUADS);
       glVertex3f(botLeft.x - 0.5f, seaLevel, botLeft.y - 0.5f);
