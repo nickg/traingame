@@ -39,6 +39,9 @@ struct MeshBuffer : IMeshBuffer {
    void add(const Vertex& aVertex, const Normal& aNormal,
             const Colour& aColour);
 
+   void addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
+                Colour aColour);
+      
    void bindMaterial(const Material& aMaterial);
    
    void printStats() const;
@@ -179,6 +182,19 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal,
    indices.push_back(index);
 }
 
+void MeshBuffer::addQuad(Vertex a, Vertex b, Vertex c, Vertex d, Colour aColour)
+{
+   Vector<float> n1 = surfaceNormal(b, c, d);
+   Vector<float> n2 = surfaceNormal(d, a, b);
+
+   add(b, n1, aColour);
+   add(c, n1, aColour);
+   add(d, n1, aColour);
+
+   add(d, n2, aColour);
+   add(a, n2, aColour);
+   add(b, n2, aColour);
+}
 
 // Default material
 Material::Material()
@@ -254,6 +270,13 @@ DisplayListMesh::DisplayListMesh(IMeshBufferPtr aBuffer)
            
    glEnd();
    
+   /*for (it = buf->indices.begin();
+        it != buf->indices.end(); ++it) {
+      const MeshBuffer::Vertex& v = buf->vertices[*it];
+      const MeshBuffer::Normal& n = buf->normals[*it];
+      drawNormal(v, n);
+      } */       
+
    glEndList();
 }
 

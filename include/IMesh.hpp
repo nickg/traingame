@@ -50,6 +50,10 @@ struct IMeshBuffer {
    virtual void add(const Vertex& aVertex, const Normal& aNormal,
                     const Colour& aColour) = 0;
 
+   // Convenience functions
+   virtual void addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
+                        Colour aColour) = 0;
+
    virtual void bindMaterial(const Material& aMaterial) = 0;
    
    virtual void printStats() const = 0;

@@ -424,6 +424,46 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
       }			
    }
 
+   // Draw the sides of the map if this is an edge sector
+   const float x1 = static_cast<float>(botLeft.x) - 0.5f;
+   const float x2 = static_cast<float>(topRight.x) - 0.5f;
+   const float y1 = static_cast<float>(botLeft.y) - 0.5f;
+   const float y2 = static_cast<float>(topRight.y) - 0.5f;
+   
+   if (botLeft.x == 0) {
+      buf->addQuad(makeVector(x1, 0.0f, y1),
+                   makeVector(x1, -5.0f, y1),
+                   makeVector(x1, -5.0f, y2),
+                   makeVector(x1, 0.0f, y2),
+                   make_tuple(1.0f, 1.0f, 1.0f));
+   }
+
+   debug() << botLeft << ", " << topRight;
+
+   if (topRight.x == myWidth) {
+      buf->addQuad(makeVector(x2, -5.0f, y1),
+                   makeVector(x2, 0.0f, y1),
+                   makeVector(x2, 0.0f, y2),
+                   makeVector(x2, -5.0f, y2),
+                   make_tuple(1.0f, 1.0f, 1.0f));
+   }
+
+   if (botLeft.y == 0) {
+      buf->addQuad(makeVector(x1, -5.0f, y1),
+                   makeVector(x1, 0.0f, y1),
+                   makeVector(x2, 0.0f, y1),
+                   makeVector(x2, -5.0f, y1),
+                   make_tuple(1.0f, 1.0f, 1.0f));
+   }
+   
+   if (topRight.y == myDepth) {
+      buf->addQuad(makeVector(x1, 0.0f, y2),
+                   makeVector(x1, -5.0f, y2),
+                   makeVector(x2, -5.0f, y2),
+                   makeVector(x2, 0.0f, y2),
+                   make_tuple(1.0f, 1.0f, 1.0f));
+   }
+   
    myTerrainMeshes[id] = makeMesh(buf);
 }
 
