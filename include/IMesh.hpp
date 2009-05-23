@@ -19,6 +19,7 @@
 #define INC_IMESH_HPP
 
 #include <memory>
+#include <tuple>
 
 #include "Maths.hpp"
 #include "ITexture.hpp"
@@ -38,6 +39,7 @@ struct IMeshBuffer {
    typedef Vector<float> Vertex;
    typedef Vector<float> Normal;
    typedef Point<float> TexCoord;
+   typedef std::tuple<float, float, float> Colour;
    typedef unsigned Index;
 
    virtual ~IMeshBuffer() {}
@@ -45,6 +47,8 @@ struct IMeshBuffer {
    virtual void add(const Vertex& aVertex, const Normal& aNormal) = 0;
    virtual void add(const Vertex& aVertex, const Normal& aNormal,
                     const TexCoord& aTexCoord) = 0;
+   virtual void add(const Vertex& aVertex, const Normal& aNormal,
+                    const Colour& aColour) = 0;
 
    virtual void bindMaterial(const Material& aMaterial) = 0;
    

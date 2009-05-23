@@ -36,6 +36,8 @@ struct MeshBuffer : IMeshBuffer {
    void add(const Vertex& aVertex, const Normal& aNormal);
    void add(const Vertex& aVertex, const Normal& aNormal,
             const TexCoord& aTexCoord);
+   void add(const Vertex& aVertex, const Normal& aNormal,
+            const Colour& aColour);
 
    void bindMaterial(const Material& aMaterial);
    
@@ -57,15 +59,16 @@ struct MeshBuffer : IMeshBuffer {
    
    vector<Vertex> vertices;
    vector<Normal> normals;
+   vector<Colour> colours;
    vector<Index> indices;
    vector<TexCoord> texCoords;
-   bool hasTexture;
+   bool hasTexture, hasMaterial;
    Material material;
    int reused;
 };
 
 MeshBuffer::MeshBuffer()
-   : hasTexture(false), reused(0)
+   : hasTexture(false), hasMaterial(false), reused(0)
 {
    
 }
@@ -74,6 +77,7 @@ void MeshBuffer::bindMaterial(const Material& aMaterial)
 {
    material = aMaterial;
    hasTexture = aMaterial.texture;
+   hasMaterial = true;
 }
 
 void MeshBuffer::printStats() const
@@ -87,6 +91,10 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal)
    if (hasTexture)
       throw runtime_error("MeshBuffer::add called without texture coordinate "
                           "on a mesh which has a texture");
+
+   if (!hasMaterial)
+      throw runtime_error("MeshBuffer::add called without colour on a mesh "
+                          " without a material");
    
    // See if this vertex has already been added
    for (vector<Index>::iterator it = indices.begin();
@@ -102,6 +110,43 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal)
    const int index = vertices.size();
    vertices.push_back(aVertex);
    normals.push_back(aNormal);
+   indices.push_back(index);
+}
+
+void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal,
+                     const Colour& aColour)
+{
+   
+   if (hasTexture)
+      throw runtime_error("MeshBuffer::add called without texture coordinate "
+                          "on a mesh which has a texture");
+
+   if (hasMaterial)
+      throw runtime_error("MeshBuffer::add called with a colour on a mesh "
+                          " with a material");
+   
+   // See if this vertex has already been added
+   for (vector<Index>::iterator it = indices.begin();
+        it != indices.end(); ++it) {
+      if (mergeVector(aVertex, vertices[*it])
+          && mergeVector(aNormal, normals[*it])) {
+
+         const Colour& other = colours[*it];
+         if (abs(std::get<0>(other) - std::get<0>(aColour)) < 0.01f
+             && abs(std::get<1>(other) - std::get<1>(aColour)) < 0.01f
+             && abs(std::get<2>(other) - std::get<2>(aColour)) < 0.01f) {
+         
+            indices.push_back(*it);
+            reused++;
+            return;
+         }
+      }
+   }
+   
+   const int index = vertices.size();
+   vertices.push_back(aVertex);
+   normals.push_back(aNormal);
+   colours.push_back(aColour);
    indices.push_back(index);
 }
 
@@ -163,25 +208,31 @@ DisplayListMesh::DisplayListMesh(IMeshBufferPtr aBuffer)
    const MeshBuffer* buf = MeshBuffer::get(aBuffer);
    const Material& m = buf->material;
 
-   if (buf->hasTexture) {
-      glEnable(GL_TEXTURE_2D);
-      m.texture->bind();
+   if (buf->hasMaterial) {
+      glDisable(GL_COLOR_MATERIAL);
+      
+      if (buf->hasTexture) {
+         glEnable(GL_TEXTURE_2D);
+         m.texture->bind();
+      }
+      else
+         glDisable(GL_TEXTURE_2D);
+      
+      float diffuse[] = { m.diffuseR, m.diffuseG, m.diffuseB, 1.0 };
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+      
+      float ambient[] = { m.ambientR, m.ambientG, m.ambientB, 1.0 };
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+      
+      // Note we're ignoring the specular values in the model
+      float specular[] = { 0, 0, 0, 1.0 };
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+      
+      float emission[] = { 0, 0, 0, 1 };
+      glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emission);
    }
    else
-      glDisable(GL_TEXTURE_2D);
-   
-   float diffuse[] = { m.diffuseR, m.diffuseG, m.diffuseB, 1.0 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
-
-   float ambient[] = { m.ambientR, m.ambientG, m.ambientB, 1.0 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
-
-   // Note we're ignoring the specular values in the model
-   float specular[] = { 0, 0, 0, 1.0 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
-
-   float emission[] = { 0, 0, 0, 1 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emission);
+      glEnable(GL_COLOR_MATERIAL);
    
    glBegin(GL_TRIANGLES);
 
@@ -211,7 +262,6 @@ void DisplayListMesh::render() const
    glPushAttrib(GL_ENABLE_BIT);
 
    glDisable(GL_BLEND);
-   glDisable(GL_COLOR_MATERIAL);
    glEnable(GL_CULL_FACE);
    
    glCallList(myDisplayList);
