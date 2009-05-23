@@ -582,11 +582,9 @@ void Map::writeHeightMap(const string& aFileName) const
    of.write(reinterpret_cast<const char*>(&wl), sizeof(long));
    of.write(reinterpret_cast<const char*>(&dl), sizeof(long));
 
-   for (int t = 0; t < myWidth * myDepth; t++) {
-      for (int i = 0; i < 4; i++)
-         of.write(reinterpret_cast<const char*>(&myTiles[t].v[i].pos.y),
-                  sizeof(double));
-   }            
+   for (int i = 0; i < (myWidth + 1) * (myDepth + 1); i++)
+      of.write(reinterpret_cast<const char*>(&myHeightMap[i].pos.y),
+               sizeof(float));
 }
 
 // Read the height data back out of a binary file
@@ -610,11 +608,9 @@ void Map::readHeightMap(const string& aFileName)
          ("Binary file " + aFileName + " dimensions are incorrect");
    }
 
-   for (int t = 0; t < myWidth * myDepth; t++) {
-      for (int i = 0; i < 4; i++)
-         is.read(reinterpret_cast<char*>(&myTiles[t].v[i].pos.y),
-                 sizeof(double));
-   }
+   for (int i = 0; i < (myWidth + 1) * (myDepth + 1); i++)
+      is.read(reinterpret_cast<char*>(&myHeightMap[i].pos.y),
+              sizeof(float));
 
    for (int x = 0; x < myWidth; x++) {
       for (int y = 0; y < myDepth; y++)

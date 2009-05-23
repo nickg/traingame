@@ -2,9 +2,9 @@
 <map width="32" height="32">
 <name>No Name</name>
 
-<start x="3" y="8"/>
+<start x="1" y="1"/>
 
-<heightmap/>
+<heightmap>maps/figure8.bin</heightmap>
 
 <tileset>
 <tile x="3" y="6">
