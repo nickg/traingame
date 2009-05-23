@@ -431,20 +431,22 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
    const float y2 = static_cast<float>(topRight.y) - 0.5f;
 
    const IMeshBuffer::Colour brown = make_tuple(0.9f, 0.5f, 0.3f);
+   const float depth = -3.0f;
+   
+   int index[4];
    
    if (botLeft.x == 0) {
       for (int y = botLeft.y; y < topRight.y; y++) {
          const float yf = static_cast<float>(y) - 0.5f;
 
-         int index[4];
          tileVertices(0, y, index);
          
          const float h1 = heightAt(index[3]).pos.y;
          const float h2 = heightAt(index[0]).pos.y;
          
          buf->addQuad(makeVector(x1, h1, yf),
-                      makeVector(x1, -5.0f, yf),
-                      makeVector(x1, -5.0f, yf + 1.0f),
+                      makeVector(x1, depth, yf),
+                      makeVector(x1, depth, yf + 1.0f),
                       makeVector(x1, h2, yf + 1.0f),
                       brown);
       }
@@ -454,16 +456,15 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
       for (int y = botLeft.y; y < topRight.y; y++) {
          const float yf = static_cast<float>(y) - 0.5f;
 
-         int index[4];
          tileVertices(myWidth - 1, y, index);
 
          const float h1 = heightAt(index[2]).pos.y;
          const float h2 = heightAt(index[1]).pos.y;
          
-         buf->addQuad(makeVector(x2, -5.0f, yf),
+         buf->addQuad(makeVector(x2, depth, yf),
                       makeVector(x2, h1, yf),
                       makeVector(x2, h2, yf + 1.0f),
-                      makeVector(x2, -5.0f, yf + 1.0f),
+                      makeVector(x2, depth, yf + 1.0f),
                       brown);
       }
    }
@@ -472,16 +473,15 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
       for (int x = botLeft.x; x < topRight.x; x++) {
          const float xf = static_cast<float>(x) - 0.5f;
          
-         int index[4];
          tileVertices(x, 0, index);
        
          const float h1 = heightAt(index[3]).pos.y;
          const float h2 = heightAt(index[2]).pos.y;
          
-         buf->addQuad(makeVector(xf, -5.0f, y1),
+         buf->addQuad(makeVector(xf, depth, y1),
                       makeVector(xf, h1, y1),
                       makeVector(xf + 1.0f, h2, y1),
-                      makeVector(xf + 1.0f, -5.0f, y1),
+                      makeVector(xf + 1.0f, depth, y1),
                       brown);
       }
    }
@@ -490,15 +490,14 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
       for (int x = botLeft.x; x < topRight.x; x++) {
          const float xf = static_cast<float>(x) - 0.5f;
          
-         int index[4];
          tileVertices(x, myDepth - 1, index);
        
          const float h1 = heightAt(index[0]).pos.y;
          const float h2 = heightAt(index[1]).pos.y;
       
          buf->addQuad(makeVector(xf, h1, y2),
-                      makeVector(xf, -5.0f, y2),
-                      makeVector(xf + 1.0f, -5.0f, y2),
+                      makeVector(xf, depth, y2),
+                      makeVector(xf + 1.0f, depth, y2),
                       makeVector(xf + 1.0f, h2, y2),
                       brown);
       }
