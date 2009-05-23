@@ -22,8 +22,6 @@
 #include <sstream>
 #include <cstdlib>
 
-#include <GL/gl.h>
-
 using namespace std;
 
 class QuadTree : public IQuadTree {
@@ -47,14 +45,11 @@ private:
       unsigned int id;
       unsigned int children[4];
       QuadType type;
-      GLuint displayList;   // Only valid for leaves
    } *mySectors;
 
    int calcNumSectors(int aWidth);
    int buildNode(int anId, int aParent, int x1, int y1, int x2, int y2);
    void displaySector(IGraphicsPtr aContext, int aSector);
-
-   void rebuildDisplayLists();
    
    int mySize, myNumSectors, myUsedSectors;
    ISectorRenderablePtr myRenderer;
@@ -95,9 +90,6 @@ void QuadTree::buildTree(int aDim)
    
    // Build the tree
    buildNode(0, 0, 0, 0, mySize, mySize);
-
-   // Pre-render all the leaves
-   rebuildDisplayLists();
 }
 
 // Builds a node in the tree
@@ -109,7 +101,6 @@ int QuadTree::buildNode(int anId, int aParent, int x1, int y1, int x2, int y2)
    mySectors[anId].botLeft.y = y1;
    mySectors[anId].topRight.x = x2;
    mySectors[anId].topRight.y = y2;
-   mySectors[anId].displayList = 0;
 
    // Check to see if it's a leaf
    if (abs(x1 - x2) == QT_LEAF_SIZE && abs(y1 - y2) == QT_LEAF_SIZE)
@@ -145,26 +136,6 @@ int QuadTree::calcNumSectors(int aWidth)
       return 1;		
 }
 
-// Render all the sectors into a display list
-void QuadTree::rebuildDisplayLists()
-{
-   IGraphicsPtr context = makeDisplayListContext();
-   
-   for (int i = 0; i <= myUsedSectors; i++) {
-      if (mySectors[i].type == QT_LEAF) {
-         if (mySectors[i].displayList != 0)
-            glDeleteLists(mySectors[i].displayList, 1);
-         
-         mySectors[i].displayList = glGenLists(1);
-
-         glNewList(mySectors[i].displayList, GL_COMPILE);
-         myRenderer->renderSector
-            (context, mySectors[i].botLeft, mySectors[i].topRight);
-         glEndList();
-      }
-   }
-}
-
 // Render all the visible sectors
 void QuadTree::displaySector(IGraphicsPtr aContext, int aSector)
 {  
@@ -176,7 +147,8 @@ void QuadTree::displaySector(IGraphicsPtr aContext, int aSector)
  
    // See if it's a leaf
    if (mySectors[aSector].type == QT_LEAF)
-      glCallList(mySectors[aSector].displayList);
+      myRenderer->renderSector
+         (aContext, mySectors[aSector].botLeft, mySectors[aSector].topRight, true);
    else {
       // Loop through each sector
       for (int i = 3; i >= 0; i--) {

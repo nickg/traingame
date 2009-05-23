@@ -477,10 +477,9 @@ unsigned SDLWindow::endPick()
       // Find the object with the lowest depth
       unsigned int lowestDepth = mySelectBuffer[1];
       int selectedObject = mySelectBuffer[3];
-      int i;
       
       // Go through all the objects found
-      for (i = 1; i < objectsFound; i++) {
+      for (int i = 1; i < objectsFound; i++) {
          // See if it's closer than the current nearest
          if (mySelectBuffer[(i*4) + 1] < lowestDepth)	{ // 4 values for each object
             lowestDepth = mySelectBuffer[(i * 4) + 1];

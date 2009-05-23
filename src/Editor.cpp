@@ -106,6 +106,10 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
    lowerButton->onClick(bind(&Editor::onLowerTerrainSelect, this));
    myToolbar->addChild(lowerButton);
 
+   IButtonPtr startButton = makeButton("data/images/start_icon.png");
+   //startButton->onClick(bind(&Editor::onLowerTerrainSelect, this));
+   myToolbar->addChild(startButton);
+
    myMap->setGrid(true);
 
    log() << "Editing " << aFileName;
@@ -377,8 +381,6 @@ void Editor::drawDraggedTrack()
       if (ok)
          myMap->setTrackAt(where, track);
    }
- 
-   myMap->rebuildDisplayLists();
 }
 
 // Raise the terrain the user has dragged

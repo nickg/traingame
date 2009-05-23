@@ -53,9 +53,6 @@ public:
    
    virtual void render(IGraphicsPtr aContext) const = 0;
 
-   // Regenerate the display lists after updating the map
-   virtual void rebuildDisplayLists() = 0;
-
    // Draw a white border around the given tile
    virtual void highlightTile(IGraphicsPtr aContext,
                               const Point<int>& aPoint) const = 0;

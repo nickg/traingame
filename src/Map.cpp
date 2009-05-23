@@ -82,7 +82,6 @@ public:
    bool isValidTrack(const Point<int>& aPoint) const;
    void render(IGraphicsPtr aContext) const;
    void highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const;
-   void rebuildDisplayLists();
    void resetMap(int aWidth, int aDepth);
 
    void raiseArea(const Point<int>& aStartPos,
@@ -94,7 +93,7 @@ public:
    
    // ISectorRenderable interface
    void renderSector(IGraphicsPtr aContext,
-                     Point<int> botLeft, Point<int> topRight);
+                     Point<int> botLeft, Point<int> topRight, bool pickMode);
 private:
    // Tiles on the map
    struct Tile {
@@ -208,15 +207,6 @@ void Map::setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack)
    }
 }
 
-void Map::rebuildDisplayLists()
-{
-   resetMarks();
-   
-   // TODO: We should keep a list of dirty points and only rebuild the
-   // quads that cover those
-   myQuadTree->rebuildDisplayLists();
-}
-
 bool Map::isValidTrack(const Point<int>& aPoint) const
 {
    if (aPoint.x < 0 || aPoint.y < 0
@@ -235,7 +225,6 @@ Track::Connection Map::startLocation() const
 void Map::setGrid(bool onOff)
 {
    shouldDrawGridLines = onOff;
-   rebuildDisplayLists();
 }
 
 void Map::resetMap(int aWidth, int aDepth)
@@ -287,6 +276,8 @@ void Map::resetMarks() const
 
 void Map::render(IGraphicsPtr aContext) const
 {
+   resetMarks();
+   
    glClearColor(0.6, 0.7, 0.8, 1.0);
    
    myFog->apply();
@@ -341,7 +332,7 @@ void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
 
 // Render a small part of the map as directed by the quad tree
 void Map::renderSector(IGraphicsPtr aContext,
-                       Point<int> botLeft, Point<int> topRight)
+                       Point<int> botLeft, Point<int> topRight, bool pickMode)
 {
 #define RGB(r, g, b) r/255.0f, g/255.0f, b/255.0f
    
@@ -350,9 +341,24 @@ void Map::renderSector(IGraphicsPtr aContext,
       make_tuple(    5.0f,      RGB(255, 255, 255) ),
       make_tuple(    3.0f,      RGB(187, 156, 83) ),
       make_tuple(    0.0f,      RGB(133, 204, 98) ),
-      make_tuple(   -1e10f,     0.0f, 0.0f, 1.0f )
+      make_tuple(   -1e10f,     RGB(178, 247, 220) )
    };
-   
+
+   debug() << botLeft << topRight;
+
+   // Draw the water
+   if (!pickMode) {
+      static const float seaLevel = -1.0f;
+      glColor3f(0.0f, 0.0f, 1.0f);
+      glNormal3f(0.0f, 1.0f, 0.0f);
+      glBegin(GL_QUADS);
+      glVertex3f(botLeft.x, seaLevel, botLeft.y);
+      glVertex3f(botLeft.x, seaLevel, topRight.y);
+      glVertex3f(topRight.x, seaLevel, topRight.y);
+      glVertex3f(topRight.x, seaLevel, botLeft.y);
+      glEnd();
+   }
+      
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
       for (int y = botLeft.y; y < topRight.y; y++) {
          // Name this tile
@@ -386,7 +392,7 @@ void Map::renderSector(IGraphicsPtr aContext,
          //   drawNormal(v.pos, v.normal);
          //}
          
-         if (shouldDrawGridLines) {
+         if (shouldDrawGridLines && !pickMode) {
             // Render grid lines
             glColor3f(0.0f, 0.0f, 0.0f);
             glBegin(GL_LINE_LOOP);
@@ -401,18 +407,20 @@ void Map::renderSector(IGraphicsPtr aContext,
             glEnd();
          }
 
-         // Draw the track, if any
-         Tile& tile = tileAt(x, y);
-         if (tile.track && !tile.track->marked()) {
-            glPushMatrix();
-            glTranslated(static_cast<double>(tile.track->originX()), 0,
-                         static_cast<double>(tile.track->originY()));
-            tile.track->get()->render();
-            glPopMatrix();
-
-            tile.track->setMark();
+         if (!pickMode) {
+            // Draw the track, if any
+            Tile& tile = tileAt(x, y);
+            if (tile.track && !tile.track->marked()) {
+               glPushMatrix();
+               glTranslated(static_cast<double>(tile.track->originX()), 0,
+                            static_cast<double>(tile.track->originY()));
+               tile.track->get()->render();
+               glPopMatrix();
+               
+               tile.track->setMark();
+            }
          }
-         
+            
          glPopName();
       }			
    }
@@ -558,8 +566,6 @@ void Map::changeAreaHeight(const Point<int>& aStartPos,
       for (int y = ymin; y <= ymax; y++)
          raiseTile(x, y, aHeightDelta);
    }
-   
-   rebuildDisplayLists();
 }
 
 void Map::raiseArea(const Point<int>& aStartPos,
@@ -789,8 +795,6 @@ IMapPtr loadMap(const string& aFileName)
 
    MapLoader loader(map);
    xmlParser->parse(aFileName, loader);
-
-   map->rebuildDisplayLists();
       
    return IMapPtr(map);
 }
