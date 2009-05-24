@@ -26,7 +26,7 @@ void transformToOrigin(int baseRadius, double startAngle);
 
 // Track constants
 namespace track {
-   const double RAIL_HEIGHT = 0.1;
+   const float RAIL_HEIGHT = 0.1;
 }
 
 #endif

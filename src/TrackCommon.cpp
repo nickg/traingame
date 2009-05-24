@@ -27,14 +27,14 @@
 using namespace std;
 
 namespace {
-   const double RAIL_WIDTH = 0.05;
-   const double GAUGE = 0.5;
+   const float RAIL_WIDTH = 0.05f;
+   const float GAUGE = 0.5f;
 
    const int SLEEPERS_PER_UNIT = 4;
 
    const float SLEEPER_LENGTH = 0.8;
 
-   IMeshPtr theSleeperMesh;
+   IMeshPtr theSleeperMesh, theRailMesh;
 
    void generateSleeperMesh()
    {
@@ -85,6 +85,36 @@ namespace {
    
       theSleeperMesh = makeMesh(buf);
    }
+
+   void generateRailMesh()
+   {
+      IMeshBufferPtr buf = makeMeshBuffer();
+
+      const IMeshBuffer::Colour metal = make_tuple(0.7f, 0.7f, 0.7f);
+      
+      // Top side
+      buf->addQuad(makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
+                   makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
+                   makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
+                   makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
+                   metal);
+      
+      // Outer side
+      buf->addQuad(makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
+                   makeVector(-RAIL_WIDTH/2.0f, 0.0f, 0.0f),
+                   makeVector(-RAIL_WIDTH/2.0f, 0.0f, 1.0f),
+                   makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
+                   metal);
+   
+      // Inner side
+      buf->addQuad(makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
+                   makeVector(RAIL_WIDTH/2.0f, 0.0f, 1.0f),
+                   makeVector(RAIL_WIDTH/2.0f, 0.0f, 0.0f),
+                   makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
+                   metal);   
+      
+      theRailMesh = makeMesh(buf);
+   }
 }
 
 // Draw a sleeper in the current maxtrix location
@@ -98,6 +128,12 @@ void renderSleeper()
 
 static void renderOneRail()
 {
+   if (!theRailMesh)
+      generateRailMesh();
+
+   theRailMesh->render();
+   return;
+   
    glPushMatrix();
    glTranslated(-RAIL_WIDTH/2.0, 0.0, 0.0);
    
