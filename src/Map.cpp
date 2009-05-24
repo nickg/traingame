@@ -609,7 +609,12 @@ void Map::postRenderSector(IGraphicsPtr aContext, int id,
                            Point<int> botLeft, Point<int> topRight)
 {
    // Draw the water
-   if (!inPickMode) {      
+   if (!inPickMode) {
+      glPushAttrib(GL_ENABLE_BIT);
+
+      glEnable(GL_BLEND);
+      glDisable(GL_TEXTURE_2D);
+      
       static const float seaLevel = -0.6f;
       glColor4f(0.0f, 0.2f, 0.8f, 0.4f);
       glNormal3f(0.0f, 1.0f, 0.0f);
@@ -619,6 +624,8 @@ void Map::postRenderSector(IGraphicsPtr aContext, int id,
       glVertex3f(topRight.x - 0.5f, seaLevel, topRight.y - 0.5f);
       glVertex3f(topRight.x - 0.5f, seaLevel, botLeft.y - 0.5f);
       glEnd();
+
+      glPopAttrib();
    }
 }
 

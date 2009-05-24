@@ -18,83 +18,88 @@
 #include "TrackCommon.hpp"
 #include "ILogger.hpp"
 #include "Maths.hpp"
+#include "IMesh.hpp"
 
 #include <cmath>
 
 #include <GL/gl.h>
 
-namespace track {
-   const double railWidth = 0.05;
-   const double gauge = 0.5;
+using namespace std;
 
-   const int sleepersPerUnit = 4;
+namespace {
+   const double RAIL_WIDTH = 0.05;
+   const double GAUGE = 0.5;
+
+   const int SLEEPERS_PER_UNIT = 4;
 
    const float SLEEPER_LENGTH = 0.8;
+
+   IMeshPtr theSleeperMesh;
+
+   void generateSleeperMesh()
+   {
+      IMeshBufferPtr buf = makeMeshBuffer();
+
+      const IMeshBuffer::Colour brown = make_tuple(0.5f, 0.3f, 0.0f);
+
+      const float sleeperWidth = 0.1f;
+      const float sleeperDepth = 0.05f;
+      const float sleeperOff = sleeperWidth / 2.0;
+
+      const float r = SLEEPER_LENGTH / 2.0;
+
+      // Top
+      buf->addQuad(makeVector(-sleeperOff, sleeperDepth, -r),
+                   makeVector(-sleeperOff, sleeperDepth, r),
+                   makeVector(sleeperOff, sleeperDepth, r),
+                   makeVector(sleeperOff, sleeperDepth, -r),
+                   brown);
+
+      // Side 1
+      buf->addQuad(makeVector(sleeperOff, sleeperDepth, -r),
+                   makeVector(sleeperOff, 0.0f, -r),
+                   makeVector(-sleeperOff, 0.0f, -r),
+                   makeVector(-sleeperOff, sleeperDepth, -r),
+                   brown);
+      
+      // Side 2
+      buf->addQuad(makeVector(-sleeperOff, sleeperDepth, r),
+                   makeVector(-sleeperOff, 0.0f, r),
+                   makeVector(sleeperOff, 0.0f, r),
+                   makeVector(sleeperOff, sleeperDepth, r),
+                   brown);
+
+      // Front
+      buf->addQuad(makeVector(sleeperOff, 0.0f, r),
+                   makeVector(sleeperOff, 0.0f, -r),
+                   makeVector(sleeperOff, sleeperDepth, -r),
+                   makeVector(sleeperOff, sleeperDepth, r),
+                   brown);
+      
+      // Back
+      buf->addQuad(makeVector(-sleeperOff, sleeperDepth, r),
+                   makeVector(-sleeperOff, sleeperDepth, -r),
+                   makeVector(-sleeperOff, 0.0f, -r),
+                   makeVector(-sleeperOff, 0.0f, r),
+                   brown);
+   
+      theSleeperMesh = makeMesh(buf);
+   }
 }
 
 // Draw a sleeper in the current maxtrix location
 void renderSleeper()
 {
-   const double sleeperWidth = 0.1;
-   const double sleeperDepth = 0.05;
-   const double sleeperOff = sleeperWidth / 2.0;
-
-   glPushAttrib(GL_ENABLE_BIT);
-   glDisable(GL_TEXTURE_2D);
-   glDisable(GL_BLEND);
+   if (!theSleeperMesh)
+      generateSleeperMesh();
    
-   glPushMatrix();
-   glColor3d(0.5, 0.3, 0.0);
-   glBegin(GL_QUADS);
-
-   const double r = track::SLEEPER_LENGTH / 2.0;
-
-   // Top
-   glNormal3d(0.0, 1.0, 0.0);  // Up
-   glVertex3d(-sleeperOff, sleeperDepth, -r);
-   glVertex3d(-sleeperOff, sleeperDepth, r);
-   glVertex3d(sleeperOff, sleeperDepth, r);
-   glVertex3d(sleeperOff, sleeperDepth, -r);
-
-   // Side 1
-   glNormal3d(1.0, 0.0, 0.0);  // +ve x
-   glVertex3d(sleeperOff, sleeperDepth, -r);
-   glVertex3d(sleeperOff, 0.0, -r);
-   glVertex3d(-sleeperOff, 0.0, -r);
-   glVertex3d(-sleeperOff, sleeperDepth, -r);
-
-   // Side 2
-   glNormal3d(-1.0, 0.0, 0.0);  // -ve x
-   glVertex3d(-sleeperOff, sleeperDepth, r);
-   glVertex3d(-sleeperOff, 0.0, r);
-   glVertex3d(sleeperOff, 0.0, r);
-   glVertex3d(sleeperOff, sleeperDepth, r);
-
-   // Front
-   glNormal3d(0.0, 0.0, 1.0);  // +ve z
-   glVertex3d(sleeperOff, 0.0, r);
-   glVertex3d(sleeperOff, 0.0, -r);
-   glVertex3d(sleeperOff, sleeperDepth, -r);
-   glVertex3d(sleeperOff, sleeperDepth, r);
-
-   // Back
-   glNormal3d(0.0, 0.0, -1.0);  // -ve z
-   glVertex3d(-sleeperOff, sleeperDepth, r);
-   glVertex3d(-sleeperOff, sleeperDepth, -r);
-   glVertex3d(-sleeperOff, 0.0, -r);
-   glVertex3d(-sleeperOff, 0.0, r);
-   
-   
-   glEnd();  // glBegin(GL_QUADS)
-   
-   glPopMatrix();
-   glPopAttrib();
+   theSleeperMesh->render();
 }
 
 static void renderOneRail()
 {
    glPushMatrix();
-   glTranslated(-track::railWidth/2.0, 0.0, 0.0);
+   glTranslated(-RAIL_WIDTH/2.0, 0.0, 0.0);
    
    glBegin(GL_QUADS);
    
@@ -102,8 +107,8 @@ static void renderOneRail()
    glNormal3d(0.0, 1.0, 0.0);
    glVertex3d(0.0, track::RAIL_HEIGHT, 0.0);
    glVertex3d(0.0, track::RAIL_HEIGHT, 1.0);
-   glVertex3d(track::railWidth, track::RAIL_HEIGHT, 1.0);
-   glVertex3d(track::railWidth, track::RAIL_HEIGHT, 0.0);
+   glVertex3d(RAIL_WIDTH, track::RAIL_HEIGHT, 1.0);
+   glVertex3d(RAIL_WIDTH, track::RAIL_HEIGHT, 0.0);
    
    // Outer side
    glNormal3d(-1.0, 0.0, 0.0);
@@ -114,10 +119,10 @@ static void renderOneRail()
    
    // Inner side
    glNormal3d(1.0, 0.0, 0.0);
-   glVertex3d(track::railWidth, track::RAIL_HEIGHT, 1.0);
-   glVertex3d(track::railWidth, 0.0, 1.0);
-   glVertex3d(track::railWidth, 0.0, 0.0);
-   glVertex3d(track::railWidth, track::RAIL_HEIGHT, 0.0);
+   glVertex3d(RAIL_WIDTH, track::RAIL_HEIGHT, 1.0);
+   glVertex3d(RAIL_WIDTH, 0.0, 1.0);
+   glVertex3d(RAIL_WIDTH, 0.0, 0.0);
+   glVertex3d(RAIL_WIDTH, track::RAIL_HEIGHT, 0.0);
    
    glEnd();
    glPopMatrix();
@@ -128,10 +133,10 @@ void renderStraightRail()
    glPushMatrix();
    glColor3d(0.7, 0.7, 0.7);
 
-   glTranslated(-track::gauge/2.0, 0.0, -0.5);
+   glTranslated(-GAUGE/2.0, 0.0, -0.5);
    renderOneRail();
    
-   glTranslated(track::gauge, 0.0, 0.0);
+   glTranslated(GAUGE, 0.0, 0.0);
    renderOneRail();
 
    glPopMatrix();
@@ -144,10 +149,10 @@ enum RailType {
 static void makeCurveRail(double baseRadius, double startAngle,
                           double finishAngle, RailType type)
 {
-   const double edgeWidth = (1 - track::gauge - track::railWidth)/2.0;
+   const double edgeWidth = (1 - GAUGE - RAIL_WIDTH)/2.0;
    const double R = baseRadius - edgeWidth
-      - (type == OuterRail ? 0 : track::gauge);
-   const double r = R - track::railWidth;
+      - (type == OuterRail ? 0 : GAUGE);
+   const double r = R - RAIL_WIDTH;
 
    const double step = 0.1;
 
@@ -252,7 +257,7 @@ void renderCurvedTrack(int baseRadius, double startAngle, double endAngle)
    makeCurveRail(baseRadiusD, startAngle, endAngle, InnerRail);
 
    const double length = (endAngle - startAngle) * baseRadius;
-   const int numSleepers = length * track::sleepersPerUnit;
+   const int numSleepers = length * SLEEPERS_PER_UNIT;
    const double sleeperAngle =
       ((endAngle - startAngle) / numSleepers) * (180.0 / M_PI);
 

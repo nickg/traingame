@@ -375,6 +375,8 @@ void VertexArrayMesh::render() const
    glPushAttrib(GL_ENABLE_BIT);
    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 
+   glDisable(GL_BLEND);
+   
    if (hasTexture)
       glEnable(GL_TEXTURE_2D);
    else
