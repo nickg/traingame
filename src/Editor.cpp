@@ -69,7 +69,6 @@ private:
    
    ILightPtr mySun;
    Vector<double> myPosition;
-   Vector<double> myMovement;
 
    string myFileName;
    bool amScrolling;
@@ -534,49 +533,12 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
 
 void Editor::onKeyUp(SDLKey aKey)
 {
-   switch (aKey) {
-   case SDLK_w:
-   case SDLK_s:
-   case SDLK_a:
-   case SDLK_d:
-      myMovement.z = 0.0;
-      myMovement.x = 0.0;
-      break;
-   case SDLK_UP:
-   case SDLK_DOWN:
-      myMovement.y = 0.0;
-   default:
-      break;
-   }
+   
 }
 
 void Editor::onKeyDown(SDLKey aKey)
-{
-   const double speed = 0.75;
-   
+{   
    switch (aKey) {
-   case SDLK_a:
-      myMovement.z = speed;
-      myMovement.x = speed;
-      break;
-   case SDLK_d:
-      myMovement.z = -speed;
-      myMovement.x = -speed;
-      break;
-   case SDLK_w:
-      myMovement.z = speed;
-      myMovement.x = -speed;
-      break;
-   case SDLK_s:
-      myMovement.z = -speed;
-      myMovement.x = speed;
-      break;
-   case SDLK_UP:
-      myMovement.y = -speed;
-      break;
-   case SDLK_DOWN:
-      myMovement.y = speed;
-      break;
    case SDLK_x:
       // Write out to disk
       myMap->save(myFileName);
