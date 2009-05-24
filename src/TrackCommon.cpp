@@ -154,12 +154,12 @@ enum RailType {
 static void makeCurveRail(int baseRadius, track::Angle startAngle,
                           track::Angle finishAngle, RailType type)
 {
-   const double edgeWidth = (1 - GAUGE - RAIL_WIDTH)/2.0;
-   const double R = static_cast<float>(baseRadius) - edgeWidth
+   const float edgeWidth = (1 - GAUGE - RAIL_WIDTH)/2.0;
+   const float R = static_cast<float>(baseRadius) - edgeWidth
       - (type == OuterRail ? 0 : GAUGE);
-   const double r = R - RAIL_WIDTH;
+   const float r = R - RAIL_WIDTH;
 
-   const double step = 0.1;
+   const float step = 0.1;
 
    glPushAttrib(GL_ENABLE_BIT);
    glDisable(GL_TEXTURE_2D);
@@ -167,67 +167,67 @@ static void makeCurveRail(int baseRadius, track::Angle startAngle,
 
    glPushMatrix();
    
-   glRotatef(startAngle, 0.0, 1.0, 0.0);
+   glRotatef(static_cast<float>(startAngle), 0.0f, 1.0f, 0.0f);
 
    glColor3f(0.7, 0.7, 0.7);
 
-   const double startAngleR = degToRad(startAngle);
-   const double finishAngleR = degToRad(finishAngle);
+   const float startAngleR = degToRad(startAngle);
+   const float finishAngleR = degToRad(finishAngle);
 
    // Top of rail
    glBegin(GL_QUADS);
-   for (double theta = 0; theta < finishAngleR - startAngleR; theta += step) {
-      glNormal3d(0.0, 1.0, 0.0);
-      glVertex3d(r * cos(theta), 0.1, r * sin(theta)); 
-      glVertex3d(r * cos(theta + step), 0.1, r * sin(theta + step));
-      glVertex3d(R * cos(theta + step), 0.1, R * sin(theta + step));
-      glVertex3d(R * cos(theta), 0.1, R * sin(theta));
+   for (float theta = 0; theta < finishAngleR - startAngleR; theta += step) {
+      glNormal3f(0.0f, 1.0f, 0.0f);
+      glVertex3f(r * cos(theta), 0.1f, r * sin(theta)); 
+      glVertex3f(r * cos(theta + step), 0.1f, r * sin(theta + step));
+      glVertex3f(R * cos(theta + step), 0.1f, R * sin(theta + step));
+      glVertex3f(R * cos(theta), 0.1f, R * sin(theta));
    }
    glEnd();
 
    // Outer edge
-   for (double theta = 0; theta < finishAngleR - startAngleR; theta += step) {
-      const double sinT = sin(theta);
-      const double cosT = cos(theta);
-      const double sinT1 = sin(theta + step);
-      const double cosT1 = cos(theta + step);
+   for (float theta = 0; theta < finishAngleR - startAngleR; theta += step) {
+      const float sinT = sin(theta);
+      const float cosT = cos(theta);
+      const float sinT1 = sin(theta + step);
+      const float cosT1 = cos(theta + step);
       
       glBegin(GL_QUADS);
    
-      glNormal3d(cosT1, 0.0, sinT1);
-      glVertex3d(R * cosT1, 0.1, R * sinT1);
+      glNormal3f(cosT1, 0.0f, sinT1);
+      glVertex3f(R * cosT1, 0.1f, R * sinT1);
       
-      glNormal3d(cosT1, 0.0, sinT1);
-      glVertex3d(R * cosT1, 0.0, R * sinT1);
+      glNormal3f(cosT1, 0.0f, sinT1);
+      glVertex3f(R * cosT1, 0.0f, R * sinT1);
       
-      glNormal3d(cosT, 0.0, sinT);
-      glVertex3d(R * cosT, 0.0, R * sinT);
+      glNormal3f(cosT, 0.0f, sinT);
+      glVertex3f(R * cosT, 0.0f, R * sinT);
       
-      glNormal3d(cosT, 0.0, sinT);
-      glVertex3d(R * cosT, 0.1, R * sinT);
+      glNormal3f(cosT, 0.0f, sinT);
+      glVertex3f(R * cosT, 0.1f, R * sinT);
       
       glEnd();
    }
 
    // Inner edge
    glBegin(GL_QUADS);
-   for (double theta = 0; theta < finishAngleR - startAngleR; theta += step) {
-      const double sinT = sin(theta);
-      const double cosT = cos(theta);
-      const double sinT1 = sin(theta + step);
-      const double cosT1 = cos(theta + step);
+   for (float theta = 0; theta < finishAngleR - startAngleR; theta += step) {
+      const float sinT = sin(theta);
+      const float cosT = cos(theta);
+      const float sinT1 = sin(theta + step);
+      const float cosT1 = cos(theta + step);
       
-      glNormal3d(-cosT, 0.0, -sinT);
-      glVertex3d(r * cosT, 0.1, r * sinT);
+      glNormal3f(-cosT, 0.0f, -sinT);
+      glVertex3f(r * cosT, 0.1f, r * sinT);
       
-      glNormal3d(-cosT, 0.0, -sinT);
-      glVertex3d(r * cosT, 0.0, r * sinT);
+      glNormal3f(-cosT, 0.0f, -sinT);
+      glVertex3f(r * cosT, 0.0f, r * sinT);
       
-      glNormal3d(-cosT1, 0.0, -sinT1);
-      glVertex3d(r * cosT1, 0.0, r * sinT1);
+      glNormal3f(-cosT1, 0.0f, -sinT1);
+      glVertex3f(r * cosT1, 0.0f, r * sinT1);
       
-      glNormal3d(-cosT1, 0.0, -sinT1);
-      glVertex3d(r * cosT1, 0.1, r * sinT1);
+      glNormal3f(-cosT1, 0.0f, -sinT1);
+      glVertex3f(r * cosT1, 0.1f, r * sinT1);
    }
    glEnd();
 
@@ -238,19 +238,19 @@ static void makeCurveRail(int baseRadius, track::Angle startAngle,
 // Move to the origin of a curved section of track
 void transformToOrigin(int baseRadius, track::Angle startAngle)
 {
-   glTranslated((baseRadius-1)*-sin(degToRad(startAngle)) - 0.5, 0.0,
-                (baseRadius-1)*-cos(degToRad(startAngle)) - 0.5);
+   glTranslatef((baseRadius-1)*-sin(degToRad(startAngle)) - 0.5f, 0.0f,
+                (baseRadius-1)*-cos(degToRad(startAngle)) - 0.5f);
 
    // There *must* be a way to incorporate this in the above translation
    // as a neat formula, but I really can't think of it
    // This is a complete a hack, but whatever...
-   const double safe = 0.01;
-   if (degToRad(startAngle) >= M_PI / 2.0 - safe
+   const float safe = 0.01f;
+   if (degToRad(startAngle) >= M_PI / 2.0f - safe
        && degToRad(startAngle) <= M_PI + safe)
-      glTranslated(0.0, 0.0, 1.0);
+      glTranslatef(0.0f, 0.0f, 1.0f);
    
    if (degToRad(startAngle) >= M_PI - safe && degToRad(startAngle) <= 3.0 * M_PI / 2.0 + safe)
-      glTranslated(1.0, 0.0, 0.0);
+      glTranslatef(1.0f, 0.0f, 0.0f);
 }
 
 // `baseRadius' is measured in tiles
@@ -264,17 +264,17 @@ void renderCurvedTrack(int baseRadius, track::Angle startAngle,
    makeCurveRail(baseRadius, startAngle, endAngle, OuterRail);
    makeCurveRail(baseRadius, startAngle, endAngle, InnerRail);
 
-   const double length = degToRad(endAngle - startAngle) * baseRadius;
+   const float length = degToRad(endAngle - startAngle) * baseRadius;
    const int numSleepers = length * SLEEPERS_PER_UNIT;
-   const double sleeperAngle =
+   const float sleeperAngle =
       static_cast<float>(endAngle - startAngle) / numSleepers;
    
    for (int i = 0; i < numSleepers; i++) {
       glPushMatrix();
       
-      glRotated(static_cast<double>(startAngle) + (i + 0.5)*sleeperAngle,
-                0.0, 1.0, 0.0);
-      glTranslated(0.0, 0.0, static_cast<double>(baseRadius) - 0.5);
+      glRotatef(static_cast<float>(startAngle) + (i + 0.5)*sleeperAngle,
+                0.0f, 1.0f, 0.0f);
+      glTranslatef(0.0f, 0.0f, static_cast<float>(baseRadius) - 0.5f);
       
       renderSleeper();
       
