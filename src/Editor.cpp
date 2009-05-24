@@ -505,7 +505,10 @@ void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
 void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
                             MouseButton aButton)
 {
-   if (amDragging) {
+   // See if the GUI can handle it
+   if (myToolbar->handleMouseRelease(x, y))
+      return;
+   else if (amDragging) {
       // Stop dragging and perform the action
       switch (myTool) {
       case TRACK_TOOL:

@@ -35,12 +35,14 @@ public:
    int height() const;
    void render(int x, int y) const;
    bool handleClick(int x, int y);
+   bool handleMouseRelease(int x, int y);
 
    // IButton interface
    void onClick(ClickHandler aHandler);
 private:
    IImagePtr myGlyphImage;
    boost::signal<void (void)> myClickSignal;
+   bool amActive;
    
    static IImagePtr ourBaseImage, ourActiveImage;
 };
@@ -48,6 +50,7 @@ private:
 IImagePtr Button::ourBaseImage, Button::ourActiveImage;
 
 Button::Button(const string& aGlyphFile)
+   : amActive(false)
 {
    if (!ourBaseImage)
       ourBaseImage = makeImage("data/images/button_base.png");
@@ -74,14 +77,24 @@ int Button::height() const
 }
 
 void Button::render(int x, int y) const
-{   
-   ourBaseImage->render(x, y);
+{
+   if (amActive)
+      ourActiveImage->render(x, y);
+   else
+      ourBaseImage->render(x, y);
    myGlyphImage->render(x, y);
 }
 
 bool Button::handleClick(int x, int y)
 {
+   amActive = true;
    myClickSignal();
+   return true;
+}
+
+bool Button::handleMouseRelease(int x, int y)
+{
+   amActive = false;
    return true;
 }
 

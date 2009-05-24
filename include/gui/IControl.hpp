@@ -47,6 +47,7 @@ namespace gui {
       // Events
       // Return true if handled
       virtual bool handleClick(int x, int y) = 0;
+      virtual bool handleMouseRelease(int x, int y) = 0;
    };
 
    typedef std::shared_ptr<IControl> IControlPtr;

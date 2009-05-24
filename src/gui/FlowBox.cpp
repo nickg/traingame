@@ -39,6 +39,7 @@ public:
    int width() const;
    int height() const;
    bool handleClick(int x, int y);
+   bool handleMouseRelease(int x, int y);
    void render(int x, int y) const = 0;
 private:
    typedef function<void (IControlPtr, int, int)> PositionVisitor;
@@ -67,6 +68,12 @@ bool FlowBox::handleClick(int x, int y)
    bool handled = false;
    eachControl(bind(&FlowBox::clickTest, _1, _2, _3, x, y, &handled));
    return handled;
+}
+
+bool FlowBox::handleMouseRelease(int x, int y)
+{
+   eachControl(bind(&IControl::handleMouseRelease, _1, x, y));
+   return false;
 }
 
 void FlowBox::clickTest(IControlPtr aControl, int ctrlX, int ctrlY,
