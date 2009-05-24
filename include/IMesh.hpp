@@ -27,6 +27,8 @@
 // Represent OpenGL materials
 struct Material {
    Material();
+
+   void apply() const;
    
    float diffuseR, diffuseG, diffuseB;
    float ambientR, ambientG, ambientB;

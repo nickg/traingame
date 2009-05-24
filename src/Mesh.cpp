@@ -204,6 +204,31 @@ Material::Material()
 {
 }
 
+void Material::apply() const
+{
+   glDisable(GL_COLOR_MATERIAL);
+   
+   if (texture) {
+      glEnable(GL_TEXTURE_2D);
+      texture->bind();
+   }
+   else
+      glDisable(GL_TEXTURE_2D);
+   
+   float diffuse[] = { diffuseR, diffuseG, diffuseB, 1.0 };
+   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+   
+   float ambient[] = { ambientR, ambientG, ambientB, 1.0 };
+   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+   
+   // Note we're ignoring the specular values in the model
+   float specular[] = { 0, 0, 0, 1.0 };
+   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+   
+   float emission[] = { 0, 0, 0, 1 };
+   glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emission);
+}
+
 // Simple implementation using display lists
 class DisplayListMesh : public IMesh {
 public:
@@ -222,31 +247,9 @@ DisplayListMesh::DisplayListMesh(IMeshBufferPtr aBuffer)
    glNewList(myDisplayList, GL_COMPILE);
 
    const MeshBuffer* buf = MeshBuffer::get(aBuffer);
-   const Material& m = buf->material;
 
-   if (buf->hasMaterial) {
-      glDisable(GL_COLOR_MATERIAL);
-      
-      if (buf->hasTexture) {
-         glEnable(GL_TEXTURE_2D);
-         m.texture->bind();
-      }
-      else
-         glDisable(GL_TEXTURE_2D);
-      
-      float diffuse[] = { m.diffuseR, m.diffuseG, m.diffuseB, 1.0 };
-      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
-      
-      float ambient[] = { m.ambientR, m.ambientG, m.ambientB, 1.0 };
-      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
-      
-      // Note we're ignoring the specular values in the model
-      float specular[] = { 0, 0, 0, 1.0 };
-      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
-      
-      float emission[] = { 0, 0, 0, 1 };
-      glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emission);
-   }
+   if (buf->hasMaterial)
+      buf->material.apply();
    else
       glEnable(GL_COLOR_MATERIAL);
    
@@ -297,10 +300,113 @@ void DisplayListMesh::render() const
    glPopAttrib();
 }
 
+// Implementation of meshes using client side vertex arrays
+class VertexArrayMesh : public IMesh {
+public:
+   VertexArrayMesh(IMeshBufferPtr aBuffer);
+   ~VertexArrayMesh();
+
+   void render() const;
+private:
+
+   struct VertexData {
+      float x, y, z;
+      float nx, ny, nz;
+      float tx, ty;
+      float r, g, b;
+   } __attribute__((packed));
+
+   Material myMaterial;
+   bool hasMaterial, hasTexture;
+   int myVertexCount;
+   VertexData* myVertexData;
+   int myIndexCount;
+   GLuint* myIndices;
+};
+
+VertexArrayMesh::VertexArrayMesh(IMeshBufferPtr aBuffer)
+{
+   const MeshBuffer* buf = MeshBuffer::get(aBuffer);
+
+   myMaterial = buf->material;
+   hasMaterial = buf->hasMaterial;
+   hasTexture = buf->hasTexture;
+
+   myVertexCount = buf->vertices.size();
+   myVertexData = new VertexData[myVertexCount];
+
+   for (int i = 0; i < myVertexCount; i++) {
+      VertexData* vd = &myVertexData[i];
+
+      vd->x = buf->vertices[i].x;
+      vd->y = buf->vertices[i].y;
+      vd->z = buf->vertices[i].z;
+      
+      vd->nx = buf->normals[i].x;
+      vd->ny = buf->normals[i].y;
+      vd->nz = buf->normals[i].z;
+
+      if (hasTexture) {
+         vd->tx = buf->texCoords[i].x;
+         vd->ty = buf->texCoords[i].y;
+      }
+
+      if (!hasMaterial) {
+         vd->r = get<0>(buf->colours[i]);
+         vd->g = get<1>(buf->colours[i]);
+         vd->b = get<2>(buf->colours[i]);
+      }
+   }
+
+   myIndexCount = buf->indices.size();
+   myIndices = new GLuint[myIndexCount];
+
+   copy(buf->indices.begin(), buf->indices.end(), myIndices);
+}
+
+VertexArrayMesh::~VertexArrayMesh()
+{
+   delete[] myVertexData;
+   delete[] myIndices;
+}
+
+void VertexArrayMesh::render() const
+{
+   glPushAttrib(GL_ENABLE_BIT);
+   glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+
+   if (hasTexture)
+      glEnable(GL_TEXTURE_2D);
+   else
+      glDisable(GL_TEXTURE_2D);
+
+   if (hasMaterial)
+      myMaterial.apply();
+   else {
+      glEnable(GL_COLOR_MATERIAL);
+
+      glEnableClientState(GL_COLOR_ARRAY);
+      glColorPointer(3, GL_FLOAT, sizeof(VertexData),
+                     reinterpret_cast<GLvoid*>(&myVertexData->r));
+   }
+      
+   glEnableClientState(GL_VERTEX_ARRAY);
+   glEnableClientState(GL_NORMAL_ARRAY);
+   glVertexPointer(3, GL_FLOAT, sizeof(VertexData),
+                   reinterpret_cast<GLvoid*>(myVertexData));
+   glNormalPointer(GL_FLOAT, sizeof(VertexData),
+                   reinterpret_cast<GLvoid*>(&myVertexData->nx));
+
+   glDrawElements(GL_TRIANGLES, myIndexCount, GL_UNSIGNED_INT, myIndices);
+
+   glPopClientAttrib();
+   glPopAttrib();
+}
+
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 {
    aBuffer->printStats();
-   return IMeshPtr(new DisplayListMesh(aBuffer));
+   return IMeshPtr(new VertexArrayMesh(aBuffer));
 }
 
 IMeshBufferPtr makeMeshBuffer()
