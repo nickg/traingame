@@ -171,6 +171,7 @@ private:
    void raiseTile(int x, int y, float deltaHeight);
    void setTileHeight(int x, int y, float h);
    void fixNormals(int x, int y);
+   bool raiseWillCoverTrack(int x, int y) const;
    
    int myWidth, myDepth;
    Point<int> myStartLocation;
@@ -699,9 +700,29 @@ void Map::tileVertices(int x, int y, int* indexes) const
    indexes[0] = x + ((y+1) * (myWidth+1));          
 }
 
+// True if changing the height of this tile will affect
+// a piece of track
+bool Map::raiseWillCoverTrack(int x, int y) const
+{
+   return tileAt(x, y).track
+      || (x < myWidth - 1 && tileAt(x + 1, y).track)
+      || (x > 0 && tileAt(x - 1, y).track)
+      || (y < myDepth - 1 && tileAt(x, y + 1).track)
+      || (y > 0 && tileAt(x, y - 1).track)
+      || (x < myWidth - 1 && y < myDepth - 1 && tileAt(x + 1, y + 1).track)
+      || (x > 0 && y < myDepth - 1 && tileAt(x - 1, y + 1).track)
+      || (x > 0 && y > 0 && tileAt(x - 1, y - 1).track)
+      || (x < myWidth - 1 && y > 0 && tileAt(x + 1, y - 1).track);
+}
+
 // Changes the height of a complete tile
 void Map::raiseTile(int x, int y, float deltaHeight)
 {
+   if (raiseWillCoverTrack(x, y)) {
+      warn() << "Cannot raise terrain over track";
+      return;
+   }
+   
    int indexes[4];
    tileVertices(x, y, indexes);
 
@@ -715,11 +736,20 @@ void Map::raiseTile(int x, int y, float deltaHeight)
 // Sets the absolute height of a tile
 void Map::setTileHeight(int x, int y, float h)
 {
+   bool trackAffected = raiseWillCoverTrack(x, y);
+   
    int indexes[4];
    tileVertices(x, y, indexes);
 
-   for (int i = 0; i < 4; i++)
-      myHeightMap[indexes[i]].pos.y = h;
+   for (int i = 0; i < 4; i++) {
+      if (trackAffected
+          && abs(myHeightMap[indexes[i]].pos.y - h) > 0.01f) {
+         warn() << "Cannot level terrain under track";
+         return;
+      }        
+      else
+         myHeightMap[indexes[i]].pos.y = h;
+   }
    
    fixNormals(x, y);
    dirtyTile(x, y);
