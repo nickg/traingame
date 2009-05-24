@@ -46,7 +46,8 @@ struct IScreen {
    
    virtual void onKeyDown(SDLKey aKey) = 0;
    virtual void onKeyUp(SDLKey aKey) = 0;
-   virtual void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y) = 0;
+   virtual void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
+                            int xrel, int yrel) = 0;
    virtual void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
                              MouseButton aButton) = 0;
    virtual void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,

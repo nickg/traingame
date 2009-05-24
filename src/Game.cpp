@@ -41,7 +41,7 @@ public:
    void update(IPickBufferPtr aPickBuffer, int aDelta);
    void onKeyDown(SDLKey aKey);
    void onKeyUp(SDLKey aKey);
-   void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y);
+   void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y, int xrel, int yrel);
    void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
                      MouseButton aButton);
    void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
@@ -201,15 +201,11 @@ void Game::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
    }
 }
 
-void Game::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
-{
-   static int lastX = x, lastY = y;
-
-   const int xDelta = x - lastX;
-   const int yDelta = y - lastY;
-   
-   myHorizAngle -= xDelta / 150.0f;
-   myVertAngle += yDelta / 150.0f;
+void Game::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
+                       int xrel, int yrel)
+{   
+   myHorizAngle -= xrel / 150.0f;
+   myVertAngle += yrel / 150.0f;
 
    // Don't allow the camera to go under the ground
    const double ground = (M_PI / 2.0f) - 0.01f;
@@ -220,9 +216,6 @@ void Game::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
    const double top = 0.01f;
    if (myVertAngle < top)
       myVertAngle = top;
-
-   lastX = x;
-   lastY = y;
 }
 
 // Create an instance of the play screen with the given map

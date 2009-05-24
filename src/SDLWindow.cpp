@@ -369,7 +369,8 @@ void SDLWindow::processInput()
       case SDL_MOUSEMOTION:
          if (!haveSentMouseMotion) {
             myScreen->onMouseMove(shared_from_this(),
-                                  e.motion.x, e.motion.y);
+                                  e.motion.x, e.motion.y,
+                                  e.motion.xrel, e.motion.yrel);
             haveSentMouseMotion = true;
          }
          break;

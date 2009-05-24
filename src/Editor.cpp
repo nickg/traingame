@@ -41,7 +41,7 @@ public:
    void update(IPickBufferPtr aPickBuffer, int aDelta);
    void onKeyDown(SDLKey aKey);
    void onKeyUp(SDLKey aKey);
-   void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y);
+   void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y, int xrel, int yrel);
    void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
                      MouseButton aButton);
    void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
@@ -70,6 +70,7 @@ private:
    Vector<double> myMovement;
 
    string myFileName;
+   bool amScrolling;
 
    // Variables for dragging track segments
    Point<int> myDragBegin, myDragEnd;
@@ -87,7 +88,8 @@ private:
 
 Editor::Editor(IMapPtr aMap, const string& aFileName)
    : myMap(aMap), myPosition(4.5, -15.0, -21.5),
-     myFileName(aFileName), amDragging(false), myTool(TRACK_TOOL)
+     myFileName(aFileName), amScrolling(false),
+     amDragging(false), myTool(TRACK_TOOL)
 {
    mySun = makeSunLight();
 
@@ -395,8 +397,9 @@ void Editor::lowerTerrain()
    myMap->lowerArea(myDragBegin, myDragEnd);
 }
 
-void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
-{
+void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
+                         int xrel, int yrel)
+{   
    if (amDragging) {
       // Extend the selection rectangle
       myMap->setPickMode(true);
@@ -407,7 +410,18 @@ void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y)
 
       if (id > 0)
          myDragEnd = myMap->pickPosition(id);
-   }      
+   }
+   else if (amScrolling) {
+      const double speed = myPosition.y * -0.005;
+      
+      myPosition.x -= xrel * speed;
+      myPosition.z -= xrel * speed;
+      
+      myPosition.x += yrel * speed;
+      myPosition.z -= yrel * speed;
+
+      
+   }
 }
 
 // Change to the terrain raising mode
@@ -437,20 +451,33 @@ void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
    // See if the GUI can handle it
    if (myToolbar->handleClick(x, y))
       return;
-   
-   myMap->setPickMode(true);
-   IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
-   display(pickContext);
-   int id = aPickBuffer->endPick();
-   myMap->setPickMode(false);
-
-   if (aButton == MOUSE_LEFT && id > 0) {
-      // Begin dragging a selection rectangle
-      Point<int> where = myMap->pickPosition(id);
-      
-      myDragBegin = myDragEnd = where;
-      amDragging = true;
+   else if (aButton == MOUSE_RIGHT) {
+      // Start scrolling
+      amScrolling = true;
    }
+   else if (aButton == MOUSE_LEFT) {
+      // See if the user clicked on something in the map
+      myMap->setPickMode(true);
+      IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
+      display(pickContext);
+      int id = aPickBuffer->endPick();
+      myMap->setPickMode(false);
+
+      if (id > 0) {
+         // Begin dragging a selection rectangle
+         Point<int> where = myMap->pickPosition(id);
+         
+         myDragBegin = myDragEnd = where;
+         amDragging = true;
+      }
+   }
+   else if (aButton == MOUSE_WHEEL_UP) {
+      myPosition.y -= 0.5;
+   }
+   else if (aButton == MOUSE_WHEEL_DOWN) {
+      myPosition.y += 0.5;
+   }
+      
 }
 
 void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
@@ -471,6 +498,9 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
       }
          
       amDragging = false;
+   }
+   else if (amScrolling) {
+      amScrolling = false;
    }
 }
 
@@ -494,7 +524,7 @@ void Editor::onKeyUp(SDLKey aKey)
 
 void Editor::onKeyDown(SDLKey aKey)
 {
-   const double speed = 0.5;
+   const double speed = 0.75;
    
    switch (aKey) {
    case SDLK_a:
