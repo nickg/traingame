@@ -57,9 +57,9 @@ private:
    // GUI elements
    IContainerPtr myStatsPanel;
    ITextControlPtr mySpeedLabel, myBrakeLabel;
+   ITextControlPtr myTempLabel, myPressureLabel;
    IMeterControlPtr myThrottleMeter;
    IMeterControlPtr myCoalMeter, myWaterMeter;
-   IMeterControlPtr myTempMeter, myPressureMeter;
 };
 
 Game::Game(IMapPtr aMap)
@@ -90,15 +90,11 @@ Game::Game(IMapPtr aMap)
                                 make_tuple(0.1f, 0.1f, 0.8f));
    myStatsPanel->addChild(myWaterMeter);
 
-   myTempMeter = makeFuelMeter(stdFont, "Temp",
-                               make_tuple(0.8f, 0.1f, 0.1f));
-   myTempMeter->setRange(0, 1050);
-   myStatsPanel->addChild(myTempMeter);
+   myTempLabel = makeLabel(stdFont, "Temp");
+   myStatsPanel->addChild(myTempLabel);
 
-   myPressureMeter = makeFuelMeter(stdFont, "Pressure",
-                                   make_tuple(0.1f, 0.3f, 0.5f));
-   myPressureMeter->setRange(0, 110);
-   myStatsPanel->addChild(myPressureMeter);
+   myPressureLabel = makeLabel(stdFont, "Pressure");
+   myStatsPanel->addChild(myPressureLabel);
 
    myBrakeLabel = makeLabel(stdFont, "Brake on");
    myBrakeLabel->setColour(1.0f, 0.0f, 0.0f);
@@ -148,10 +144,10 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    myBrakeLabel->setVisible(myTrain->controller()->brakeOn());
 
    const double pressure = myTrain->controller()->pressure();
-   myPressureMeter->setValue(static_cast<int>(pressure * 100.0));
+   myPressureLabel->setText("Pressure: %.lfpsi", pressure);
 
    const double temp = myTrain->controller()->temp();
-   myTempMeter->setValue(static_cast<int>(temp));
+   myTempLabel->setText("Temp: %.lfdeg", temp);
 
    myWaterMeter->setValue(8);
 }

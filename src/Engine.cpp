@@ -18,6 +18,7 @@
 #include "IRollingStock.hpp"
 #include "IModel.hpp"
 #include "ILogger.hpp"
+#include "MovingAverage.hpp"
 
 using namespace std;
 
@@ -83,6 +84,9 @@ private:
    double myStatTractiveEffort;
    bool isBrakeOn;
    int myThrottle;     // Ratio measured in tenths
+
+   // Boiler pressure lags behind temperature
+   MovingAverage<double, 1000> myBoilerDelay;
    
    static const double MODEL_SCALE;
    static const double TRACTIVE_EFFORT_KNEE;
@@ -140,6 +144,11 @@ double Engine::brakeForce() const
 // Compute the next state of the engine
 void Engine::update(int aDelta)
 {
+   // Update the pressure of the boiler
+   // The fire temperature is delayed and then used to increase it
+   myBoilerDelay << myFireTemp;
+   myBoilerPressure = myBoilerDelay.value();
+   
    const double P = tractiveEffort();
    const double Q = resistance();
    const double B = isBrakeOn ? brakeForce() : 0.0;
