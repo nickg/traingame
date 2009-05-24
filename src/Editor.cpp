@@ -87,7 +87,7 @@ private:
 };
 
 Editor::Editor(IMapPtr aMap, const string& aFileName)
-   : myMap(aMap), myPosition(4.5, -15.0, -21.5),
+   : myMap(aMap), myPosition(4.5, -20.0, -21.5),
      myFileName(aFileName), amScrolling(false),
      amDragging(false), myTool(TRACK_TOOL)
 {
@@ -163,7 +163,7 @@ void Editor::overlay() const
 // Prepare the next frame
 void Editor::update(IPickBufferPtr aPickBuffer, int aDelta)
 {
-   myPosition += myMovement;
+   
 }
 
 // True if the `aFirstPoint' is a valid track segment and it can
@@ -412,15 +412,13 @@ void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
          myDragEnd = myMap->pickPosition(id);
    }
    else if (amScrolling) {
-      const double speed = myPosition.y * -0.005;
+      const double speed = 0.05;
       
       myPosition.x -= xrel * speed;
       myPosition.z -= xrel * speed;
       
       myPosition.x += yrel * speed;
-      myPosition.z -= yrel * speed;
-
-      
+      myPosition.z -= yrel * speed;      
    }
 }
 
