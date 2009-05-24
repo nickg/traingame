@@ -30,7 +30,7 @@ namespace xml {
 }
 
 // Types used for specifying track segments
-namespace Track {
+namespace track {
    // TODO: This only needs (x, y) position and should contain
    // separate layer field - but will do for now
    typedef Point<int> Position;
@@ -47,8 +47,8 @@ namespace Track {
 
 // Orientations for straight track
 namespace Axis {
-   const Track::Direction X = makeVector(1, 0, 0);
-   const Track::Direction Y = makeVector(0, 0, 1);
+   const track::Direction X = makeVector(1, 0, 0);
+   const track::Direction Y = makeVector(0, 0, 1);
 }
 
 struct ITrackSegment;
@@ -73,11 +73,11 @@ struct ITrackSegment {
    // Return a function that transforms the location of the train
    // so it will render in the correct place for this track segment
    // The functions assumes that it is initially placed at the origin
-   virtual TransformFunc transformFunc(const Track::Direction& aDirection)
+   virtual TransformFunc transformFunc(const track::Direction& aDirection)
       const = 0;
 
    // True if a train can travel in this direction along the track
-   virtual bool isValidDirection(const Track::Direction& aDirection) const = 0;
+   virtual bool isValidDirection(const track::Direction& aDirection) const = 0;
    
    // Return the position of the next segment of track and the
    // orientation of the train.
@@ -87,7 +87,7 @@ struct ITrackSegment {
    // The parameter `aDirection' specifies the direction of the
    // train when it /entered/ this segment. This must be valid
    // for this track segment - call isValidDirection first.
-   virtual Track::Connection nextPosition(const Track::Direction& aDirection)
+   virtual track::Connection nextPosition(const track::Direction& aDirection)
       const = 0;
 
    // Add all the endpoints of the track segment to the given list
@@ -104,16 +104,16 @@ struct ITrackSegment {
    // The track may already have an exit here in which case
    // a pointer to itself will be returned
    virtual ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
-                                      const Track::Direction& aDirection) = 0;
+                                      const track::Direction& aDirection) = 0;
 
    // Convert the track segment to XML for writing out in the
    // map configuration file
    virtual xml::element toXml() const = 0;
 };
 
-ITrackSegmentPtr makeStraightTrack(const Track::Direction& aDirection);
-ITrackSegmentPtr makeCurvedTrack(Track::Angle aStartAngle,
-                                 Track::Angle aFinishAngle, int aRadius);
+ITrackSegmentPtr makeStraightTrack(const track::Direction& aDirection);
+ITrackSegmentPtr makeCurvedTrack(track::Angle aStartAngle,
+                                 track::Angle aFinishAngle, int aRadius);
 ITrackSegmentPtr makeCrossoverTrack();
 
 #endif

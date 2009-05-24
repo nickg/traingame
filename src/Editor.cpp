@@ -49,8 +49,8 @@ public:
 private:
    void buildGUI();
    void drawDraggedTrack();
-   bool drawTrackTile(const Point<int>& aPoint, const Track::Direction& anAxis);
-   void drawDraggedStraight(const Track::Direction& anAxis, int aLength);
+   bool drawTrackTile(const Point<int>& aPoint, const track::Direction& anAxis);
+   void drawDraggedStraight(const track::Direction& anAxis, int aLength);
    void drawDraggedCurve(int xLength, int yLength);
    bool canConnect(const Point<int>& aFirstPoint,
                    const Point<int>& aSecondPoint) const;
@@ -198,7 +198,7 @@ bool Editor::canConnect(const Point<int>& aFirstPoint,
 
 // Draw a single tile of straight track and check for collisions
 // Returns `false' if track cannot be placed here
-bool Editor::drawTrackTile(const Point<int>& aPoint, const Track::Direction& anAxis)
+bool Editor::drawTrackTile(const Point<int>& aPoint, const track::Direction& anAxis)
 {
    if (myMap->isValidTrack(aPoint)) {
       ITrackSegmentPtr merged = myMap->trackAt(aPoint)->mergeExit(aPoint, anAxis);
@@ -219,7 +219,7 @@ bool Editor::drawTrackTile(const Point<int>& aPoint, const Track::Direction& anA
 
 // Special case where the user drags a rectangle of width 1
 // This just draws straight track along the rectangle
-void Editor::drawDraggedStraight(const Track::Direction& anAxis, int aLength)
+void Editor::drawDraggedStraight(const track::Direction& anAxis, int aLength)
 {
    Point<int> where = myDragBegin;
 
@@ -235,7 +235,7 @@ void Editor::drawDraggedStraight(const Track::Direction& anAxis, int aLength)
 // Connect the beginning and end up in the simplest way possible
 void Editor::drawDraggedTrack()
 {
-   Track::Direction straight;  // Orientation for straight track section
+   track::Direction straight;  // Orientation for straight track section
    
    int xmin, xmax, ymin, ymax;
    dragBoxBounds(xmin, xmax, ymin, ymax);
@@ -247,7 +247,7 @@ void Editor::drawDraggedTrack()
    if (myDragBegin.x > myDragEnd.x)
       swap(myDragBegin, myDragEnd);
 
-   Track::Direction startDir, endDir;
+   track::Direction startDir, endDir;
    bool startWasGuess = false;
    bool endWasGuess = false;
 

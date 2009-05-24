@@ -67,7 +67,7 @@ private:
    IMapPtr myMap;
 
    // Move part of the train across a connection
-   void enterSegment(Part& aPart, const Track::Connection& aConnection);
+   void enterSegment(Part& aPart, const track::Connection& aConnection);
 
    // Seperation between waggons
    static const double SEPARATION;
@@ -152,7 +152,7 @@ void Train::update(int aDelta)
 
 // Called when the train enters a new segment
 // Resets the delta and gets the length of the new segment
-void Train::enterSegment(Part& aPart, const Track::Connection& aConnection)
+void Train::enterSegment(Part& aPart, const track::Connection& aConnection)
 {
    Point<int> pos;
    tie(pos, aPart.direction) = aConnection;

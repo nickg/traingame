@@ -41,17 +41,17 @@ public:
    
    void render() const;
    double segmentLength() const;
-   TransformFunc transformFunc(const Track::Direction& aDirection) const;
-   bool isValidDirection(const Track::Direction& aDirection) const;
-   Track::Connection nextPosition(const Track::Direction& aDirection) const;
+   TransformFunc transformFunc(const track::Direction& aDirection) const;
+   bool isValidDirection(const track::Direction& aDirection) const;
+   track::Connection nextPosition(const track::Direction& aDirection) const;
    void getEndpoints(std::list<Point<int> >& aList) const;
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
-                              const Track::Direction& aDirection);
+                              const track::Direction& aDirection);
 
    xml::element toXml() const;
    
 private:
-   void transform(const Track::Direction& aDirection, double aDelta) const;
+   void transform(const track::Direction& aDirection, double aDelta) const;
    
    int myX, myY;
 };
@@ -96,7 +96,7 @@ double CrossoverTrack::segmentLength() const
    return 1.0;
 }
 
-void CrossoverTrack::transform(const Track::Direction& aDirection,
+void CrossoverTrack::transform(const track::Direction& aDirection,
                                double aDelta) const
 {
    assert(aDelta < 1.0);
@@ -107,7 +107,7 @@ void CrossoverTrack::transform(const Track::Direction& aDirection,
       aDelta = 1.0 - aDelta;
    }
 
-   Track::Direction dir = backwards ? -aDirection : aDirection;
+   track::Direction dir = backwards ? -aDirection : aDirection;
 
    const double xTrans = dir == Axis::X ? aDelta : 0;
    const double yTrans = dir == Axis::Y ? aDelta : 0;
@@ -126,7 +126,7 @@ void CrossoverTrack::transform(const Track::Direction& aDirection,
 }
 
 ITrackSegment::TransformFunc
-CrossoverTrack::transformFunc(const Track::Direction& aDirection) const
+CrossoverTrack::transformFunc(const track::Direction& aDirection) const
 {
    if (!isValidDirection(aDirection))
       throw runtime_error
@@ -135,14 +135,14 @@ CrossoverTrack::transformFunc(const Track::Direction& aDirection) const
    return bind(&CrossoverTrack::transform, this, aDirection, _1);
 }
 
-bool CrossoverTrack::isValidDirection(const Track::Direction& aDirection) const
+bool CrossoverTrack::isValidDirection(const track::Direction& aDirection) const
 {
    return aDirection == Axis::X || aDirection == Axis::Y
       || aDirection == -Axis::Y || aDirection == -Axis::X;
 }
 
-Track::Connection
-CrossoverTrack::nextPosition(const Track::Direction& aDirection) const
+track::Connection
+CrossoverTrack::nextPosition(const track::Direction& aDirection) const
 {
    
    if (aDirection == Axis::X)
@@ -164,7 +164,7 @@ void CrossoverTrack::getEndpoints(std::list<Point<int> >& aList) const
 }
 
 ITrackSegmentPtr CrossoverTrack::mergeExit(const Point<int>& aPoint,
-                                           const Track::Direction& aDirection)
+                                           const track::Direction& aDirection)
 {
    if (aPoint == makePoint(myX, myY)
        && isValidDirection(aDirection))

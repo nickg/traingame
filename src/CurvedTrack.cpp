@@ -29,14 +29,14 @@
 
 using namespace std;
 using namespace std::placeholders;
-using namespace Track;
+using namespace track;
 using namespace boost;
 
 // Concrete implementation of curved pieces of track
 class CurvedTrack : public ITrackSegment,
                     public enable_shared_from_this<CurvedTrack> {
 public:
-   CurvedTrack(Track::Angle aStartAngle, Track::Angle aFinishAngle,
+   CurvedTrack(track::Angle aStartAngle, track::Angle aFinishAngle,
                int aRadius);
    ~CurvedTrack();
 
@@ -46,27 +46,27 @@ public:
    double segmentLength() const;
 
    Connection nextPosition(const Vector<int>& aDirection) const;
-   TransformFunc transformFunc(const Track::Direction& aDirection) const;
+   TransformFunc transformFunc(const track::Direction& aDirection) const;
    bool isValidDirection(const Direction& aDirection) const;
    void getEndpoints(list<Point<int> >& aList) const;
    
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
-                              const Track::Direction& aDirection);
+                              const track::Direction& aDirection);
 
    xml::element toXml() const;
    
 private:
-   void transform(const Track::Direction& aDirection, double aDelta) const;
+   void transform(const track::Direction& aDirection, double aDelta) const;
    Vector<int> cwEntryVector() const;
    Vector<int> ccwEntryVector() const;
    void ensureValidDirection(const Direction& aDirection) const;
    
    int myX, myY, myBaseRadius;
-   Track::Angle myStartAngle, myFinishAngle;
+   track::Angle myStartAngle, myFinishAngle;
 };
 
-CurvedTrack::CurvedTrack(Track::Angle aStartAngle,
-                         Track::Angle aFinishAngle,
+CurvedTrack::CurvedTrack(track::Angle aStartAngle,
+                         track::Angle aFinishAngle,
                          int aRadius)
    : myX(0), myY(0), myBaseRadius(aRadius),
      myStartAngle(aStartAngle), myFinishAngle(aFinishAngle)
@@ -79,7 +79,7 @@ CurvedTrack::~CurvedTrack()
 
 }
 
-void CurvedTrack::transform(const Track::Direction& aDirection, double aDelta) const
+void CurvedTrack::transform(const track::Direction& aDirection, double aDelta) const
 {
    assert(aDelta < segmentLength());
    
@@ -111,7 +111,7 @@ double CurvedTrack::segmentLength() const
 }
 
 ITrackSegment::TransformFunc
-CurvedTrack::transformFunc(const Track::Direction& aDirection) const
+CurvedTrack::transformFunc(const track::Direction& aDirection) const
 {
    ensureValidDirection(aDirection);
    
@@ -223,7 +223,7 @@ void CurvedTrack::getEndpoints(list<Point<int> >& aList) const
 }
 
 ITrackSegmentPtr CurvedTrack::mergeExit(const Point<int>& aPoint,
-                                        const Track::Direction& aDirection)
+                                        const track::Direction& aDirection)
 {
    // See if this is already an exit
    if (isValidDirection(aDirection)) {
@@ -255,8 +255,8 @@ xml::element CurvedTrack::toXml() const
       .addAttribute("radius", myBaseRadius);
 }
 
-ITrackSegmentPtr makeCurvedTrack(Track::Angle aStartAngle,
-                                 Track::Angle aFinishAngle, int aRadius)
+ITrackSegmentPtr makeCurvedTrack(track::Angle aStartAngle,
+                                 track::Angle aFinishAngle, int aRadius)
 {
    assert(aStartAngle < aFinishAngle);
    

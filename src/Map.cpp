@@ -78,7 +78,7 @@ public:
    void setGrid(bool onOff);
    void setPickMode(bool onOff) { inPickMode = onOff; }
    
-   Track::Connection startLocation() const;
+   track::Connection startLocation() const;
    ITrackSegmentPtr trackAt(const Point<int>& aPoint) const;
    void setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack);
    bool isValidTrack(const Point<int>& aPoint) const;
@@ -251,7 +251,7 @@ bool Map::isValidTrack(const Point<int>& aPoint) const
 }
 
 // Return a location where the train may start
-Track::Connection Map::startLocation() const
+track::Connection Map::startLocation() const
 {
    return make_pair(myStartLocation, makeVector(0, 0, 1));
 }
@@ -990,7 +990,7 @@ private:
       string align;
       attrs.get("align", align);
 
-      Track::Direction axis = align == "x" ? Axis::X : Axis::Y;
+      track::Direction axis = align == "x" ? Axis::X : Axis::Y;
 
       myMap->setTrackAt(makePoint(myXPtr, myYPtr),
                         makeStraightTrack(axis));

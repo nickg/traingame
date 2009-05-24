@@ -30,7 +30,7 @@
 using namespace std;
 using namespace std::placeholders;
 using namespace boost;
-using namespace Track;
+using namespace track;
 
 // Concrete implementation of straight-line pieces of track
 class StraightTrack : public ITrackSegment,
@@ -49,15 +49,15 @@ public:
    bool isValidDirection(const Direction& aDirection) const;
    void getEndpoints(list<Point<int> >& aList) const;
    
-   TransformFunc transformFunc(const Track::Direction& aDirection) const;
+   TransformFunc transformFunc(const track::Direction& aDirection) const;
    
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
-                              const Track::Direction& aDirection);
+                              const track::Direction& aDirection);
 
    xml::element toXml() const;
 private:
-   void transform(const Track::Direction& aDirection, double aDelta) const;
-   void ensureValidDirection(const Track::Direction& aDirection) const;
+   void transform(const track::Direction& aDirection, double aDelta) const;
+   void ensureValidDirection(const track::Direction& aDirection) const;
    
    int myX, myY;  // Absolute position
    Direction myDirection;
@@ -74,7 +74,7 @@ StraightTrack::~StraightTrack()
    
 }
 
-void StraightTrack::transform(const Track::Direction& aDirection,
+void StraightTrack::transform(const track::Direction& aDirection,
                               double aDelta) const
 {
    assert(aDelta < 1.0);
@@ -99,7 +99,7 @@ void StraightTrack::transform(const Track::Direction& aDirection,
 }
 
 ITrackSegment::TransformFunc
-StraightTrack::transformFunc(const Track::Direction& aDirection) const
+StraightTrack::transformFunc(const track::Direction& aDirection) const
 {
    ensureValidDirection(aDirection);
    
@@ -107,7 +107,7 @@ StraightTrack::transformFunc(const Track::Direction& aDirection) const
 }
 
 ITrackSegmentPtr StraightTrack::mergeExit(const Point<int>& aPoint,
-                                          const Track::Direction& aDirection)
+                                          const track::Direction& aDirection)
 {
    // See if this is already a valid exit
    if (isValidDirection(aDirection) && aPoint == makePoint(myX, myY))
