@@ -47,6 +47,9 @@ public:
    virtual void setTrackAt(const Point<int>& aPoint,
                            ITrackSegmentPtr aTrack) = 0;
 
+   // Delete the contents of a tile
+   virtual void eraseTile(int x, int y) = 0;
+
    // The start location consists of both a position and
    // a direction vector
    virtual Track::Connection startLocation() const = 0;

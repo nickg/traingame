@@ -57,11 +57,13 @@ private:
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
    void raiseTerrain();
    void lowerTerrain();
+   void deleteObjects();
    
    // Signal handlers
    void onRaiseTerrainSelect();
    void onTrackSelect();
    void onLowerTerrainSelect();
+   void onDeleteSelect();
    
    IMapPtr myMap;
    
@@ -78,7 +80,7 @@ private:
 
    // Different tools the user can be using
    enum Tool {
-      TRACK_TOOL, RAISE_TOOL, LOWER_TOOL
+      TRACK_TOOL, RAISE_TOOL, LOWER_TOOL, DELETE_TOOL
    };
    Tool myTool;
 
@@ -87,7 +89,7 @@ private:
 };
 
 Editor::Editor(IMapPtr aMap, const string& aFileName)
-   : myMap(aMap), myPosition(4.5, -20.0, -21.5),
+   : myMap(aMap), myPosition(4.5, -17.5, -21.5),
      myFileName(aFileName), amScrolling(false),
      amDragging(false), myTool(TRACK_TOOL)
 {
@@ -108,6 +110,10 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
    lowerButton->onClick(bind(&Editor::onLowerTerrainSelect, this));
    myToolbar->addChild(lowerButton);
 
+   IButtonPtr deleteButton = makeButton("data/images/delete_icon.png");
+   deleteButton->onClick(bind(&Editor::onDeleteSelect, this));
+   myToolbar->addChild(deleteButton);
+      
    IButtonPtr startButton = makeButton("data/images/start_icon.png");
    //startButton->onClick(bind(&Editor::onLowerTerrainSelect, this));
    myToolbar->addChild(startButton);
@@ -397,6 +403,18 @@ void Editor::lowerTerrain()
    myMap->lowerArea(myDragBegin, myDragEnd);
 }
 
+// Delete all objects in the area selected by the user
+void Editor::deleteObjects()
+{
+   int xmin, xmax, ymin, ymax;
+   dragBoxBounds(xmin, xmax, ymin, ymax);
+
+   for (int x = xmin; x <= xmax; x++) {
+      for (int y = ymin; y <= ymax; y++)
+         myMap->eraseTile(x, y);
+   }
+}
+
 void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
                          int xrel, int yrel)
 {   
@@ -441,6 +459,12 @@ void Editor::onTrackSelect()
 {
    log() << "Track placing mode";
    myTool = TRACK_TOOL;
+}
+
+void Editor::onDeleteSelect()
+{
+   log() << "Delete mode";
+   myTool = DELETE_TOOL;
 }
 
 void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
@@ -492,6 +516,9 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
          break;
       case LOWER_TOOL:
          lowerTerrain();
+         break;
+      case DELETE_TOOL:
+         deleteObjects();
          break;
       }
          

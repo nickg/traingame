@@ -85,6 +85,7 @@ public:
    void render(IGraphicsPtr aContext) const;
    void highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const;
    void resetMap(int aWidth, int aDepth);
+   void eraseTile(int x, int y);
 
    void raiseArea(const Point<int>& aStartPos,
                   const Point<int>& aFinishPos);
@@ -202,6 +203,23 @@ ITrackSegmentPtr Map::trackAt(const Point<int>& aPoint) const
       ostringstream ss;
       ss << "No track segment at " << aPoint;
       throw runtime_error(ss.str());
+   }
+}
+
+void Map::eraseTile(int x, int y)
+{
+   Tile& tile = tileAt(x, y);
+
+   if (tile.track) {
+      // We have to be a bit careful since a piece of track has multiple
+      // endpoints
+
+      list<Point<int> > endpoints;
+      tile.track->get()->getEndpoints(endpoints);
+
+      for (list<Point<int> >::iterator it = endpoints.begin();
+           it != endpoints.end(); ++it)
+         tileAt((*it).x, (*it).y).track.reset();
    }
 }
 
