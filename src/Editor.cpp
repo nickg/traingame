@@ -254,11 +254,11 @@ void Editor::drawDraggedTrack()
    // Try to work out the direction of the track start
    if (canConnect(myDragBegin.left(), myDragBegin)
        || canConnect(myDragBegin.right(), myDragBegin)) {
-      startDir = Axis::X;
+      startDir = axis::X;
    }
    else if (canConnect(myDragBegin.up(), myDragBegin)
        || canConnect(myDragBegin.down(), myDragBegin)) {
-      startDir = Axis::Y;
+      startDir = axis::Y;
    }
    else
       startWasGuess = true;
@@ -266,11 +266,11 @@ void Editor::drawDraggedTrack()
    // Try to work out the direction of the track end
    if (canConnect(myDragEnd.left(), myDragEnd)
        || canConnect(myDragEnd.right(), myDragEnd)) {
-      endDir = Axis::X;
+      endDir = axis::X;
    }
    else if (canConnect(myDragEnd.up(), myDragEnd)
        || canConnect(myDragEnd.down(), myDragEnd)) {
-      endDir = Axis::Y;
+      endDir = axis::Y;
    }
    else
       endWasGuess = true;
@@ -280,29 +280,29 @@ void Editor::drawDraggedTrack()
    if (endWasGuess && startWasGuess) {
       if (min(xlen, ylen) <= 2) {
          if (xlen > ylen)
-            startDir = endDir = Axis::X;
+            startDir = endDir = axis::X;
          else
-            startDir = endDir = Axis::Y;
+            startDir = endDir = axis::Y;
       }
       else {
-         startDir = Axis::X;
-         endDir = Axis::Y;
+         startDir = axis::X;
+         endDir = axis::Y;
       }
    }
    // Otherwise always prefer curves to S-bends
    else if (startWasGuess)
-      startDir = endDir == Axis::X ? Axis::Y : Axis::X;
+      startDir = endDir == axis::X ? axis::Y : axis::X;
    else if (endWasGuess)
-      endDir = startDir == Axis::X ? Axis::Y : Axis::X;
+      endDir = startDir == axis::X ? axis::Y : axis::X;
    
    if (xlen == 1 && ylen == 1) {
       // A single tile
       drawTrackTile(myDragBegin, startDir);
    }
    else if (xlen == 1)
-      drawDraggedStraight(myDragBegin.y < myDragEnd.y ? Axis::Y : -Axis::Y, ylen);
+      drawDraggedStraight(myDragBegin.y < myDragEnd.y ? axis::Y : -axis::Y, ylen);
    else if (ylen == 1)
-      drawDraggedStraight(Axis::X, xlen);
+      drawDraggedStraight(axis::X, xlen);
    else if (startDir == endDir) {
       // An S-bend (not implemented)
       warn() << "Sorry! No S-bends yet...";
@@ -314,20 +314,20 @@ void Editor::drawDraggedTrack()
          if (xlen > ylen) {
             // One of the ends must lie along the x-axis since all
             // curves are through 90 degrees so extend that one
-            if (startDir == Axis::X) {
-               drawTrackTile(myDragBegin, Axis::X);
+            if (startDir == axis::X) {
+               drawTrackTile(myDragBegin, axis::X);
                myDragBegin.x++;
             }
             else {
-               drawTrackTile(myDragEnd, Axis::X);
+               drawTrackTile(myDragEnd, axis::X);
                myDragEnd.x--;
             }
             xlen--;
          }
          else {
             // Need to draw track along y-axis
-            if (startDir == Axis::Y) {
-               drawTrackTile(myDragBegin, Axis::Y);
+            if (startDir == axis::Y) {
+               drawTrackTile(myDragBegin, axis::Y);
 
                // The y-coordinate for the drag points is not guaranteed
                // to be sorted
@@ -337,7 +337,7 @@ void Editor::drawDraggedTrack()
                   myDragBegin.y++;
             }
             else {
-               drawTrackTile(myDragEnd, Axis::Y);
+               drawTrackTile(myDragEnd, axis::Y);
                                     
                if (myDragBegin.y > myDragEnd.y)
                   myDragEnd.y++;
@@ -351,7 +351,7 @@ void Editor::drawDraggedTrack()
       float startAngle, endAngle;
       Point<int> where;
 
-      if (startDir == Axis::X && endDir == Axis::Y) {
+      if (startDir == axis::X && endDir == axis::Y) {
          if (myDragBegin.y < myDragEnd.y) {
             startAngle = 90;
             endAngle = 180;

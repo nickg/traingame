@@ -990,7 +990,7 @@ private:
       string align;
       attrs.get("align", align);
 
-      track::Direction axis = align == "x" ? Axis::X : Axis::Y;
+      track::Direction axis = align == "x" ? axis::X : axis::Y;
 
       myMap->setTrackAt(makePoint(myXPtr, myYPtr),
                         makeStraightTrack(axis));

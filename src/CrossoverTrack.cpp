@@ -101,7 +101,7 @@ void CrossoverTrack::transform(const track::Direction& aDirection,
 {
    assert(aDelta < 1.0);
    
-   bool backwards = aDirection == -Axis::X || aDirection == -Axis::Y;
+   bool backwards = aDirection == -axis::X || aDirection == -axis::Y;
 
    if (backwards) {
       aDelta = 1.0 - aDelta;
@@ -109,14 +109,14 @@ void CrossoverTrack::transform(const track::Direction& aDirection,
 
    track::Direction dir = backwards ? -aDirection : aDirection;
 
-   const double xTrans = dir == Axis::X ? aDelta : 0;
-   const double yTrans = dir == Axis::Y ? aDelta : 0;
+   const double xTrans = dir == axis::X ? aDelta : 0;
+   const double yTrans = dir == axis::Y ? aDelta : 0;
 
    glTranslated(static_cast<double>(myX) + xTrans,
                 0.0,
                 static_cast<double>(myY) + yTrans);
 
-   if (dir == Axis::Y)
+   if (dir == axis::Y)
       glRotated(-90.0, 0.0, 1.0, 0.0);
 
    glTranslated(-0.5, 0.0, 0.0);
@@ -137,22 +137,22 @@ CrossoverTrack::transformFunc(const track::Direction& aDirection) const
 
 bool CrossoverTrack::isValidDirection(const track::Direction& aDirection) const
 {
-   return aDirection == Axis::X || aDirection == Axis::Y
-      || aDirection == -Axis::Y || aDirection == -Axis::X;
+   return aDirection == axis::X || aDirection == axis::Y
+      || aDirection == -axis::Y || aDirection == -axis::X;
 }
 
 track::Connection
 CrossoverTrack::nextPosition(const track::Direction& aDirection) const
 {
    
-   if (aDirection == Axis::X)
-      return make_pair(makePoint(myX + 1, myY), Axis::X);
-   else if (aDirection == -Axis::X)
-      return make_pair(makePoint(myX - 1, myY), -Axis::X);
-   else if (aDirection == Axis::Y)
-      return make_pair(makePoint(myX, myY + 1), Axis::Y);
-   else if (aDirection == -Axis::Y)
-      return make_pair(makePoint(myX, myY - 1), -Axis::Y);
+   if (aDirection == axis::X)
+      return make_pair(makePoint(myX + 1, myY), axis::X);
+   else if (aDirection == -axis::X)
+      return make_pair(makePoint(myX - 1, myY), -axis::X);
+   else if (aDirection == axis::Y)
+      return make_pair(makePoint(myX, myY + 1), axis::Y);
+   else if (aDirection == -axis::Y)
+      return make_pair(makePoint(myX, myY - 1), -axis::Y);
    else
       throw runtime_error
          ("Invalid direction on crossover: " + lexical_cast<string>(aDirection));

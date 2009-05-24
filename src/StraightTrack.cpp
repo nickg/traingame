@@ -82,14 +82,14 @@ void StraightTrack::transform(const track::Direction& aDirection,
    if (aDirection == -myDirection)
       aDelta = 1.0 - aDelta;
 
-   const double xTrans = myDirection == Axis::X ? aDelta : 0;
-   const double yTrans = myDirection == Axis::Y ? aDelta : 0;
+   const double xTrans = myDirection == axis::X ? aDelta : 0;
+   const double yTrans = myDirection == axis::Y ? aDelta : 0;
 
    glTranslated(static_cast<double>(myX) + xTrans,
                 0.0,
                 static_cast<double>(myY) + yTrans);
 
-   if (myDirection == Axis::Y)
+   if (myDirection == axis::Y)
       glRotated(-90.0, 0.0, 1.0, 0.0);
 
    glTranslated(-0.5, 0.0, 0.0);
@@ -123,10 +123,10 @@ ITrackSegmentPtr StraightTrack::mergeExit(const Point<int>& aPoint,
 
 bool StraightTrack::isValidDirection(const Direction& aDirection) const
 {
-   if (myDirection == Axis::X)
-      return aDirection == Axis::X || -aDirection == Axis::X;
+   if (myDirection == axis::X)
+      return aDirection == axis::X || -aDirection == axis::X;
    else
-      return aDirection == Axis::Y || -aDirection == Axis::Y;
+      return aDirection == axis::Y || -aDirection == axis::Y;
 }
 
 void StraightTrack::getEndpoints(list<Point<int> >& aList) const
@@ -148,14 +148,14 @@ Connection StraightTrack::nextPosition(const Direction& aDirection) const
 {
    ensureValidDirection(aDirection);
 
-   if (aDirection == Axis::X)
-      return make_pair(makePoint(myX + 1, myY), Axis::X);
-   else if (aDirection == -Axis::X)
-      return make_pair(makePoint(myX - 1, myY), -Axis::X);
-   else if (aDirection == Axis::Y)
-      return make_pair(makePoint(myX, myY + 1), Axis::Y);
-   else if (aDirection == -Axis::Y)
-      return make_pair(makePoint(myX, myY - 1), -Axis::Y);
+   if (aDirection == axis::X)
+      return make_pair(makePoint(myX + 1, myY), axis::X);
+   else if (aDirection == -axis::X)
+      return make_pair(makePoint(myX - 1, myY), -axis::X);
+   else if (aDirection == axis::Y)
+      return make_pair(makePoint(myX, myY + 1), axis::Y);
+   else if (aDirection == -axis::Y)
+      return make_pair(makePoint(myX, myY - 1), -axis::Y);
    else
       assert(false);
 }
@@ -164,7 +164,7 @@ void StraightTrack::render() const
 {
    glPushMatrix();
 
-   if (myDirection == Axis::X)
+   if (myDirection == axis::X)
       glRotated(90.0, 0.0, 1.0, 0.0);
    
    renderStraightRail();
@@ -184,19 +184,19 @@ void StraightTrack::render() const
 xml::element StraightTrack::toXml() const
 {
    return xml::element("straightTrack")
-      .addAttribute("align", myDirection == Axis::X ? "x" : "y");
+      .addAttribute("align", myDirection == axis::X ? "x" : "y");
 }
 
 ITrackSegmentPtr makeStraightTrack(const Direction& aDirection)
 {
    Direction realDir(aDirection);
    
-   // Direction must either be along Axis::X or Axis::Y but we
+   // Direction must either be along axis::X or axis::Y but we
    // allow the opositite direction here too
-   if (realDir == -Axis::X || realDir == -Axis::Y)
+   if (realDir == -axis::X || realDir == -axis::Y)
       realDir = -realDir;
 
-   if (realDir != Axis::X && realDir != Axis::Y)
+   if (realDir != axis::X && realDir != axis::Y)
       throw runtime_error("Illegal straight track direction: "
                           + lexical_cast<string>(aDirection));
    

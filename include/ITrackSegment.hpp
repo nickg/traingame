@@ -46,7 +46,7 @@ namespace track {
 }
 
 // Orientations for straight track
-namespace Axis {
+namespace axis {
    const track::Direction X = makeVector(1, 0, 0);
    const track::Direction Y = makeVector(0, 0, 1);
 }
