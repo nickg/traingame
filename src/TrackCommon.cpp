@@ -133,46 +133,16 @@ static void renderOneRail()
 
    theRailMesh->render();
    return;
-   
-   glPushMatrix();
-   glTranslated(-RAIL_WIDTH/2.0, 0.0, 0.0);
-   
-   glBegin(GL_QUADS);
-   
-   // Top side
-   glNormal3d(0.0, 1.0, 0.0);
-   glVertex3d(0.0, track::RAIL_HEIGHT, 0.0);
-   glVertex3d(0.0, track::RAIL_HEIGHT, 1.0);
-   glVertex3d(RAIL_WIDTH, track::RAIL_HEIGHT, 1.0);
-   glVertex3d(RAIL_WIDTH, track::RAIL_HEIGHT, 0.0);
-   
-   // Outer side
-   glNormal3d(-1.0, 0.0, 0.0);
-   glVertex3d(0.0, track::RAIL_HEIGHT, 0.0);
-   glVertex3d(0.0, 0.0, 0.0);
-   glVertex3d(0.0, 0.0, 1.0);
-   glVertex3d(0.0, track::RAIL_HEIGHT, 1.0);
-   
-   // Inner side
-   glNormal3d(1.0, 0.0, 0.0);
-   glVertex3d(RAIL_WIDTH, track::RAIL_HEIGHT, 1.0);
-   glVertex3d(RAIL_WIDTH, 0.0, 1.0);
-   glVertex3d(RAIL_WIDTH, 0.0, 0.0);
-   glVertex3d(RAIL_WIDTH, track::RAIL_HEIGHT, 0.0);
-   
-   glEnd();
-   glPopMatrix();
 }
 
 void renderStraightRail()
 {
    glPushMatrix();
-   glColor3d(0.7, 0.7, 0.7);
 
-   glTranslated(-GAUGE/2.0, 0.0, -0.5);
+   glTranslatef(-GAUGE/2.0f, 0.0f, -0.5f);
    renderOneRail();
    
-   glTranslated(GAUGE, 0.0, 0.0);
+   glTranslatef(GAUGE, 0.0f, 0.0f);
    renderOneRail();
 
    glPopMatrix();
@@ -198,9 +168,9 @@ static void makeCurveRail(double baseRadius, double startAngle,
 
    glPushMatrix();
    
-   glRotated(startAngle * 180.0 / M_PI, 0.0, 1.0, 0.0);
+   glRotatef(startAngle * 180.0 / M_PI, 0.0, 1.0, 0.0);
 
-   glColor3d(0.7, 0.7, 0.7);
+   glColor3f(0.7, 0.7, 0.7);
 
    // Top of rail
    glBegin(GL_QUADS);
