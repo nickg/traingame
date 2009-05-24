@@ -18,11 +18,14 @@
 #ifndef INC_TRACK_COMMON_HPP
 #define INC_TRACK_COMMON_HPP
 
+#include "ITrackSegment.hpp"
+
 // Common track rendering functions
 void renderSleeper();
 void renderStraightRail();
-void renderCurvedTrack(int baseRadius, double startAngle, double endAngle);
-void transformToOrigin(int baseRadius, double startAngle);
+void renderCurvedTrack(int baseRadius, track::Angle startAngle,
+                       track::Angle endAngle);
+void transformToOrigin(int baseRadius, track::Angle startAngle);
 
 // Track constants
 namespace track {

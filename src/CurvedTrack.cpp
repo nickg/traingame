@@ -87,7 +87,7 @@ void CurvedTrack::transform(const track::Direction& aDirection, double aDelta) c
                 0.0,
                 static_cast<double>(myY));
 
-   transformToOrigin(myBaseRadius, degToRad(myStartAngle));
+   transformToOrigin(myBaseRadius, myStartAngle);
 
    bool backwards = aDirection == cwEntryVector();
    
@@ -242,9 +242,7 @@ ITrackSegmentPtr CurvedTrack::mergeExit(const Point<int>& aPoint,
 
 void CurvedTrack::render() const
 {
-   renderCurvedTrack(myBaseRadius,
-                     (static_cast<double>(myStartAngle)*M_PI)/180.0,
-                     (static_cast<double>(myFinishAngle)*M_PI)/180.0);
+   renderCurvedTrack(myBaseRadius, myStartAngle, myFinishAngle);
 }
 
 xml::element CurvedTrack::toXml() const
