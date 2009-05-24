@@ -91,6 +91,7 @@ public:
                   const Point<int>& aFinishPos);
    void lowerArea(const Point<int>& aStartPos,
                   const Point<int>& aFinishPos);
+   void levelArea(Point<int> aStartPos, Point<int> aFinishPos);
    
    void save(const string& aFileName);
    
@@ -168,7 +169,7 @@ private:
    void changeAreaHeight(const Point<int>& aStartPos,
                          const Point<int>& aFinishPos, float aHeightDelta);
    void raiseTile(int x, int y, float deltaHeight);
-   void levelTile(int x, int y);
+   void setTileHeight(int x, int y, float h);
    void fixNormals(int x, int y);
    
    int myWidth, myDepth;
@@ -711,40 +712,17 @@ void Map::raiseTile(int x, int y, float deltaHeight)
    dirtyTile(x, y);
 }
 
-// Levels off a tile
-void Map::levelTile(int x, int y)
+// Sets the absolute height of a tile
+void Map::setTileHeight(int x, int y, float h)
 {
-   // Adjust to the average height
-   /* float heights[4];
-   float sum = 0.0f, average = 0.0f;
+   int indexes[4];
+   tileVertices(x, y, indexes);
+
    for (int i = 0; i < 4; i++)
-      sum += tileAt(x, y).v[i].pos.y;
+      myHeightMap[indexes[i]].pos.y = h;
    
-   average = sum / 4.0f;
-   
-   for (int j = 0; j < 4; j++) {
-      setVertexHeight(x, y, j, average);
-      heights[j] = tileAt(x, y).v[j].pos.y;
-   }
-
-   setVertexHeight(x, y - 1, 1, heights[0]);
-   setVertexHeight(x, y - 1, 2, heights[1]);
-   
-   setVertexHeight(x, y + 1, 3, heights[2]);
-   setVertexHeight(x, y + 1, 0, heights[3]);
-
-   setVertexHeight(x - 1, y, 2, heights[1]);
-   setVertexHeight(x - 1, y, 3, heights[2]);
-   
-   setVertexHeight(x + 1, y, 0, heights[3]);
-   setVertexHeight(x + 1, y, 1, heights[0]);
-   
-   setVertexHeight(x + 1, y + 1, 0, heights[3]);
-   setVertexHeight(x + 1, y - 1, 1, heights[0]);
-   setVertexHeight(x - 1, y + 1, 3, heights[2]);
-   setVertexHeight(x - 1, y - 1, 2, heights[1]);
-
-   fixNormals(x, y);*/
+   fixNormals(x, y);
+   dirtyTile(x, y);
 }
 
 void Map::changeAreaHeight(const Point<int>& aStartPos,
@@ -760,6 +738,28 @@ void Map::changeAreaHeight(const Point<int>& aStartPos,
    for (int x = xmin; x <= xmax; x++) {
       for (int y = ymin; y <= ymax; y++)
          raiseTile(x, y, aHeightDelta);
+   }
+}
+
+void Map::levelArea(Point<int> aStartPos, Point<int> aFinishPos)
+{
+   const int xmin = min(aStartPos.x, aFinishPos.x);
+   const int xmax = max(aStartPos.x, aFinishPos.x);
+
+   const int ymin = min(aStartPos.y, aFinishPos.y);
+   const int ymax = max(aStartPos.y, aFinishPos.y);
+
+   int indexes[4];
+   tileVertices(aStartPos.x, aStartPos.y, indexes);
+
+   float avgHeight = 0.0f;
+   for (int i = 0; i < 4; i++)
+      avgHeight += myHeightMap[indexes[i]].pos.y;
+   avgHeight /= 4.0f;
+   
+   for (int x = xmin; x <= xmax; x++) {
+      for (int y = ymin; y <= ymax; y++)
+         setTileHeight(x, y, avgHeight);
    }
 }
 

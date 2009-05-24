@@ -57,6 +57,7 @@ private:
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
    void raiseTerrain();
    void lowerTerrain();
+   void levelTerrain();
    void deleteObjects();
    
    // Signal handlers
@@ -64,6 +65,7 @@ private:
    void onTrackSelect();
    void onLowerTerrainSelect();
    void onDeleteSelect();
+   void onLevelTerrainSelect();
    
    IMapPtr myMap;
    
@@ -79,7 +81,8 @@ private:
 
    // Different tools the user can be using
    enum Tool {
-      TRACK_TOOL, RAISE_TOOL, LOWER_TOOL, DELETE_TOOL
+      TRACK_TOOL, RAISE_TOOL, LOWER_TOOL, DELETE_TOOL,
+      LEVEL_TOOL
    };
    Tool myTool;
 
@@ -109,6 +112,10 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
    lowerButton->onClick(bind(&Editor::onLowerTerrainSelect, this));
    myToolbar->addChild(lowerButton);
 
+   IButtonPtr levelButton = makeButton("data/images/level_icon.png");
+   levelButton->onClick(bind(&Editor::onLevelTerrainSelect, this));
+   myToolbar->addChild(levelButton);
+   
    IButtonPtr deleteButton = makeButton("data/images/delete_icon.png");
    deleteButton->onClick(bind(&Editor::onDeleteSelect, this));
    myToolbar->addChild(deleteButton);
@@ -390,6 +397,12 @@ void Editor::drawDraggedTrack()
    }
 }
 
+// Level off the terrain the user has dragged
+void Editor::levelTerrain()
+{
+   myMap->levelArea(myDragBegin, myDragEnd);
+}
+
 // Raise the terrain the user has dragged
 void Editor::raiseTerrain()
 {
@@ -460,6 +473,12 @@ void Editor::onTrackSelect()
    myTool = TRACK_TOOL;
 }
 
+void Editor::onLevelTerrainSelect()
+{
+   log() << "Level terrain mode";
+   myTool = LEVEL_TOOL;
+}
+
 void Editor::onDeleteSelect()
 {
    log() << "Delete mode";
@@ -518,6 +537,9 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
          break;
       case LOWER_TOOL:
          lowerTerrain();
+         break;
+      case LEVEL_TOOL:
+         levelTerrain();
          break;
       case DELETE_TOOL:
          deleteObjects();

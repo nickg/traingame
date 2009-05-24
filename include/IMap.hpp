@@ -85,6 +85,9 @@ public:
                           const Point<int>& aFinishPos) = 0;
    virtual void lowerArea(const Point<int>& aStartPos,
                           const Point<int>& aFinishPos) = 0;
+
+   // Make all tiles in the area the same height
+   virtual void levelArea(Point<int> aStartPos, Point<int> aFinishPos) = 0;
   
 };
 
