@@ -375,10 +375,10 @@ bool Map::haveMesh(int id, Point<int> botLeft, Point<int> topRight)
       return myTerrainMeshes[id];
    else {
       bool ok = myTerrainMeshes[id];
-      for (list<Point<int>>::iterator it = myDirtyTiles.begin();
+      for (list<Point<int> >::iterator it = myDirtyTiles.begin();
            it != myDirtyTiles.end(); ++it) {
-         if ((*it).x >= botLeft.x && (*it).x < topRight.x
-             && (*it).y >= botLeft.y && (*it).y < topRight.y) {
+         if ((*it).x >= botLeft.x && (*it).x <= topRight.x
+             && (*it).y >= botLeft.y && (*it).y <= topRight.y) {
             ok = false;
             it = myDirtyTiles.erase(it);
          }
