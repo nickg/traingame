@@ -244,12 +244,10 @@ void transformToOrigin(int baseRadius, track::Angle startAngle)
    // There *must* be a way to incorporate this in the above translation
    // as a neat formula, but I really can't think of it
    // This is a complete a hack, but whatever...
-   const float safe = 0.01f;
-   if (degToRad(startAngle) >= M_PI / 2.0f - safe
-       && degToRad(startAngle) <= M_PI + safe)
+   if (startAngle >= 90 && startAngle <= 180)
       glTranslatef(0.0f, 0.0f, 1.0f);
    
-   if (degToRad(startAngle) >= M_PI - safe && degToRad(startAngle) <= 3.0 * M_PI / 2.0 + safe)
+   if (startAngle >= 180 && startAngle <= 270)
       glTranslatef(1.0f, 0.0f, 0.0f);
 }
 
