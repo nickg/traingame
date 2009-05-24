@@ -121,14 +121,14 @@ namespace {
    }
 
    enum RailType {
-      InnerRail, OuterRail
+      INNER_RAIL, OUTER_RAIL
    };
    
    IMeshPtr generateCurvedRailMesh(IMeshBufferPtr buf, int baseRadius, RailType type)
    {
       const float edgeWidth = (1 - GAUGE - RAIL_WIDTH)/2.0;
       const float R = static_cast<float>(baseRadius) - edgeWidth
-      - (type == OuterRail ? 0 : GAUGE);
+      - (type == OUTER_RAIL ? 0 : GAUGE);
       const float r = R - RAIL_WIDTH;
       
       const float step = 0.1f;
@@ -191,21 +191,32 @@ namespace {
       return makeMesh(buf);
    }
    
-   IMeshPtr getCurvedRailMesh(int baseRadius)
-   {      
+   void renderCurvedRail(int baseRadius)
+   {
+      IMeshPtr ptr;
+      
       CurvedRailMeshMap::iterator it = theCurvedRailMeshes.find(baseRadius);
       if (it != theCurvedRailMeshes.end())
-         return (*it).second;
+         ptr = (*it).second;
       else {
          IMeshBufferPtr buf = makeMeshBuffer();
          
-         generateCurvedRailMesh(buf, baseRadius, InnerRail);
-         generateCurvedRailMesh(buf, baseRadius, OuterRail);
+         generateCurvedRailMesh(buf, baseRadius, INNER_RAIL);
+         generateCurvedRailMesh(buf, baseRadius, OUTER_RAIL);
             
-         IMeshPtr ptr = makeMesh(buf);
+         ptr = makeMesh(buf);
          theCurvedRailMeshes[baseRadius] = ptr;
-         return ptr;
-      }         
+      }
+
+      ptr->render();
+   }
+
+   void renderOneRail()
+   {
+      if (!theRailMesh)
+         generateRailMesh();
+      
+      theRailMesh->render();
    }
 }
 
@@ -218,14 +229,6 @@ void renderSleeper()
    theSleeperMesh->render();
 }
 
-static void renderOneRail()
-{
-   if (!theRailMesh)
-      generateRailMesh();
-
-   theRailMesh->render();
-}
-
 void renderStraightRail()
 {
    glPushMatrix();
@@ -235,17 +238,6 @@ void renderStraightRail()
    
    glTranslatef(GAUGE, 0.0f, 0.0f);
    renderOneRail();
-
-   glPopMatrix();
-}
-
-static void makeCurveRail(int baseRadius, track::Angle startAngle,
-                          track::Angle finishAngle, RailType type)
-{
-   glPushMatrix();
-   
-   glRotatef(static_cast<float>(startAngle), 0.0f, 1.0f, 0.0f);
-   getCurvedRailMesh(baseRadius)->render();
 
    glPopMatrix();
 }
@@ -274,8 +266,12 @@ void renderCurvedTrack(int baseRadius, track::Angle startAngle,
    
    transformToOrigin(baseRadius, startAngle);
 
-   makeCurveRail(baseRadius, startAngle, endAngle, OuterRail);
-   makeCurveRail(baseRadius, startAngle, endAngle, InnerRail);
+   glPushMatrix();
+   
+   glRotatef(static_cast<float>(startAngle), 0.0f, 1.0f, 0.0f);
+   renderCurvedRail(baseRadius);
+
+   glPopMatrix();
 
    const float length = degToRad(endAngle - startAngle) * baseRadius;
    const int numSleepers = length * SLEEPERS_PER_UNIT;
