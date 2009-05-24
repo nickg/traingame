@@ -55,6 +55,9 @@ struct IMeshBuffer {
    // Convenience functions
    virtual void addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
                         Colour aColour) = 0;
+   virtual void addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
+                        Normal na, Normal nb, Normal nc, Normal nd,
+                        Colour aColour) = 0;
 
    virtual void bindMaterial(const Material& aMaterial) = 0;
    

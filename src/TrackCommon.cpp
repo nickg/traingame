@@ -21,6 +21,7 @@
 #include "IMesh.hpp"
 
 #include <cmath>
+#include <map>
 
 #include <GL/gl.h>
 
@@ -36,6 +37,9 @@ namespace {
 
    IMeshPtr theSleeperMesh, theRailMesh;
 
+   typedef map<int, IMeshPtr> CurvedRailMeshMap;
+   CurvedRailMeshMap theCurvedRailMeshes;
+   
    void generateSleeperMesh()
    {
       IMeshBufferPtr buf = makeMeshBuffer();
@@ -115,6 +119,94 @@ namespace {
       
       theRailMesh = makeMesh(buf);
    }
+
+   enum RailType {
+      InnerRail, OuterRail
+   };
+   
+   IMeshPtr generateCurvedRailMesh(IMeshBufferPtr buf, int baseRadius, RailType type)
+   {
+      const float edgeWidth = (1 - GAUGE - RAIL_WIDTH)/2.0;
+      const float R = static_cast<float>(baseRadius) - edgeWidth
+      - (type == OuterRail ? 0 : GAUGE);
+      const float r = R - RAIL_WIDTH;
+      
+      const float step = 0.1f;
+
+      const IMeshBuffer::Colour metal = make_tuple(0.7f, 0.7f, 0.7f);
+      
+      // Top of rail
+      for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
+         buf->addQuad(makeVector(r * cos(theta), 0.1f, r * sin(theta)), 
+                      makeVector(r * cos(theta + step), 0.1f, r * sin(theta + step)),
+                      makeVector(R * cos(theta + step), 0.1f, R * sin(theta + step)),
+                      makeVector(R * cos(theta), 0.1f, R * sin(theta)),
+                      metal);
+      }
+      
+      // Outer edge
+      for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
+         const float sinT = sin(theta);
+         const float cosT = cos(theta);
+         const float sinT1 = sin(theta + step);
+         const float cosT1 = cos(theta + step);
+
+         buf->addQuad(// Vertices
+                      makeVector(R * cosT1, 0.1f, R * sinT1),
+                      makeVector(R * cosT1, 0.0f, R * sinT1),
+                      makeVector(R * cosT, 0.0f, R * sinT),
+                      makeVector(R * cosT, 0.1f, R * sinT),
+
+                      // Normals
+                      makeVector(cosT1, 0.0f, sinT1),
+                      makeVector(cosT1, 0.0f, sinT1),
+                      makeVector(cosT, 0.0f, sinT),
+                      makeVector(cosT, 0.0f, sinT),
+
+                      metal);
+      }
+      
+      // Inner edge
+      for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
+         const float sinT = sin(theta);
+         const float cosT = cos(theta);
+         const float sinT1 = sin(theta + step);
+         const float cosT1 = cos(theta + step);
+
+         buf->addQuad(// Vertices
+                      makeVector(r * cosT, 0.1f, r * sinT),
+                      makeVector(r * cosT, 0.0f, r * sinT),
+                      makeVector(r * cosT1, 0.0f, r * sinT1),
+                      makeVector(r * cosT1, 0.1f, r * sinT1),
+
+                      // Normals
+                      makeVector(-cosT, 0.0f, -sinT),
+                      makeVector(-cosT, 0.0f, -sinT),
+                      makeVector(-cosT1, 0.0f, -sinT1),
+                      makeVector(-cosT1, 0.0f, -sinT1),
+
+                      metal);
+      }
+
+      return makeMesh(buf);
+   }
+   
+   IMeshPtr getCurvedRailMesh(int baseRadius)
+   {      
+      CurvedRailMeshMap::iterator it = theCurvedRailMeshes.find(baseRadius);
+      if (it != theCurvedRailMeshes.end())
+         return (*it).second;
+      else {
+         IMeshBufferPtr buf = makeMeshBuffer();
+         
+         generateCurvedRailMesh(buf, baseRadius, InnerRail);
+         generateCurvedRailMesh(buf, baseRadius, OuterRail);
+            
+         IMeshPtr ptr = makeMesh(buf);
+         theCurvedRailMeshes[baseRadius] = ptr;
+         return ptr;
+      }         
+   }
 }
 
 // Draw a sleeper in the current maxtrix location
@@ -147,92 +239,15 @@ void renderStraightRail()
    glPopMatrix();
 }
 
-enum RailType {
-   InnerRail, OuterRail
-};
-
 static void makeCurveRail(int baseRadius, track::Angle startAngle,
                           track::Angle finishAngle, RailType type)
 {
-   const float edgeWidth = (1 - GAUGE - RAIL_WIDTH)/2.0;
-   const float R = static_cast<float>(baseRadius) - edgeWidth
-      - (type == OuterRail ? 0 : GAUGE);
-   const float r = R - RAIL_WIDTH;
-
-   const float step = 0.1;
-
-   glPushAttrib(GL_ENABLE_BIT);
-   glDisable(GL_TEXTURE_2D);
-   glDisable(GL_BLEND);
-
    glPushMatrix();
    
    glRotatef(static_cast<float>(startAngle), 0.0f, 1.0f, 0.0f);
-
-   glColor3f(0.7, 0.7, 0.7);
-
-   const float startAngleR = degToRad(startAngle);
-   const float finishAngleR = degToRad(finishAngle);
-
-   // Top of rail
-   glBegin(GL_QUADS);
-   for (float theta = 0; theta < finishAngleR - startAngleR; theta += step) {
-      glNormal3f(0.0f, 1.0f, 0.0f);
-      glVertex3f(r * cos(theta), 0.1f, r * sin(theta)); 
-      glVertex3f(r * cos(theta + step), 0.1f, r * sin(theta + step));
-      glVertex3f(R * cos(theta + step), 0.1f, R * sin(theta + step));
-      glVertex3f(R * cos(theta), 0.1f, R * sin(theta));
-   }
-   glEnd();
-
-   // Outer edge
-   for (float theta = 0; theta < finishAngleR - startAngleR; theta += step) {
-      const float sinT = sin(theta);
-      const float cosT = cos(theta);
-      const float sinT1 = sin(theta + step);
-      const float cosT1 = cos(theta + step);
-      
-      glBegin(GL_QUADS);
-   
-      glNormal3f(cosT1, 0.0f, sinT1);
-      glVertex3f(R * cosT1, 0.1f, R * sinT1);
-      
-      glNormal3f(cosT1, 0.0f, sinT1);
-      glVertex3f(R * cosT1, 0.0f, R * sinT1);
-      
-      glNormal3f(cosT, 0.0f, sinT);
-      glVertex3f(R * cosT, 0.0f, R * sinT);
-      
-      glNormal3f(cosT, 0.0f, sinT);
-      glVertex3f(R * cosT, 0.1f, R * sinT);
-      
-      glEnd();
-   }
-
-   // Inner edge
-   glBegin(GL_QUADS);
-   for (float theta = 0; theta < finishAngleR - startAngleR; theta += step) {
-      const float sinT = sin(theta);
-      const float cosT = cos(theta);
-      const float sinT1 = sin(theta + step);
-      const float cosT1 = cos(theta + step);
-      
-      glNormal3f(-cosT, 0.0f, -sinT);
-      glVertex3f(r * cosT, 0.1f, r * sinT);
-      
-      glNormal3f(-cosT, 0.0f, -sinT);
-      glVertex3f(r * cosT, 0.0f, r * sinT);
-      
-      glNormal3f(-cosT1, 0.0f, -sinT1);
-      glVertex3f(r * cosT1, 0.0f, r * sinT1);
-      
-      glNormal3f(-cosT1, 0.0f, -sinT1);
-      glVertex3f(r * cosT1, 0.1f, r * sinT1);
-   }
-   glEnd();
+   getCurvedRailMesh(baseRadius)->render();
 
    glPopMatrix();
-   glPopAttrib();
 }
 
 // Move to the origin of a curved section of track

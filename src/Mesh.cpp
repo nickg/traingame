@@ -41,6 +41,9 @@ struct MeshBuffer : IMeshBuffer {
 
    void addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
                 Colour aColour);
+   void addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
+                Normal na, Normal nb, Normal nc, Normal nd,
+                Colour aColour);
       
    void bindMaterial(const Material& aMaterial);
    
@@ -194,6 +197,20 @@ void MeshBuffer::addQuad(Vertex a, Vertex b, Vertex c, Vertex d, Colour aColour)
    add(d, n2, aColour);
    add(a, n2, aColour);
    add(b, n2, aColour);
+}
+
+void MeshBuffer::addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
+                         Normal na, Normal nb, Normal nc, Normal nd,
+                         Colour aColour)
+{
+   
+   add(b, na, aColour);
+   add(c, nb, aColour);
+   add(d, nc, aColour);
+
+   add(d, nd, aColour);
+   add(a, na, aColour);
+   add(b, nb, aColour);
 }
 
 // Default material
