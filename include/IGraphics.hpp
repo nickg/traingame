@@ -40,7 +40,4 @@ struct IGraphics {
 
 typedef std::shared_ptr<IGraphics> IGraphicsPtr;
 
-// Generate a special context for use in display lists
-IGraphicsPtr makeDisplayListContext();
-
 #endif
