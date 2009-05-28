@@ -22,8 +22,10 @@
 #include <vector>
 #include <stdexcept>
 
+#include <GL/glew.h>
 #include <GL/gl.h>
 #include <boost/cast.hpp>
+#include <boost/static_assert.hpp>
 
 using namespace std;
 using namespace boost;
@@ -317,6 +319,17 @@ void DisplayListMesh::render() const
    glPopAttrib();
 }
 
+// Packed vertex data used by vertex array and VBO mesh implementations
+struct VertexData {
+   float x, y, z;
+   float nx, ny, nz;
+   float tx, ty;
+   float r, g, b;
+   float padding[5];   // Best performance on some cards if 32-byte aligned
+} __attribute__((packed));
+
+BOOST_STATIC_ASSERT(sizeof(VertexData) == 64);
+
 // Implementation of meshes using client side vertex arrays
 class VertexArrayMesh : public IMesh {
 public:
@@ -325,13 +338,6 @@ public:
 
    void render() const;
 private:
-
-   struct VertexData {
-      float x, y, z;
-      float nx, ny, nz;
-      float tx, ty;
-      float r, g, b;
-   } __attribute__((packed));
 
    Material myMaterial;
    bool hasMaterial, hasTexture;
@@ -348,13 +354,13 @@ VertexArrayMesh::VertexArrayMesh(IMeshBufferPtr aBuffer)
    myMaterial = buf->material;
    hasMaterial = buf->hasMaterial;
    hasTexture = buf->hasTexture;
-
+ 
    myVertexCount = buf->vertices.size();
    myVertexData = new VertexData[myVertexCount];
-
+   
    for (int i = 0; i < myVertexCount; i++) {
       VertexData* vd = &myVertexData[i];
-
+      
       vd->x = buf->vertices[i].x;
       vd->y = buf->vertices[i].y;
       vd->z = buf->vertices[i].z;
@@ -362,19 +368,19 @@ VertexArrayMesh::VertexArrayMesh(IMeshBufferPtr aBuffer)
       vd->nx = buf->normals[i].x;
       vd->ny = buf->normals[i].y;
       vd->nz = buf->normals[i].z;
-
+      
       if (hasTexture) {
          vd->tx = buf->texCoords[i].x;
          vd->ty = buf->texCoords[i].y;
       }
-
+      
       if (!hasMaterial) {
          vd->r = get<0>(buf->colours[i]);
          vd->g = get<1>(buf->colours[i]);
          vd->b = get<2>(buf->colours[i]);
       }
    }
-
+   
    myIndexCount = buf->indices.size();
    myIndices = new GLuint[myIndexCount];
 
@@ -422,10 +428,36 @@ void VertexArrayMesh::render() const
    glPopAttrib();
 }
 
+// Implementation of meshes using server side VBOs
+class VBOMesh : public IMesh {
+public:
+   VBOMesh(IMeshBufferPtr aBuffer);
+   ~VBOMesh();
+
+   void render() const;
+private:
+   GLuint myVBOBuf;
+};
+
+VBOMesh::VBOMesh(IMeshBufferPtr aBuffer)
+{
+   glGenBuffers(1, &myVBOBuf);
+}
+
+VBOMesh::~VBOMesh()
+{
+   glDeleteBuffers(1, &myVBOBuf);
+}
+
+void VBOMesh::render() const
+{
+
+}
+
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 {
    aBuffer->printStats();
-   return IMeshPtr(new VertexArrayMesh(aBuffer));
+   return IMeshPtr(new VBOMesh(aBuffer));
 }
 
 IMeshBufferPtr makeMeshBuffer()
