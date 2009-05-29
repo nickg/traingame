@@ -22,8 +22,10 @@
 #include <vector>
 #include <stdexcept>
 
+#include <GL/glew.h>
 #include <GL/gl.h>
 #include <boost/cast.hpp>
+#include <boost/static_assert.hpp>
 
 using namespace std;
 using namespace boost;
@@ -317,6 +319,46 @@ void DisplayListMesh::render() const
    glPopAttrib();
 }
 
+// Packed vertex data used by vertex array and VBO mesh implementations
+struct VertexData {
+   float x, y, z;
+   float nx, ny, nz;
+   float tx, ty;
+   float r, g, b;
+   float padding[5];   // Best performance on some cards if 32-byte aligned
+} __attribute__((packed));
+
+BOOST_STATIC_ASSERT(sizeof(VertexData) == 64);
+
+namespace {
+   // Get the vertex data out of a mesh buffer into a VertexData array
+   void copyVertexData(const MeshBuffer* buf, VertexData* vertexData)
+   {
+      for (size_t i = 0; i < buf->vertices.size(); i++) {
+         VertexData* vd = &vertexData[i];
+         
+         vd->x = buf->vertices[i].x;
+         vd->y = buf->vertices[i].y;
+         vd->z = buf->vertices[i].z;
+         
+         vd->nx = buf->normals[i].x;
+         vd->ny = buf->normals[i].y;
+         vd->nz = buf->normals[i].z;
+         
+         if (buf->hasTexture) {
+            vd->tx = buf->texCoords[i].x;
+            vd->ty = buf->texCoords[i].y;
+         }
+         
+         if (!buf->hasMaterial) {
+            vd->r = get<0>(buf->colours[i]);
+            vd->g = get<1>(buf->colours[i]);
+            vd->b = get<2>(buf->colours[i]);
+         }
+      }
+   }
+}
+
 // Implementation of meshes using client side vertex arrays
 class VertexArrayMesh : public IMesh {
 public:
@@ -325,13 +367,6 @@ public:
 
    void render() const;
 private:
-
-   struct VertexData {
-      float x, y, z;
-      float nx, ny, nz;
-      float tx, ty;
-      float r, g, b;
-   } __attribute__((packed));
 
    Material myMaterial;
    bool hasMaterial, hasTexture;
@@ -348,33 +383,12 @@ VertexArrayMesh::VertexArrayMesh(IMeshBufferPtr aBuffer)
    myMaterial = buf->material;
    hasMaterial = buf->hasMaterial;
    hasTexture = buf->hasTexture;
-
+ 
    myVertexCount = buf->vertices.size();
    myVertexData = new VertexData[myVertexCount];
 
-   for (int i = 0; i < myVertexCount; i++) {
-      VertexData* vd = &myVertexData[i];
-
-      vd->x = buf->vertices[i].x;
-      vd->y = buf->vertices[i].y;
-      vd->z = buf->vertices[i].z;
-      
-      vd->nx = buf->normals[i].x;
-      vd->ny = buf->normals[i].y;
-      vd->nz = buf->normals[i].z;
-
-      if (hasTexture) {
-         vd->tx = buf->texCoords[i].x;
-         vd->ty = buf->texCoords[i].y;
-      }
-
-      if (!hasMaterial) {
-         vd->r = get<0>(buf->colours[i]);
-         vd->g = get<1>(buf->colours[i]);
-         vd->b = get<2>(buf->colours[i]);
-      }
-   }
-
+   copyVertexData(buf, myVertexData);
+   
    myIndexCount = buf->indices.size();
    myIndices = new GLuint[myIndexCount];
 
@@ -422,10 +436,137 @@ void VertexArrayMesh::render() const
    glPopAttrib();
 }
 
+// Implementation of meshes using server side VBOs
+class VBOMesh : public IMesh {
+public:
+   VBOMesh(IMeshBufferPtr aBuffer);
+   ~VBOMesh();
+
+   void render() const;
+private:
+   GLuint myVBOBuf, myIndexBuf;
+   Material myMaterial;
+   bool hasTexture, hasMaterial;
+   size_t myIndexCount;
+};
+
+VBOMesh::VBOMesh(IMeshBufferPtr aBuffer)
+{
+   // Get the data out of the buffer;
+   const MeshBuffer* buf = MeshBuffer::get(aBuffer);
+
+   myMaterial = buf->material;
+   hasMaterial = buf->hasMaterial;
+   hasTexture = buf->hasTexture;
+ 
+   const size_t vertexCount = buf->vertices.size();
+   VertexData* pVertexData = new VertexData[vertexCount];
+
+   copyVertexData(buf, pVertexData);
+
+   // Generate the VBO   
+   glGenBuffersARB(1, &myVBOBuf);
+   glBindBufferARB(GL_ARRAY_BUFFER, myVBOBuf);
+   glBufferDataARB(GL_ARRAY_BUFFER, vertexCount * sizeof(VertexData),
+                   NULL, GL_STATIC_DRAW);
+
+   // Copy the vertex data in
+   glBufferSubDataARB(GL_ARRAY_BUFFER, 0,
+                      vertexCount * sizeof(VertexData), pVertexData);
+
+   // Copy the indices into a temporary array
+   myIndexCount = buf->indices.size();
+   GLuint* pIndices = new GLuint[myIndexCount];
+
+   copy(buf->indices.begin(), buf->indices.end(), pIndices);
+   
+   // Build the index buffer
+   glGenBuffersARB(1, &myIndexBuf);
+   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, myIndexBuf);
+   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER, myIndexCount * sizeof(GLuint),
+                   NULL, GL_STATIC_DRAW);
+   glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER, 0,
+                      myIndexCount * sizeof(GLuint), pIndices);
+
+   glBindBufferARB(GL_ARRAY_BUFFER, 0);
+   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
+   
+   delete[] pVertexData;
+   delete[] pIndices;
+}
+
+VBOMesh::~VBOMesh()
+{
+   glDeleteBuffersARB(1, &myVBOBuf);
+   glDeleteBuffersARB(1, &myIndexBuf);
+}
+
+void VBOMesh::render() const
+{
+   glPushAttrib(GL_ENABLE_BIT);
+   glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+      
+   glBindBufferARB(GL_ARRAY_BUFFER, myVBOBuf);
+   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, myIndexBuf);
+   
+   glDisable(GL_BLEND);
+   
+   if (hasTexture)
+      glEnable(GL_TEXTURE_2D);
+   else
+      glDisable(GL_TEXTURE_2D);
+
+   if (hasMaterial)
+      myMaterial.apply();
+   else {
+      glEnable(GL_COLOR_MATERIAL);
+
+      glEnableClientState(GL_COLOR_ARRAY);
+      glColorPointer(3, GL_FLOAT, sizeof(VertexData),
+                     reinterpret_cast<GLvoid*>(offsetof(VertexData, r)));
+   }
+
+   glEnableClientState(GL_VERTEX_ARRAY);
+   glEnableClientState(GL_NORMAL_ARRAY);
+
+   // Pointers are relative to start of VBO
+   glVertexPointer(3, GL_FLOAT, sizeof(VertexData),
+                   reinterpret_cast<GLvoid*>(0));
+   glNormalPointer(GL_FLOAT, sizeof(VertexData),
+                   reinterpret_cast<GLvoid*>(offsetof(VertexData, nx)));
+   
+   glDrawElements(GL_TRIANGLES, myIndexCount, GL_UNSIGNED_INT, 0);
+
+   glBindBufferARB(GL_ARRAY_BUFFER, 0);
+   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+   glPopClientAttrib();
+   glPopAttrib();
+}
+
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 {
+   static bool havePrintedMeshChoice = false;
+   
    aBuffer->printStats();
-   return IMeshPtr(new VertexArrayMesh(aBuffer));
+
+   // Prefer VBO meshes
+   if (GLEW_ARB_vertex_buffer_object) {
+      if (!havePrintedMeshChoice) {
+         log() << "Using VBO mesh implementation";
+         havePrintedMeshChoice = true;
+      }
+      
+      return IMeshPtr(new VBOMesh(aBuffer));
+   }
+   else {
+      if (!havePrintedMeshChoice) {
+         log() << "Using vertex array mesh implementation";
+         havePrintedMeshChoice = true;
+      }
+      
+      return IMeshPtr(new VertexArrayMesh(aBuffer));
+   }
 }
 
 IMeshBufferPtr makeMeshBuffer()
