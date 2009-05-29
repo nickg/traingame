@@ -530,10 +530,10 @@ void VBOMesh::render() const
    glEnableClientState(GL_NORMAL_ARRAY);
 
    // Pointers are relative to start of VBO
-   glVertexPointer(3, GL_FLOAT, sizeof(VertexData),
-                   reinterpret_cast<GLvoid*>(0));
    glNormalPointer(GL_FLOAT, sizeof(VertexData),
                    reinterpret_cast<GLvoid*>(offsetof(VertexData, nx)));
+   glVertexPointer(3, GL_FLOAT, sizeof(VertexData),
+                   reinterpret_cast<GLvoid*>(0));
    
    glDrawElements(GL_TRIANGLES, myIndexCount, GL_UNSIGNED_SHORT, 0);
 
