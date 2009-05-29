@@ -373,7 +373,7 @@ private:
    int myVertexCount;
    VertexData* myVertexData;
    int myIndexCount;
-   GLuint* myIndices;
+   GLushort* myIndices;
 };
 
 VertexArrayMesh::VertexArrayMesh(IMeshBufferPtr aBuffer)
@@ -390,7 +390,7 @@ VertexArrayMesh::VertexArrayMesh(IMeshBufferPtr aBuffer)
    copyVertexData(buf, myVertexData);
    
    myIndexCount = buf->indices.size();
-   myIndices = new GLuint[myIndexCount];
+   myIndices = new GLushort[myIndexCount];
 
    copy(buf->indices.begin(), buf->indices.end(), myIndices);
 }
@@ -430,7 +430,7 @@ void VertexArrayMesh::render() const
    glNormalPointer(GL_FLOAT, sizeof(VertexData),
                    reinterpret_cast<GLvoid*>(&myVertexData->nx));
 
-   glDrawElements(GL_TRIANGLES, myIndexCount, GL_UNSIGNED_INT, myIndices);
+   glDrawElements(GL_TRIANGLES, myIndexCount, GL_UNSIGNED_SHORT, myIndices);
 
    glPopClientAttrib();
    glPopAttrib();
@@ -476,17 +476,17 @@ VBOMesh::VBOMesh(IMeshBufferPtr aBuffer)
 
    // Copy the indices into a temporary array
    myIndexCount = buf->indices.size();
-   GLuint* pIndices = new GLuint[myIndexCount];
+   GLshort* pIndices = new GLshort[myIndexCount];
 
    copy(buf->indices.begin(), buf->indices.end(), pIndices);
    
    // Build the index buffer
    glGenBuffersARB(1, &myIndexBuf);
    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, myIndexBuf);
-   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER, myIndexCount * sizeof(GLuint),
+   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER, myIndexCount * sizeof(GLushort),
                    NULL, GL_STATIC_DRAW);
    glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER, 0,
-                      myIndexCount * sizeof(GLuint), pIndices);
+                      myIndexCount * sizeof(GLushort), pIndices);
 
    glBindBufferARB(GL_ARRAY_BUFFER, 0);
    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -535,7 +535,7 @@ void VBOMesh::render() const
    glNormalPointer(GL_FLOAT, sizeof(VertexData),
                    reinterpret_cast<GLvoid*>(offsetof(VertexData, nx)));
    
-   glDrawElements(GL_TRIANGLES, myIndexCount, GL_UNSIGNED_INT, 0);
+   glDrawElements(GL_TRIANGLES, myIndexCount, GL_UNSIGNED_SHORT, 0);
 
    glBindBufferARB(GL_ARRAY_BUFFER, 0);
    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -548,7 +548,7 @@ IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 {
    static bool havePrintedMeshChoice = false;
    
-   aBuffer->printStats();
+   //aBuffer->printStats();
 
    // Prefer VBO meshes
    if (GLEW_ARB_vertex_buffer_object) {

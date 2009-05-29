@@ -75,7 +75,6 @@ MaterialFile::MaterialFile(const string& aFileName)
       }
       else if (word == "newmtl") {
          is >> activeMaterial;
-         debug() << "Loading material " << activeMaterial;
 
          myMaterials[activeMaterial] = Material();
       }
@@ -151,10 +150,8 @@ void Model::render() const
 IModelPtr loadModel(const string& fileName, double aScale)
 {
    ModelCache::iterator it = theCache.find(fileName);
-   if (it != theCache.end()) {
-      debug() << "Got model " << fileName << " from cache";
+   if (it != theCache.end())
       return (*it).second;
-   }
    
    ifstream f(fileName.c_str());
    if (!f.good()) {
@@ -190,7 +187,6 @@ IModelPtr loadModel(const string& fileName, double aScale)
          // New object
          string objName;
          f >> objName;
-         debug() << "Building object " << objName;
       }
       else if (first == "mtllib") {
          // Material file
@@ -318,8 +314,7 @@ IModelPtr loadModel(const string& fileName, double aScale)
    }      
 
    Vector<float> dim = makeVector(xmax - xmin, ymax - ymin, zmax - zmin);
-   log() << dim;
-
+   
    log() << "Model loaded: " << vertices.size() << " vertices, "
          << faceCount << " faces";
    
