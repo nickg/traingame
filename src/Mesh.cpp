@@ -441,12 +441,15 @@ private:
 
 VBOMesh::VBOMesh(IMeshBufferPtr aBuffer)
 {
-   glGenBuffers(1, &myVBOBuf);
+   if (!GL_VERSION_1_5)
+      throw runtime_error("OpenGL 1.5 or greater needed for VBO meshes");
+   
+   glGenBuffersARB(1, &myVBOBuf);
 }
 
 VBOMesh::~VBOMesh()
 {
-   glDeleteBuffers(1, &myVBOBuf);
+   glDeleteBuffersARB(1, &myVBOBuf);
 }
 
 void VBOMesh::render() const
@@ -456,8 +459,27 @@ void VBOMesh::render() const
 
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 {
+   static bool havePrintedMeshChoice = false;
+   
    aBuffer->printStats();
-   return IMeshPtr(new VBOMesh(aBuffer));
+
+   // Prefer VBO meshes
+   if (GLEW_ARB_vertex_buffer_object) {
+      if (!havePrintedMeshChoice) {
+         log() << "Using VBO mesh implementation";
+         havePrintedMeshChoice = true;
+      }
+      
+      return IMeshPtr(new VBOMesh(aBuffer));
+   }
+   else {
+      if (!havePrintedMeshChoice) {
+         log() << "Using vertex array mesh implementation";
+         havePrintedMeshChoice = true;
+      }
+      
+      return IMeshPtr(new VertexArrayMesh(aBuffer));
+   }
 }
 
 IMeshBufferPtr makeMeshBuffer()

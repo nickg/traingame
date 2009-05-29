@@ -27,6 +27,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <SDL.h>
+#include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 
@@ -397,7 +398,17 @@ void SDLWindow::initGL()
    glClearDepth(1.0f);
    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
    glDepthFunc(GL_LEQUAL);
-   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+   // Check for OpenGL extensions
+   log() << "OpenGL version: " << glGetString(GL_VERSION);
+   log() << "GLEW version: " << glewGetString(GLEW_VERSION);
+
+   GLenum err = glewInit();
+   if (err != GLEW_OK)
+      throw runtime_error("GLEW initialisation failed: "
+                          + lexical_cast<string>(glewGetErrorString(err)));
+
 }
 
 // Change the perspective when the window is resized
