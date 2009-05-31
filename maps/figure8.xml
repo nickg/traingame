@@ -2,7 +2,7 @@
 <map width="32" height="32">
 <name>No Name</name>
 
-<start x="3" y="8"/>
+<start x="3" y="7" dirX="0" dirY="0"/>
 
 <heightmap>maps/figure8.bin</heightmap>
 
