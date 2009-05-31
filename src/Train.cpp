@@ -69,6 +69,8 @@ private:
    
    IMapPtr myMap;
    ISmokeTrailPtr mySmokeTrail;
+   
+   Vector<float> myVelocityVector;
 
    // Move part of the train across a connection
    void enterSegment(Part& aPart, const track::Connection& aConnection);
@@ -80,7 +82,7 @@ private:
 const double Train::SEPARATION(0.1);
 
 Train::Train(IMapPtr aMap)
-   : myMap(aMap)
+   : myMap(aMap), myVelocityVector(makeVector(0.0f, 0.0f, 0.0f))
 {
    myParts.push_front(Part(makeEngine()));
    
@@ -161,6 +163,9 @@ void Train::updateSmokePosition(int aDelta)
    glPopMatrix();
 
    mySmokeTrail->setPosition(matrix[12], matrix[13], matrix[14]);
+   mySmokeTrail->setVelocity(myVelocityVector.x,
+                             myVelocityVector.y,
+                             myVelocityVector.z);
    mySmokeTrail->update(aDelta);
 
    // Make the rate at which new particles are created proportional
@@ -181,9 +186,13 @@ void Train::update(int aDelta)
    
    // How many metres does a tile correspond to?
    const double M_PER_UNIT = 5.0;
+
+   const Vector<float> oldPos = partPosition(engine());
    
    const double deltaSeconds = static_cast<float>(aDelta) / 1000.0f;
    move(engine().vehicle->speed() * deltaSeconds / M_PER_UNIT);
+
+   myVelocityVector = partPosition(engine()) - oldPos;
 }
 
 // Called when the train enters a new segment
@@ -231,7 +240,7 @@ Vector<float> Train::partPosition(const Part& aPart) const
    // Call the transformer to compute the world location
    glPushMatrix();
    glLoadIdentity();
-
+   
    aPart.transformer(aPart.segmentDelta);
 
    float matrix[16];

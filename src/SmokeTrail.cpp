@@ -35,10 +35,12 @@ public:
    void setPosition(float x, float y, float z);
    void update(int aDelta);
    void setDelay(int aDelay) { mySpawnDelay = aDelay; }
+   void setVelocity(float x, float y, float z);
    
    // A single smoke particle
    struct Particle {
       float x, y, z;
+      float xv, yv, zv;
       float scale;
       float r, g, b, a;
    };
@@ -53,11 +55,15 @@ private:
 
    // New particles are created every `mySpawnDelay`
    int mySpawnDelay, mySpawnCounter;
+
+   // Velocity at which the emitter is moving
+   float myXSpeed, myYSpeed, myZSpeed;
 };
 
 SmokeTrail::SmokeTrail()
    : myX(0.0f), myY(0.0f), myZ(0.0f),
-     mySpawnDelay(500), mySpawnCounter(0)
+     mySpawnDelay(500), mySpawnCounter(0),
+     myXSpeed(0.0f), myYSpeed(0.0f), myZSpeed(0.0f)
 {
    ITexturePtr particle(loadTexture("data/images/smoke_particle.png"));
    myBillboard = makeSphericalBillboard(particle);
@@ -66,13 +72,23 @@ SmokeTrail::SmokeTrail()
 // Returns true if the particle is dead
 bool SmokeTrail::moveParticle(Particle& aParticle, int aDelta)
 {
-   const float ySpeed = 0.2f;
-   const float growth = 0.2f;
+   const float ySpeed = 0.3f;
+   const float growth = 0.3f;
    const float decay = 0.2f;
-
+   const float slowdown = 0.1f;
+   const float xWind = 0.02f;
+   const float zWind = 0.01f;
+   
    const float time = static_cast<float>(aDelta) / 1000.0f;
    
-   aParticle.y += ySpeed * time;
+   aParticle.x += aParticle.xv + (xWind * time);
+   aParticle.y += aParticle.yv + (ySpeed * time);
+   aParticle.z += aParticle.zv + (zWind * time);
+
+   aParticle.xv = max(aParticle.xv - (slowdown * time), 0.0f);
+   aParticle.yv = max(aParticle.yv - (slowdown * time), 0.0f);
+   aParticle.zv = max(aParticle.zv - (slowdown * time), 0.0f);   
+   
    aParticle.scale += growth * time;
 
    // Kill the particle if it becomes invisible
@@ -101,15 +117,23 @@ void SmokeTrail::newParticle()
 {
    // Random number generator for colour variance
    static variate_generator<mt19937, normal_distribution<> >
-      colourRand(mt19937(time(NULL)), normal_distribution<>(0.0f, 0.05f));
+      colourRand(mt19937(time(NULL)), normal_distribution<>(0.0f, 0.06f));
 
-   const float col = 0.8f + colourRand();
+   // Random number generator for position variance
+   static variate_generator<mt19937, normal_distribution<> >
+      posRand(mt19937(time(NULL)), normal_distribution<>(0.0f, 0.05f));
+
+   const float col = 0.75f + colourRand();
+
+   const float dx = posRand();
+   const float dz = posRand();
    
    Particle p = {
-      myX, myY, myZ,  // Position
-      0.2f,           // Scale
-      col, col, col,  // Colour
-      0.9f,           // Alpha
+      myX + dx, myY, myZ + dz,      // Position
+      myXSpeed, myYSpeed, myZSpeed, // Speed
+      0.2f,                         // Scale
+      col, col, col,                // Colour
+      0.8f,                         // Alpha
    };
    
    myParticles.push_back(p);
@@ -142,6 +166,13 @@ void SmokeTrail::setPosition(float x, float y, float z)
    myX = x;
    myY = y;
    myZ = z;
+}
+
+void SmokeTrail::setVelocity(float x, float y, float z)
+{
+   myXSpeed = x;
+   myYSpeed = y;
+   myZSpeed = z;
 }
 
 ISmokeTrailPtr makeSmokeTrail()
