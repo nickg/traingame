@@ -30,8 +30,12 @@ struct IRollingStock {
    // Update speed, fuel, etc.
    virtual void update(int aDelta, Vector<float> aPosition) = 0;
    
-   // Display the object and any animiation
-   virtual void render() const = 0;
+   // Display the base object
+   // This should also display any animation that is attached to
+   // the model
+   // Animation that is not attached to the model should use
+   // `renderEffects' below
+   virtual void renderModel() const = 0;
 
    // Display any effects that should occur with absolute
    // co-ordinates (like smoke trails)

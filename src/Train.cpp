@@ -177,7 +177,7 @@ void Train::render() const
       
       (*it).transformer((*it).segmentDelta);
       glTranslatef(0.0f, track::RAIL_HEIGHT, 0.0f);
-      (*it).vehicle->render();
+      (*it).vehicle->renderModel();
       
       glPopMatrix();
 

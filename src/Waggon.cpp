@@ -29,7 +29,7 @@ public:
    ~Waggon() {}
 
    void update(int aDelta, Vector<float> aPosition);
-   void render() const;
+   void renderModel() const;
    void renderEffects() const {}
    IControllerPtr controller();
    double speed() const { return 0.0; }
@@ -52,7 +52,7 @@ void Waggon::update(int aDelta, Vector<float> aPosition)
    
 }
 
-void Waggon::render() const
+void Waggon::renderModel() const
 {
    myModel->render();
 }

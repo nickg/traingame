@@ -61,7 +61,7 @@ public:
    Engine();
 
    // IRollingStock interface
-   void render() const;
+   void renderModel() const;
    void renderEffects() const;
    void update(int aDelta, Vector<float> aPosition);
    
@@ -115,7 +115,7 @@ Engine::Engine()
 }
 
 // Draw the engine model
-void Engine::render() const
+void Engine::renderModel() const
 {        
    myModel->render();
 }
