@@ -159,6 +159,7 @@ private:
    void readHeightMap(const string& aFileName);
    void tileVertices(int x, int y, int* indexes) const;
    void renderPickSector(Point<int> botLeft, Point<int> topRight);
+   void drawStartLocation() const;
 
    // Mesh modification
    void buildMesh(int id, Point<int> botLeft, Point<int> topRight);
@@ -178,7 +179,7 @@ private:
    IQuadTreePtr myQuadTree;
    IFogPtr myFog;
    bool shouldDrawGridLines, inPickMode;
-   list<Point<int>> myDirtyTiles;
+   list<Point<int> > myDirtyTiles;
 };
 
 Map::Map()
@@ -362,6 +363,38 @@ void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
    glPopMatrix();
 
    glPopName();
+}
+
+// Draw an arrow on the start location
+void Map::drawStartLocation() const
+{
+   glPushAttrib(GL_ENABLE_BIT);
+   glPushMatrix();
+
+   glEnable(GL_BLEND);
+   glDisable(GL_TEXTURE_2D);
+
+   int indexes[4];
+   tileVertices(myStartLocation.x, myStartLocation.y, indexes);
+
+   float avgHeight = 0.0f;
+   for (int i = 0; i < 4; i++)
+      avgHeight += myHeightMap[indexes[i]].pos.y;
+   avgHeight /= 4.0f;
+
+   glTranslatef(myStartLocation.x, avgHeight + 0.1f, myStartLocation.y);
+
+   glColor4f(0.0f, 0.9f, 0.0f, 0.8f);
+   
+   glBegin(GL_TRIANGLES);
+   glNormal3f(0.0f, 1.0f, 0.0f);
+   glVertex3f(0.5f, 0.0f, -0.5f);
+   glVertex3f(-0.5f, 0.0f, -0.5f);
+   glVertex3f(0.0f, 0.0f, 0.5f);
+   glEnd();
+   
+   glPopMatrix();
+   glPopAttrib();
 }
 
 // Check to see if the given id contains a valid mesh and ensure the
@@ -600,6 +633,11 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
             
             tile.track->setMark();
          }
+
+         // Draw the start location if it's on this tile
+         if (myStartLocation.x == x && myStartLocation.y == y
+             && shouldDrawGridLines)
+            drawStartLocation();
       }			
    }
 }
