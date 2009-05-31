@@ -18,9 +18,9 @@
 #include "ISmokeTrail.hpp"
 #include "IBillboard.hpp"
 
-#include "ILogger.hpp" // REMOVE
-
 #include <list>
+#include <random>
+#include <cstdlib>
 
 using namespace std;
 
@@ -34,16 +34,18 @@ public:
    void render() const;
    void setPosition(float x, float y, float z);
    void update(int aDelta);
+   void setDelay(int aDelay) { mySpawnDelay = aDelay; }
    
    // A single smoke particle
    struct Particle {
       float x, y, z;
       float scale;
+      float r, g, b, a;
    };
    
 private:
    void newParticle();
-   void moveParticle(Particle& aParticle, int aDelta);
+   bool moveParticle(Particle& aParticle, int aDelta);
    
    mutable list<Particle> myParticles;  // Need to sort particles in render()
    float myX, myY, myZ;
@@ -55,21 +57,26 @@ private:
 
 SmokeTrail::SmokeTrail()
    : myX(0.0f), myY(0.0f), myZ(0.0f),
-     mySpawnDelay(1000), mySpawnCounter(0)
+     mySpawnDelay(500), mySpawnCounter(0)
 {
    ITexturePtr particle(loadTexture("data/images/smoke_particle.png"));
    myBillboard = makeSphericalBillboard(particle);
 }
 
-void SmokeTrail::moveParticle(Particle& aParticle, int aDelta)
+// Returns true if the particle is dead
+bool SmokeTrail::moveParticle(Particle& aParticle, int aDelta)
 {
-   const float ySpeed = 0.1f;
-   const float growth = 0.1f;
+   const float ySpeed = 0.2f;
+   const float growth = 0.2f;
+   const float decay = 0.2f;
 
    const float time = static_cast<float>(aDelta) / 1000.0f;
    
    aParticle.y += ySpeed * time;
    aParticle.scale += growth * time;
+
+   // Kill the particle if it becomes invisible
+   return (aParticle.a -= decay * time) <= 0.0f;
 }
 
 void SmokeTrail::update(int aDelta)
@@ -77,7 +84,8 @@ void SmokeTrail::update(int aDelta)
    // Move the existing particles
    for (list<Particle>::iterator it = myParticles.begin();
         it != myParticles.end(); ++it)
-      moveParticle(*it, aDelta);
+      if (moveParticle(*it, aDelta))
+         it = myParticles.erase(it);
    
    mySpawnCounter -= aDelta;
 
@@ -91,9 +99,17 @@ void SmokeTrail::update(int aDelta)
 
 void SmokeTrail::newParticle()
 {
+   // Random number generator for colour variance
+   static variate_generator<mt19937, normal_distribution<> >
+      colourRand(mt19937(time(NULL)), normal_distribution<>(0.0f, 0.05f));
+
+   const float col = 0.8f + colourRand();
+   
    Particle p = {
-      myX, myY, myZ,   // Position
-      0.1f,            // Scale
+      myX, myY, myZ,  // Position
+      0.2f,           // Scale
+      col, col, col,  // Colour
+      0.9f,           // Alpha
    };
    
    myParticles.push_back(p);
@@ -115,6 +131,7 @@ void SmokeTrail::render() const
    for (list<Particle>::const_iterator it = myParticles.begin();
         it != myParticles.end(); ++it) {
       myBillboard->setPosition((*it).x, (*it).y, (*it).z);
+      myBillboard->setColour((*it).r, (*it).g, (*it).b, (*it).a);
       myBillboard->setScale((*it).scale);
       myBillboard->render();
    }

@@ -30,13 +30,15 @@ class BillboardCommon : public IBillboard {
 public:
    BillboardCommon(ITexturePtr aTexture)
       : myTexture(aTexture),
-        myX(0.0f), myY(0.0f), myZ(0.0f), myScale(1.0f) {}
+        myX(0.0f), myY(0.0f), myZ(0.0f), myScale(1.0f),
+        myR(1.0f), myG(1.0f), myB(1.0f), myA(1.0f) {}
    virtual ~BillboardCommon() {}
 
    // IBillboard interface
    void setPosition(float x, float y, float z);
    void setScale(float aScale);
-
+   void setColour(float r, float g, float b, float a);
+   
 private:
    const ITexturePtr myTexture;
    
@@ -46,6 +48,7 @@ protected:
    
    float myX, myY, myZ;
    float myScale;
+   float myR, myG, myB, myA;
 };
 
 void BillboardCommon::setPosition(float x, float y, float z)
@@ -53,6 +56,14 @@ void BillboardCommon::setPosition(float x, float y, float z)
    myX = x;
    myY = y;
    myZ = z;
+}
+
+void BillboardCommon::setColour(float r, float g, float b, float a)
+{
+   myR = r;
+   myG = g;
+   myB = b;
+   myA = a;
 }
 
 void BillboardCommon::setScale(float aScale)
@@ -74,7 +85,7 @@ void BillboardCommon::drawTextureQuad() const
    glEnable(GL_TEXTURE_2D);
    glDisable(GL_LIGHTING);
 
-   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+   glColor4f(myR, myG, myB, myA);
    
    myTexture->bind();
 

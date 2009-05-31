@@ -32,6 +32,10 @@ struct ISmokeTrail {
 
    // Change the position where new particles are generated
    virtual void setPosition(float x, float y, float z) = 0;
+
+   // Change the rate at which particles are created
+   // Delay is in milliseconds
+   virtual void setDelay(int aDelay) = 0;
 };
 
 typedef std::shared_ptr<ISmokeTrail> ISmokeTrailPtr;

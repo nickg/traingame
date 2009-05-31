@@ -31,6 +31,7 @@ struct IBillboard {
 
    virtual void setPosition(float x, float y, float z) = 0;
    virtual void setScale(float aScale) = 0;
+   virtual void setColour(float r, float g, float b, float a) = 0;
 };
 
 typedef std::shared_ptr<IBillboard> IBillboardPtr;
