@@ -55,9 +55,6 @@ private:
    bool canConnect(const Point<int>& aFirstPoint,
                    const Point<int>& aSecondPoint) const;
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
-   void raiseTerrain();
-   void lowerTerrain();
-   void levelTerrain();
    void deleteObjects();
    
    // Signal handlers
@@ -66,6 +63,7 @@ private:
    void onLowerTerrainSelect();
    void onDeleteSelect();
    void onLevelTerrainSelect();
+   void onPlaceStartSelect();
    
    IMapPtr myMap;
    
@@ -82,7 +80,7 @@ private:
    // Different tools the user can be using
    enum Tool {
       TRACK_TOOL, RAISE_TOOL, LOWER_TOOL, DELETE_TOOL,
-      LEVEL_TOOL
+      LEVEL_TOOL, START_TOOL
    };
    Tool myTool;
 
@@ -121,7 +119,7 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
    myToolbar->addChild(deleteButton);
       
    IButtonPtr startButton = makeButton("data/images/start_icon.png");
-   //startButton->onClick(bind(&Editor::onLowerTerrainSelect, this));
+   startButton->onClick(bind(&Editor::onPlaceStartSelect, this));
    myToolbar->addChild(startButton);
 
    myMap->setGrid(true);
@@ -397,24 +395,6 @@ void Editor::drawDraggedTrack()
    }
 }
 
-// Level off the terrain the user has dragged
-void Editor::levelTerrain()
-{
-   myMap->levelArea(myDragBegin, myDragEnd);
-}
-
-// Raise the terrain the user has dragged
-void Editor::raiseTerrain()
-{
-   myMap->raiseArea(myDragBegin, myDragEnd);
-}
-
-// Lower the terrain the user has dragged
-void Editor::lowerTerrain()
-{
-   myMap->lowerArea(myDragBegin, myDragEnd);
-}
-
 // Delete all objects in the area selected by the user
 void Editor::deleteObjects()
 {
@@ -485,6 +465,12 @@ void Editor::onDeleteSelect()
    myTool = DELETE_TOOL;
 }
 
+void Editor::onPlaceStartSelect()
+{
+   log() << "Place start mode";
+   myTool = START_TOOL;
+}
+
 void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
                           MouseButton aButton)
 {
@@ -533,16 +519,19 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
          drawDraggedTrack();
          break;
       case RAISE_TOOL:
-         raiseTerrain();
+         myMap->raiseArea(myDragBegin, myDragEnd);
          break;
       case LOWER_TOOL:
-         lowerTerrain();
+         myMap->lowerArea(myDragBegin, myDragEnd);
          break;
       case LEVEL_TOOL:
-         levelTerrain();
+         myMap->levelArea(myDragBegin, myDragEnd);
          break;
       case DELETE_TOOL:
          deleteObjects();
+         break;
+      case START_TOOL:
+         myMap->setStart(myDragBegin.x, myDragBegin.y);
          break;
       }
          

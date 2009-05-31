@@ -74,7 +74,8 @@ public:
    int depth() const { return myDepth; }
    double heightAt() const { return 0.0; }
 
-   void setStart(int x, int y) { myStartLocation = makePoint(x, y); }
+   void setStart(int x, int y);
+   void setStart(int x, int y, int dirX, int dirY);
    void setGrid(bool onOff);
    void setPickMode(bool onOff) { inPickMode = onOff; }
    
@@ -176,6 +177,7 @@ private:
    
    int myWidth, myDepth;
    Point<int> myStartLocation;
+   track::Direction myStartDirection;
    IQuadTreePtr myQuadTree;
    IFogPtr myFog;
    bool shouldDrawGridLines, inPickMode;
@@ -185,6 +187,7 @@ private:
 Map::Map()
    : myTiles(NULL), myHeightMap(NULL), myWidth(0), myDepth(0),
      myStartLocation(makePoint(1, 1)),
+     myStartDirection(axis::X),
      shouldDrawGridLines(false), inPickMode(false)
 {
    myFog = makeFog(0.6, 0.7, 0.8,  // Colour
@@ -254,7 +257,49 @@ bool Map::isValidTrack(const Point<int>& aPoint) const
 // Return a location where the train may start
 track::Connection Map::startLocation() const
 {
-   return make_pair(myStartLocation, makeVector(0, 0, 1));
+   return make_pair(myStartLocation, myStartDirection);
+}
+
+// Try to place the train on this tile
+void Map::setStart(int x, int y)
+{
+   const track::Direction possDirs[] = {
+      axis::X, axis::Y, -axis::X, -axis::Y
+   };
+   static int nextDir = 0;
+   
+   TrackNodePtr trackNode = tileAt(x, y).track;
+   if (!trackNode) {
+      warn() << "Must place start on track";
+      return;
+   }
+
+   ITrackSegmentPtr track = trackNode->get();
+
+   int tried = 0;
+   do {
+      if (track->isValidDirection(possDirs[nextDir]))
+         break;
+      else
+         nextDir = (nextDir + 1) % 4;
+   } while (++tried < 4);
+
+   if (tried == 4) {
+      warn() << "Cannot find suitable initial direction for this track";
+      return;
+   }
+
+   myStartLocation = makePoint(x, y);
+   myStartDirection = possDirs[nextDir];
+
+   nextDir = (nextDir + 1) % 4;
+}
+
+// Force the train to start on this tile
+void Map::setStart(int x, int y, int dirX, int dirY)
+{
+   myStartLocation = makePoint(x, y);
+   myStartDirection = makeVector(dirX, 0, dirY);
 }
 
 void Map::setGrid(bool onOff)
@@ -383,6 +428,13 @@ void Map::drawStartLocation() const
    avgHeight /= 4.0f;
 
    glTranslatef(myStartLocation.x, avgHeight + 0.1f, myStartLocation.y);
+
+   if (myStartDirection == axis::X)
+      glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+   else if (myStartDirection == -axis::Y)
+      glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+   else if (myStartDirection == -axis::X)
+      glRotatef(270.0f, 0.0f, 1.0f, 0.0f);
 
    glColor4f(0.0f, 0.9f, 0.0f, 0.8f);
    
@@ -924,7 +976,9 @@ void Map::save(const string& aFileName)
    root.addChild
       (xml::element("start")
        .addAttribute("x", myStartLocation.x)
-       .addAttribute("y", myStartLocation.y));
+       .addAttribute("y", myStartLocation.y)
+       .addAttribute("dirX", myStartDirection.x)
+       .addAttribute("dirY", myStartDirection.y));
 
    // Generate the height map
    // Note: basename is deprecated (use .replace_extension() instead when
@@ -1010,11 +1064,13 @@ private:
 
    void handleStart(const AttributeSet& attrs)
    {
-      int x, y;
+      int x, y, dirX, dirY;
       attrs.get("x", x);
       attrs.get("y", y);
-
-      myMap->setStart(x, y);
+      attrs.get("dirX", dirX);
+      attrs.get("dirY", dirY);
+      
+      myMap->setStart(x, y, dirX, dirY);
    }
 
    void handleTile(const AttributeSet& attrs)

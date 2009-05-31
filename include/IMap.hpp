@@ -70,7 +70,9 @@ public:
    virtual void save(const std::string& aFileName) = 0;
 
    // Change the start location
+   // The second variant allows setting the direction as well
    virtual void setStart(int x, int y) = 0;
+   virtual void setStart(int x, int y, int dirX, int dirY) = 0;
 
    // Toggle display of grid lines
    virtual void setGrid(bool onOff) = 0;
