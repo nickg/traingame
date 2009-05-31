@@ -24,6 +24,7 @@
 #include "ILight.hpp"
 #include "gui/IContainer.hpp"
 #include "GameScreens.hpp"
+#include "IBillboard.hpp"
 
 #include <GL/gl.h>
 
@@ -121,6 +122,7 @@ void Game::display(IGraphicsPtr aContext) const
    position.y = myViewRadius * cosf(myVertAngle) + yCentre;
    
    aContext->lookAt(position, trainPos);
+   setBillboardCameraOrigin(position);
    
    mySun->apply();
    

@@ -20,6 +20,9 @@
 #include "ILogger.hpp"
 #include "TrackCommon.hpp"
 
+// REMOVE
+#include "IBillboard.hpp"
+
 #include <stdexcept>
 #include <cassert>
 
@@ -71,6 +74,9 @@ private:
 
    // Seperation between waggons
    static const double SEPARATION;
+
+   // REMOVE
+   IBillboardPtr bb;
 };
 
 const double Train::SEPARATION(0.1);
@@ -87,6 +93,8 @@ Train::Train(IMapPtr aMap)
    
    for (int i = 1; i <= 5; i++)
       addPart(makeWaggon());
+
+   bb = makeSphericalBillboard(loadTexture("data/images/smoke_particle.png"));
 }
 
 void Train::addPart(IRollingStockPtr aVehicle)
@@ -180,6 +188,10 @@ void Train::render() const
       
       glPopMatrix();
    }
+
+   Vector<float> p = front();
+   bb->setPosition(p.x, p.y + 2.0f, p.z);
+   bb->render();
 }
 
 Vector<float> Train::front() const

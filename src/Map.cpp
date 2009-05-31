@@ -978,7 +978,7 @@ void Map::save(const string& aFileName)
        .addAttribute("x", myStartLocation.x)
        .addAttribute("y", myStartLocation.y)
        .addAttribute("dirX", myStartDirection.x)
-       .addAttribute("dirY", myStartDirection.y));
+       .addAttribute("dirY", myStartDirection.z));
 
    // Generate the height map
    // Note: basename is deprecated (use .replace_extension() instead when
