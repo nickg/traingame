@@ -19,6 +19,7 @@
 #define INC_IROLLING_STOCK_HPP
 
 #include "IController.hpp"
+#include "Maths.hpp"
 
 #include <memory>
 
@@ -27,10 +28,14 @@ struct IRollingStock {
    virtual ~IRollingStock() {}
 
    // Update speed, fuel, etc.
-   virtual void update(int aDelta) = 0;
+   virtual void update(int aDelta, Vector<float> aPosition) = 0;
    
    // Display the object and any animiation
    virtual void render() const = 0;
+
+   // Display any effects that should occur with absolute
+   // co-ordinates (like smoke trails)
+   virtual void renderEffects() const = 0;
 
    // Return the controller for this vehicle (if it has one)
    virtual IControllerPtr controller() = 0;

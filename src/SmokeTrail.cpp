@@ -18,6 +18,10 @@
 #include "ISmokeTrail.hpp"
 #include "IBillboard.hpp"
 
+#include "ILogger.hpp" // REMOVE
+
+#include <list>
+
 using namespace std;
 
 // Concrete implementation of smoke trails
@@ -29,22 +33,63 @@ public:
    // ISmokeTrail interface
    void render() const;
    void setPosition(float x, float y, float z);
+   void update(int aDelta);
    
 private:
+   void newParticle();
+   
+   // A single smoke particle
+   struct Particle {
+      float x, y, z;
+   };
+
+   list<Particle> myParticles;
    float myX, myY, myZ;
    IBillboardPtr myBillboard;
+
+   // New particles are created every `mySpawnDelay`
+   int mySpawnDelay, mySpawnCounter;
 };
 
 SmokeTrail::SmokeTrail()
-   : myX(0.0f), myY(0.0f), myZ(0.0f)
+   : myX(0.0f), myY(0.0f), myZ(0.0f),
+     mySpawnDelay(1000), mySpawnCounter(0)
 {
    ITexturePtr particle(loadTexture("data/images/smoke_particle.png"));
    myBillboard = makeSphericalBillboard(particle);
 }
 
+void SmokeTrail::update(int aDelta)
+{
+   mySpawnCounter -= aDelta;
+
+   if (mySpawnCounter <= 0) {
+      // Generate a new particle
+      newParticle();
+
+      mySpawnCounter = mySpawnDelay;
+   }      
+}
+
+void SmokeTrail::newParticle()
+{
+   Particle p = {
+      // Position
+      myX, myY, myZ
+   };
+
+   debug() << makeVector(p.x, p.y, p.z);
+   
+   myParticles.push_back(p);
+}
+
 void SmokeTrail::render() const
 {
-   
+   for (list<Particle>::const_iterator it = myParticles.begin();
+        it != myParticles.end(); ++it) {
+      myBillboard->setPosition((*it).x, (*it).y, (*it).z);
+      myBillboard->render();
+   }
 }
 
 void SmokeTrail::setPosition(float x, float y, float z)

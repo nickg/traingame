@@ -28,8 +28,9 @@ public:
    Waggon();
    ~Waggon() {}
 
-   void update(int aDelta);
+   void update(int aDelta, Vector<float> aPosition);
    void render() const;
+   void renderEffects() const {}
    IControllerPtr controller();
    double speed() const { return 0.0; }
    double length() const { return myModel->dimensions().x; }
@@ -46,7 +47,7 @@ Waggon::Waggon()
    myModel = loadModel("coal_truck.obj", MODEL_SCALE);
 }
 
-void Waggon::update(int aDelta)
+void Waggon::update(int aDelta, Vector<float> aPosition)
 {
    
 }

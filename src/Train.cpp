@@ -63,6 +63,7 @@ private:
    Part& engine();
    void move(double aDistance);
    void addPart(IRollingStockPtr aVehicle);
+   Vector<float> partPosition(const Part& aPart) const;
    
    IMapPtr myMap;
 
@@ -141,7 +142,7 @@ void Train::update(int aDelta)
 {
    for (list<Part>::iterator it = myParts.begin();
         it != myParts.end(); ++it)
-      (*it).vehicle->update(aDelta);
+      (*it).vehicle->update(aDelta, partPosition(*it));
    
    // How many metres does a tile correspond to?
    const double M_PER_UNIT = 5.0;
@@ -179,18 +180,24 @@ void Train::render() const
       (*it).vehicle->render();
       
       glPopMatrix();
+
+      (*it).vehicle->renderEffects();
    }
 }
 
 Vector<float> Train::front() const
 {
-   // Call the transformer to compute the world location of
-   // the front of the train
+   return partPosition(engine());
+}
+
+// Calculate the position of any train part
+Vector<float> Train::partPosition(const Part& aPart) const
+{
+   // Call the transformer to compute the world location
    glPushMatrix();
    glLoadIdentity();
 
-   const Part& e = engine();
-   e.transformer(e.segmentDelta);
+   aPart.transformer(aPart.segmentDelta);
 
    float matrix[16];
    glGetFloatv(GL_MODELVIEW_MATRIX, matrix);

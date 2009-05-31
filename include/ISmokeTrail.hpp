@@ -24,7 +24,13 @@
 struct ISmokeTrail {
    virtual ~ISmokeTrail() {}
 
+   // Move and generate new particles
+   virtual void update(int aDelta) = 0;
+   
+   // Draw all the particles
    virtual void render() const = 0;
+
+   // Change the position where new particles are generated
    virtual void setPosition(float x, float y, float z) = 0;
 };
 
