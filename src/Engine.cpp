@@ -62,8 +62,7 @@ public:
    Engine();
 
    // IRollingStock interface
-   void renderModel() const;
-   void renderEffects() const;
+   void render() const;
    void update(int aDelta);
    
    double speed() const { return mySpeed; }
@@ -113,15 +112,9 @@ Engine::Engine()
 }
 
 // Draw the engine model
-void Engine::renderModel() const
+void Engine::render() const
 {        
    myModel->render();
-}
-
-// Draw the smoke effects
-void Engine::renderEffects() const
-{
-   
 }
 
 // Calculate the current tractive effort

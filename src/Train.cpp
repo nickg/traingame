@@ -151,8 +151,8 @@ void Train::updateSmokePosition(int aDelta)
 
    e.transformer(e.segmentDelta);
 
-   const float smokeOffX = 1.0f;
-   const float smokeOffY = 1.0f;
+   const float smokeOffX = 0.63f;
+   const float smokeOffY = 1.04f;
    glTranslatef(smokeOffX, smokeOffY, 0.0f);
                 
    float matrix[16];
@@ -205,11 +205,9 @@ void Train::render() const
       
       (*it).transformer((*it).segmentDelta);
       glTranslatef(0.0f, track::RAIL_HEIGHT, 0.0f);
-      (*it).vehicle->renderModel();
+      (*it).vehicle->render();
       
       glPopMatrix();
-
-      (*it).vehicle->renderEffects();
    }
 
    mySmokeTrail->render();

@@ -232,3 +232,8 @@ void setBillboardCameraOrigin(Vector<float> aPosition)
 {
    theCameraPosition = aPosition;
 }
+
+float distanceToCamera(Vector<float> aPosition)
+{
+   return (theCameraPosition - aPosition).length();
+}

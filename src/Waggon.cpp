@@ -29,8 +29,7 @@ public:
    ~Waggon() {}
 
    void update(int aDelta);
-   void renderModel() const;
-   void renderEffects() const {}
+   void render() const;
    IControllerPtr controller();
    double speed() const { return 0.0; }
    double length() const { return myModel->dimensions().x; }
@@ -52,7 +51,7 @@ void Waggon::update(int aDelta)
    
 }
 
-void Waggon::renderModel() const
+void Waggon::render() const
 {
    myModel->render();
 }

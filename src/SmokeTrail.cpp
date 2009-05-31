@@ -35,16 +35,17 @@ public:
    void setPosition(float x, float y, float z);
    void update(int aDelta);
    
-private:
-   void newParticle();
-   
    // A single smoke particle
    struct Particle {
       float x, y, z;
       float scale;
    };
-
-   list<Particle> myParticles;
+   
+private:
+   void newParticle();
+   void moveParticle(Particle& aParticle, int aDelta);
+   
+   mutable list<Particle> myParticles;  // Need to sort particles in render()
    float myX, myY, myZ;
    IBillboardPtr myBillboard;
 
@@ -60,8 +61,24 @@ SmokeTrail::SmokeTrail()
    myBillboard = makeSphericalBillboard(particle);
 }
 
+void SmokeTrail::moveParticle(Particle& aParticle, int aDelta)
+{
+   const float ySpeed = 0.1f;
+   const float growth = 0.1f;
+
+   const float time = static_cast<float>(aDelta) / 1000.0f;
+   
+   aParticle.y += ySpeed * time;
+   aParticle.scale += growth * time;
+}
+
 void SmokeTrail::update(int aDelta)
 {
+   // Move the existing particles
+   for (list<Particle>::iterator it = myParticles.begin();
+        it != myParticles.end(); ++it)
+      moveParticle(*it, aDelta);
+   
    mySpawnCounter -= aDelta;
 
    if (mySpawnCounter <= 0) {
@@ -69,26 +86,32 @@ void SmokeTrail::update(int aDelta)
       newParticle();
 
       mySpawnCounter = mySpawnDelay;
-   }      
+   }
 }
 
 void SmokeTrail::newParticle()
 {
    Particle p = {
-      // Position
-      myX, myY, myZ,
-
-      // Scale
-      0.1f,
+      myX, myY, myZ,   // Position
+      0.1f,            // Scale
    };
-
-   debug() << makeVector(p.x, p.y, p.z);
    
    myParticles.push_back(p);
 }
 
+struct CmpDistanceToCam {
+   bool operator()(const SmokeTrail::Particle& lhs,
+                   const SmokeTrail::Particle& rhs)
+   {
+      return distanceToCamera(makeVector(lhs.x, lhs.y, lhs.z))
+         > distanceToCamera(makeVector(rhs.x, rhs.y, rhs.z));
+   }
+};
+
 void SmokeTrail::render() const
 {
+   myParticles.sort(CmpDistanceToCam());
+   
    for (list<Particle>::const_iterator it = myParticles.begin();
         it != myParticles.end(); ++it) {
       myBillboard->setPosition((*it).x, (*it).y, (*it).z);

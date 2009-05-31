@@ -42,4 +42,8 @@ IBillboardPtr makeSphericalBillboard(ITexturePtr aTexture);
 // in the correct orientation
 void setBillboardCameraOrigin(Vector<float> aPosition);
 
+// Billboards normally need to be depth sorted
+// This calculates the distance of a point to the camera
+float distanceToCamera(Vector<float> aPosition);
+
 #endif

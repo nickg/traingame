@@ -54,14 +54,14 @@ struct Vector {
    }
 
    // Magnitude
-   T magnitude() const
+   T length() const
    {
       return static_cast<T>(sqrt(x*x + y*y + z*z));
    }
 
    Vector<T>& normalise()
    {
-      T m = magnitude();
+      T m = length();
       x /= m;
       y /= m;
       z /= m;

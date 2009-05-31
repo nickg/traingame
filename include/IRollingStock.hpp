@@ -30,16 +30,8 @@ struct IRollingStock {
    // Update speed, fuel, etc.
    virtual void update(int aDelta) = 0;
    
-   // Display the base object
-   // This should also display any animation that is attached to
-   // the model
-   // Animation that is not attached to the model should use
-   // `renderEffects' below
-   virtual void renderModel() const = 0;
-
-   // Display any effects that should occur with absolute
-   // co-ordinates (like smoke trails)
-   virtual void renderEffects() const = 0;
+   // Display the model
+   virtual void render() const = 0;
 
    // Return the controller for this vehicle (if it has one)
    virtual IControllerPtr controller() = 0;
