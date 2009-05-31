@@ -43,6 +43,7 @@ public:
       float xv, yv, zv;
       float scale;
       float r, g, b, a;
+      bool appearing;
    };
    
 private:
@@ -72,9 +73,10 @@ SmokeTrail::SmokeTrail()
 // Returns true if the particle is dead
 bool SmokeTrail::moveParticle(Particle& aParticle, int aDelta)
 {
-   const float ySpeed = 0.3f;
+   const float ySpeed = 0.4f;
    const float growth = 0.3f;
-   const float decay = 0.2f;
+   const float decay = 0.3f;
+   const float appear = 4.0f;
    const float slowdown = 0.1f;
    const float xWind = 0.02f;
    const float zWind = 0.01f;
@@ -91,8 +93,18 @@ bool SmokeTrail::moveParticle(Particle& aParticle, int aDelta)
    
    aParticle.scale += growth * time;
 
-   // Kill the particle if it becomes invisible
-   return (aParticle.a -= decay * time) <= 0.0f;
+   const float maxA = 0.8f;
+   if (aParticle.appearing) {
+      if ((aParticle.a += appear * time) >= maxA) {
+         aParticle.a = maxA;
+         aParticle.appearing = false;
+      }
+      return false;
+   }
+   else {
+      // Kill the particle if it becomes invisible
+      return (aParticle.a -= decay * time) <= 0.0f;
+   }
 }
 
 void SmokeTrail::update(int aDelta)
@@ -117,13 +129,13 @@ void SmokeTrail::newParticle()
 {
    // Random number generator for colour variance
    static variate_generator<mt19937, normal_distribution<> >
-      colourRand(mt19937(time(NULL)), normal_distribution<>(0.0f, 0.06f));
+      colourRand(mt19937(time(NULL)), normal_distribution<>(0.0f, 0.08f));
 
    // Random number generator for position variance
    static variate_generator<mt19937, normal_distribution<> >
-      posRand(mt19937(time(NULL)), normal_distribution<>(0.0f, 0.05f));
+      posRand(mt19937(time(NULL)), normal_distribution<>(0.0f, 0.07f));
 
-   const float col = 0.75f + colourRand();
+   const float col = 0.7f + colourRand();
 
    const float dx = posRand();
    const float dz = posRand();
@@ -131,9 +143,10 @@ void SmokeTrail::newParticle()
    Particle p = {
       myX + dx, myY, myZ + dz,      // Position
       myXSpeed, myYSpeed, myZSpeed, // Speed
-      0.2f,                         // Scale
+      0.5f,                         // Scale
       col, col, col,                // Colour
-      0.8f,                         // Alpha
+      0.0f,                         // Alpha
+      true,                         // Appearing
    };
    
    myParticles.push_back(p);

@@ -171,9 +171,9 @@ void Train::updateSmokePosition(int aDelta)
    // Make the rate at which new particles are created proportional
    // to the throttle of the controller
    const int throttle = e.vehicle->controller()->throttle();
-   const int baseDelay = 300;
+   const int baseDelay = 200;
 
-   mySmokeTrail->setDelay(baseDelay - (throttle * 25));
+   mySmokeTrail->setDelay(baseDelay - (throttle * 15));
 }
 
 void Train::update(int aDelta)
