@@ -30,11 +30,12 @@ class BillboardCommon : public IBillboard {
 public:
    BillboardCommon(ITexturePtr aTexture)
       : myTexture(aTexture),
-        myX(0.0f), myY(0.0f), myZ(0.0f) {}
+        myX(0.0f), myY(0.0f), myZ(0.0f), myScale(1.0f) {}
    virtual ~BillboardCommon() {}
 
    // IBillboard interface
    void setPosition(float x, float y, float z);
+   void setScale(float aScale);
 
 private:
    const ITexturePtr myTexture;
@@ -44,6 +45,7 @@ protected:
    void translate() const;
    
    float myX, myY, myZ;
+   float myScale;
 };
 
 void BillboardCommon::setPosition(float x, float y, float z)
@@ -51,6 +53,11 @@ void BillboardCommon::setPosition(float x, float y, float z)
    myX = x;
    myY = y;
    myZ = z;
+}
+
+void BillboardCommon::setScale(float aScale)
+{
+   myScale = aScale;
 }
 
 void BillboardCommon::translate() const
@@ -71,15 +78,17 @@ void BillboardCommon::drawTextureQuad() const
    
    myTexture->bind();
 
+   const float w = myScale / 2.0f;
+
    glBegin(GL_QUADS);
    glTexCoord2f(1.0f, 1.0f);
-   glVertex2f(0.5f, 0.5f);
+   glVertex2f(w, w);
    glTexCoord2f(0.0f, 1.0f);
-   glVertex2f(-0.5f, 0.5f);
+   glVertex2f(-w, w);
    glTexCoord2f(0.0f, 0.0f);
-   glVertex2f(-0.5f, -0.5f);
+   glVertex2f(-w, -w);
    glTexCoord2f(1.0f, 0.0f);
-   glVertex2f(0.5f, -0.5f);
+   glVertex2f(w, -w);
    glEnd();
    
    glPopAttrib();

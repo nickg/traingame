@@ -28,7 +28,7 @@ struct IRollingStock {
    virtual ~IRollingStock() {}
 
    // Update speed, fuel, etc.
-   virtual void update(int aDelta, Vector<float> aPosition) = 0;
+   virtual void update(int aDelta) = 0;
    
    // Display the base object
    // This should also display any animation that is attached to

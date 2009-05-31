@@ -19,7 +19,8 @@
 #include "IModel.hpp"
 #include "ILogger.hpp"
 #include "MovingAverage.hpp"
-#include "ISmokeTrail.hpp"
+
+#include <GL/gl.h>
 
 using namespace std;
 
@@ -63,7 +64,7 @@ public:
    // IRollingStock interface
    void renderModel() const;
    void renderEffects() const;
-   void update(int aDelta, Vector<float> aPosition);
+   void update(int aDelta);
    
    double speed() const { return mySpeed; }
    IControllerPtr controller() { return shared_from_this(); }
@@ -89,8 +90,6 @@ private:
 
    // Boiler pressure lags behind temperature
    MovingAverage<double, 1000> myBoilerDelay;
-
-   ISmokeTrailPtr mySmokeTrail;
    
    static const double MODEL_SCALE;
    static const double TRACTIVE_EFFORT_KNEE;
@@ -111,7 +110,6 @@ Engine::Engine()
      isBrakeOn(true), myThrottle(0)
 {
    myModel = loadModel("pclass.obj", MODEL_SCALE);
-   mySmokeTrail = makeSmokeTrail();
 }
 
 // Draw the engine model
@@ -123,7 +121,7 @@ void Engine::renderModel() const
 // Draw the smoke effects
 void Engine::renderEffects() const
 {
-   mySmokeTrail->render();
+   
 }
 
 // Calculate the current tractive effort
@@ -153,7 +151,7 @@ double Engine::brakeForce() const
 }
 
 // Compute the next state of the engine
-void Engine::update(int aDelta, Vector<float> aPosition)
+void Engine::update(int aDelta)
 {
    // Update the pressure of the boiler
    // The fire temperature is delayed and then used to increase it
@@ -176,10 +174,6 @@ void Engine::update(int aDelta, Vector<float> aPosition)
            << ", B=" << B
            << ", a=" << a << ", v=" << mySpeed
            << " (delta=" << aDelta << ")";*/
-
-   // Move the smoke trail
-   mySmokeTrail->setPosition(aPosition.x, aPosition.y + 1.0f, aPosition.z);
-   mySmokeTrail->update(aDelta);
 }
 
 // User interface to the engine

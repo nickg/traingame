@@ -28,7 +28,7 @@ public:
    Waggon();
    ~Waggon() {}
 
-   void update(int aDelta, Vector<float> aPosition);
+   void update(int aDelta);
    void renderModel() const;
    void renderEffects() const {}
    IControllerPtr controller();
@@ -47,7 +47,7 @@ Waggon::Waggon()
    myModel = loadModel("coal_truck.obj", MODEL_SCALE);
 }
 
-void Waggon::update(int aDelta, Vector<float> aPosition)
+void Waggon::update(int aDelta)
 {
    
 }

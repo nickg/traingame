@@ -19,6 +19,7 @@
 #include "IRollingStock.hpp"
 #include "ILogger.hpp"
 #include "TrackCommon.hpp"
+#include "ISmokeTrail.hpp"
 
 #include <stdexcept>
 #include <cassert>
@@ -64,8 +65,10 @@ private:
    void move(double aDistance);
    void addPart(IRollingStockPtr aVehicle);
    Vector<float> partPosition(const Part& aPart) const;
+   void updateSmokePosition(int aDelta);
    
    IMapPtr myMap;
+   ISmokeTrailPtr mySmokeTrail;
 
    // Move part of the train across a connection
    void enterSegment(Part& aPart, const track::Connection& aConnection);
@@ -88,6 +91,8 @@ Train::Train(IMapPtr aMap)
    
    for (int i = 1; i <= 5; i++)
       addPart(makeWaggon());
+
+   mySmokeTrail = makeSmokeTrail();
 }
 
 void Train::addPart(IRollingStockPtr aVehicle)
@@ -138,11 +143,34 @@ void Train::move(double aDistance)
    }
 }
 
+void Train::updateSmokePosition(int aDelta)
+{
+   const Part& e = engine();
+   glPushMatrix();
+   glLoadIdentity();
+
+   e.transformer(e.segmentDelta);
+
+   const float smokeOffX = 1.0f;
+   const float smokeOffY = 1.0f;
+   glTranslatef(smokeOffX, smokeOffY, 0.0f);
+                
+   float matrix[16];
+   glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
+
+   glPopMatrix();
+
+   mySmokeTrail->setPosition(matrix[12], matrix[13], matrix[14]);
+   mySmokeTrail->update(aDelta);
+}
+
 void Train::update(int aDelta)
 {
    for (list<Part>::iterator it = myParts.begin();
         it != myParts.end(); ++it)
-      (*it).vehicle->update(aDelta, partPosition(*it));
+      (*it).vehicle->update(aDelta);
+
+   updateSmokePosition(aDelta);
    
    // How many metres does a tile correspond to?
    const double M_PER_UNIT = 5.0;
@@ -183,6 +211,8 @@ void Train::render() const
 
       (*it).vehicle->renderEffects();
    }
+
+   mySmokeTrail->render();
 }
 
 Vector<float> Train::front() const

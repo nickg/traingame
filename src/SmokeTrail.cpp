@@ -41,6 +41,7 @@ private:
    // A single smoke particle
    struct Particle {
       float x, y, z;
+      float scale;
    };
 
    list<Particle> myParticles;
@@ -75,7 +76,10 @@ void SmokeTrail::newParticle()
 {
    Particle p = {
       // Position
-      myX, myY, myZ
+      myX, myY, myZ,
+
+      // Scale
+      0.1f,
    };
 
    debug() << makeVector(p.x, p.y, p.z);
@@ -88,6 +92,7 @@ void SmokeTrail::render() const
    for (list<Particle>::const_iterator it = myParticles.begin();
         it != myParticles.end(); ++it) {
       myBillboard->setPosition((*it).x, (*it).y, (*it).z);
+      myBillboard->setScale((*it).scale);
       myBillboard->render();
    }
 }
