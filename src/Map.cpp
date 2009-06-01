@@ -29,6 +29,7 @@
 #include <sstream>
 #include <cassert>
 #include <fstream>
+#include <cstdint>
 
 #include <GL/gl.h>
 #include <boost/filesystem.hpp>
@@ -915,10 +916,10 @@ void Map::writeHeightMap(const string& aFileName) const
    if (!of.good())
       throw runtime_error("Failed to open " + aFileName + " for writing");
 
-   const long wl = static_cast<long>(myWidth);
-   const long dl = static_cast<long>(myDepth);
-   of.write(reinterpret_cast<const char*>(&wl), sizeof(long));
-   of.write(reinterpret_cast<const char*>(&dl), sizeof(long));
+   const int32_t wl = static_cast<int32_t>(myWidth);
+   const int32_t dl = static_cast<int32_t>(myDepth);
+   of.write(reinterpret_cast<const char*>(&wl), sizeof(int32_t));
+   of.write(reinterpret_cast<const char*>(&dl), sizeof(int32_t));
 
    for (int i = 0; i < (myWidth + 1) * (myDepth + 1); i++)
       of.write(reinterpret_cast<const char*>(&myHeightMap[i].pos.y),
@@ -935,9 +936,9 @@ void Map::readHeightMap(const string& aFileName)
       throw runtime_error("Failed to open " + aFileName + " for reading");
 
    // Check the dimensions of the binary file match the XML file
-   long wl, dl;
-   is.read(reinterpret_cast<char*>(&wl), sizeof(long));
-   is.read(reinterpret_cast<char*>(&dl), sizeof(long));
+   int32_t wl, dl;
+   is.read(reinterpret_cast<char*>(&wl), sizeof(int32_t));
+   is.read(reinterpret_cast<char*>(&dl), sizeof(int32_t));
 
    if (wl != myWidth || dl != myDepth) {
       error() << "Expected width " << myWidth << " got " << wl;
