@@ -129,7 +129,7 @@ void SmokeTrail::newParticle()
 {
    // Random number generator for colour variance
    static variate_generator<mt19937, normal_distribution<> >
-      colourRand(mt19937(time(NULL)), normal_distribution<>(0.0f, 0.08f));
+      colourRand(mt19937(time(NULL)), normal_distribution<>(0.0f, 0.06f));
 
    // Random number generator for position variance
    static variate_generator<mt19937, normal_distribution<> >
@@ -143,7 +143,7 @@ void SmokeTrail::newParticle()
    Particle p = {
       myX + dx, myY, myZ + dz,      // Position
       myXSpeed, myYSpeed, myZSpeed, // Speed
-      0.5f,                         // Scale
+      0.4f,                         // Scale
       col, col, col,                // Colour
       0.0f,                         // Alpha
       true,                         // Appearing
