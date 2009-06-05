@@ -20,8 +20,15 @@
 
 #include <memory>
 
+// The different types of cargo that may be carried
+enum Cargo {
+   COAL
+};
+
 // A station occupies one of more track segments and supplies and
 // accepts a set of cargo
+// The information about which track segments it actually occupies
+// are stored in the map
 struct IStation {
    virtual ~IStation() {}
 };

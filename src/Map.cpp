@@ -24,6 +24,7 @@
 #include "IXMLParser.hpp"
 #include "XMLBuilder.hpp"
 #include "IMesh.hpp"
+#include "IStation.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -105,7 +106,8 @@ public:
 private:
    // Tiles on the map
    struct Tile {
-      TrackNodePtr track;  // Track at this location, if any
+      TrackNodePtr track;   // Track at this location, if any
+      IStationPtr station;  // Station on this tile, if any
    } *myTiles;
 
    // Vertices on the terrain
@@ -495,9 +497,9 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
    static const tuple<float, float, float, float> colourMap[] = {
       //          Start height         colour
       make_tuple(    5.0f,      RGB(255, 255, 255) ),
-      make_tuple(    3.0f,      RGB(187, 156, 83) ),
-      make_tuple(    0.0f,      RGB(133, 204, 98) ),
-      make_tuple(   -1.0f,     RGB(224, 223, 134) ),
+      make_tuple(    3.0f,      RGB(187, 156, 83)  ),
+      make_tuple(    0.0f,      RGB(133, 204, 98)  ),
+      make_tuple(   -1.0f,      RGB(224, 223, 134) ),
       make_tuple(   -1e10f,     RGB(178, 247, 220) )
    };
    
