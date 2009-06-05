@@ -29,6 +29,7 @@
 #include <GL/gl.h>
 
 using namespace std;
+using namespace std::tr1;
 using namespace gui;
 
 // Implementation of the main play screen

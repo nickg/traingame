@@ -93,7 +93,7 @@ public:
   
 };
 
-typedef std::shared_ptr<IMap> IMapPtr;
+typedef std::tr1::shared_ptr<IMap> IMapPtr;
 
 // Make an empty map
 IMapPtr makeEmptyMap(int aWidth, int aHeight);

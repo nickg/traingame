@@ -25,6 +25,7 @@
 
 using namespace gui;
 using namespace std;
+using namespace std::tr1;
 using namespace boost;
 
 class FuelMeter : public IMeterControl {
@@ -121,5 +122,5 @@ IMeterControlPtr gui::makeFuelMeter(IFontPtr aFont, const string& aCaption,
                                     const Colour& aColour)
 {
    return IMeterControlPtr
-      (new Defaults<Moveable<Hideable<FuelMeter>>>(aFont, aCaption, aColour));
+      (new Defaults<Moveable<Hideable<FuelMeter> > >(aFont, aCaption, aColour));
 }

@@ -20,7 +20,7 @@
 
 #include "IGraphics.hpp"
 
-#include <memory>
+#include <tr1/memory>
 
 // Provides access to a pick buffer for selecting objects
 struct IPickBuffer {
@@ -30,6 +30,6 @@ struct IPickBuffer {
    virtual unsigned endPick() = 0;
 };
 
-typedef std::shared_ptr<IPickBuffer> IPickBufferPtr;
+typedef std::tr1::shared_ptr<IPickBuffer> IPickBufferPtr;
 
 #endif

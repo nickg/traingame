@@ -28,6 +28,7 @@
 #include <GL/gl.h>
 
 using namespace std;
+using namespace std::tr1;
 using namespace gui;
 
 // Concrete editor class

@@ -20,15 +20,16 @@
 
 #include "IFont.hpp"
 
-#include <memory>
-#include <tuple>
+#include <tr1/memory>
+#include <tr1/tuple>
+#include <tr1/functional>
 #include <string>
 
 #include <boost/cast.hpp>
 
 namespace gui {
 
-   typedef std::tuple<float, float, float> Colour;
+   typedef std::tr1::tuple<float, float, float> Colour;
 
    // Interface to any UI control
    struct IControl {
@@ -50,18 +51,18 @@ namespace gui {
       virtual bool handleMouseRelease(int x, int y) = 0;
    };
 
-   typedef std::shared_ptr<IControl> IControlPtr;
+   typedef std::tr1::shared_ptr<IControl> IControlPtr;
 
    // Interface to clickable controls
    struct IButton : IControl {
       virtual ~IButton() {}
 
-      typedef std::function<void (void)> ClickHandler;
+      typedef std::tr1::function<void (void)> ClickHandler;
       
       virtual void onClick(ClickHandler aHandler) = 0;
    };
 
-   typedef std::shared_ptr<IButton> IButtonPtr;
+   typedef std::tr1::shared_ptr<IButton> IButtonPtr;
    
    // Interface to a UI control that contains text
    struct ITextControl : IControl {
@@ -73,7 +74,7 @@ namespace gui {
       virtual void setColour(float r, float g, float b) = 0;
    };
 
-   typedef std::shared_ptr<ITextControl> ITextControlPtr;
+   typedef std::tr1::shared_ptr<ITextControl> ITextControlPtr;
 
    // Interface to controls that are progress meters, etc.
    struct IMeterControl : IControl {
@@ -83,7 +84,7 @@ namespace gui {
       virtual void setRange(int aLowValue, int aHighValue) = 0;
    };
 
-   typedef std::shared_ptr<IMeterControl> IMeterControlPtr;
+   typedef std::tr1::shared_ptr<IMeterControl> IMeterControlPtr;
 
    // Standard controls
    IButtonPtr makeButton(const std::string& aGlyphFile);

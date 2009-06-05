@@ -30,12 +30,13 @@
 #include <sstream>
 #include <cassert>
 #include <fstream>
-#include <cstdint>
+#include <tr1/cstdint>
 
 #include <GL/gl.h>
 #include <boost/filesystem.hpp>
 
 using namespace std;
+using namespace std::tr1;
 
 // A single piece of track may appear multiple times in the map - this
 // will be true for all track segments that cover multiple tiles

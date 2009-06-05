@@ -18,7 +18,7 @@
 #ifndef INC_ICONTROLLER_HPP
 #define INC_ICONTROLLER_HPP
 
-#include <memory>
+#include <tr1/memory>
 
 // Actions the user can send
 enum Action {
@@ -41,6 +41,6 @@ struct IController {
    virtual double temp() const = 0;
 };
 
-typedef std::shared_ptr<IController> IControllerPtr;
+typedef std::tr1::shared_ptr<IController> IControllerPtr;
 
 #endif

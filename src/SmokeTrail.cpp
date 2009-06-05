@@ -19,10 +19,11 @@
 #include "IBillboard.hpp"
 
 #include <list>
-#include <random>
+#include <tr1/random>
 #include <cstdlib>
 
 using namespace std;
+using namespace std::tr1;
 
 // Concrete implementation of smoke trails
 class SmokeTrail : public ISmokeTrail {

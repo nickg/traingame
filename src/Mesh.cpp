@@ -28,6 +28,7 @@
 #include <boost/static_assert.hpp>
 
 using namespace std;
+using namespace std::tr1;
 using namespace boost;
 
 // Concrete implementation of mesh buffers
@@ -140,9 +141,9 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal,
           && mergeVector(aNormal, normals[*it])) {
 
          const Colour& other = colours[*it];
-         if (abs(std::get<0>(other) - std::get<0>(aColour)) < 0.01f
-             && abs(std::get<1>(other) - std::get<1>(aColour)) < 0.01f
-             && abs(std::get<2>(other) - std::get<2>(aColour)) < 0.01f) {
+         if (abs(tr1::get<0>(other) - tr1::get<0>(aColour)) < 0.01f
+             && abs(tr1::get<1>(other) - tr1::get<1>(aColour)) < 0.01f
+             && abs(tr1::get<2>(other) - tr1::get<2>(aColour)) < 0.01f) {
          
             indices.push_back(*it);
             reused++;

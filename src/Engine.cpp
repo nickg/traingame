@@ -57,7 +57,7 @@ using namespace std;
 // Concrete implementation of a steam engine
 class Engine : public IRollingStock,
                public IController,
-               public std::enable_shared_from_this<Engine> {
+               public std::tr1::enable_shared_from_this<Engine> {
 public:
    Engine();
 

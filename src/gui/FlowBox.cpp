@@ -23,7 +23,8 @@
 
 using namespace gui;
 using namespace std;
-using namespace std::placeholders;
+using namespace std::tr1;
+using namespace std::tr1::placeholders;
 
 // A container which grows either horizontally or vertically as controls
 // are added

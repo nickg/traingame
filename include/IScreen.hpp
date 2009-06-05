@@ -21,7 +21,7 @@
 #include "IGraphics.hpp"
 #include "IPickBuffer.hpp"
 
-#include <memory>
+#include <tr1/memory>
 
 #include <SDL.h>
 
@@ -54,6 +54,6 @@ struct IScreen {
                                MouseButton aButton) = 0;
 };
 
-typedef std::shared_ptr<IScreen> IScreenPtr;
+typedef std::tr1::shared_ptr<IScreen> IScreenPtr;
 
 #endif

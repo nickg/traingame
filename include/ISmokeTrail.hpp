@@ -18,7 +18,7 @@
 #ifndef INC_ISMOKE_TRAIL_HPP
 #define INC_ISMOKE_TRAIL_HPP
 
-#include <memory>
+#include <tr1/memory>
 
 // Smoke and steam effects
 struct ISmokeTrail {
@@ -41,7 +41,7 @@ struct ISmokeTrail {
    virtual void setDelay(int aDelay) = 0;
 };
 
-typedef std::shared_ptr<ISmokeTrail> ISmokeTrailPtr;
+typedef std::tr1::shared_ptr<ISmokeTrail> ISmokeTrailPtr;
 
 ISmokeTrailPtr makeSmokeTrail();
 

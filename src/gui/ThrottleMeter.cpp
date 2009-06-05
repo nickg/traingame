@@ -137,5 +137,5 @@ void ThrottleMeter::render(int x, int y) const
 IMeterControlPtr gui::makeThrottleMeter(IFontPtr aFont)
 {
    return IMeterControlPtr
-      (new Defaults<Moveable<Hideable<ThrottleMeter>>>(aFont));
+      (new Defaults<Moveable<Hideable<ThrottleMeter> > >(aFont));
 }

@@ -101,6 +101,6 @@ bool Button::handleMouseRelease(int x, int y)
 IButtonPtr gui::makeButton(const string& aGlyphFile)
 {
    return IButtonPtr
-      (new Moveable<Hideable<Button>>(aGlyphFile));
+      (new Moveable<Hideable<Button> >(aGlyphFile));
 }
 

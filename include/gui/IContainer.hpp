@@ -20,7 +20,7 @@
 
 #include "IControl.hpp"
 
-#include <memory>
+#include <tr1/memory>
 
 // GUI objects that contain other controls
 namespace gui {
@@ -40,7 +40,7 @@ namespace gui {
       void origin(int& x, int& y) const;
    };
 
-   typedef std::shared_ptr<IContainer> IContainerPtr;
+   typedef std::tr1::shared_ptr<IContainer> IContainerPtr;
 
    enum FlowBoxStyle {
       FLOW_BOX_HORIZ, FLOW_BOX_VERT

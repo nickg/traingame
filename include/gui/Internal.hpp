@@ -23,14 +23,29 @@
 // Common implementation details for GUI components
 namespace gui {
 
+   // It would be nice if we could use variadic templates to
+   // implement variable-arity generic constructors but these
+   // are only supported in experimental GCC and not at all
+   // in Visual C++
+
    // Mixin to add hide/show ability
    template <class Base>
    class Hideable : public Base {
    public:
-      template <typename... Args>
-      Hideable(const Args&&... args)
-         : Base(args...), amVisible(true) {}
+      Hideable() : amVisible(true) {}
+      
+      template <typename A>
+      Hideable(const A& a)
+         : Base(a), amVisible(true) {}
 
+      template <typename A, typename B>
+      Hideable(const A& a, const B& b)
+         : Base(a, b), amVisible(true) {}
+
+      template <typename A, typename B, typename C>
+      Hideable(const A& a, const B& b, const C& c)
+         : Base(a, b, c), amVisible(true) {}
+      
       virtual ~Hideable() {}
       
       void setVisible(bool visible)
@@ -51,10 +66,20 @@ namespace gui {
    template <class Base>
    class Defaults : public Base {
    public:
-      template <typename... Args>
-      Defaults(const Args&&... args)
-         : Base(args...) {}
+      Defaults() {}
+      
+      template <typename A>
+      Defaults(const A& a)
+         : Base(a) {}
 
+      template <typename A, typename B>
+      Defaults(const A& a, const B& b)
+         : Base(a, b) {}
+
+      template <typename A, typename B, typename C>
+      Defaults(const A& a, const B& b, const C& c)
+         : Base(a, b, c) {}
+      
       virtual ~Defaults() {}
       
       bool handleClick(int x, int y) { return false; }
@@ -65,9 +90,19 @@ namespace gui {
    template <class Base>
    class Moveable : public Base {
    public:
-      template <typename... Args>
-      Moveable(const Args&&... args)
-         : Base(args...), myX(0), myY(0) {}
+      Moveable() : myX(0), myY(0) {}
+      
+      template <typename A>
+      Moveable(const A& a)
+         : Base(a), myX(0), myY(0) {}
+
+      template <typename A, typename B>
+      Moveable(const A& a, const B& b)
+         : Base(a, b), myX(0), myY(0) {}
+
+      template <typename A, typename B, typename C>
+      Moveable(const A& a, const B& b, const C& c)
+         : Base(a, b, c), myX(0), myY(0) {}
 
       virtual ~Moveable() {}
 

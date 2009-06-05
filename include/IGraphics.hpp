@@ -20,7 +20,7 @@
 
 #include "Maths.hpp"
 
-#include <memory>
+#include <tr1/memory>
 
 // Interface to stateful graphics things (lights, cameras, etc.)
 struct IGraphics {
@@ -38,6 +38,6 @@ struct IGraphics {
                        const Vector<float> aTargetPoint) = 0;
 };
 
-typedef std::shared_ptr<IGraphics> IGraphicsPtr;
+typedef std::tr1::shared_ptr<IGraphics> IGraphicsPtr;
 
 #endif

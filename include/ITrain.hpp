@@ -21,7 +21,7 @@
 #include "IRollingStock.hpp"
 #include "IMap.hpp"
 
-#include <memory>
+#include <tr1/memory>
 
 // Interface to managing complete trains
 struct ITrain {
@@ -41,7 +41,7 @@ struct ITrain {
    virtual IControllerPtr controller() = 0;
 };
 
-typedef std::shared_ptr<ITrain> ITrainPtr;
+typedef std::tr1::shared_ptr<ITrain> ITrainPtr;
 
 ITrainPtr makeTrain(IMapPtr aMap);
 

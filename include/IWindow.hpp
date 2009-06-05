@@ -1,7 +1,7 @@
 #ifndef INC_IWINDOW_HPP
 #define INC_IWINDOW_HPP
 
-#include <memory>
+#include <tr1/memory>
 
 #include "IScreen.hpp"
 
@@ -16,7 +16,7 @@ public:
    virtual void takeScreenShot() = 0;
 };
 
-typedef std::shared_ptr<IWindow> IWindowPtr;
+typedef std::tr1::shared_ptr<IWindow> IWindowPtr;
 
 // Implementors
 IWindowPtr makeSDLWindow();

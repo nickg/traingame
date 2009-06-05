@@ -21,7 +21,7 @@
 #include "ITexture.hpp"
 #include "Maths.hpp"
 
-#include <memory>
+#include <tr1/memory>
 
 // Generic quad billboard with a single texture
 struct IBillboard {
@@ -34,7 +34,7 @@ struct IBillboard {
    virtual void setColour(float r, float g, float b, float a) = 0;
 };
 
-typedef std::shared_ptr<IBillboard> IBillboardPtr;
+typedef std::tr1::shared_ptr<IBillboard> IBillboardPtr;
 
 IBillboardPtr makeCylindricalBillboard(ITexturePtr aTexture);
 IBillboardPtr makeSphericalBillboard(ITexturePtr aTexture);

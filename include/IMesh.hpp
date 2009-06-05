@@ -18,8 +18,8 @@
 #ifndef INC_IMESH_HPP
 #define INC_IMESH_HPP
 
-#include <memory>
-#include <tuple>
+#include <tr1/memory>
+#include <tr1/tuple>
 
 #include "Maths.hpp"
 #include "ITexture.hpp"
@@ -41,7 +41,7 @@ struct IMeshBuffer {
    typedef Vector<float> Vertex;
    typedef Vector<float> Normal;
    typedef Point<float> TexCoord;
-   typedef std::tuple<float, float, float> Colour;
+   typedef std::tr1::tuple<float, float, float> Colour;
    typedef unsigned Index;
 
    virtual ~IMeshBuffer() {}
@@ -64,7 +64,7 @@ struct IMeshBuffer {
    virtual void printStats() const = 0;
 };
 
-typedef std::shared_ptr<IMeshBuffer> IMeshBufferPtr;
+typedef std::tr1::shared_ptr<IMeshBuffer> IMeshBufferPtr;
 
 // Generic interface to meshes
 struct IMesh {
@@ -73,7 +73,7 @@ struct IMesh {
    virtual void render() const = 0;
 };
 
-typedef std::shared_ptr<IMesh> IMeshPtr;
+typedef std::tr1::shared_ptr<IMesh> IMeshPtr;
 
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer);
 IMeshBufferPtr makeMeshBuffer();

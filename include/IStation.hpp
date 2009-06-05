@@ -18,7 +18,7 @@
 #ifndef INC_ISTATION_HPP
 #define INC_ISTATION_HPP
 
-#include <memory>
+#include <tr1/memory>
 
 // The different types of cargo that may be carried
 enum Cargo {
@@ -33,7 +33,7 @@ struct IStation {
    virtual ~IStation() {}
 };
 
-typedef std::shared_ptr<IStation> IStationPtr;
+typedef std::tr1::shared_ptr<IStation> IStationPtr;
 
 IStationPtr makeStation();
 

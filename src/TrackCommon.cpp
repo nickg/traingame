@@ -26,6 +26,7 @@
 #include <GL/gl.h>
 
 using namespace std;
+using namespace std::tr1;
 
 namespace {
    const float RAIL_WIDTH = 0.05f;

@@ -27,7 +27,8 @@
 #include <boost/lexical_cast.hpp>
 
 using namespace std;
-using namespace std::placeholders;
+using namespace std::tr1;
+using namespace std::tr1::placeholders;
 using namespace boost;
 
 // A section of track that allows travelling along both axis
