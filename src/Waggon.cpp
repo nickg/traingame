@@ -36,10 +36,10 @@ public:
 private:
    IModelPtr myModel;
 
-   static const double MODEL_SCALE;
+   static const float MODEL_SCALE;
 };
 
-const double Waggon::MODEL_SCALE(0.4);
+const float Waggon::MODEL_SCALE(0.4f);
 
 Waggon::Waggon()
 {

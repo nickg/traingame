@@ -188,13 +188,13 @@ Frustum getViewFrustum();
 // Useful functions for converting to/from radians
 
 template <typename T>
-inline double degToRad(T t)
+inline float degToRad(T t)
 {
-   return static_cast<double>(t) * M_PI / 180.0;
+   return static_cast<float>(t) * M_PI / 180.0;
 }
 
 template <typename T>
-inline T radToDeg(double r)
+inline T radToDeg(float r)
 {
    return static_cast<T>(r * 180.0 / M_PI);
 }

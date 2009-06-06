@@ -90,13 +90,13 @@ private:
    // Boiler pressure lags behind temperature
    MovingAverage<double, 1000> myBoilerDelay;
    
-   static const double MODEL_SCALE;
+   static const float MODEL_SCALE;
    static const double TRACTIVE_EFFORT_KNEE;
 
    static const double INIT_PRESSURE, INIT_TEMP;
 };
 
-const double Engine::MODEL_SCALE(0.4);
+const float Engine::MODEL_SCALE(0.4f);
 const double Engine::TRACTIVE_EFFORT_KNEE(10.0);
 const double Engine::INIT_PRESSURE(0.2);
 const double Engine::INIT_TEMP(50.0);

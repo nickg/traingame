@@ -34,7 +34,7 @@ namespace {
 
    const int SLEEPERS_PER_UNIT = 4;
 
-   const float SLEEPER_LENGTH = 0.8;
+   const float SLEEPER_LENGTH = 0.8f;
 
    IMeshPtr theSleeperMesh, theRailMesh;
 
@@ -49,9 +49,9 @@ namespace {
 
       const float sleeperWidth = 0.1f;
       const float sleeperDepth = 0.05f;
-      const float sleeperOff = sleeperWidth / 2.0;
+      const float sleeperOff = sleeperWidth / 2.0f;
 
-      const float r = SLEEPER_LENGTH / 2.0;
+      const float r = SLEEPER_LENGTH / 2.0f;
 
       // Top
       buf->addQuad(makeVector(-sleeperOff, sleeperDepth, -r),
@@ -127,7 +127,7 @@ namespace {
    
    IMeshPtr generateCurvedRailMesh(IMeshBufferPtr buf, int baseRadius, RailType type)
    {
-      const float edgeWidth = (1 - GAUGE - RAIL_WIDTH)/2.0;
+      const float edgeWidth = (1 - GAUGE - RAIL_WIDTH)/2.0f;
       const float R = static_cast<float>(baseRadius) - edgeWidth
       - (type == OUTER_RAIL ? 0 : GAUGE);
       const float r = R - RAIL_WIDTH;
@@ -274,15 +274,15 @@ void renderCurvedTrack(int baseRadius, track::Angle startAngle,
 
    glPopMatrix();
 
-   const float length = degToRad(endAngle - startAngle) * baseRadius;
-   const int numSleepers = length * SLEEPERS_PER_UNIT;
+   const float length = degToRad(static_cast<float>(endAngle - startAngle)) * baseRadius;
+   const int numSleepers = static_cast<int>(length * SLEEPERS_PER_UNIT);
    const float sleeperAngle =
       static_cast<float>(endAngle - startAngle) / numSleepers;
    
    for (int i = 0; i < numSleepers; i++) {
       glPushMatrix();
       
-      glRotatef(static_cast<float>(startAngle) + (i + 0.5)*sleeperAngle,
+      glRotatef(static_cast<float>(startAngle) + (i + 0.5f)*sleeperAngle,
                 0.0f, 1.0f, 0.0f);
       glTranslatef(0.0f, 0.0f, static_cast<float>(baseRadius) - 0.5f);
       

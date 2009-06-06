@@ -49,12 +49,12 @@ public:
    void takeScreenShot();
 
    // IGraphics interface
-   bool cuboidInViewFrustum(double x, double y, double z,
-                            double sizeX, double sizeY, double sizeZ);
-   bool cubeInViewFrustum(double x, double y, double z, double size);
-   bool pointInViewFrustum(double x, double y, double z);
-   void setCamera(const Vector<double>& aPos,
-                  const Vector<double>& aRotation);
+   bool cuboidInViewFrustum(float x, float y, float z,
+                            float sizeX, float sizeY, float sizeZ);
+   bool cubeInViewFrustum(float x, float y, float z, float size);
+   bool pointInViewFrustum(float x, float y, float z);
+   void setCamera(const Vector<float>& aPos,
+                  const Vector<float>& aRotation);
    void lookAt(const Vector<float> anEyePoint,
                const Vector<float> aTargetPoint);
    IGraphicsPtr beginPick(int x, int y);
@@ -253,13 +253,13 @@ void SDLWindow::quit()
 }
 
 // Called to set the camera position
-void SDLWindow::setCamera(const Vector<double>& aPos,
-                          const Vector<double>& aRotation)
+void SDLWindow::setCamera(const Vector<float>& aPos,
+                          const Vector<float>& aRotation)
 {
-   glRotated(aRotation.x, 1.0, 0.0, 0.0);
-   glRotated(aRotation.y, 0.0, 1.0, 0.0);
-   glRotated(aRotation.z, 0.0, 0.0, 1.0);
-   glTranslated(aPos.x, aPos.y, aPos.z);
+   glRotatef(aRotation.x, 1.0f, 0.0f, 0.0f);
+   glRotatef(aRotation.y, 0.0f, 1.0f, 0.0f);
+   glRotatef(aRotation.z, 0.0f, 0.0f, 1.0f);
+   glTranslatef(aPos.x, aPos.y, aPos.z);
 
    myViewFrustum = getViewFrustum();
 }
@@ -422,20 +422,20 @@ void SDLWindow::resizeGLScene()
 }
 
 // Intersect a cuboid with the current view frustum
-bool SDLWindow::cuboidInViewFrustum(double x, double y, double z,
-                                    double sizeX, double sizeY, double sizeZ)
+bool SDLWindow::cuboidInViewFrustum(float x, float y, float z,
+                                    float sizeX, float sizeY, float sizeZ)
 {
    return myViewFrustum.cuboidInFrustum(x, y, z, sizeX, sizeY, sizeZ);
 }
 
 // Intersect a cube with the current view frustum
-bool SDLWindow::cubeInViewFrustum(double x, double y, double z, double size)
+bool SDLWindow::cubeInViewFrustum(float x, float y, float z, float size)
 {
    return myViewFrustum.cubeInFrustum(x, y, z, size);
 }
 
 // True if the point is contained within the view frustum
-bool SDLWindow::pointInViewFrustum(double x, double y, double z)
+bool SDLWindow::pointInViewFrustum(float x, float y, float z)
 {
    return myViewFrustum.pointInFrustum(x, y, z);
 }

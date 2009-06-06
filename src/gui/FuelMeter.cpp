@@ -111,7 +111,7 @@ void FuelMeter::render(int x, int y) const
    glBegin(GL_QUADS);
    glVertex2i(0, 0);
    glVertex2i(0, METER_HEIGHT);
-   glVertex2f(unit * myValue, METER_HEIGHT);
+   glVertex2f(unit * myValue, static_cast<float>(METER_HEIGHT));
    glVertex2f(unit * myValue, 0);
    glEnd();
 

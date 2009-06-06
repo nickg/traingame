@@ -116,7 +116,7 @@ void Game::display(IGraphicsPtr aContext) const
 
    // Two angles give unique position on surface of a sphere
    // Look up ``spherical coordinates''
-   const double yCentre = 0.9f;
+   const float yCentre = 0.9f;
    Vector<float> position = trainPos;
    position.x += myViewRadius * cosf(myHorizAngle) * sinf(myVertAngle);
    position.z += myViewRadius * sinf(myHorizAngle) * sinf(myVertAngle);
@@ -211,12 +211,12 @@ void Game::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
    myVertAngle += yrel / 150.0f;
 
    // Don't allow the camera to go under the ground
-   const double ground = (M_PI / 2.0f) - 0.01f;
+   const float ground = (M_PI / 2.0f) - 0.01f;
    if (myVertAngle > ground)
       myVertAngle = ground;
 
    // Don't let the camera flip over the top
-   const double top = 0.01f;
+   const float top = 0.01f;
    if (myVertAngle < top)
       myVertAngle = top;
 }

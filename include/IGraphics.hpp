@@ -26,13 +26,13 @@ struct IGraphics {
    virtual ~IGraphics() {}
 
    // Camera
-   virtual bool cuboidInViewFrustum(double x, double y, double z,
-                                    double sizeX, double sizeY, double sizeZ) = 0;
-   virtual bool cubeInViewFrustum(double x, double y, double z,
-                                  double size) = 0;
-   virtual bool pointInViewFrustum(double x, double y, double z) = 0;
-   virtual void setCamera(const Vector<double>& aPos,
-                          const Vector<double>& aRotation) = 0;
+   virtual bool cuboidInViewFrustum(float x, float y, float z,
+                                    float sizeX, float sizeY, float sizeZ) = 0;
+   virtual bool cubeInViewFrustum(float x, float y, float z,
+                                  float size) = 0;
+   virtual bool pointInViewFrustum(float x, float y, float z) = 0;
+   virtual void setCamera(const Vector<float>& aPos,
+                          const Vector<float>& aRotation) = 0;
    virtual void lookAt(const Vector<float> anEyePoint,
                        const Vector<float> aTargetPoint) = 0;
 };

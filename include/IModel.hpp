@@ -33,6 +33,6 @@ struct IModel {
 typedef std::tr1::shared_ptr<IModel> IModelPtr;
 
 // Load a model from a WaveFront .obj file
-IModelPtr loadModel(const std::string& fileName, double aScale = 1.0);
+IModelPtr loadModel(const std::string& fileName, float aScale = 1.0);
 
 #endif

@@ -193,9 +193,9 @@ Map::Map()
      myStartDirection(axis::X),
      shouldDrawGridLines(false), inPickMode(false)
 {
-   myFog = makeFog(0.6, 0.7, 0.8,  // Colour
-                   0.25,           // Density
-                   60.0, 70.0);    // Start and end distance
+   myFog = makeFog(0.6f, 0.7f, 0.8f,  // Colour
+                   0.25f,             // Density
+                   60.0f, 70.0f);     // Start and end distance
 }
 
 Map::~Map()
@@ -361,7 +361,7 @@ void Map::render(IGraphicsPtr aContext) const
 {
    resetMarks();
    
-   glClearColor(0.6, 0.7, 0.8, 1.0);
+   glClearColor(0.6f, 0.7f, 0.8f, 1.0f);
    
    myFog->apply();
    
@@ -404,7 +404,7 @@ void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
    for (int i = 0; i < 4; i++) {
       Vertex& v = myHeightMap[indexes[i]];
       glNormal3f(v.normal.x, v.normal.y, v.normal.z);
-      glVertex3f(v.pos.x, v.pos.y + 0.1, v.pos.z);
+      glVertex3f(v.pos.x, v.pos.y + 0.1f, v.pos.z);
    }
    
    glEnd();
@@ -430,7 +430,9 @@ void Map::drawStartLocation() const
       avgHeight += myHeightMap[indexes[i]].pos.y;
    avgHeight /= 4.0f;
 
-   glTranslatef(myStartLocation.x, avgHeight + 0.1f, myStartLocation.y);
+   glTranslatef(static_cast<float>(myStartLocation.x), 
+                avgHeight + 0.1f, 
+                static_cast<float>(myStartLocation.y));
 
    if (myStartDirection == axis::X)
       glRotatef(90.0f, 0.0f, 1.0f, 0.0f);

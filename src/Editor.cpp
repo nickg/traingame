@@ -69,7 +69,7 @@ private:
    IMapPtr myMap;
    
    ILightPtr mySun;
-   Vector<double> myPosition;
+   Vector<float> myPosition;
 
    string myFileName;
    bool amScrolling;
@@ -147,7 +147,7 @@ void Editor::dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const
 // Render the next frame
 void Editor::display(IGraphicsPtr aContext) const
 {  
-   aContext->setCamera(myPosition, makeVector(45.0, 45.0, 0.0));
+   aContext->setCamera(myPosition, makeVector(45.0f, 45.0f, 0.0f));
  
    mySun->apply();
    
@@ -347,7 +347,7 @@ void Editor::drawDraggedTrack()
          }
       }
 
-      float startAngle, endAngle;
+      track::Angle startAngle, endAngle;
       Point<int> where;
 
       if (startDir == axis::X && endDir == axis::Y) {
@@ -423,7 +423,7 @@ void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
          myDragEnd = myMap->pickPosition(id);
    }
    else if (amScrolling) {
-      const double speed = 0.05;
+      const float speed = 0.05f;
       
       myPosition.x -= xrel * speed;
       myPosition.z -= xrel * speed;

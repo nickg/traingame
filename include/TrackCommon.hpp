@@ -29,7 +29,7 @@ void transformToOrigin(int baseRadius, track::Angle startAngle);
 
 // Track constants
 namespace track {
-   const float RAIL_HEIGHT = 0.1;
+   const float RAIL_HEIGHT = 0.1f;
 }
 
 #endif

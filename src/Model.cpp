@@ -148,7 +148,7 @@ void Model::render() const
 
 // Load a WaveFront .obj model from disk or the cache
 // Each vertex is scaled by `aScale'
-IModelPtr loadModel(const string& fileName, double aScale)
+IModelPtr loadModel(const string& fileName, float aScale)
 {
    ModelCache::iterator it = theCache.find(fileName);
    if (it != theCache.end())
