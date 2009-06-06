@@ -39,7 +39,7 @@ include_directories (include ${XERCES_INCLUDE_DIRS})
 include_directories (include ${FREETYPE_INCLUDE_DIRS})
 
 if (NOT WIN32) # Unix
-    add_definitions ("-Wall")
+  add_definitions ("-Wall")
 endif (NOT WIN32)
 
 

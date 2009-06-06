@@ -18,10 +18,9 @@
 #ifndef INC_IROLLING_STOCK_HPP
 #define INC_IROLLING_STOCK_HPP
 
+#include "Platform.hpp"
 #include "IController.hpp"
 #include "Maths.hpp"
-
-#include <tr1/memory>
 
 // Interface for various powered and unpowered parts of the train
 struct IRollingStock {
@@ -43,7 +42,7 @@ struct IRollingStock {
    virtual double length() const = 0;
 };
 
-typedef std::tr1::shared_ptr<IRollingStock> IRollingStockPtr;
+typedef shared_ptr<IRollingStock> IRollingStockPtr;
 
 // Make various waggons and engines
 IRollingStockPtr makeEngine();

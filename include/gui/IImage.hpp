@@ -18,7 +18,8 @@
 #ifndef INC_IIMAGE_HPP
 #define INC_IIMAGE_HPP
 
-#include <tr1/memory>
+#include "Platform.hpp"
+
 #include <string>
 
 namespace gui {

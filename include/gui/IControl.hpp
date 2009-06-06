@@ -18,11 +18,9 @@
 #ifndef INC_GUI_ICONTROL_HPP
 #define INC_GUI_ICONTROL_HPP
 
+#include "Platform.hpp"
 #include "IFont.hpp"
 
-#include <tr1/memory>
-#include <tr1/tuple>
-#include <tr1/functional>
 #include <string>
 
 #include <boost/cast.hpp>

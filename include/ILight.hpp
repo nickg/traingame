@@ -18,7 +18,7 @@
 #ifndef INC_ILIGHT_HPP
 #define INC_ILIGHT_HPP
 
-#include <tr1/memory>
+#include "Platform.hpp"
 
 // A generic light which can be added to the scene
 // All light properties are set at creation time

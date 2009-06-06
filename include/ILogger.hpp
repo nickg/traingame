@@ -18,7 +18,8 @@
 #ifndef INC_ILOGGER_HPP
 #define INC_ILOGGER_HPP
 
-#include <tr1/memory>
+#include "Platform.hpp"
+
 #include <ostream>
 
 // Stream surrogate for writing log data to

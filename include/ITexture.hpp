@@ -18,7 +18,7 @@
 #ifndef INC_ITEXTURE_HPP
 #define INC_ITEXTURE_HPP
 
-#include <tr1/memory>
+#include "Platform.hpp"
 
 #include <string>
 
@@ -33,7 +33,7 @@ struct ITexture {
    virtual int height() const = 0;
 };
 
-typedef std::tr1::shared_ptr<ITexture> ITexturePtr;
+typedef shared_ptr<ITexture> ITexturePtr;
 
 // Load a texture and return a pointer to
 // A texture will only be loaded at most once no matter how many

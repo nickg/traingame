@@ -18,9 +18,8 @@
 #ifndef INC_IGRAPHICS_HPP
 #define INC_IGRAPHICS_HPP
 
+#include "Platform.hpp"
 #include "Maths.hpp"
-
-#include <tr1/memory>
 
 // Interface to stateful graphics things (lights, cameras, etc.)
 struct IGraphics {

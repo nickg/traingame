@@ -18,9 +18,7 @@
 #ifndef INC_IMESH_HPP
 #define INC_IMESH_HPP
 
-#include <tr1/memory>
-#include <tr1/tuple>
-
+#include "Platform.hpp"
 #include "Maths.hpp"
 #include "ITexture.hpp"
 

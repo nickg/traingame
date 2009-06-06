@@ -18,9 +18,8 @@
 #ifndef INC_GUI_ICONTAINER_HPP
 #define INC_GUI_ICONTAINER_HPP
 
+#include "Platform.hpp"
 #include "IControl.hpp"
-
-#include <tr1/memory>
 
 // GUI objects that contain other controls
 namespace gui {

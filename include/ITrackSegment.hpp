@@ -18,11 +18,9 @@
 #ifndef INC_ITRACKSEGMENT_HPP
 #define INC_ITRACKSEGMENT_HPP
 
+#include "Platform.hpp"
 #include "Maths.hpp"
 
-#include <tr1/memory>
-#include <tr1/functional>
-#include <tr1/tuple>
 #include <list>
 
 namespace xml {

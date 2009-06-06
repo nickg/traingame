@@ -18,7 +18,7 @@
 #ifndef INC_ILIGHT_HPP
 #define INC_ILIGHT_HPP
 
-#include <tr1/memory>
+#include "Platform.hpp"
 
 // Interface to OpenGL fog effects
 struct IFog {

@@ -18,9 +18,9 @@
 #ifndef INC_IMODEL_HPP
 #define INC_IMODEL_HPP
 
+#include "Platform.hpp"
 #include "Maths.hpp"
 
-#include <tr1/memory>
 #include <string>
 
 struct IModel {

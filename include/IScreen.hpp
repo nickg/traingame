@@ -18,10 +18,9 @@
 #ifndef INC_ISCREEN_HPP
 #define INC_ISCREEN_HPP
 
+#include "Platform.hpp"
 #include "IGraphics.hpp"
 #include "IPickBuffer.hpp"
-
-#include <tr1/memory>
 
 #include <SDL.h>
 
@@ -54,6 +53,6 @@ struct IScreen {
                                MouseButton aButton) = 0;
 };
 
-typedef std::tr1::shared_ptr<IScreen> IScreenPtr;
+typedef shared_ptr<IScreen> IScreenPtr;
 
 #endif

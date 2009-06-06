@@ -18,10 +18,9 @@
 #ifndef INC_ITRAIN_HPP
 #define INC_ITRAIN_HPP
 
+#include "Platform.hpp"
 #include "IRollingStock.hpp"
 #include "IMap.hpp"
-
-#include <tr1/memory>
 
 // Interface to managing complete trains
 struct ITrain {

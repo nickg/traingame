@@ -15,26 +15,40 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_ISTATION_HPP
-#define INC_ISTATION_HPP
+#ifndef INC_PLATFORM_HPP
+#define INC_PLATFORM_HPP
 
-#include "Platform.hpp"
+//
+// A collection of hacks to get everything building smoothly across
+// a variety of platforms
+//
 
-// The different types of cargo that may be carried
-enum Cargo {
-   COAL
-};
+// First, make sure we get a decent TR1 implementation
+#if defined __GNUC__
 
-// A station occupies one of more track segments and supplies and
-// accepts a set of cargo
-// The information about which track segments it actually occupies
-// are stored in the map
-struct IStation {
-   virtual ~IStation() {}
-};
+#include <tr1/memory>
+#include <tr1/tuple>
+#include <tr1/functional>
 
-typedef std::tr1::shared_ptr<IStation> IStationPtr;
+#elif (_MSVC_VER >= 1500)
 
-IStationPtr makeStation();
+// MSVC9 has TR1 available as an add-on pack
+
+#include <memory>
+#include <tuple>
+#include <functional>
+
+#else
+
+// See if the Boost implementation is available
+
+#include <boost/tr1/memory.hpp>
+#include <boost/tr1/tuple.hpp>
+#include <boost/tr1/functional.hpp>
+
+#endif
+
+using namespace std;
+using namespace std::tr1;
 
 #endif

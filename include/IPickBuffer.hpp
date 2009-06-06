@@ -18,9 +18,8 @@
 #ifndef INC_IPICKBUFFER_HPP
 #define INC_IPICKBUFFER_HPP
 
+#include "Platform.hpp"
 #include "IGraphics.hpp"
-
-#include <tr1/memory>
 
 // Provides access to a pick buffer for selecting objects
 struct IPickBuffer {
@@ -30,6 +29,6 @@ struct IPickBuffer {
    virtual unsigned endPick() = 0;
 };
 
-typedef std::tr1::shared_ptr<IPickBuffer> IPickBufferPtr;
+typedef shared_ptr<IPickBuffer> IPickBufferPtr;
 
 #endif
