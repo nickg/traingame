@@ -30,13 +30,10 @@
 #include <sstream>
 #include <cassert>
 #include <fstream>
-#include <tr1/cstdint>
 
 #include <GL/gl.h>
 #include <boost/filesystem.hpp>
-
-using namespace std;
-using namespace std::tr1;
+#include <boost/cstdint.hpp>
 
 // A single piece of track may appear multiple times in the map - this
 // will be true for all track segments that cover multiple tiles
@@ -118,7 +115,7 @@ private:
 
    static const unsigned TILE_NAME_BASE	= 1000;	  // Base of tile naming
    static const unsigned NULL_OBJECT		= 0;		  // Non-existant object
-   static const double TILE_HEIGHT		  = 0.2;	  // Standard height increment
+   static const float TILE_HEIGHT;	   // Standard height increment
 
    // Meshes for each terrain sector
    vector<IMeshPtr> myTerrainMeshes;
@@ -187,6 +184,8 @@ private:
    bool shouldDrawGridLines, inPickMode;
    list<Point<int> > myDirtyTiles;
 };
+
+const float Map::TILE_HEIGHT(0.2f);
 
 Map::Map()
    : myTiles(NULL), myHeightMap(NULL), myWidth(0), myDepth(0),
@@ -493,15 +492,15 @@ void Map::dirtyTile(int x, int y)
 // Generate a terrain mesh for a particular sector
 void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
 {
-#define RGB(r, g, b) r/255.0f, g/255.0f, b/255.0f
+#define RGBi(r, g, b) r/255.0f, g/255.0f, b/255.0f
    
    static const tuple<float, float, float, float> colourMap[] = {
       //          Start height         colour
-      make_tuple(    5.0f,      RGB(255, 255, 255) ),
-      make_tuple(    3.0f,      RGB(187, 156, 83)  ),
-      make_tuple(    0.0f,      RGB(133, 204, 98)  ),
-      make_tuple(   -1.0f,      RGB(224, 223, 134) ),
-      make_tuple(   -1e10f,     RGB(178, 247, 220) )
+      make_tuple(    5.0f,     RGBi(255, 255, 255) ),
+      make_tuple(    3.0f,     RGBi(187, 156, 83)  ),
+      make_tuple(    0.0f,     RGBi(133, 204, 98)  ),
+      make_tuple(   -1.0f,     RGBi(224, 223, 134) ),
+      make_tuple(   -1e10f,    RGBi(178, 247, 220) )
    };
    
    IMeshBufferPtr buf = makeMeshBuffer();
@@ -913,6 +912,8 @@ void Map::lowerArea(const Point<int>& aStartPos,
 //   Bytes 8+    Raw height data
 void Map::writeHeightMap(const string& aFileName) const
 {
+   using namespace boost;
+
    log() << "Writing terrain height map to " << aFileName;
 
    ofstream of(aFileName.c_str(), ios::binary);
@@ -932,6 +933,8 @@ void Map::writeHeightMap(const string& aFileName) const
 // Read the height data back out of a binary file
 void Map::readHeightMap(const string& aFileName)
 {
+   using namespace boost;
+
    log() << "Reading height map from " << aFileName;
    
    ifstream is(aFileName.c_str(), ios::binary);

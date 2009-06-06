@@ -56,7 +56,7 @@ struct Vector {
    // Magnitude
    T length() const
    {
-      return static_cast<T>(sqrt(x*x + y*y + z*z));
+      return static_cast<T>(sqrt(static_cast<double>(x*x + y*y + z*z)));
    }
 
    Vector<T>& normalise()

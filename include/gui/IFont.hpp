@@ -18,7 +18,8 @@
 #ifndef INC_IFONT_HPP
 #define INC_IFONT_HPP
 
-#include <tr1/memory>
+#include "Platform.hpp"
+
 #include <string>
 
 namespace gui {

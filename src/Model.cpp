@@ -55,7 +55,7 @@ private:
    MaterialSet myMaterials;
 };
 
-typedef shared_ptr<MaterialFile> MaterialFilePtr;
+typedef tr1::shared_ptr<MaterialFile> MaterialFilePtr;
 
 MaterialFile::MaterialFile(const string& aFileName)
 {

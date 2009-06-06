@@ -18,7 +18,8 @@
 #ifndef INC_IXMLPARSER_HPP
 #define INC_IXMLPARSER_HPP
 
-#include <tr1/memory>
+#include "Platform.hpp"
+
 #include <string>
 #include <stdexcept>
 

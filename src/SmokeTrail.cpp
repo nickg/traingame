@@ -19,11 +19,10 @@
 #include "IBillboard.hpp"
 
 #include <list>
-#include <tr1/random>
 #include <cstdlib>
+#include <ctime>
 
-using namespace std;
-using namespace std::tr1;
+#include <boost/random.hpp>
 
 // Concrete implementation of smoke trails
 class SmokeTrail : public ISmokeTrail {
@@ -111,10 +110,13 @@ bool SmokeTrail::moveParticle(Particle& aParticle, int aDelta)
 void SmokeTrail::update(int aDelta)
 {
    // Move the existing particles
-   for (list<Particle>::iterator it = myParticles.begin();
-        it != myParticles.end(); ++it)
+   list<Particle>::iterator it = myParticles.begin();
+   while (it != myParticles.end()) {
       if (moveParticle(*it, aDelta))
          it = myParticles.erase(it);
+      else
+         ++it;
+   }
    
    mySpawnCounter -= aDelta;
 
@@ -128,6 +130,8 @@ void SmokeTrail::update(int aDelta)
 
 void SmokeTrail::newParticle()
 {
+   using namespace boost;
+
    // Random number generator for colour variance
    static variate_generator<mt19937, normal_distribution<> >
       colourRand(mt19937(time(NULL)), normal_distribution<>(0.0f, 0.06f));

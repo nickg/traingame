@@ -544,5 +544,5 @@ void SDLWindow::captureFrame() const
 // Construct and initialise an OpenGL SDL window
 IWindowPtr makeSDLWindow()
 {
-   return shared_ptr<IWindow>(new SDLWindow);
+   return std::tr1::shared_ptr<IWindow>(new SDLWindow);
 }

@@ -39,12 +39,12 @@ public:
    // IControl interface
    int width() const;
    int height() const;
-   bool handleClick(int x, int y);
-   bool handleMouseRelease(int x, int y);
+   bool handleClick(int mouseX, int mouseY);
+   bool handleMouseRelease(int mouseX, int mouseY);
    void render(int x, int y) const = 0;
 private:
    typedef function<void (IControlPtr, int, int)> PositionVisitor;
-   void eachControl(PositionVisitor aFunc) const;
+   void positionAfterControl(IControlPtr aControl, int& x, int& y) const;
 
    static void clickTest(IControlPtr aControl, int ctrlX, int ctrlY,
                          int mouseX, int mouseY, bool* handled);
@@ -64,16 +64,35 @@ FlowBox::FlowBox(FlowBoxStyle aStyle, bool doesWantSpacing)
 
 }
 
-bool FlowBox::handleClick(int x, int y)
+bool FlowBox::handleClick(int mouseX, int mouseY)
 {
    bool handled = false;
-   eachControl(bind(&FlowBox::clickTest, _1, _2, _3, x, y, &handled));
+   
+   int x, y;
+   origin(x, y);
+   
+   for (ControlList::const_iterator it = myControls.begin();
+        it != myControls.end(); ++it) {
+      clickTest(*it, x, y, mouseX, mouseY, &handled);
+
+      positionAfterControl(*it, x, y);
+   }
+
    return handled;
 }
 
-bool FlowBox::handleMouseRelease(int x, int y)
+bool FlowBox::handleMouseRelease(int mouseX, int mouseY)
 {
-   eachControl(bind(&IControl::handleMouseRelease, _1, x, y));
+   int x, y;
+   origin(x, y);
+
+   for (ControlList::const_iterator it = myControls.begin();
+        it != myControls.end(); ++it) {
+      (*it)->handleMouseRelease(mouseX, mouseY);
+
+      positionAfterControl(*it, x, y);
+   }
+
    return false;
 }
 
@@ -119,25 +138,25 @@ int FlowBox::height() const
    return h;
 }
 
-void FlowBox::eachControl(PositionVisitor aFunc) const
+void FlowBox::positionAfterControl(IControlPtr aControl, int& x, int& y) const
+{
+   if (myStyle == FLOW_BOX_VERT)
+      y += aControl->height() + (wantSpacing ? SPACING : 0);
+   else
+      x += aControl->width() + (wantSpacing ? SPACING : 0);
+}
+
+void FlowBox::render(int absX, int absY) const
 {
    int x, y;
    origin(x, y);
-   
+
    for (ControlList::const_iterator it = myControls.begin();
         it != myControls.end(); ++it) {
-      aFunc(*it, x, y);
+      (*it)->render(x, y);
 
-      if (myStyle == FLOW_BOX_VERT)
-         y += (*it)->height() + (wantSpacing ? SPACING : 0);
-      else
-         x += (*it)->width() + (wantSpacing ? SPACING : 0);
+      positionAfterControl(*it, x, y);
    }
-}
-
-void FlowBox::render(int x, int y) const
-{
-   eachControl(&IControl::render);
 }
 
 void FlowBox::addChild(IControlPtr aControl)

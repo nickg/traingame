@@ -40,13 +40,19 @@ int main(int argc, char** argv)
    log() << "Program started";
 
    try {
+#ifndef WIN32
       if (argc != 3)
          throw runtime_error("Usage: TrainGame (edit|play) [map]");
 
-      theWindow = makeSDLWindow();
-
       const string mapFile(argv[2]);
       const string cmd(argv[1]);
+#else
+      // For ease of debugging, specify a default map 
+      const string mapFile("maps\\figure8.xml");
+      const string cmd("play");
+#endif   // #ifndef WIN32
+
+      theWindow = makeSDLWindow();
       
       IScreenPtr screen;
       if (cmd == "edit") {
@@ -64,6 +70,10 @@ int main(int argc, char** argv)
    }
    catch (const runtime_error& e) {
       error() << "Fatal: " << e.what();
+
+#ifdef WIN32
+      MessageBox(NULL, e.what(), "Fatal error", MB_ICONERROR | MB_OK);
+#endif
    }
    
    log() << "Finished";   

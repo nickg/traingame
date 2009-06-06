@@ -45,7 +45,7 @@ public:
    }
    
 private:
-   int mySamples[N];
+   T mySamples[N];
 };
 
 #endif

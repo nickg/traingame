@@ -20,8 +20,6 @@
 
 #include "IFog.hpp"
 
-#include <tr1/memory>
-
 #include <GL/gl.h>
 
 // Concrete implementation of fog

@@ -327,7 +327,7 @@ struct VertexData {
    float tx, ty;
    float r, g, b;
    float padding[5];   // Best performance on some cards if 32-byte aligned
-} __attribute__((packed));
+};
 
 BOOST_STATIC_ASSERT(sizeof(VertexData) == 64);
 

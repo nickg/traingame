@@ -18,10 +18,9 @@
 #ifndef INC_IBILLBOARD_HPP
 #define INC_IBILLBOARD_HPP
 
+#include "Platform.hpp"
 #include "ITexture.hpp"
 #include "Maths.hpp"
-
-#include <tr1/memory>
 
 // Generic quad billboard with a single texture
 struct IBillboard {

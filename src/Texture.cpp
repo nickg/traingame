@@ -22,6 +22,7 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <GL/glew.h>
 #include <GL/gl.h>
 #include <SDL.h>
 #include <SDL_image.h>

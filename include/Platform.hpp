@@ -30,7 +30,7 @@
 #include <tr1/tuple>
 #include <tr1/functional>
 
-#elif (_MSVC_VER >= 1500)
+#elif (_MSVC_VER >= 1500)  
 
 // MSVC9 has TR1 available as an add-on pack
 
@@ -46,6 +46,19 @@
 #include <boost/tr1/tuple.hpp>
 #include <boost/tr1/functional.hpp>
 
+#endif
+
+// Including windows.h is required for OpenGL
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
+// Windows doesn't define M_PI for some reason
+#ifdef WIN32
+#ifndef M_PI
+#define M_PI 3.1415926535897932384626433832795
+#endif
 #endif
 
 using namespace std;

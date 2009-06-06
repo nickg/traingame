@@ -48,7 +48,7 @@ struct SAX2WrapperHandler : public DefaultHandler {
       XMLString::release(&chLocalname);
    }
 
-   void characters(const XMLCh* buf, const XMLSize_t length)
+   void characters(const XMLCh* const buf, const XMLSize_t length)
    {
       char* chBuf = XMLString::transcode(buf);
 
@@ -130,7 +130,6 @@ XercesXMLParser::XercesXMLParser(const string& aSchemaFile)
    myReader->setFeature(XMLUni::fgXercesCacheGrammarFromParse, true);
 
    XMLCh* schemaName = XMLString::transcode(aSchemaFile.c_str());
-   ArrayJanitor<XMLCh> janSchemaName(schemaName);
 
    myHandler = new SAX2WrapperHandler;
    myReader->setContentHandler(myHandler);
@@ -151,6 +150,8 @@ XercesXMLParser::XercesXMLParser(const string& aSchemaFile)
 
       throw runtime_error("Failed to load XML schema: " + aSchemaFile);
    }
+
+   XMLString::release(&schemaName);
 }
 
 XercesXMLParser::~XercesXMLParser()

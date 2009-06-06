@@ -25,10 +25,12 @@ find_package (OpenGL REQUIRED)
 find_package (GLEW REQUIRED)
 find_package (Boost REQUIRED COMPONENTS filesystem signals) 
 
-include (FindPkgConfig)
+if (NOT WIN32)
+  include (FindPkgConfig)
+endif (NOT WIN32)
 
-pkg_check_modules (XERCES REQUIRED xerces-c)
-pkg_check_modules (FREETYPE REQUIRED freetype2)
+find_package (FreeType REQUIRED)
+find_package (Xerces REQUIRED)
 
 include_directories (${CMAKE_SOURCE_DIR}/include)
 include_directories (include ${SDL_INCLUDE_DIR})

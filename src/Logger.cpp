@@ -20,15 +20,19 @@
 #include <iostream>
 #include <cstdio>
 
+#ifdef WIN32
+#include <io.h>   // For _isatty
+#endif
+
 using namespace std;
 
 // Concrete logger implementation
 class LoggerImpl : public ILogger {
-   friend class PrintLine;
+   friend struct PrintLine;
 public:
    LoggerImpl();
    
-   PrintLinePtr writeMsg(LogMsg::Type type);
+   PrintLinePtr writeMsg(LogMsgType type);
 };
 
 namespace {
@@ -37,29 +41,33 @@ namespace {
 
 LoggerImpl::LoggerImpl()
 {
-   isStdoutTTY = isatty(fileno(stdout));
+#ifdef WIN32
+   isStdoutTTY = (_isatty(_fileno(stdout)) != 0);
+#else
+   isStdoutTTY = (isatty(fileno(stdout)) != 0);
+#endif
 }
 
-PrintLinePtr LoggerImpl::writeMsg(LogMsg::Type type)
+PrintLinePtr LoggerImpl::writeMsg(LogMsgType type)
 {
    if (isStdoutTTY)
          cout << "\x1B[1m";
    
    switch (type) {
-   case LogMsg::NORMAL:
+   case LOG_NORMAL:
       cout << "[INFO ] ";
       break;
-   case LogMsg::DEBUG:
+   case LOG_DEBUG:
       if (isStdoutTTY)
          cout << "\x1B[36m";
       cout << "[DEBUG] ";
       break;
-   case LogMsg::WARN:
+   case LOG_WARN:
       if (isStdoutTTY)
          cout << "\x1B[33m";
       cout << "[WARN ] ";
       break;
-   case LogMsg::ERROR:
+   case LOG_ERROR:
       if (isStdoutTTY)
          cout << "\x1B[31m";
       cout << "[ERROR] ";

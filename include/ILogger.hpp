@@ -40,30 +40,28 @@ inline PrintLinePtr operator<<(PrintLinePtr aPrintLine, const T& aThing)
 }
 
 // Types of log levels
-namespace LogMsg {
-   enum Type {
-      NORMAL, DEBUG, WARN, ERROR
-   };
-}
+enum LogMsgType {
+   LOG_NORMAL, LOG_DEBUG, LOG_WARN, LOG_ERROR
+};
 
 // Interface to logger class
 struct ILogger {
    virtual ~ILogger() {}
    
-   virtual PrintLinePtr writeMsg(LogMsg::Type type = LogMsg::NORMAL) = 0;
+   virtual PrintLinePtr writeMsg(LogMsgType type = LOG_NORMAL) = 0;
 };
 
 typedef std::tr1::shared_ptr<ILogger> ILoggerPtr;
 
 ILoggerPtr getLogger();
 
-inline PrintLinePtr log(LogMsg::Type type = LogMsg::NORMAL)
+inline PrintLinePtr log(LogMsgType type = LOG_NORMAL)
 {
    return getLogger()->writeMsg(type);
 }
 
-inline PrintLinePtr warn() { return log(LogMsg::WARN); }
-inline PrintLinePtr debug() { return log(LogMsg::DEBUG); }
-inline PrintLinePtr error() { return log(LogMsg::ERROR); }
+inline PrintLinePtr warn() { return log(LOG_WARN); }
+inline PrintLinePtr debug() { return log(LOG_DEBUG); }
+inline PrintLinePtr error() { return log(LOG_ERROR); }
 
 #endif
