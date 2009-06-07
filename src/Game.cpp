@@ -49,6 +49,8 @@ public:
    void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
                        MouseButton aButton) {}
 private:
+   void lookAhead();
+   
    IMapPtr myMap;
    ITrainPtr myTrain;
    ILightPtr mySun;
@@ -153,6 +155,29 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    myTempLabel->setText("Temp: %.lfdeg", temp);
 
    myWaterMeter->setValue(8);
+
+   lookAhead();
+}
+
+// Look along the track and notify the player of any stations, points, etc.
+// that they are approaching
+void Game::lookAhead()
+{
+   ITrackSegmentPtr seg = myTrain->trackSegment();
+
+   // Are we sitting on a station
+   typedef list<Point<int> > PointList;
+   PointList endpoints;
+   seg->getEndpoints(endpoints);
+
+   IStationPtr station;
+   for (PointList::const_iterator it = endpoints.begin();
+        it != endpoints.end(); ++it)
+      if ((station = myMap->stationAt(makePoint((*it).x, (*it).y))))
+         break;
+
+   if (station)
+      log() << "Stop here for station " << station->name() << "!";
 }
 
 void Game::onKeyDown(SDLKey aKey)

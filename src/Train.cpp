@@ -38,6 +38,7 @@ public:
    void update(int aDelta);
 
    Vector<float> front() const;
+   ITrackSegmentPtr trackSegment() const;
    
    double speed() const { return myParts.front().vehicle->speed(); }
    IControllerPtr controller() { return myParts.front().vehicle->controller(); }
@@ -228,6 +229,11 @@ void Train::render() const
    }
 
    mySmokeTrail->render();
+}
+
+ITrackSegmentPtr Train::trackSegment() const
+{
+   return engine().segment;
 }
 
 Vector<float> Train::front() const

@@ -39,6 +39,9 @@ public:
    // first
    virtual ITrackSegmentPtr trackAt(const Point<int>& aPoint) const = 0;
 
+   // Return the station at this track location or a null pointer
+   virtual IStationPtr stationAt(Point<int> aPoint) const = 0;
+
    // True if the given position is the origin of a track segment
    virtual bool isValidTrack(const Point<int>& aPoint) const = 0;
 

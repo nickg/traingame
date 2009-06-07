@@ -21,6 +21,7 @@
 #include "Platform.hpp"
 #include "IRollingStock.hpp"
 #include "IMap.hpp"
+#include "ITrackSegment.hpp"
 
 // Interface to managing complete trains
 struct ITrain {
@@ -32,6 +33,9 @@ struct ITrain {
    // Return a vector of the absolute position of the front of
    // the train
    virtual Vector<float> front() const = 0;
+
+   // Return the track segment occupied by the front of the train
+   virtual ITrackSegmentPtr trackSegment() const = 0;
 
    // Return the speed of the train
    virtual double speed() const = 0;

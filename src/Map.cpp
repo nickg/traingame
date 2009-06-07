@@ -81,6 +81,7 @@ public:
    
    track::Connection startLocation() const;
    ITrackSegmentPtr trackAt(const Point<int>& aPoint) const;
+   IStationPtr stationAt(Point<int> aPoint) const;
    void setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack);
    bool isValidTrack(const Point<int>& aPoint) const;
    void render(IGraphicsPtr aContext) const;
@@ -217,6 +218,11 @@ ITrackSegmentPtr Map::trackAt(const Point<int>& aPoint) const
       ss << "No track segment at " << aPoint;
       throw runtime_error(ss.str());
    }
+}
+
+IStationPtr Map::stationAt(Point<int> aPoint) const
+{
+   return tileAt(aPoint.x, aPoint.y).station;
 }
 
 void Map::eraseTile(int x, int y)
