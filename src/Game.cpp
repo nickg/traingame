@@ -178,9 +178,11 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
 void Game::nearStation(IStationPtr aStation)
 {
    leftStation();  // Clear any previous station
-   
-   myActiveStation = aStation;
-   aStation->setHighlightVisible(true);
+
+   if (aStation != myActiveStation) {
+      myActiveStation = aStation;
+      aStation->setHighlightVisible(true);
+   }
 }
 
 // Signal that we are no longer at or approaching a station
