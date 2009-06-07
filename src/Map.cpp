@@ -1197,6 +1197,8 @@ public:
          handleCurvedTrack(attrs);
       else if (localName == "crossoverTrack")
          handleCrossoverTrack(attrs);
+      else if (localName == "points")
+         handlePoints(attrs);
       else if (localName == "stationPart")
          handleStationPart(attrs);
       else if (localName == "station")
@@ -1285,6 +1287,23 @@ private:
                         makeStraightTrack(axis));
    }
 
+   void handlePoints(const AttributeSet& attrs)
+   {
+      string align;
+      attrs.get("align", align);
+
+      bool reflect;
+      attrs.get("reflect", reflect);
+
+      track::Direction dir =
+         align == "x" ? axis::X
+         : (align == "-x" ? -axis::X
+            : (align == "y" ? axis::Y : -axis::Y));
+
+      myMap->setTrackAt(makePoint(myXPtr, myYPtr),
+                        makePoints(dir, reflect));
+   }
+   
    void handleCurvedTrack(const AttributeSet& attrs)
    {
       int startAngle, finishAngle, radius;

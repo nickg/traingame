@@ -96,21 +96,23 @@ void Points::render() const
 
 double Points::segmentLength() const
 {
-   return 2.0;
+   return 3.0;
 }
 
 void Points::transform(const track::Direction& aDirection,
                        double aDelta) const
 {
-   assert(aDelta < 2.0);
+   assert(aDelta < 3.0);
 
    if (aDirection == -myAxis)
-      aDelta = 2.0 - aDelta;
+      aDelta = 3.0 - aDelta;
 
    const double xTrans =
-      myAxis == axis::X || myAxis == -axis::X ? aDelta : 0.0;
+      myAxis == axis::X ? 3.0 - aDelta
+      : (myAxis == -axis::X ? aDelta : 0.0);
    const double yTrans =
-      myAxis == axis::Y || myAxis == -axis::Y ? aDelta : 0.0;
+      myAxis == axis::Y ? 3.0 - aDelta
+      : (myAxis == -axis::Y ? aDelta : 0.0);
 
    glTranslatef(static_cast<double>(myX) - xTrans,
                 0.0,
@@ -158,13 +160,13 @@ track::Connection Points::nextPosition(const track::Direction& aDirection) const
    ensureValidDirection(aDirection);
    
    if (aDirection == axis::X)
-      return make_pair(makePoint(myX + 3, myY), axis::X);
+      return make_pair(makePoint(myX + 1, myY), axis::X);
    else if (aDirection == -axis::X)
       return make_pair(makePoint(myX - 3, myY), -axis::X);
    else if (aDirection == axis::Y)
       return make_pair(makePoint(myX, myY + 3), axis::Y);
    else if (aDirection == -axis::Y)
-      return make_pair(makePoint(myX, myY - 3), -axis::Y);
+      return make_pair(makePoint(myX, myY - 1), -axis::Y);
    else
       assert(false);
 }
@@ -201,8 +203,14 @@ ITrackSegmentPtr Points::mergeExit(const Point<int>& aPoint,
 }
 
 xml::element Points::toXml() const
-{
-
+{ 
+   return xml::element("points")
+      .addAttribute("align",
+                    myAxis == axis::X ? "x"
+                    : (myAxis == -axis::X ? "-x"
+                       : (myAxis == axis::Y ? "y"
+                          : (myAxis == -axis::Y ? "-y" : "?"))))
+      .addAttribute("reflect", amReflected);
 }
 
 ITrackSegmentPtr makePoints(track::Direction aDirection, bool reflect)
