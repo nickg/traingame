@@ -717,11 +717,11 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
             tile.track->setMark();
             
             // Draw the endpoints for debugging
-            list<Point<int> > endpoints;
-            tile.track->get()->getEndpoints(endpoints);
-            for_each(endpoints.begin(), endpoints.end(),
-                     bind(&Map::highlightTile, this, aContext, placeholders::_1,
-                          make_tuple(0.9f, 0.1f, 0.1f)));
+            //list<Point<int> > endpoints;
+            //tile.track->get()->getEndpoints(endpoints);
+            //for_each(endpoints.begin(), endpoints.end(),
+            //         bind(&Map::highlightTile, this, aContext, placeholders::_1,
+            //              make_tuple(0.9f, 0.1f, 0.1f)));
          }
 
          // Draw the station, if any
@@ -1123,8 +1123,8 @@ void Map::save(const string& aFileName)
    }
    
    // Generate the height map
-   // Note: basename is deprecated (use .replace_extension() instead when
-   // boost is updated in Debian)
+   // Note: change_extension is deprecated (use .replace_extension() instead
+   // when boost is updated in Debian)
    const string binFile(change_extension(path(aFileName), ".bin").file_string());
    writeHeightMap(binFile);
 

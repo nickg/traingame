@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map width="64" height="64">
+<name>No Name</name>
+
+<start x="0" y="15" dirX="0" dirY="-1"/>
+
+<heightmap>maps/points.bin</heightmap>
+
+<tileset>
+<tile x="0" y="15">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="0" y="16">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="0" y="17">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="0" y="18">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="0" y="19">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="0" y="20">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="0" y="21">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="0" y="22">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="0" y="23">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="1" y="13">
+<curvedTrack startAngle="180" finishAngle="270" radius="2"/>
+</tile>
+
+<tile x="2" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="3" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="4" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="5" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="8" y="13">
+<points align="-x" reflect="1"/>
+</tile>
+
+<tile x="9" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="10" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="11" y="13">
+<points align="x" reflect="1"/>
+</tile>
+
+<tile x="14" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="15" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="16" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="17" y="13">
+<points align="x" reflect="0"/>
+</tile>
+
+<tile x="20" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="21" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="22" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="23" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="26" y="13">
+<points align="-x" reflect="0"/>
+</tile>
+
+<tile x="27" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="28" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="29" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="32" y="15">
+<curvedTrack startAngle="90" finishAngle="180" radius="3"/>
+</tile>
+
+<tile x="32" y="16">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="17">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="18">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="21">
+<points align="-y" reflect="0"/>
+</tile>
+
+<tile x="32" y="22">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="23">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="26">
+<points align="-y" reflect="1"/>
+</tile>
+
+<tile x="32" y="27">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="28">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="29">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="30">
+<points align="y" reflect="0"/>
+</tile>
+
+<tile x="32" y="33">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="34">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="35">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="36">
+<points align="y" reflect="1"/>
+</tile>
+
+<tile x="32" y="39">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="40">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="41">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="42">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="43">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="44">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="45">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="32" y="46">
+<straightTrack align="y"/>
+</tile>
+</tileset>
+</map>
