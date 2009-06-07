@@ -96,13 +96,33 @@ void Points::render() const
 
 double Points::segmentLength() const
 {
-   return 1.0;
+   return 2.0;
 }
 
 void Points::transform(const track::Direction& aDirection,
                        double aDelta) const
 {
+   assert(aDelta < 2.0);
 
+   if (aDirection == -myAxis)
+      aDelta = 2.0 - aDelta;
+
+   const double xTrans =
+      myAxis == axis::X || myAxis == -axis::X ? aDelta : 0.0;
+   const double yTrans =
+      myAxis == axis::Y || myAxis == -axis::Y ? aDelta : 0.0;
+
+   glTranslatef(static_cast<double>(myX) - xTrans,
+                0.0,
+                static_cast<double>(myY) - yTrans);
+   
+   //if (myAxis == axis::Y || myAxis == -axis::Y)
+   //   glRotated(-90.0, 0.0, 1.0, 0.0);
+
+   glTranslated(-0.5, 0.0, 0.0);
+   
+   if (aDirection == myAxis)
+       glRotated(-180.0, 0.0, 1.0, 0.0);
 }
 
 ITrackSegment::TransformFunc
@@ -138,13 +158,13 @@ track::Connection Points::nextPosition(const track::Direction& aDirection) const
    ensureValidDirection(aDirection);
    
    if (aDirection == axis::X)
-      return make_pair(makePoint(myX + 1, myY), axis::X);
+      return make_pair(makePoint(myX + 3, myY), axis::X);
    else if (aDirection == -axis::X)
-      return make_pair(makePoint(myX - 1, myY), -axis::X);
+      return make_pair(makePoint(myX - 3, myY), -axis::X);
    else if (aDirection == axis::Y)
-      return make_pair(makePoint(myX, myY + 1), axis::Y);
+      return make_pair(makePoint(myX, myY + 3), axis::Y);
    else if (aDirection == -axis::Y)
-      return make_pair(makePoint(myX, myY - 1), -axis::Y);
+      return make_pair(makePoint(myX, myY - 3), -axis::Y);
    else
       assert(false);
 }

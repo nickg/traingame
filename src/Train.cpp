@@ -205,8 +205,8 @@ void Train::enterSegment(Part& aPart, const track::Connection& aConnection)
    Point<int> pos;
    tie(pos, aPart.direction) = aConnection;
    
-   //debug() << "Train part entered segment at " << pos
-   //        << " moving " << aPart.direction;
+   debug() << "Train part entered segment at " << pos
+           << " moving " << aPart.direction;
 
    if (!myMap->isValidTrack(pos))
       throw runtime_error("Train fell off end of track!");
