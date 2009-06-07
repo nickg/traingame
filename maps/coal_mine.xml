@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map width="64" height="64">
+<name>No Name</name>
+
+<start x="7" y="6" dirX="1" dirY="0"/>
+
+<heightmap>maps/coal_mine.bin</heightmap>
+
+<tileset>
+<tile x="2" y="10">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="2" y="11">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="2" y="12">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="2" y="13">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="2" y="14">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="2" y="15">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="2" y="16">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="2" y="17">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="2" y="18">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="5" y="6">
+<curvedTrack startAngle="180" finishAngle="270" radius="4"/>
+</tile>
+
+<tile x="6" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="7" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="8" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="9" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="10" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="11" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="12" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="13" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="14" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="15" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="16" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="17" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="18" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="19" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="20" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="21" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="22" y="6">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="26" y="9">
+<curvedTrack startAngle="90" finishAngle="180" radius="4"/>
+</tile>
+
+<tile x="26" y="10">
+<curvedTrack startAngle="270" finishAngle="360" radius="5"/>
+</tile>
+
+<tile x="31" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="32" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="33" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="34" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="35" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="36" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="37" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="38" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="39" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="40" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="41" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="42" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="43" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="44" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="45" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="46" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="47" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="48" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="49" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="50" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="51" y="14">
+<straightTrack align="x"/>
+</tile>
+</tileset>
+</map>

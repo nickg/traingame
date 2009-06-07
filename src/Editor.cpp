@@ -65,6 +65,7 @@ private:
    void onDeleteSelect();
    void onLevelTerrainSelect();
    void onPlaceStartSelect();
+   void onStationSelect();
    
    IMapPtr myMap;
    
@@ -81,7 +82,7 @@ private:
    // Different tools the user can be using
    enum Tool {
       TRACK_TOOL, RAISE_TOOL, LOWER_TOOL, DELETE_TOOL,
-      LEVEL_TOOL, START_TOOL
+      LEVEL_TOOL, START_TOOL, STATION_TOOL
    };
    Tool myTool;
 
@@ -122,6 +123,10 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
    IButtonPtr startButton = makeButton("data/images/start_icon.png");
    startButton->onClick(bind(&Editor::onPlaceStartSelect, this));
    myToolbar->addChild(startButton);
+
+   IButtonPtr stationButton = makeButton("data/images/station_icon.png");
+   stationButton->onClick(bind(&Editor::onStationSelect, this));
+   myToolbar->addChild(stationButton);
 
    myMap->setGrid(true);
 
@@ -470,6 +475,12 @@ void Editor::onPlaceStartSelect()
 {
    log() << "Place start mode";
    myTool = START_TOOL;
+}
+
+void Editor::onStationSelect()
+{
+   log() << "Place station mode";
+   myTool = STATION_TOOL;
 }
 
 void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
