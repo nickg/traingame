@@ -110,14 +110,43 @@ StraightTrack::transformFunc(const track::Direction& aDirection) const
 ITrackSegmentPtr StraightTrack::mergeExit(const Point<int>& aPoint,
                                           const track::Direction& aDirection)
 {
+   debug() << "mergeExit aPoint=" << aPoint
+           << " aDirection=" << aDirection
+           << " me=" << makePoint(myX, myY);
+
+   const Point<int> me = makePoint(myX, myY);
+   
    // See if this is already a valid exit
-   if (isValidDirection(aDirection) && aPoint == makePoint(myX, myY))
+   if (isValidDirection(aDirection) && aPoint == me)
       return shared_from_this();
 
    // See if we can make this a crossover track
-   if (myDirection != aDirection)
+   if (myDirection != aDirection && aPoint == me)
       return makeCrossoverTrack();
 
+   // See if we can make some points
+   if (isValidDirection(aDirection)) {
+      // X-aligned points
+      if (aPoint == me + makePoint(-2, 1))
+         return makePoints(-axis::X, true);
+      else if (aPoint == me + makePoint(-2, -1))
+         return makePoints(-axis::X, false);
+      else if (aPoint == me + makePoint(2, 1))
+         return makePoints(axis::X, false);
+      else if (aPoint == me + makePoint(2, -1))
+         return makePoints(axis::X, true);
+
+      // Y-aligned points
+      if (aPoint == me + makePoint(1, -2))
+         return makePoints(-axis::Y, false);
+      else if (aPoint == me + makePoint(-1, -2))
+         return makePoints(-axis::Y, true);
+      else if (aPoint == me + makePoint(1, 2))
+         return makePoints(axis::Y, true);
+      else if (aPoint == me + makePoint(-1, 2))
+         return makePoints(axis::Y, false);
+   }
+   
    // Not possible to merge
    return ITrackSegmentPtr();
 }

@@ -25,7 +25,7 @@
 // Forks in the track
 class Points : public ITrackSegment {
 public:
-   Points();
+   Points(track::Direction aDirection, bool reflect);
 
    // ITrackSegment interface
    void render() const;
@@ -40,10 +40,13 @@ public:
    xml::element toXml() const;
 private:
    int myX, myY;
+   track::Direction myAxis;
+   bool amReflected;
 };
 
-Points::Points()
-   : myX(0), myY(0)
+Points::Points(track::Direction aDirection, bool reflect)
+   : myX(0), myY(0),
+     myAxis(aDirection), amReflected(reflect)
 {
    
 }
@@ -52,7 +55,17 @@ void Points::render() const
 {   
    glPushMatrix();
 
-   renderHypTanRail();
+   if (myAxis == -axis::X)
+      glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+   else if (myAxis == -axis::Y)
+      glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+   else if (myAxis == axis::Y)
+      glRotatef(270.0f, 0.0f, 1.0f, 0.0f);
+
+   if (amReflected)
+      renderReflectedHypTanRail();
+   else
+      renderHypTanRail();
 
    glPushMatrix();
    glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
@@ -104,7 +117,8 @@ void Points::getEndpoints(std::list<Point<int> >& aList) const
 ITrackSegmentPtr Points::mergeExit(const Point<int>& aPoint,
                                    const track::Direction& aDirection)
 {
-
+   // Cant merge with anything
+   return ITrackSegmentPtr();
 }
 
 xml::element Points::toXml() const
@@ -112,7 +126,7 @@ xml::element Points::toXml() const
 
 }
 
-ITrackSegmentPtr makePoints()
+ITrackSegmentPtr makePoints(track::Direction aDirection, bool reflect)
 {
-   return ITrackSegmentPtr(new Points);
+   return ITrackSegmentPtr(new Points(aDirection, reflect));
 }

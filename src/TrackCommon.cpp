@@ -36,7 +36,8 @@ namespace {
 
    const float SLEEPER_LENGTH = 0.8f;
 
-   IMeshPtr theSleeperMesh, theRailMesh, theHypTanRailMesh;
+   IMeshPtr theSleeperMesh, theRailMesh;
+   IMeshPtr theHypTanRailMesh, theReflectedHypTanRailMesh;
 
    typedef map<int, IMeshPtr> CurvedRailMeshMap;
    CurvedRailMeshMap theCurvedRailMeshes;
@@ -122,7 +123,7 @@ namespace {
    }
 
    // The rail mesh used for points and S-bends
-   void generateHypTanRailMesh()
+   IMeshPtr generateFuncRailMesh(function<float (float)> aFunc)
    {
       IMeshBufferPtr buf = makeMeshBuffer();
       
@@ -130,10 +131,10 @@ namespace {
       const float xmax = 3.0f;
 
       for (float x = 0.0f; x < xmax - step; x += step) {
-         const float y1 = hypTanCurveFunc(x);
+         const float y1 = aFunc(x);
          debug() << x << " --> " << y1;
 
-         const float y2 = hypTanCurveFunc(x + step);
+         const float y2 = aFunc(x + step);
 
          // Top of rail
          buf->addQuad(makeVector(x, track::RAIL_HEIGHT, y1),
@@ -158,7 +159,7 @@ namespace {
                       METAL);
       }
 
-      theHypTanRailMesh = makeMesh(buf);
+      return makeMesh(buf);
    }
    
    enum RailType {
@@ -172,7 +173,7 @@ namespace {
       - (type == OUTER_RAIL ? 0 : GAUGE);
       const float r = R - RAIL_WIDTH;
       
-      const float step = 0.1f;
+      const float step = 0.2f;
       
       // Top of rail
       for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
@@ -265,6 +266,12 @@ float hypTanCurveFunc(float x)
    return 0.5f * (1.0f + tanh(1.8f * x - 3.5f));
 }
 
+// The above function reflected about the x-axis
+float reflectedHypTanCurveFunc(float x)
+{
+   return -hypTanCurveFunc(x);
+}
+
 // Draw a sleeper in the current maxtrix location
 void renderSleeper()
 {
@@ -290,7 +297,7 @@ void renderStraightRail()
 void renderHypTanRail()
 {
    if (!theHypTanRailMesh)
-      generateHypTanRailMesh();
+      theHypTanRailMesh = generateFuncRailMesh(hypTanCurveFunc);
 
    glPushMatrix();
 
@@ -301,6 +308,23 @@ void renderHypTanRail()
    theHypTanRailMesh->render();
 
    glPopMatrix();
+}
+
+void renderReflectedHypTanRail()
+{
+   if (!theReflectedHypTanRailMesh)
+      theReflectedHypTanRailMesh =
+         generateFuncRailMesh(reflectedHypTanCurveFunc);
+
+   glPushMatrix();
+
+   glTranslatef(-0.5f, 0.0f, -GAUGE/2.0f);   
+   theReflectedHypTanRailMesh->render();
+
+   glTranslatef(0.0f, 0.0f, GAUGE);
+   theReflectedHypTanRailMesh->render();
+
+   glPopMatrix();   
 }
 
 // Move to the origin of a curved section of track

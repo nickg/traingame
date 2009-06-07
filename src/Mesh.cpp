@@ -549,27 +549,13 @@ void VBOMesh::render() const
 
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 {
-   static bool havePrintedMeshChoice = false;
-   
-   aBuffer->printStats();
+   //aBuffer->printStats();
 
    // Prefer VBOs for large meshes meshes
-   if (aBuffer->vertexCount() > 100 && GLEW_ARB_vertex_buffer_object) {
-      if (!havePrintedMeshChoice) {
-         log() << "Using VBO mesh implementation";
-         havePrintedMeshChoice = true;
-      }
-      
+   if (aBuffer->vertexCount() > 100 && GLEW_ARB_vertex_buffer_object)
       return IMeshPtr(new VBOMesh(aBuffer));
-   }
-   else {
-      if (!havePrintedMeshChoice) {
-         log() << "Using vertex array mesh implementation";
-         havePrintedMeshChoice = true;
-      }
-      
+   else
       return IMeshPtr(new VertexArrayMesh(aBuffer));
-   }
 }
 
 IMeshBufferPtr makeMeshBuffer()

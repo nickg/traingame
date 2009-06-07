@@ -113,6 +113,6 @@ ITrackSegmentPtr makeStraightTrack(const track::Direction& aDirection);
 ITrackSegmentPtr makeCurvedTrack(track::Angle aStartAngle,
                                  track::Angle aFinishAngle, int aRadius);
 ITrackSegmentPtr makeCrossoverTrack();
-ITrackSegmentPtr makePoints();
+ITrackSegmentPtr makePoints(track::Direction aDirection, bool reflect);
 
 #endif

@@ -237,21 +237,35 @@ void Editor::drawDraggedStraight(const track::Direction& anAxis, int aLength)
 // Called when the user has finished dragging a rectangle for track
 // Connect the beginning and end up in the simplest way possible
 void Editor::drawDraggedTrack()
-{
-   // REMOVE
-   ITrackSegmentPtr p = makePoints();
-   p->setOrigin(myDragBegin.x, myDragBegin.y);
-   myMap->setTrackAt(myDragBegin, p);
-   return;
-
-   
+{   
    track::Direction straight;  // Orientation for straight track section
-   
+
    int xmin, xmax, ymin, ymax;
    dragBoxBounds(xmin, xmax, ymin, ymax);
    
    int xlen = abs(xmax - xmin) + 1;
    int ylen = abs(ymax - ymin) + 1;
+
+   // Try to merge the start and end directly
+   const track::Direction mergeAxis =
+      xlen > ylen ? (myDragBegin.x < myDragEnd.x ? -axis::X : axis::X)
+      : (myDragBegin.y < myDragEnd.y ? -axis::Y : axis::Y);
+   if (myMap->isValidTrack(myDragEnd)) {
+      ITrackSegmentPtr merged =
+         myMap->trackAt(myDragEnd)->mergeExit(myDragBegin, mergeAxis);
+
+      if (merged) {
+         // Erase all the tiles covered
+         for (int x = xmin; x <= xmax; x++) {
+            for (int y = ymin; y <= ymax; y++)
+               myMap->eraseTile(x, y);
+         }
+         
+         myMap->setTrackAt(myDragEnd, merged);
+         return;
+      }
+   }
+      
    // Normalise the coordinates so the start is always the one with
    // the smallest x-coordinate
    if (myDragBegin.x > myDragEnd.x)
