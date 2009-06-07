@@ -30,10 +30,13 @@
 #include <sstream>
 #include <cassert>
 #include <fstream>
+#include <set>
+#include <map>
 
 #include <GL/gl.h>
 #include <boost/filesystem.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/lexical_cast.hpp>
 
 // A single piece of track may appear multiple times in the map - this
 // will be true for all track segments that cover multiple tiles
@@ -106,6 +109,9 @@ public:
                      Point<int> botLeft, Point<int> topRight);
    void postRenderSector(IGraphicsPtr aContext, int id,
                          Point<int> botLeft, Point<int> topRight);
+
+   // Inteface used soley by MapLoader
+   void setStationAt(int x, int y, IStationPtr aStation);
 private:
    // Tiles on the map
    struct Tile {
@@ -223,6 +229,11 @@ ITrackSegmentPtr Map::trackAt(const Point<int>& aPoint) const
 IStationPtr Map::stationAt(Point<int> aPoint) const
 {
    return tileAt(aPoint.x, aPoint.y).station;
+}
+
+void Map::setStationAt(int x, int y, IStationPtr aStation)
+{
+   tileAt(x, y).station = aStation;
 }
 
 void Map::eraseTile(int x, int y)
@@ -1085,6 +1096,25 @@ void Map::save(const string& aFileName)
        .addAttribute("dirX", myStartDirection.x)
        .addAttribute("dirY", myStartDirection.z));
 
+   // Write out all the stations
+   set<IStationPtr> seenStations;
+   
+   for (int x = 0; x < myWidth; x++) {
+      for (int y = 0; y < myDepth; y++) {
+         IStationPtr s = tileAt(x, y).station;
+
+         if (s && seenStations.find(s) == seenStations.end()) {
+            // Not seen this station before
+            root.addChild
+               (xml::element("station")
+                .addAttribute("id", s->id())
+                .addChild(xml::element("name").addText(s->name())));
+
+            seenStations.insert(s);
+         }
+      }
+   }
+   
    // Generate the height map
    // Note: basename is deprecated (use .replace_extension() instead when
    // boost is updated in Debian)
@@ -1101,16 +1131,29 @@ void Map::save(const string& aFileName)
       for (int y = 0; y < myDepth; y++) {
          const Tile& tile = tileAt(x, y);
 
+         bool useful = false;
+         xml::element tileXml("tile");
+
+         tileXml.addAttribute("x", x);
+         tileXml.addAttribute("y", y);
+
          if (tile.track
              && tile.track->originX() == x
              && tile.track->originY() == y) {
-            
-            tileset.addChild
-               (xml::element("tile")
-                .addAttribute("x", x)
-                .addAttribute("y", y)
-                .addChild(tile.track->get()->toXml()));
+
+            tileXml.addChild(tile.track->get()->toXml());
+            useful = true;
          }
+
+         if (tile.station) {
+            tileXml.addChild
+               (xml::element("stationPart")
+                .addAttribute("id", tile.station->id()));
+            useful = true;
+         }
+
+         if (useful)
+            tileset.addChild(tileXml);
       }
    }
 
@@ -1147,12 +1190,28 @@ public:
          handleCurvedTrack(attrs);
       else if (localName == "crossoverTrack")
          handleCrossoverTrack(attrs);
+      else if (localName == "stationPart")
+         handleStationPart(attrs);
+      else if (localName == "station")
+         handleStation(attrs);
    }
 
+   void endElement(const string& localName)
+   {
+      if (localName == "station")
+         myActiveStation.reset();
+   }                   
+   
    void text(const string& localName, const string& aString)
    {
       if (localName == "heightmap")
          myMap->readHeightMap(aString);
+      else if (myActiveStation) {
+         if (localName == "name") {
+            debug() << "Saw station " << aString;
+            myActiveStation->setName(aString);
+         }
+      }
    }
    
 private:
@@ -1165,6 +1224,17 @@ private:
       debug() << "width=" << width << ", height=" << height;
 
       myMap->resetMap(width, height);
+   }
+
+   void handleStation(const AttributeSet& attrs)
+   {
+      myActiveStation = makeStation();
+
+      int id;
+      attrs.get("id", id);
+      myActiveStation->setId(id);
+
+      myStations[id] = myActiveStation;
    }
 
    void handleStart(const AttributeSet& attrs)
@@ -1182,6 +1252,19 @@ private:
    {
       attrs.get("x", myXPtr);
       attrs.get("y", myYPtr);
+   }
+
+   void handleStationPart(const AttributeSet& attrs)
+   {
+      int id;
+      attrs.get("id", id);
+
+      map<int, IStationPtr>::iterator it = myStations.find(id);
+      if (it == myStations.end())
+         throw runtime_error("No station definition for ID "
+                             + boost::lexical_cast<string>(id));
+      else
+         myMap->setStationAt(myXPtr, myYPtr, (*it).second);
    }
 
    void handleStraightTrack(const AttributeSet& attrs)
@@ -1213,6 +1296,8 @@ private:
    }
    
    shared_ptr<Map> myMap;
+   map<int, IStationPtr> myStations;
+   IStationPtr myActiveStation;
    int myXPtr, myYPtr;
 }; 
 

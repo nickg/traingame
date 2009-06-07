@@ -67,6 +67,8 @@ struct SAX2WrapperHandler : public DefaultHandler {
          callbackPtr->text(chLocalname, charBuf.str());
          charBuf.str("");
       }
+
+      callbackPtr->endElement(chLocalname);
       
       XMLString::release(&chLocalname);
    }

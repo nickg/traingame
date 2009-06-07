@@ -14,6 +14,17 @@
           </xs:complexType>
         </xs:element>
 
+        <xs:element name="station" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="name" type="xs:string"/>
+            </xs:sequence>
+
+            <xs:attribute name="id" type="xs:nonNegativeInteger"
+                          use="required"/>
+          </xs:complexType>
+        </xs:element>
+
         <xs:element name="heightmap" type="xs:string"/>
 
         <xs:element name="tileset">
@@ -45,6 +56,13 @@
                     <xs:element name="crossoverTrack" minOccurs="0">
                     </xs:element>
 
+                    <xs:element name="stationPart" minOccurs="0" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:attribute name="id" use="required"
+                                      type="xs:nonNegativeInteger"/>
+                      </xs:complexType>
+                    </xs:element>
+                    
                   </xs:sequence>
                   
                   <xs:attribute name="x" type="xs:nonNegativeInteger" use="required"/>

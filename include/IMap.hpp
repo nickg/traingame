@@ -39,9 +39,6 @@ public:
    // first
    virtual ITrackSegmentPtr trackAt(const Point<int>& aPoint) const = 0;
 
-   // Return the station at this track location or a null pointer
-   virtual IStationPtr stationAt(Point<int> aPoint) const = 0;
-
    // True if the given position is the origin of a track segment
    virtual bool isValidTrack(const Point<int>& aPoint) const = 0;
 
@@ -50,6 +47,9 @@ public:
    // the map
    virtual void setTrackAt(const Point<int>& aPoint,
                            ITrackSegmentPtr aTrack) = 0;
+
+   // Return the station at this track location or a null pointer
+   virtual IStationPtr stationAt(Point<int> aPoint) const = 0;
 
    // Delete the contents of a tile
    virtual void eraseTile(int x, int y) = 0;

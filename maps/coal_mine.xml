@@ -4,6 +4,14 @@
 
 <start x="7" y="6" dirX="1" dirY="0"/>
 
+<station id="2">
+<name>Yahyahyah</name>
+</station>
+
+<station id="4">
+<name>Grimethorpe</name>
+</station>
+
 <heightmap>maps/coal_mine.bin</heightmap>
 
 <tileset>
@@ -73,34 +81,50 @@
 
 <tile x="12" y="6">
 <straightTrack align="x"/>
+
+<stationPart id="2"/>
 </tile>
 
 <tile x="13" y="6">
 <straightTrack align="x"/>
+
+<stationPart id="2"/>
 </tile>
 
 <tile x="14" y="6">
 <straightTrack align="x"/>
+
+<stationPart id="2"/>
 </tile>
 
 <tile x="15" y="6">
 <straightTrack align="x"/>
+
+<stationPart id="2"/>
 </tile>
 
 <tile x="16" y="6">
 <straightTrack align="x"/>
+
+<stationPart id="2"/>
 </tile>
 
 <tile x="17" y="6">
 <straightTrack align="x"/>
+
+<stationPart id="2"/>
 </tile>
 
 <tile x="18" y="6">
 <straightTrack align="x"/>
+
+<stationPart id="2"/>
 </tile>
 
 <tile x="19" y="6">
 <straightTrack align="x"/>
+
+<stationPart id="2"/>
 </tile>
 
 <tile x="20" y="6">
@@ -145,42 +169,62 @@
 
 <tile x="36" y="14">
 <straightTrack align="x"/>
+
+<stationPart id="4"/>
 </tile>
 
 <tile x="37" y="14">
 <straightTrack align="x"/>
+
+<stationPart id="4"/>
 </tile>
 
 <tile x="38" y="14">
 <straightTrack align="x"/>
+
+<stationPart id="4"/>
 </tile>
 
 <tile x="39" y="14">
 <straightTrack align="x"/>
+
+<stationPart id="4"/>
 </tile>
 
 <tile x="40" y="14">
 <straightTrack align="x"/>
+
+<stationPart id="4"/>
 </tile>
 
 <tile x="41" y="14">
 <straightTrack align="x"/>
+
+<stationPart id="4"/>
 </tile>
 
 <tile x="42" y="14">
 <straightTrack align="x"/>
+
+<stationPart id="4"/>
 </tile>
 
 <tile x="43" y="14">
 <straightTrack align="x"/>
+
+<stationPart id="4"/>
 </tile>
 
 <tile x="44" y="14">
 <straightTrack align="x"/>
+
+<stationPart id="4"/>
 </tile>
 
 <tile x="45" y="14">
 <straightTrack align="x"/>
+
+<stationPart id="4"/>
 </tile>
 
 <tile x="46" y="14">

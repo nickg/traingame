@@ -66,6 +66,7 @@ struct IXMLCallback {
 
    virtual void startElement(const std::string& localName,
                              const AttributeSet& attrs) = 0;
+   virtual void endElement(const std::string& localName) = 0;
    virtual void text(const std::string& localName,
                      const std::string& aString) = 0;
 };

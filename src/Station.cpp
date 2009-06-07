@@ -31,6 +31,8 @@ public:
    // IStation interface
    const string& name() const { return myName; }
    void setName(const string& aName) { myName = aName; }
+   int id() const { return myId; }
+   void setId(int anId) { myId = anId; }
    HighlightColour highlightColour() const { return myColour; }
    bool highlightVisible() const { return isHighlightVisible; }
    void setHighlightVisible(bool onOff);
@@ -38,6 +40,7 @@ private:
    string myName;
    HighlightColour myColour;
    bool isHighlightVisible;
+   int myId;
 };
 
 Station::Station()
@@ -47,7 +50,8 @@ Station::Station()
    
    // Generate a unique station name;
    static int nameCounter = 1;
-   myName = "Station" + lexical_cast<string>(nameCounter++);
+   myId = nameCounter++;
+   myName = "Station" + lexical_cast<string>(myId);
 
    // Generate a random colour
    static variate_generator<mt19937, uniform_real<float> >

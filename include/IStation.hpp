@@ -41,6 +41,11 @@ struct IStation {
    virtual const string& name() const = 0;
    virtual void setName(const string& aName) = 0;
 
+   // A station has an ID that uniquely identifies it
+   // Setting is allowed to support the map loader
+   virtual int id() const = 0;
+   virtual void setId(int anId) = 0;
+
    // A station has a random colour that is used to identify it when
    // the highlight is drawn
    typedef tuple<float, float, float> HighlightColour;
