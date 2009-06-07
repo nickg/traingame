@@ -27,8 +27,6 @@
 
 #include <GL/gl.h>
 
-using namespace std;
-using namespace std::tr1;
 using namespace gui;
 
 // Concrete editor class
@@ -165,7 +163,8 @@ void Editor::display(IGraphicsPtr aContext) const
       
       for (int x = xmin; x <= xmax; x++) {
          for (int y = ymin; y <= ymax; y++)
-            myMap->highlightTile(aContext, makePoint(x, y));
+            myMap->highlightTile(aContext, makePoint(x, y),
+                                 make_tuple(1.0f, 1.0f, 1.0f));
       }         
    }
 }
@@ -544,6 +543,9 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
          break;
       case START_TOOL:
          myMap->setStart(myDragBegin.x, myDragBegin.y);
+         break;
+      case STATION_TOOL:
+         myMap->extendStation(myDragBegin, myDragEnd);
          break;
       }
          

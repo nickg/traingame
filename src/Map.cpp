@@ -84,7 +84,8 @@ public:
    void setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack);
    bool isValidTrack(const Point<int>& aPoint) const;
    void render(IGraphicsPtr aContext) const;
-   void highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const;
+   void highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint,
+                      HighlightColour aColour) const;
    void resetMap(int aWidth, int aDepth);
    void eraseTile(int x, int y);
 
@@ -95,6 +96,9 @@ public:
    void levelArea(Point<int> aStartPos, Point<int> aFinishPos);
    
    void save(const string& aFileName);
+
+   IStationPtr extendStation(Point<int> aStartPos,
+                             Point<int> aFinishPos);
    
    // ISectorRenderable interface
    void renderSector(IGraphicsPtr aContext, int id,
@@ -385,17 +389,20 @@ void Map::render(IGraphicsPtr aContext) const
 }
 
 // Draw a thick border around a single tile
-void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
+void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint,
+                        HighlightColour aColour) const
 {
    // User should be able to click on the highlight as well
    glPushName(tileName(aPoint.x, aPoint.y));
-         
+
+   glPushAttrib(GL_ENABLE_BIT);
+   
    glDisable(GL_TEXTURE_2D);
    glEnable(GL_BLEND);
    glDisable(GL_LIGHTING);
    
    glPushMatrix();
-   glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+   glColor4f(get<0>(aColour), get<1>(aColour), get<2>(aColour), 0.5f);
    glBegin(GL_POLYGON);
 
    int indexes[4];
@@ -409,6 +416,8 @@ void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint) const
    
    glEnd();
    glPopMatrix();
+
+   glPopAttrib();
 
    glPopName();
 }
@@ -691,6 +700,11 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
             tile.track->setMark();
          }
 
+         // Draw the station, if any
+         if (tile.station)
+            highlightTile(aContext, makePoint(x, y),
+                          tile.station->highlightColour());
+
          // Draw the start location if it's on this tile
          if (myStartLocation.x == x && myStartLocation.y == y
              && shouldDrawGridLines)
@@ -905,6 +919,81 @@ void Map::lowerArea(const Point<int>& aStartPos,
                     const Point<int>& aFinishPos)
 {
    changeAreaHeight(aStartPos, aFinishPos, -0.1f);
+}
+
+// Either extend an existing station which borders this area
+// or build a new station
+IStationPtr Map::extendStation(Point<int> aStartPos, Point<int> aFinishPos)
+{
+   const int xmin = min(aStartPos.x, aFinishPos.x);
+   const int xmax = max(aStartPos.x, aFinishPos.x);
+
+   const int ymin = min(aStartPos.y, aFinishPos.y);
+   const int ymax = max(aStartPos.y, aFinishPos.y);
+
+   // Find all the tiles containing track in this region
+   typedef list<Point<int> > PointList;
+   PointList trackInArea;
+   for (int x = xmin; x <= xmax; x++) {
+      for (int y = ymin; y <= ymax; y++) {
+         if (tileAt(x, y).track)
+            trackInArea.push_back(makePoint(x, y));
+      }
+   }
+
+   if (trackInArea.empty()) {
+      warn() << "Stations must be placed on track";
+      return IStationPtr();
+   }
+
+   IStationPtr station;
+
+   // See if any of these track segments are adjacent to a station
+   for (PointList::const_iterator it = trackInArea.begin();
+        it != trackInArea.end(); ++it) {
+      
+      const Point<int> near[] = {
+         makePoint(0, 0),
+         makePoint(1, 0),
+         makePoint(0, 1),
+         makePoint(-1, 0),
+         makePoint(0, -1)
+      };
+      
+      for (int i = 0; i < 5; i++) {
+         Point<int> neighbour = *it + near[i];
+         if (neighbour.x >= 0 && neighbour.x < myWidth
+             && neighbour.y >= 0 && neighbour.y < myDepth
+             && tileAt(neighbour.x, neighbour.y).station) {
+
+            IStationPtr candidate = tileAt(neighbour.x, neighbour.y).station;
+            
+            // Maybe extend this station
+            if (station && station != candidate) {
+               warn() << "Cannot merge stations";
+               return IStationPtr();
+            }
+            else
+               station = candidate;
+         }
+      }
+   }
+
+   if (station) {
+      // Found a station to extend
+      debug() << "Found station to extend";
+   }
+   else {
+      debug() << "Creating new station";
+
+      station = makeStation();
+   }
+   
+   for (PointList::iterator it = trackInArea.begin();
+        it != trackInArea.end(); ++it)
+      tileAt((*it).x, (*it).y).station = station;
+   
+   return station;
 }
 
 // Write the terrain height map into a binary file

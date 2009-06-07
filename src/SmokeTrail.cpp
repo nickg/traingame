@@ -133,19 +133,19 @@ void SmokeTrail::newParticle()
    using namespace boost;
 
    // Random number generator for colour variance
-   static variate_generator<mt19937, normal_distribution<> >
+   static variate_generator<mt19937, normal_distribution<float> >
       colourRand(mt19937(static_cast<uint32_t>(time(NULL))), 
-                 normal_distribution<>(0.0f, 0.06f));
+                 normal_distribution<float>(0.0f, 0.06f));
 
    // Random number generator for position variance
-   static variate_generator<mt19937, normal_distribution<> >
+   static variate_generator<mt19937, normal_distribution<float> >
       posRand(mt19937(static_cast<uint32_t>(time(NULL))), 
-              normal_distribution<>(0.0f, 0.07f));
+              normal_distribution<float>(0.0f, 0.07f));
 
-   const float col = 0.7f + static_cast<float>(colourRand());
+   const float col = 0.7f + colourRand();
 
-   const float dx = static_cast<float>(posRand());
-   const float dz = static_cast<float>(posRand());
+   const float dx = posRand();
+   const float dz = posRand();
    
    Particle p = {
       myX + dx, myY, myZ + dz,      // Position

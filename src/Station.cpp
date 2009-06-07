@@ -17,19 +17,41 @@
 
 #include "IStation.hpp"
 
+#include <ctime>
+
+#include <boost/lexical_cast.hpp>
+#include <boost/random.hpp>
+
 // Concrete implementation of stations
 class Station : public IStation {
 public:
    Station();
    ~Station() {}
-   
-private:
 
+   // IStation interface
+   const string& name() const { return myName; }
+   void setName(const string& aName) { myName = aName; }
+   HighlightColour highlightColour() const { return myColour; }
+private:
+   string myName;
+   HighlightColour myColour;
 };
 
 Station::Station()
 {
+   using namespace boost;
+   
+   // Generate a unique station name;
+   static int nameCounter = 1;
+   myName = "Station" + lexical_cast<string>(nameCounter++);
 
+   // Generate a random colour
+   static variate_generator<mt19937, uniform_real<float> >
+      colourRand(mt19937(static_cast<uint32_t>(time(NULL))), 
+                 uniform_real<float>(0.2f, 1.0f));
+   myColour = make_tuple(colourRand(),
+                         colourRand(),
+                         colourRand());
 }
 
 IStationPtr makeStation()

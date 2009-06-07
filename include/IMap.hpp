@@ -20,6 +20,7 @@
 
 #include "IGraphics.hpp"
 #include "ITrackSegment.hpp"
+#include "IStation.hpp"
 
 #include <memory>
 #include <string>
@@ -57,8 +58,10 @@ public:
    virtual void render(IGraphicsPtr aContext) const = 0;
 
    // Draw a white border around the given tile
+   typedef tuple<float, float, float> HighlightColour;
    virtual void highlightTile(IGraphicsPtr aContext,
-                              const Point<int>& aPoint) const = 0;
+                              const Point<int>& aPoint,
+                              HighlightColour aColour) const = 0;
    
    // Given a pick name return the (x, y) co-ordinate
    virtual Point<int> pickPosition(unsigned aName) const = 0;
@@ -90,6 +93,10 @@ public:
 
    // Make all tiles in the area the same height
    virtual void levelArea(Point<int> aStartPos, Point<int> aFinishPos) = 0;
+
+   // Create a new station covering this area or extend an existing station
+   virtual IStationPtr extendStation(Point<int> aStartPos,
+                                     Point<int> aFinishPos) = 0;
   
 };
 

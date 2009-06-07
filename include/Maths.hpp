@@ -156,6 +156,11 @@ struct Point {
    {
       return aPoint.x == x && aPoint.y == y;
    }
+
+   Point<T> operator+(const Point<T>& rhs) const
+   {
+      return Point(x + rhs.x, y + rhs.y);
+   }
    
    T x, y;
 };
