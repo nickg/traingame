@@ -18,6 +18,9 @@
 #include "ITrackSegment.hpp"
 #include "TrackCommon.hpp"
 #include "XMLBuilder.hpp"
+#include "ILogger.hpp"
+
+#include <GL/gl.h>
 
 // Forks in the track
 class Points : public ITrackSegment {
@@ -40,13 +43,36 @@ private:
 };
 
 Points::Points()
+   : myX(0), myY(0)
 {
-
+   
 }
 
 void Points::render() const
-{
+{   
+   glPushMatrix();
 
+   renderHypTanRail();
+
+   glPushMatrix();
+   glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+
+   for (int i = 0; i < 3; i++) {
+      renderStraightRail();
+      glTranslatef(0.0f, 0.0f, 1.0f);
+   }
+   
+   glPopMatrix();
+
+   // Draw the sleepers
+   glTranslatef(-0.4f, 0.0f, 0.0f);
+   
+   for (int i = 0; i < 12; i++) {
+      renderSleeper();
+      glTranslatef(0.25f, 0.0f, 0.0f);
+   }
+   
+   glPopMatrix();
 }
 
 double Points::segmentLength() const
@@ -72,7 +98,7 @@ track::Connection Points::nextPosition(const track::Direction& aDirection) const
 
 void Points::getEndpoints(std::list<Point<int> >& aList) const
 {
-
+   aList.push_back(makePoint(myX, myY));
 }
 
 ITrackSegmentPtr Points::mergeExit(const Point<int>& aPoint,

@@ -36,10 +36,12 @@ namespace {
 
    const float SLEEPER_LENGTH = 0.8f;
 
-   IMeshPtr theSleeperMesh, theRailMesh;
+   IMeshPtr theSleeperMesh, theRailMesh, theHypTanRailMesh;
 
    typedef map<int, IMeshPtr> CurvedRailMeshMap;
    CurvedRailMeshMap theCurvedRailMeshes;
+   
+   const IMeshBuffer::Colour METAL = make_tuple(0.7f, 0.7f, 0.7f);
    
    void generateSleeperMesh()
    {
@@ -95,32 +97,70 @@ namespace {
    {
       IMeshBufferPtr buf = makeMeshBuffer();
 
-      const IMeshBuffer::Colour metal = make_tuple(0.7f, 0.7f, 0.7f);
-      
       // Top side
       buf->addQuad(makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
                    makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
                    makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
                    makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
-                   metal);
+                   METAL);
       
       // Outer side
       buf->addQuad(makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
                    makeVector(-RAIL_WIDTH/2.0f, 0.0f, 0.0f),
                    makeVector(-RAIL_WIDTH/2.0f, 0.0f, 1.0f),
                    makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
-                   metal);
+                   METAL);
    
       // Inner side
       buf->addQuad(makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
                    makeVector(RAIL_WIDTH/2.0f, 0.0f, 1.0f),
                    makeVector(RAIL_WIDTH/2.0f, 0.0f, 0.0f),
                    makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
-                   metal);   
+                   METAL);   
       
       theRailMesh = makeMesh(buf);
    }
 
+   // The rail mesh used for points and S-bends
+   void generateHypTanRailMesh()
+   {
+      IMeshBufferPtr buf = makeMeshBuffer();
+      
+      const float step = 0.1f;
+      const float xmax = 3.0f;
+
+      for (float x = 0.0f; x < xmax - step; x += step) {
+         const float y1 = hypTanCurveFunc(x);
+         debug() << x << " --> " << y1;
+
+         const float y2 = hypTanCurveFunc(x + step);
+
+         // Top of rail
+         buf->addQuad(makeVector(x, track::RAIL_HEIGHT, y1),
+                      makeVector(x, track::RAIL_HEIGHT, y1 + RAIL_WIDTH),
+                      makeVector(x + step, track::RAIL_HEIGHT, y2 + RAIL_WIDTH),
+                      makeVector(x + step, track::RAIL_HEIGHT, y2),
+                      METAL);
+
+         // Outer edge
+         buf->addQuad(makeVector(x + step, track::RAIL_HEIGHT, y2),
+                      makeVector(x + step , 0.0f, y2),
+                      makeVector(x, 0.0f, y1),
+                      makeVector(x, track::RAIL_HEIGHT, y1),
+                      METAL);
+
+         // Inner edge
+         buf->addQuad(
+                      makeVector(x, track::RAIL_HEIGHT, y1 + RAIL_WIDTH),
+                      makeVector(x, 0.0f, y1 + RAIL_WIDTH),
+                      makeVector(x + step , 0.0f, y2 + RAIL_WIDTH),
+                      makeVector(x + step, track::RAIL_HEIGHT, y2 + RAIL_WIDTH),
+                      METAL);
+      }
+
+      theHypTanRailMesh = makeMesh(buf);
+   }
+   
    enum RailType {
       INNER_RAIL, OUTER_RAIL
    };
@@ -133,8 +173,6 @@ namespace {
       const float r = R - RAIL_WIDTH;
       
       const float step = 0.1f;
-
-      const IMeshBuffer::Colour metal = make_tuple(0.7f, 0.7f, 0.7f);
       
       // Top of rail
       for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
@@ -142,7 +180,7 @@ namespace {
                       makeVector(r * cos(theta + step), 0.1f, r * sin(theta + step)),
                       makeVector(R * cos(theta + step), 0.1f, R * sin(theta + step)),
                       makeVector(R * cos(theta), 0.1f, R * sin(theta)),
-                      metal);
+                      METAL);
       }
       
       // Outer edge
@@ -164,7 +202,7 @@ namespace {
                       makeVector(cosT, 0.0f, sinT),
                       makeVector(cosT, 0.0f, sinT),
 
-                      metal);
+                      METAL);
       }
       
       // Inner edge
@@ -186,7 +224,7 @@ namespace {
                       makeVector(-cosT1, 0.0f, -sinT1),
                       makeVector(-cosT1, 0.0f, -sinT1),
 
-                      metal);
+                      METAL);
       }
 
       return makeMesh(buf);
@@ -221,6 +259,12 @@ namespace {
    }
 }
 
+// The function that determines the curve of points and S-bends
+float hypTanCurveFunc(float x)
+{
+   return 0.5f * (1.0f + tanh(1.8f * x - 3.5f));
+}
+
 // Draw a sleeper in the current maxtrix location
 void renderSleeper()
 {
@@ -239,6 +283,22 @@ void renderStraightRail()
    
    glTranslatef(GAUGE, 0.0f, 0.0f);
    renderOneRail();
+
+   glPopMatrix();
+}
+
+void renderHypTanRail()
+{
+   if (!theHypTanRailMesh)
+      generateHypTanRailMesh();
+
+   glPushMatrix();
+
+   glTranslatef(-0.5f, 0.0f, -GAUGE/2.0f);   
+   theHypTanRailMesh->render();
+
+   glTranslatef(0.0f, 0.0f, GAUGE);
+   theHypTanRailMesh->render();
 
    glPopMatrix();
 }

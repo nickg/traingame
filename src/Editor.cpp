@@ -238,6 +238,13 @@ void Editor::drawDraggedStraight(const track::Direction& anAxis, int aLength)
 // Connect the beginning and end up in the simplest way possible
 void Editor::drawDraggedTrack()
 {
+   // REMOVE
+   ITrackSegmentPtr p = makePoints();
+   p->setOrigin(myDragBegin.x, myDragBegin.y);
+   myMap->setTrackAt(myDragBegin, p);
+   return;
+
+   
    track::Direction straight;  // Orientation for straight track section
    
    int xmin, xmax, ymin, ymax;

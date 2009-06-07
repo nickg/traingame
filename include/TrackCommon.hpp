@@ -23,9 +23,11 @@
 // Common track rendering functions
 void renderSleeper();
 void renderStraightRail();
+void renderHypTanRail();
 void renderCurvedTrack(int baseRadius, track::Angle startAngle,
                        track::Angle endAngle);
 void transformToOrigin(int baseRadius, track::Angle startAngle);
+float hypTanCurveFunc(float x);
 
 // Track constants
 namespace track {
