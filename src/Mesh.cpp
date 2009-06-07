@@ -36,6 +36,8 @@ struct MeshBuffer : IMeshBuffer {
    MeshBuffer();
    ~MeshBuffer() {}
 
+   size_t vertexCount() const { return vertices.size(); }
+   
    void add(const Vertex& aVertex, const Normal& aNormal);
    void add(const Vertex& aVertex, const Normal& aNormal,
             const TexCoord& aTexCoord);
@@ -549,10 +551,10 @@ IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 {
    static bool havePrintedMeshChoice = false;
    
-   //aBuffer->printStats();
+   aBuffer->printStats();
 
-   // Prefer VBO meshes
-   if (GLEW_ARB_vertex_buffer_object) {
+   // Prefer VBOs for large meshes meshes
+   if (aBuffer->vertexCount() > 100 && GLEW_ARB_vertex_buffer_object) {
       if (!havePrintedMeshChoice) {
          log() << "Using VBO mesh implementation";
          havePrintedMeshChoice = true;

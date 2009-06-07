@@ -43,6 +43,8 @@ struct IMeshBuffer {
    typedef unsigned Index;
 
    virtual ~IMeshBuffer() {}
+
+   virtual size_t vertexCount() const = 0;
    
    virtual void add(const Vertex& aVertex, const Normal& aNormal) = 0;
    virtual void add(const Vertex& aVertex, const Normal& aNormal,
