@@ -49,6 +49,7 @@ public:
                        MouseButton aButton) {}
 private:
    void lookAhead();
+   void setStatus(const string& aString) { myStatusMsg = aString; }
    
    IMapPtr myMap;
    ITrainPtr myTrain;
@@ -63,6 +64,9 @@ private:
    ITextControlPtr myTempLabel, myPressureLabel;
    IMeterControlPtr myThrottleMeter;
    IMeterControlPtr myCoalMeter, myWaterMeter;
+
+   string myStatusMsg;
+   IFontPtr myStatusFont;
 };
 
 Game::Game(IMapPtr aMap)
@@ -78,6 +82,7 @@ Game::Game(IMapPtr aMap)
    myStatsPanel = makeFlowBox(FLOW_BOX_VERT);
 
    IFontPtr stdFont = loadFont("data/fonts/Vera.ttf", 14);
+   myStatusFont = loadFont("data/fonts/Vera.ttf", 18);
    
    mySpeedLabel = makeLabel(stdFont);
    myStatsPanel->addChild(mySpeedLabel);
@@ -135,6 +140,12 @@ void Game::display(IGraphicsPtr aContext) const
 void Game::overlay() const
 {
    myStatsPanel->render();
+
+   const int screenH = getGameWindow()->height();
+   const int screenW = getGameWindow()->width();
+   const int len = myStatusFont->stringWidth("%s", myStatusMsg.c_str());
+   myStatusFont->print((screenW - len)/2, screenH - 50,
+                       "%s", myStatusMsg.c_str());
 }
 
 void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
@@ -167,7 +178,7 @@ void Game::lookAhead()
 
    // Are we sitting on a station?'
    if (it.status == TRACK_STATION) {
-      log() << "Stop here for station " << it.station->name() << "!";
+      setStatus("Stop here for station " + it.station->name());
       return;
    }
 
@@ -175,11 +186,23 @@ void Game::lookAhead()
    for (int i = 0; i < maxLook; i++) {
       it = it.next();
 
-      if (it.status == TRACK_STATION)
-         log() << "Approaching station " << it.station->name();
-      else if (it.status == TRACK_NO_MORE)
-         log() << "Oh no! You're going to crash!";
+      if (it.status != TRACK_OK) {
+         switch (it.status) {
+         case TRACK_STATION:
+            setStatus("Approaching station " + it.station->name());
+            break;
+         case TRACK_NO_MORE:
+            setStatus("Oh no! You're going to crash!");
+            break;
+         default:
+            break;
+         }
+         return;
+      }
    }
+
+   // Nothing to report
+   setStatus("");
 }
 
 void Game::onKeyDown(SDLKey aKey)

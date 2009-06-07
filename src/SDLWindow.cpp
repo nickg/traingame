@@ -47,6 +47,8 @@ public:
    void switchScreen(IScreenPtr aScreen);
    void quit();
    void takeScreenShot();
+   int width() const { return myWidth; }
+   int height() const { return myHeight; }
 
    // IGraphics interface
    bool cuboidInViewFrustum(float x, float y, float z,
