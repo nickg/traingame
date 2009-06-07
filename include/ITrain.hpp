@@ -40,6 +40,9 @@ struct ITrain {
    // Return the speed of the train
    virtual double speed() const = 0;
 
+   // Return the track direction of the front of the train
+   virtual track::Direction direction() const = 0;
+
    // Return the controller for whatever's driving this train
    virtual IControllerPtr controller() = 0;
 };

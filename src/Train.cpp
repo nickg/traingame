@@ -39,6 +39,7 @@ public:
 
    Vector<float> front() const;
    ITrackSegmentPtr trackSegment() const;
+   track::Direction direction() const;
    
    double speed() const { return myParts.front().vehicle->speed(); }
    IControllerPtr controller() { return myParts.front().vehicle->controller(); }
@@ -239,6 +240,11 @@ ITrackSegmentPtr Train::trackSegment() const
 Vector<float> Train::front() const
 {
    return partPosition(engine());
+}
+
+track::Direction Train::direction() const
+{
+   return engine().direction;
 }
 
 // Calculate the position of any train part

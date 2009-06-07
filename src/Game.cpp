@@ -25,11 +25,10 @@
 #include "gui/IContainer.hpp"
 #include "GameScreens.hpp"
 #include "IBillboard.hpp"
+#include "IterateTrack.hpp"
 
 #include <GL/gl.h>
 
-using namespace std;
-using namespace std::tr1;
 using namespace gui;
 
 // Implementation of the main play screen
@@ -163,21 +162,24 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
 // that they are approaching
 void Game::lookAhead()
 {
-   ITrackSegmentPtr seg = myTrain->trackSegment();
+   TrackIterator it = iterateTrack(myMap, myTrain->trackSegment(),
+                                   myTrain->direction());
 
-   // Are we sitting on a station
-   typedef list<Point<int> > PointList;
-   PointList endpoints;
-   seg->getEndpoints(endpoints);
+   // Are we sitting on a station?'
+   if (it.status == TRACK_STATION) {
+      log() << "Stop here for station " << it.station->name() << "!";
+      return;
+   }
 
-   IStationPtr station;
-   for (PointList::const_iterator it = endpoints.begin();
-        it != endpoints.end(); ++it)
-      if ((station = myMap->stationAt(makePoint((*it).x, (*it).y))))
-         break;
+   const int maxLook = 10;
+   for (int i = 0; i < maxLook; i++) {
+      it = it.next();
 
-   if (station)
-      log() << "Stop here for station " << station->name() << "!";
+      if (it.status == TRACK_STATION)
+         log() << "Approaching station " << it.station->name();
+      else if (it.status == TRACK_NO_MORE)
+         log() << "Oh no! You're going to crash!";
+   }
 }
 
 void Game::onKeyDown(SDLKey aKey)

@@ -206,5 +206,9 @@
 <tile x="51" y="14">
 <straightTrack align="x"/>
 </tile>
+
+<tile x="52" y="14">
+<straightTrack align="x"/>
+</tile>
 </tileset>
 </map>
