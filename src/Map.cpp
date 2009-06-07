@@ -707,7 +707,8 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
          }
 
          // Draw the station, if any
-         if (tile.station)
+         if (tile.station
+             && (shouldDrawGridLines || tile.station->highlightVisible()))
             highlightTile(aContext, makePoint(x, y),
                           tile.station->highlightColour());
 

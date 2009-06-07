@@ -45,6 +45,8 @@ struct IStation {
    // the highlight is drawn
    typedef tuple<float, float, float> HighlightColour;
    virtual HighlightColour highlightColour() const = 0;
+   virtual bool highlightVisible() const = 0;
+   virtual void setHighlightVisible(bool onOff) = 0;
 };
 
 typedef std::tr1::shared_ptr<IStation> IStationPtr;

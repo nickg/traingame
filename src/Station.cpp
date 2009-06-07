@@ -32,12 +32,16 @@ public:
    const string& name() const { return myName; }
    void setName(const string& aName) { myName = aName; }
    HighlightColour highlightColour() const { return myColour; }
+   bool highlightVisible() const { return isHighlightVisible; }
+   void setHighlightVisible(bool onOff);
 private:
    string myName;
    HighlightColour myColour;
+   bool isHighlightVisible;
 };
 
 Station::Station()
+   : isHighlightVisible(false)
 {
    using namespace boost;
    
@@ -52,6 +56,11 @@ Station::Station()
    myColour = make_tuple(colourRand(),
                          colourRand(),
                          colourRand());
+}
+
+void Station::setHighlightVisible(bool onOff)
+{
+   isHighlightVisible = onOff;
 }
 
 IStationPtr makeStation()

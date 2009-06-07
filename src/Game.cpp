@@ -50,10 +50,15 @@ public:
 private:
    void lookAhead();
    void setStatus(const string& aString) { myStatusMsg = aString; }
+   void nearStation(IStationPtr aStation);
+   void leftStation();
    
    IMapPtr myMap;
    ITrainPtr myTrain;
    ILightPtr mySun;
+
+   // Station the train is either approaching or stopped at
+   IStationPtr myActiveStation;
 
    // Camera position
    float myHorizAngle, myVertAngle, myViewRadius;
@@ -169,6 +174,24 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    lookAhead();
 }
 
+// Signal that we are approaching a station
+void Game::nearStation(IStationPtr aStation)
+{
+   leftStation();  // Clear any previous station
+   
+   myActiveStation = aStation;
+   aStation->setHighlightVisible(true);
+}
+
+// Signal that we are no longer at or approaching a station
+void Game::leftStation()
+{ 
+   if (myActiveStation) {
+      myActiveStation->setHighlightVisible(false);
+      myActiveStation.reset();
+   }
+}
+
 // Look along the track and notify the player of any stations, points, etc.
 // that they are approaching
 void Game::lookAhead()
@@ -179,6 +202,7 @@ void Game::lookAhead()
    // Are we sitting on a station?'
    if (it.status == TRACK_STATION) {
       setStatus("Stop here for station " + it.station->name());
+      nearStation(it.station);
       return;
    }
 
@@ -190,9 +214,11 @@ void Game::lookAhead()
          switch (it.status) {
          case TRACK_STATION:
             setStatus("Approaching station " + it.station->name());
+            nearStation(it.station);
             break;
          case TRACK_NO_MORE:
             setStatus("Oh no! You're going to crash!");
+            leftStation();
             break;
          default:
             break;
@@ -200,7 +226,10 @@ void Game::lookAhead()
          return;
       }
    }
-
+   
+   // We're not approaching any station
+   leftStation();
+   
    // Nothing to report
    setStatus("");
 }
