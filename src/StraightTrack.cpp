@@ -27,9 +27,7 @@
 #include <GL/glu.h>
 #include <boost/lexical_cast.hpp>
 
-using namespace std;
-using namespace std::tr1;
-using namespace std::tr1::placeholders;
+using namespace placeholders;
 using namespace boost;
 using namespace track;
 

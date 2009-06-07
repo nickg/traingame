@@ -20,7 +20,10 @@
 #include "XMLBuilder.hpp"
 #include "ILogger.hpp"
 
+#include <cassert>
+
 #include <GL/gl.h>
+#include <boost/lexical_cast.hpp>
 
 // Forks in the track
 class Points : public ITrackSegment {
@@ -39,6 +42,9 @@ public:
                               const track::Direction& aDirection);
    xml::element toXml() const;
 private:
+   void transform(const track::Direction& aDirection, double aDelta) const;
+   void ensureValidDirection(track::Direction aDirection) const;
+   
    int myX, myY;
    track::Direction myAxis;
    bool amReflected;
@@ -93,25 +99,78 @@ double Points::segmentLength() const
    return 1.0;
 }
 
+void Points::transform(const track::Direction& aDirection,
+                       double aDelta) const
+{
+
+}
+
 ITrackSegment::TransformFunc
 Points::transformFunc(const track::Direction& aDirection) const
 {
+   using namespace placeholders;
    
+   ensureValidDirection(aDirection);
+   
+   return bind(&Points::transform, this, aDirection, _1);
+}
+
+void Points::ensureValidDirection(track::Direction aDirection) const
+{
+   if (!isValidDirection(aDirection))
+      throw runtime_error
+         ("Invalid direction on points: "
+          + boost::lexical_cast<string>(aDirection)
+          + " (should be parallel to "
+          + boost::lexical_cast<string>(myAxis) + ")");
 }
 
 bool Points::isValidDirection(const track::Direction& aDirection) const
 {
-   return true;
+   if (myAxis == axis::X || myAxis == -axis::X)
+      return aDirection == axis::X || -aDirection == axis::X;
+   else
+      return aDirection == axis::Y || -aDirection == axis::Y;
 }
 
 track::Connection Points::nextPosition(const track::Direction& aDirection) const
 {
-
+   ensureValidDirection(aDirection);
+   
+   if (aDirection == axis::X)
+      return make_pair(makePoint(myX + 1, myY), axis::X);
+   else if (aDirection == -axis::X)
+      return make_pair(makePoint(myX - 1, myY), -axis::X);
+   else if (aDirection == axis::Y)
+      return make_pair(makePoint(myX, myY + 1), axis::Y);
+   else if (aDirection == -axis::Y)
+      return make_pair(makePoint(myX, myY - 1), -axis::Y);
+   else
+      assert(false);
 }
 
 void Points::getEndpoints(std::list<Point<int> >& aList) const
 {
    aList.push_back(makePoint(myX, myY));
+
+   const int reflect = amReflected ? -1 : 1;
+
+   if (myAxis == axis::X) {
+      aList.push_back(makePoint(myX + 2, myY));
+      aList.push_back(makePoint(myX + 2, myY + 1*reflect));
+   }
+   else if (myAxis == -axis::X) {
+      aList.push_back(makePoint(myX - 2, myY));
+      aList.push_back(makePoint(myX - 2, myY - 1*reflect));
+   }
+   else if (myAxis == axis::Y) {
+      aList.push_back(makePoint(myX, myY + 2));
+      aList.push_back(makePoint(myX - 1*reflect, myY + 2));
+   }
+   else if (myAxis == -axis::Y) {
+      aList.push_back(makePoint(myX, myY - 2));
+      aList.push_back(makePoint(myX + 1*reflect, myY - 2));
+   }
 }
 
 ITrackSegmentPtr Points::mergeExit(const Point<int>& aPoint,

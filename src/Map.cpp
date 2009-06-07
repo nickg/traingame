@@ -715,6 +715,13 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
             glPopMatrix();
             
             tile.track->setMark();
+            
+            // Draw the endpoints for debugging
+            list<Point<int> > endpoints;
+            tile.track->get()->getEndpoints(endpoints);
+            for_each(endpoints.begin(), endpoints.end(),
+                     bind(&Map::highlightTile, this, aContext, placeholders::_1,
+                          make_tuple(0.9f, 0.1f, 0.1f)));
          }
 
          // Draw the station, if any
