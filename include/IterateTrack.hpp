@@ -39,14 +39,14 @@ struct TrackIterator {
    ITrackSegmentPtr track;
    IStationPtr station;
    IterationStatus status;
-   track::Direction direction;
+   track::TravelToken token;
    IMapPtr map;
 
    TrackIterator next() const;
 };
 
 // Kick off the iteration at an initial track segment
-TrackIterator iterateTrack(IMapPtr aMap, ITrackSegmentPtr aTrackSegment,
+TrackIterator iterateTrack(IMapPtr aMap, track::Position aPosition,
                            track::Direction aDirection);
 
 #endif

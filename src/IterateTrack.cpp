@@ -25,25 +25,26 @@ TrackIterator TrackIterator::next() const
    
    track::Direction dir;
    track::Position pos;
-   tie(pos, dir) = track->nextPosition(direction);
+   tie(pos, dir) = track->nextPosition(token);
 
-   ITrackSegmentPtr nextTrack =
-      map->isValidTrack(pos) ? map->trackAt(pos) : ITrackSegmentPtr();
-   return iterateTrack(map, nextTrack, dir);   
+   return iterateTrack(map, pos, dir);   
 }
 
 // Build an iterator object for a given track segment
-TrackIterator iterateTrack(IMapPtr aMap, ITrackSegmentPtr aTrackSegment,
+TrackIterator iterateTrack(IMapPtr aMap, track::Position aPosition,
                            track::Direction aDirection)
 {
    TrackIterator it;
    it.map = aMap;
-   it.track = aTrackSegment;
-   it.direction = aDirection;
    it.status = TRACK_OK;
-
-   if (!aTrackSegment) {
+   
+   if (aMap->isValidTrack(aPosition)) {
+      it.track = aMap->trackAt(aPosition);
+      it.token = it.track->getTravelToken(aPosition, aDirection);
+   }
+   else {
       // Fell off the end
+      it.track = ITrackSegmentPtr();
       it.status = TRACK_NO_MORE;
       return it;
    }
@@ -51,7 +52,7 @@ TrackIterator iterateTrack(IMapPtr aMap, ITrackSegmentPtr aTrackSegment,
    // Are we sitting on a station?
    typedef list<Point<int> > PointList;
    PointList endpoints;
-   aTrackSegment->getEndpoints(endpoints);
+   it.track->getEndpoints(endpoints);
 
    IStationPtr station;
    for (PointList::const_iterator p = endpoints.begin();

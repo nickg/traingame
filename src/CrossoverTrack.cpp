@@ -43,7 +43,7 @@ public:
    void render() const;
    double segmentLength() const;
    bool isValidDirection(const track::Direction& aDirection) const;
-   track::Connection nextPosition(const track::Direction& aDirection) const;
+   track::Connection nextPosition(const track::TravelToken& aToken) const;
    void getEndpoints(std::list<Point<int> >& aList) const;
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
                               const track::Direction& aDirection);
@@ -107,6 +107,7 @@ CrossoverTrack::getTravelToken(track::Position aPosition,
 
    track::TravelToken tok = {
       aDirection,
+      aPosition,
       bind(&CrossoverTrack::transform, this, aDirection, _1)
    };
    return tok;
@@ -148,20 +149,19 @@ bool CrossoverTrack::isValidDirection(const track::Direction& aDirection) const
 }
 
 track::Connection
-CrossoverTrack::nextPosition(const track::Direction& aDirection) const
+CrossoverTrack::nextPosition(const track::TravelToken& aToken) const
 {
-   
-   if (aDirection == axis::X)
+   if (aToken.direction == axis::X)
       return make_pair(makePoint(myX + 1, myY), axis::X);
-   else if (aDirection == -axis::X)
+   else if (aToken.direction == -axis::X)
       return make_pair(makePoint(myX - 1, myY), -axis::X);
-   else if (aDirection == axis::Y)
+   else if (aToken.direction == axis::Y)
       return make_pair(makePoint(myX, myY + 1), axis::Y);
-   else if (aDirection == -axis::Y)
+   else if (aToken.direction == -axis::Y)
       return make_pair(makePoint(myX, myY - 1), -axis::Y);
    else
       throw runtime_error
-         ("Invalid direction on crossover: " + lexical_cast<string>(aDirection));
+         ("Invalid direction on crossover: " + lexical_cast<string>(aToken.direction));
 }
 
 void CrossoverTrack::getEndpoints(std::list<Point<int> >& aList) const

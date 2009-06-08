@@ -37,6 +37,7 @@ public:
    Vector<float> front() const;
    ITrackSegmentPtr trackSegment() const;
    track::Direction direction() const;
+   track::Position tile() const { return engine().travelToken.position; }
    
    double speed() const { return myParts.front().vehicle->speed(); }
    IControllerPtr controller() { return myParts.front().vehicle->controller(); }
@@ -136,7 +137,7 @@ void Train::move(double aDistance)
          if ((*it).segmentDelta >= segmentLength) {
             // Moved onto a new piece of track
             const double over = (*it).segmentDelta - segmentLength;
-            enterSegment(*it, (*it).segment->nextPosition((*it).direction));
+            enterSegment(*it, (*it).segment->nextPosition((*it).travelToken));
             (*it).segmentDelta = over;
          }
 

@@ -46,7 +46,7 @@ public:
    void setOrigin(int x, int y) { myX = x; myY = y; }
    double segmentLength() const;
 
-   Connection nextPosition(const Vector<int>& aDirection) const;
+   Connection nextPosition(const track::TravelToken& aToken) const;
    bool isValidDirection(const Direction& aDirection) const;
    void getEndpoints(list<Point<int> >& aList) const;
    
@@ -89,6 +89,7 @@ CurvedTrack::getTravelToken(track::Position aPosition,
 
    track::TravelToken tok = {
       aDirection,
+      aPosition,
       bind(&CurvedTrack::transform, this, aDirection, _1)
    };
    return tok;
@@ -176,17 +177,15 @@ bool CurvedTrack::isValidDirection(const Direction& aDirection) const
    return aDirection == cwEntryVector() || aDirection == ccwEntryVector();
 }
 
-Connection CurvedTrack::nextPosition(const Vector<int>& aDirection) const
+Connection CurvedTrack::nextPosition(const track::TravelToken& aToken) const
 {
-   ensureValidDirection(aDirection);
-
    bool backwards;
    Vector<int> nextDir;
-   if (aDirection == cwEntryVector()) {
+   if (aToken.direction == cwEntryVector()) {
       nextDir = -ccwEntryVector();
       backwards = true;
    }
-   else if (aDirection == ccwEntryVector()) {
+   else if (aToken.direction == ccwEntryVector()) {
       nextDir = -cwEntryVector();
       backwards = false;
    }

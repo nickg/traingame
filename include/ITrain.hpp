@@ -37,6 +37,9 @@ struct ITrain {
    // Return the track segment occupied by the front of the train
    virtual ITrackSegmentPtr trackSegment() const = 0;
 
+   // Return the tile occupied by the front of the train
+   virtual track::Position tile() const = 0;
+
    // Return the speed of the train
    virtual double speed() const = 0;
 

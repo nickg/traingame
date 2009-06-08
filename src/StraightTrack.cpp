@@ -44,7 +44,7 @@ public:
    double segmentLength() const { return 1.0; }
 
    Vector<double> offsetForDelta(double aDelta) const;
-   Connection nextPosition(const Vector<int>& aDirection) const;
+   Connection nextPosition(const track::TravelToken& aDirection) const;
    bool isValidDirection(const Direction& aDirection) const;
    void getEndpoints(list<Point<int> >& aList) const;
    
@@ -80,6 +80,7 @@ StraightTrack::getTravelToken(track::Position aPosition,
 
    track::TravelToken tok = {
       aDirection,
+      aPosition,
       bind(&StraightTrack::transform, this, aDirection, _1)
    };
    return tok;
@@ -176,17 +177,17 @@ void StraightTrack::ensureValidDirection(const Direction& aDirection) const
           + lexical_cast<string>(myDirection) + ")");
 }
 
-Connection StraightTrack::nextPosition(const Direction& aDirection) const
+Connection StraightTrack::nextPosition(const track::TravelToken& aToken) const
 {
-   ensureValidDirection(aDirection);
+   ensureValidDirection(aToken.direction);
 
-   if (aDirection == axis::X)
+   if (aToken.direction == axis::X)
       return make_pair(makePoint(myX + 1, myY), axis::X);
-   else if (aDirection == -axis::X)
+   else if (aToken.direction == -axis::X)
       return make_pair(makePoint(myX - 1, myY), -axis::X);
-   else if (aDirection == axis::Y)
+   else if (aToken.direction == axis::Y)
       return make_pair(makePoint(myX, myY + 1), axis::Y);
-   else if (aDirection == -axis::Y)
+   else if (aToken.direction == -axis::Y)
       return make_pair(makePoint(myX, myY - 1), -axis::Y);
    else
       assert(false);

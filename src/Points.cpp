@@ -35,7 +35,7 @@ public:
    void setOrigin(int x, int y) { myX = x; myY = y; }
    double segmentLength() const;
    bool isValidDirection(const track::Direction& aDirection) const;
-   track::Connection nextPosition(const track::Direction& aDirection) const;
+   track::Connection nextPosition(const track::TravelToken& aToken) const;
    void getEndpoints(std::list<Point<int> >& aList) const;
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
                               const track::Direction& aDirection);
@@ -109,6 +109,7 @@ track::TravelToken Points::getTravelToken(track::Position aPosition,
 
    track::TravelToken tok = {
       aDirection,
+      aPosition,
       bind(&Points::transform, this, aDirection, _1)
    };
    return tok;
@@ -160,30 +161,28 @@ bool Points::isValidDirection(const track::Direction& aDirection) const
       return aDirection == axis::Y || -aDirection == axis::Y;
 }
 
-track::Connection Points::nextPosition(const track::Direction& aDirection) const
+track::Connection Points::nextPosition(const track::TravelToken& aToken) const
 {
-   ensureValidDirection(aDirection);
-
    if (myAxis == axis::X) {
-      if (aDirection == -axis::X)
+      if (aToken.direction == -axis::X)
          assert(false);
       else
          return make_pair(makePoint(myX + 3, myY), axis::X);
    }
    else if (myAxis == -axis::X) {
-      if (aDirection == -axis::X)
+      if (aToken.direction == -axis::X)
          assert(false);
       else
          return make_pair(makePoint(myX + 1, myY), axis::X);
    }
    else if (myAxis == axis::Y) {
-      if (aDirection == -axis::Y)
+      if (aToken.direction == -axis::Y)
          assert(false);
       else
          return make_pair(makePoint(myX, myY + 3), axis::Y);
    }
    else if (myAxis == -axis::Y) {
-      if (aDirection == -axis::Y)
+      if (aToken.direction == -axis::Y)
          assert(false);
       else
          return make_pair(makePoint(myX, myY + 1), axis::Y);

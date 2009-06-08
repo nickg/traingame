@@ -198,7 +198,7 @@ void Game::leftStation()
 // that they are approaching
 void Game::lookAhead()
 {
-   TrackIterator it = iterateTrack(myMap, myTrain->trackSegment(),
+   TrackIterator it = iterateTrack(myMap, myTrain->tile(),
                                    myTrain->direction());
 
    // Are we sitting on a station?'
