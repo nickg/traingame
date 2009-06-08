@@ -107,8 +107,6 @@ void Points::transform(const track::Direction& aDirection,
    if (aDirection == -myAxis)
       aDelta = 2.0 - aDelta;
 
-   debug() << aDelta;
-
    const double xTrans =
       myAxis == axis::X ? aDelta
       : (myAxis == -axis::X ? -aDelta : 0.0);
@@ -120,8 +118,8 @@ void Points::transform(const track::Direction& aDirection,
                 0.0,
                 static_cast<double>(myY) + yTrans);
    
-   //if (myAxis == axis::Y || myAxis == -axis::Y)
-   //   glRotated(-90.0, 0.0, 1.0, 0.0);
+   if (myAxis == axis::Y || myAxis == -axis::Y)
+      glRotated(-90.0, 0.0, 1.0, 0.0);
 
    glTranslated(-0.5, 0.0, 0.0);
    
@@ -160,15 +158,31 @@ bool Points::isValidDirection(const track::Direction& aDirection) const
 track::Connection Points::nextPosition(const track::Direction& aDirection) const
 {
    ensureValidDirection(aDirection);
-   
-   if (aDirection == axis::X)
-      return make_pair(makePoint(myX + 3, myY), axis::X);
-   else if (aDirection == -axis::X)
-      return make_pair(makePoint(myX - 1, myY), -axis::X);
-   else if (aDirection == axis::Y)
-      return make_pair(makePoint(myX, myY + 3), axis::Y);
-   else if (aDirection == -axis::Y)
-      return make_pair(makePoint(myX, myY - 1), -axis::Y);
+
+   if (myAxis == axis::X) {
+      if (aDirection == -axis::X)
+         assert(false);
+      else
+         return make_pair(makePoint(myX + 3, myY), axis::X);
+   }
+   else if (myAxis == -axis::X) {
+      if (aDirection == -axis::X)
+         assert(false);
+      else
+         return make_pair(makePoint(myX + 1, myY), axis::X);
+   }
+   else if (myAxis == axis::Y) {
+      if (aDirection == -axis::Y)
+         assert(false);
+      else
+         return make_pair(makePoint(myX, myY + 3), axis::Y);
+   }
+   else if (myAxis == -axis::Y) {
+      if (aDirection == -axis::Y)
+         assert(false);
+      else
+         return make_pair(makePoint(myX, myY + 1), axis::Y);
+   }
    else
       assert(false);
 }
