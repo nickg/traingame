@@ -142,8 +142,8 @@ void Points::transform(const track::Direction& aDirection,
 
    glTranslated(-0.5, 0.0, 0.0);
    
-   //if (aDirection == myAxis)
-   //    glRotated(-180.0, 0.0, 1.0, 0.0);
+   if (aDirection == -axis::X || aDirection == -axis::Y)
+       glRotated(-180.0, 0.0, 1.0, 0.0);
 }
 
 void Points::ensureValidDirection(track::Direction aDirection) const
@@ -165,30 +165,46 @@ bool Points::isValidDirection(const track::Direction& aDirection) const
 }
 
 track::Connection Points::nextPosition(const track::TravelToken& aToken) const
-{
+{   
    if (myAxis == axis::X) {
-      if (aToken.direction == -axis::X)
-         assert(false);
-      else
+      if (aToken.direction == -axis::X) {
+         // Two possible entry points
+         return make_pair(makePoint(myX - 1, myY), -axis::X);
+      }
+      else {
+         // Two possible exits
          return make_pair(makePoint(myX + 3, myY), axis::X);
+      }
    }
    else if (myAxis == -axis::X) {
-      if (aToken.direction == -axis::X)
-         assert(false);
-      else
+      if (aToken.direction == -axis::X) {
+         // Two possible entry points
+         return make_pair(makePoint(myX - 3, myY), -axis::X);
+      }
+      else {
+         // Two possible exits
          return make_pair(makePoint(myX + 1, myY), axis::X);
+      }
    }
    else if (myAxis == axis::Y) {
-      if (aToken.direction == -axis::Y)
-         assert(false);
-      else
+      if (aToken.direction == -axis::Y) {
+         // Two possible entry points
+         return make_pair(makePoint(myX, myY - 1), -axis::Y);
+      }
+      else {
+         // Two possible exits
          return make_pair(makePoint(myX, myY + 3), axis::Y);
+      }
    }
    else if (myAxis == -axis::Y) {
-      if (aToken.direction == -axis::Y)
-         assert(false);
-      else
+      if (aToken.direction == -axis::Y) {
+         // Two possible entry points
+         return make_pair(makePoint(myX, myY - 3), -axis::Y);
+      }
+      else {
+         // Two possible exits
          return make_pair(makePoint(myX, myY + 1), axis::Y);
+      }
    }
    else
       assert(false);
