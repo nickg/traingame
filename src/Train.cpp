@@ -26,9 +26,6 @@
 
 #include <GL/gl.h>
 
-using namespace std;
-using namespace std::tr1;
-
 // Concrete implementation of trains
 class Train : public ITrain {
 public:
@@ -56,7 +53,7 @@ private:
       // along the segment the train is
       ITrackSegmentPtr segment;
       double segmentDelta;
-      ITrackSegment::TransformFunc transformer;
+      track::TravelToken travelToken;
       
       // Direction train part is travelling along the track
       Vector<int> direction;
@@ -154,7 +151,7 @@ void Train::updateSmokePosition(int aDelta)
    glPushMatrix();
    glLoadIdentity();
 
-   e.transformer(e.segmentDelta);
+   e.travelToken.transformer(e.segmentDelta);
 
    const float smokeOffX = 0.63f;
    const float smokeOffY = 1.04f;
@@ -213,7 +210,7 @@ void Train::enterSegment(Part& aPart, const track::Connection& aConnection)
 
    aPart.segmentDelta = 0.0;
    aPart.segment = myMap->trackAt(pos);
-   aPart.transformer = aPart.segment->transformFunc(aPart.direction);
+   aPart.travelToken = aPart.segment->getTravelToken(pos, aPart.direction);
 }
 
 void Train::render() const
@@ -222,7 +219,7 @@ void Train::render() const
         it != myParts.end(); ++it) {
       glPushMatrix();
       
-      (*it).transformer((*it).segmentDelta);
+      (*it).travelToken.transformer((*it).segmentDelta);
       glTranslatef(0.0f, track::RAIL_HEIGHT, 0.0f);
       (*it).vehicle->render();
       
@@ -254,7 +251,7 @@ Vector<float> Train::partPosition(const Part& aPart) const
    glPushMatrix();
    glLoadIdentity();
    
-   aPart.transformer(aPart.segmentDelta);
+   aPart.travelToken.transformer(aPart.segmentDelta);
 
    float matrix[16];
    glGetFloatv(GL_MODELVIEW_MATRIX, matrix);

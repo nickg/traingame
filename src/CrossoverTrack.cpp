@@ -42,13 +42,13 @@ public:
    
    void render() const;
    double segmentLength() const;
-   TransformFunc transformFunc(const track::Direction& aDirection) const;
    bool isValidDirection(const track::Direction& aDirection) const;
    track::Connection nextPosition(const track::Direction& aDirection) const;
    void getEndpoints(std::list<Point<int> >& aList) const;
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
                               const track::Direction& aDirection);
-
+   track::TravelToken getTravelToken(track::Position aPosition,
+                                     track::Direction aDirection) const;
    xml::element toXml() const;
    
 private:
@@ -97,6 +97,21 @@ double CrossoverTrack::segmentLength() const
    return 1.0;
 }
 
+track::TravelToken
+CrossoverTrack::getTravelToken(track::Position aPosition,
+                               track::Direction aDirection) const
+{
+   if (!isValidDirection(aDirection))
+      throw runtime_error
+         ("Invalid direction on crossover: " + lexical_cast<string>(aDirection));
+
+   track::TravelToken tok = {
+      aDirection,
+      bind(&CrossoverTrack::transform, this, aDirection, _1)
+   };
+   return tok;
+}
+
 void CrossoverTrack::transform(const track::Direction& aDirection,
                                double aDelta) const
 {
@@ -124,16 +139,6 @@ void CrossoverTrack::transform(const track::Direction& aDirection,
    
    if (backwards)
       glRotated(-180.0, 0.0, 1.0, 0.0);
-}
-
-ITrackSegment::TransformFunc
-CrossoverTrack::transformFunc(const track::Direction& aDirection) const
-{
-   if (!isValidDirection(aDirection))
-      throw runtime_error
-         ("Invalid direction on crossover: " + lexical_cast<string>(aDirection));
-
-   return bind(&CrossoverTrack::transform, this, aDirection, _1);
 }
 
 bool CrossoverTrack::isValidDirection(const track::Direction& aDirection) const

@@ -34,13 +34,14 @@ public:
    void render() const;
    void setOrigin(int x, int y) { myX = x; myY = y; }
    double segmentLength() const;
-   TransformFunc transformFunc(const track::Direction& aDirection) const;
    bool isValidDirection(const track::Direction& aDirection) const;
    track::Connection nextPosition(const track::Direction& aDirection) const;
    void getEndpoints(std::list<Point<int> >& aList) const;
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
                               const track::Direction& aDirection);
    xml::element toXml() const;
+   track::TravelToken getTravelToken(track::Position aPosition,
+                                     track::Direction aDirection) const;
 private:
    void transform(const track::Direction& aDirection, double aDelta) const;
    void ensureValidDirection(track::Direction aDirection) const;
@@ -99,6 +100,20 @@ double Points::segmentLength() const
    return 3.0;
 }
 
+track::TravelToken Points::getTravelToken(track::Position aPosition,
+                                          track::Direction aDirection) const
+{
+   using namespace placeholders;
+   
+   ensureValidDirection(aDirection);
+
+   track::TravelToken tok = {
+      aDirection,
+      bind(&Points::transform, this, aDirection, _1)
+   };
+   return tok;
+}
+
 void Points::transform(const track::Direction& aDirection,
                        double aDelta) const
 {   
@@ -125,16 +140,6 @@ void Points::transform(const track::Direction& aDirection,
    
    //if (aDirection == myAxis)
    //    glRotated(-180.0, 0.0, 1.0, 0.0);
-}
-
-ITrackSegment::TransformFunc
-Points::transformFunc(const track::Direction& aDirection) const
-{
-   using namespace placeholders;
-   
-   ensureValidDirection(aDirection);
-   
-   return bind(&Points::transform, this, aDirection, _1);
 }
 
 void Points::ensureValidDirection(track::Direction aDirection) const

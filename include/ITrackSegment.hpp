@@ -41,6 +41,20 @@ namespace track {
 
    // Angles for curved track
    typedef int Angle;
+
+   typedef std::tr1::function<void (double)> TransformFunc;
+   
+   // Sums up all the information required to travel along a piece
+   // of track
+   struct TravelToken {
+      // Direction of travel at /entry/
+      Direction direction;     
+
+      // A function that transforms the location of the train
+      // so it will render in the correct place for this track segment
+      // The functions assumes that it is initially placed at the origin
+      TransformFunc transformer;
+   };
 }
 
 // Orientations for straight track
@@ -57,8 +71,6 @@ typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;
 struct ITrackSegment {   
    virtual ~ITrackSegment() {}
 
-   typedef std::tr1::function<void (double)> TransformFunc;
-   
    // Render the track with the origin in the centre
    virtual void render() const = 0;
 
@@ -68,12 +80,11 @@ struct ITrackSegment {
    // Get the length of this track segment
    virtual double segmentLength() const = 0;
 
-   // Return a function that transforms the location of the train
-   // so it will render in the correct place for this track segment
-   // The functions assumes that it is initially placed at the origin
-   virtual TransformFunc transformFunc(const track::Direction& aDirection)
-      const = 0;
-
+   // Get a travel token for this track segment starting at a particular
+   // position and moving in a particular direciton
+   virtual track::TravelToken getTravelToken(track::Position aPosition,
+                                             track::Direction aDirection) const = 0;
+                                             
    // True if a train can travel in this direction along the track
    virtual bool isValidDirection(const track::Direction& aDirection) const = 0;
    

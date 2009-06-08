@@ -48,11 +48,10 @@ public:
    bool isValidDirection(const Direction& aDirection) const;
    void getEndpoints(list<Point<int> >& aList) const;
    
-   TransformFunc transformFunc(const track::Direction& aDirection) const;
-   
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
                               const track::Direction& aDirection);
-
+   track::TravelToken getTravelToken(track::Position aPosition,
+                                     track::Direction aDirection) const;
    xml::element toXml() const;
 private:
    void transform(const track::Direction& aDirection, double aDelta) const;
@@ -71,6 +70,19 @@ StraightTrack::StraightTrack(const Direction& aDirection)
 StraightTrack::~StraightTrack()
 {
    
+}
+
+track::TravelToken
+StraightTrack::getTravelToken(track::Position aPosition,
+                              track::Direction aDirection) const
+{
+   ensureValidDirection(aDirection);
+
+   track::TravelToken tok = {
+      aDirection,
+      bind(&StraightTrack::transform, this, aDirection, _1)
+   };
+   return tok;
 }
 
 void StraightTrack::transform(const track::Direction& aDirection,
@@ -95,14 +107,6 @@ void StraightTrack::transform(const track::Direction& aDirection,
    
    if (aDirection == -myDirection)
       glRotated(-180.0, 0.0, 1.0, 0.0);
-}
-
-ITrackSegment::TransformFunc
-StraightTrack::transformFunc(const track::Direction& aDirection) const
-{
-   ensureValidDirection(aDirection);
-   
-   return bind(&StraightTrack::transform, this, aDirection, _1);
 }
 
 ITrackSegmentPtr StraightTrack::mergeExit(const Point<int>& aPoint,

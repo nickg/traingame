@@ -47,7 +47,6 @@ public:
    double segmentLength() const;
 
    Connection nextPosition(const Vector<int>& aDirection) const;
-   TransformFunc transformFunc(const track::Direction& aDirection) const;
    bool isValidDirection(const Direction& aDirection) const;
    void getEndpoints(list<Point<int> >& aList) const;
    
@@ -55,7 +54,9 @@ public:
                               const track::Direction& aDirection);
 
    xml::element toXml() const;
-   
+   track::TravelToken getTravelToken(track::Position aPosition,
+                                     track::Direction aDirection) const;
+      
 private:
    void transform(const track::Direction& aDirection, double aDelta) const;
    Vector<int> cwEntryVector() const;
@@ -78,6 +79,19 @@ CurvedTrack::CurvedTrack(track::Angle aStartAngle,
 CurvedTrack::~CurvedTrack()
 {
 
+}
+
+track::TravelToken
+CurvedTrack::getTravelToken(track::Position aPosition,
+                            track::Direction aDirection) const
+{
+   ensureValidDirection(aDirection);
+
+   track::TravelToken tok = {
+      aDirection,
+      bind(&CurvedTrack::transform, this, aDirection, _1)
+   };
+   return tok;
 }
 
 void CurvedTrack::transform(const track::Direction& aDirection, double aDelta) const
@@ -109,14 +123,6 @@ double CurvedTrack::segmentLength() const
 {
    // Assume curve is only through 90 degrees
    return M_PI * (static_cast<double>(myBaseRadius) - 0.5) / 2.0;
-}
-
-ITrackSegment::TransformFunc
-CurvedTrack::transformFunc(const track::Direction& aDirection) const
-{
-   ensureValidDirection(aDirection);
-   
-   return bind(&CurvedTrack::transform, this, aDirection, _1);
 }
 
 //
