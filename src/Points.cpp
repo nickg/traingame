@@ -45,6 +45,9 @@ public:
 private:
    void transform(const track::Direction& aDirection, double aDelta) const;
    void ensureValidDirection(track::Direction aDirection) const;
+
+   Point<int> displacedEndpoint() const;
+   Point<int> straightEndpoint() const;
    
    int myX, myY;
    track::Direction myAxis;
@@ -191,28 +194,43 @@ track::Connection Points::nextPosition(const track::TravelToken& aToken) const
       assert(false);
 }
 
+// Get the endpoint that follows the curve
+Point<int> Points::displacedEndpoint() const
+{
+   const int reflect = amReflected ? -1 : 1;
+
+   if (myAxis == axis::X)
+      return makePoint(myX + 2, myY + 1*reflect);
+   else if (myAxis == -axis::X)
+      return makePoint(myX - 2, myY - 1*reflect);
+   else if (myAxis == axis::Y)
+      return makePoint(myX - 1*reflect, myY + 2);
+   else if (myAxis == -axis::Y)
+      return makePoint(myX + 1*reflect, myY - 2);
+   else
+      assert(false);
+}
+
+// Get the endpoint that follows the straight track
+Point<int> Points::straightEndpoint() const
+{
+   if (myAxis == axis::X)
+      return makePoint(myX + 2, myY);
+   else if (myAxis == -axis::X)
+      return makePoint(myX - 2, myY);
+   else if (myAxis == axis::Y)
+      return makePoint(myX, myY + 2);
+   else if (myAxis == -axis::Y)
+      return makePoint(myX, myY - 2);
+   else
+      assert(false);
+}
+
 void Points::getEndpoints(std::list<Point<int> >& aList) const
 {
    aList.push_back(makePoint(myX, myY));
-
-   const int reflect = amReflected ? -1 : 1;
-
-   if (myAxis == axis::X) {
-      aList.push_back(makePoint(myX + 2, myY));
-      aList.push_back(makePoint(myX + 2, myY + 1*reflect));
-   }
-   else if (myAxis == -axis::X) {
-      aList.push_back(makePoint(myX - 2, myY));
-      aList.push_back(makePoint(myX - 2, myY - 1*reflect));
-   }
-   else if (myAxis == axis::Y) {
-      aList.push_back(makePoint(myX, myY + 2));
-      aList.push_back(makePoint(myX - 1*reflect, myY + 2));
-   }
-   else if (myAxis == -axis::Y) {
-      aList.push_back(makePoint(myX, myY - 2));
-      aList.push_back(makePoint(myX + 1*reflect, myY - 2));
-   }
+   aList.push_back(straightEndpoint());
+   aList.push_back(displacedEndpoint());
 }
 
 ITrackSegmentPtr Points::mergeExit(const Point<int>& aPoint,
