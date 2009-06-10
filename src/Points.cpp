@@ -170,6 +170,21 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       if (myAxis == axis::Y || myAxis == -axis::Y)
          glRotated(-90.0, 0.0, 1.0, 0.0);
    }
+   else if (aToken.position == displacedEndpoint()) {
+      // Curving onto the straight section
+      debug() << "Section 3";
+
+      float xTrans, yTrans;
+      
+      if ((myAxis == -axis::X && aToken.direction == axis::X))
+         xTrans = aDelta - 2.0f;
+      else
+         xTrans = aDelta;
+
+      yTrans = -hypTanCurveFunc(aDelta) + 1.0f;
+
+      glTranslatef(myX + xTrans, 0.0f, myY + yTrans);
+   }
    else
       assert(false);
 
