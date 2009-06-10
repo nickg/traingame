@@ -43,7 +43,8 @@ public:
    track::TravelToken getTravelToken(track::Position aPosition,
                                      track::Direction aDirection) const;
 private:
-   void transform(const track::Direction& aDirection, double aDelta) const;
+   void transform(const track::Direction& aDirection,
+                  Point<int> aPosition, double aDelta) const;
    void ensureValidDirection(track::Direction aDirection) const;
 
    Point<int> displacedEndpoint() const;
@@ -113,32 +114,66 @@ track::TravelToken Points::getTravelToken(track::Position aPosition,
    track::TravelToken tok = {
       aDirection,
       aPosition,
-      bind(&Points::transform, this, aDirection, _1)
+      bind(&Points::transform, this, aDirection, aPosition, _1)
    };
    return tok;
 }
 
 void Points::transform(const track::Direction& aDirection,
-                       double aDelta) const
+                       Point<int> aPosition, double aDelta) const
 {   
    assert(aDelta < 3.0);
 
-   if (aDirection == -myAxis)
+   debug() << myAxis << " " << aDirection;
+
+   if (myX == aPosition.x && myY == aPosition.y) {
+      debug() << "Section 1";
+
+      if (aDirection == myAxis
+          && (myAxis == -axis::X || myAxis == -axis::Y)) {
+         debug() << "transforming";
+         aDelta -= 1.0;
+      }
+      
+      const double xTrans =
+         myAxis == axis::X ? aDelta
+         : (myAxis == -axis::X ? -aDelta : 0.0);
+      const double yTrans =
+         myAxis == axis::Y ? aDelta
+         : (myAxis == -axis::Y ? -aDelta : 0.0);
+      
+      glTranslatef(static_cast<double>(myX) + xTrans,
+                   0.0,
+                   static_cast<double>(myY) + yTrans);
+      
+      if (myAxis == axis::Y || myAxis == -axis::Y)
+         glRotated(-90.0, 0.0, 1.0, 0.0);
+   }
+   else if (aPosition == straightEndpoint()) {
+      debug() << "Section 2";
+      
       aDelta = 2.0 - aDelta;
 
-   const double xTrans =
-      myAxis == axis::X ? aDelta
-      : (myAxis == -axis::X ? -aDelta : 0.0);
-   const double yTrans =
-      myAxis == axis::Y ? aDelta
-      : (myAxis == -axis::Y ? -aDelta : 0.0);
-
-   glTranslatef(static_cast<double>(myX) + xTrans,
-                0.0,
-                static_cast<double>(myY) + yTrans);
-   
-   if (myAxis == axis::Y || myAxis == -axis::Y)
-      glRotated(-90.0, 0.0, 1.0, 0.0);
+      if (aDirection == -myAxis
+          && (myAxis == axis::X || myAxis == axis::Y))
+         aDelta += 1.0;
+      
+      const double xTrans =
+         myAxis == axis::X ? aDelta
+         : (myAxis == -axis::X ? -aDelta : 0.0);
+      const double yTrans =
+         myAxis == axis::Y ? aDelta
+         : (myAxis == -axis::Y ? -aDelta : 0.0);
+      
+      glTranslatef(static_cast<double>(myX) + xTrans,
+                   0.0,
+                   static_cast<double>(myY) + yTrans);
+      
+      if (myAxis == axis::Y || myAxis == -axis::Y)
+         glRotated(-90.0, 0.0, 1.0, 0.0);
+   }
+   else
+      assert(false);
 
    glTranslated(-0.5, 0.0, 0.0);
    
