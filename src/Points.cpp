@@ -33,7 +33,7 @@ public:
    // ITrackSegment interface
    void render() const;
    void setOrigin(int x, int y) { myX = x; myY = y; }
-   double segmentLength() const;
+   double segmentLength(const track::TravelToken& aToken) const;
    bool isValidDirection(const track::Direction& aDirection) const;
    track::Connection nextPosition(const track::TravelToken& aToken) const;
    void getEndpoints(std::list<Point<int> >& aList) const;
@@ -43,8 +43,7 @@ public:
    track::TravelToken getTravelToken(track::Position aPosition,
                                      track::Direction aDirection) const;
 private:
-   void transform(const track::Direction& aDirection,
-                  Point<int> aPosition, double aDelta) const;
+   void transform(const track::TravelToken& aToken, double aDelta) const;
    void ensureValidDirection(track::Direction aDirection) const;
 
    Point<int> displacedEndpoint() const;
@@ -99,7 +98,7 @@ void Points::render() const
    glPopMatrix();
 }
 
-double Points::segmentLength() const
+double Points::segmentLength(const track::TravelToken& aToken) const
 {
    return 3.0;
 }
@@ -113,23 +112,22 @@ track::TravelToken Points::getTravelToken(track::Position aPosition,
 
    track::TravelToken tok = {
       aDirection,
-      aPosition,
-      bind(&Points::transform, this, aDirection, aPosition, _1)
+      aPosition
    };
+   tok.transformer = bind(&Points::transform, this, tok, _1);
    return tok;
 }
 
-void Points::transform(const track::Direction& aDirection,
-                       Point<int> aPosition, double aDelta) const
+void Points::transform(const track::TravelToken& aToken, double aDelta) const
 {   
    assert(aDelta < 3.0);
 
-   debug() << myAxis << " " << aDirection;
+   debug() << myAxis << " " << aToken.direction;
 
-   if (myX == aPosition.x && myY == aPosition.y) {
+   if (myX == aToken.position.x && myY == aToken.position.y) {
       debug() << "Section 1";
 
-      if (aDirection == myAxis
+      if (aToken.direction == myAxis
           && (myAxis == -axis::X || myAxis == -axis::Y)) {
          debug() << "transforming";
          aDelta -= 1.0;
@@ -149,12 +147,12 @@ void Points::transform(const track::Direction& aDirection,
       if (myAxis == axis::Y || myAxis == -axis::Y)
          glRotated(-90.0, 0.0, 1.0, 0.0);
    }
-   else if (aPosition == straightEndpoint()) {
+   else if (aToken.position == straightEndpoint()) {
       debug() << "Section 2";
       
       aDelta = 2.0 - aDelta;
 
-      if (aDirection == -myAxis
+      if (aToken.direction == -myAxis
           && (myAxis == axis::X || myAxis == axis::Y))
          aDelta += 1.0;
       
@@ -177,7 +175,7 @@ void Points::transform(const track::Direction& aDirection,
 
    glTranslated(-0.5, 0.0, 0.0);
    
-   if (aDirection == -axis::X || aDirection == -axis::Y)
+   if (aToken.direction == -axis::X || aToken.direction == -axis::Y)
        glRotated(-180.0, 0.0, 1.0, 0.0);
 }
 

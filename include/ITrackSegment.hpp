@@ -81,7 +81,7 @@ struct ITrackSegment {
    virtual void setOrigin(int x, int y) = 0;
 
    // Get the length of this track segment
-   virtual double segmentLength() const = 0;
+   virtual double segmentLength(const track::TravelToken& aToken) const = 0;
 
    // Get a travel token for this track segment starting at a particular
    // position and moving in a particular direciton

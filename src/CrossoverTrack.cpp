@@ -41,7 +41,7 @@ public:
    void setOrigin(int x, int y) { myX = x; myY = y; }
    
    void render() const;
-   double segmentLength() const;
+   double segmentLength(const track::TravelToken& aToken) const;
    bool isValidDirection(const track::Direction& aDirection) const;
    track::Connection nextPosition(const track::TravelToken& aToken) const;
    void getEndpoints(std::list<Point<int> >& aList) const;
@@ -92,7 +92,7 @@ void CrossoverTrack::render() const
    glPopMatrix();
 }
 
-double CrossoverTrack::segmentLength() const
+double CrossoverTrack::segmentLength(const track::TravelToken& aToken) const
 {
    return 1.0;
 }

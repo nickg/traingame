@@ -44,7 +44,7 @@ public:
    void render() const;
 
    void setOrigin(int x, int y) { myX = x; myY = y; }
-   double segmentLength() const;
+   double segmentLength(const track::TravelToken& aToken) const;
 
    Connection nextPosition(const track::TravelToken& aToken) const;
    bool isValidDirection(const Direction& aDirection) const;
@@ -58,7 +58,7 @@ public:
                                      track::Direction aDirection) const;
       
 private:
-   void transform(const track::Direction& aDirection, double aDelta) const;
+   void transform(const track::TravelToken& aToken, double aDelta) const;
    Vector<int> cwEntryVector() const;
    Vector<int> ccwEntryVector() const;
    void ensureValidDirection(const Direction& aDirection) const;
@@ -89,15 +89,15 @@ CurvedTrack::getTravelToken(track::Position aPosition,
 
    track::TravelToken tok = {
       aDirection,
-      aPosition,
-      bind(&CurvedTrack::transform, this, aDirection, _1)
+      aPosition
    };
+   tok.transformer = bind(&CurvedTrack::transform, this, tok, _1);
    return tok;
 }
 
-void CurvedTrack::transform(const track::Direction& aDirection, double aDelta) const
+void CurvedTrack::transform(const track::TravelToken& aToken, double aDelta) const
 {
-   assert(aDelta < segmentLength());
+   assert(aDelta < segmentLength(aToken));
    
    glTranslated(static_cast<double>(myX),
                 0.0,
@@ -105,9 +105,9 @@ void CurvedTrack::transform(const track::Direction& aDirection, double aDelta) c
 
    transformToOrigin(myBaseRadius, myStartAngle);
 
-   bool backwards = aDirection == cwEntryVector();
+   bool backwards = aToken.direction == cwEntryVector();
    
-   double ratio = aDelta / segmentLength();
+   double ratio = aDelta / segmentLength(aToken);
    if (backwards)
       ratio = 1.0 - ratio;
       
@@ -120,7 +120,7 @@ void CurvedTrack::transform(const track::Direction& aDirection, double aDelta) c
       glRotatef(180.0, 0, 1, 0);
 }
 
-double CurvedTrack::segmentLength() const
+double CurvedTrack::segmentLength(const track::TravelToken& aToken) const
 {
    // Assume curve is only through 90 degrees
    return M_PI * (static_cast<double>(myBaseRadius) - 0.5) / 2.0;

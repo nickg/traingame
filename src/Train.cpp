@@ -133,7 +133,8 @@ void Train::move(double aDistance)
       do {
          (*it).segmentDelta += min(step, d);
          
-         const double segmentLength = (*it).segment->segmentLength();
+         const double segmentLength =
+            (*it).segment->segmentLength((*it).travelToken);
          if ((*it).segmentDelta >= segmentLength) {
             // Moved onto a new piece of track
             const double over = (*it).segmentDelta - segmentLength;

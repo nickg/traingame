@@ -41,7 +41,7 @@ public:
    void render() const;
    
    void setOrigin(int x, int y) { myX = x; myY = y; }
-   double segmentLength() const { return 1.0; }
+   double segmentLength(const track::TravelToken& aToken) const { return 1.0; }
 
    Vector<double> offsetForDelta(double aDelta) const;
    Connection nextPosition(const track::TravelToken& aDirection) const;
