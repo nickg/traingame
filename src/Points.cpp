@@ -177,24 +177,20 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       float xTrans, yTrans;
       
       if ((myAxis == -axis::X && aToken.direction == axis::X)) {
-         if (amReflected) {
-            xTrans = aDelta - 2.0f;
+         xTrans = aDelta - 2.0f;
+
+         if (amReflected)
             yTrans = hypTanCurveFunc(3.0f - aDelta);
-         }
-         else {
-            xTrans = aDelta - 2.0f;
+         else
             yTrans = -hypTanCurveFunc(3.0f - aDelta);
-         }
       }
       else if ((myAxis == axis::X && aToken.direction == -axis::X)) {
-         if (amReflected) {
-            xTrans = 3.0f - aDelta;
+         xTrans = 3.0f - aDelta;
+         
+         if (amReflected)
             yTrans = -hypTanCurveFunc(3.0f - aDelta);
-         }
-         else {
-            xTrans = 3.0f - aDelta;
+         else
             yTrans = hypTanCurveFunc(3.0f - aDelta);
-         }
       }
       else
          assert(false);
