@@ -122,7 +122,7 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
 {   
    assert(aDelta < 3.0);
 
-   debug() << myAxis << " " << aToken.direction;
+   debug() << myAxis << " " << aToken.direction << " r=" << amReflected;
 
    if (myX == aToken.position.x && myY == aToken.position.y) {
       debug() << "Section 1";
@@ -176,12 +176,30 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
 
       float xTrans, yTrans;
       
-      if ((myAxis == -axis::X && aToken.direction == axis::X))
-         xTrans = aDelta - 2.0f;
+      if ((myAxis == -axis::X && aToken.direction == axis::X)) {
+         if (amReflected) {
+            xTrans = aDelta - 2.0f;
+            yTrans = hypTanCurveFunc(3.0f - aDelta);
+         }
+         else {
+            xTrans = aDelta - 2.0f;
+            yTrans = -hypTanCurveFunc(3.0f - aDelta);
+         }
+      }
+      else if ((myAxis == axis::X && aToken.direction == -axis::X)) {
+         if (amReflected) {
+            xTrans = 3.0f - aDelta;
+            yTrans = -hypTanCurveFunc(3.0f - aDelta);
+         }
+         else {
+            xTrans = 3.0f - aDelta;
+            yTrans = hypTanCurveFunc(3.0f - aDelta);
+         }
+      }
       else
-         xTrans = aDelta;
+         assert(false);
 
-      yTrans = hypTanCurveFunc(3.0f - aDelta);
+      
 
       glTranslatef(myX + xTrans, 0.0f, myY + yTrans);
    }
