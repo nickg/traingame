@@ -18,6 +18,8 @@
 #ifndef INC_MATHS_HPP
 #define INC_MATHS_HPP
 
+#include "Platform.hpp"
+
 #include <cmath>
 #include <ostream>
 
@@ -189,6 +191,9 @@ struct Frustum {
 };
 
 Frustum getViewFrustum();
+
+// A rough guess at the gradient at a point on a curve
+float approxGradient(function<float (float)> aFunc, float x);
 
 // Useful functions for converting to/from radians
 

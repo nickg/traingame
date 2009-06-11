@@ -44,3 +44,17 @@ void drawNormal(const Vector<float>& aPosition,
    glPopAttrib();
    glPopAttrib();
 }
+
+// A rough guess at the gradient at a point on a curve
+float approxGradient(function<float (float)> aFunc, float x)
+{
+   const float delta = 0.01f;
+
+   const float x1 = x - delta;
+   const float x2 = x + delta;
+
+   const float y1 = aFunc(x1);
+   const float y2 = aFunc(x2);
+
+   return (y2 - y1) / (x2 - x1);
+}

@@ -2,7 +2,7 @@
 <map width="64" height="64">
 <name>No Name</name>
 
-<start x="37" y="15" dirX="-1" dirY="0"/>
+<start x="4" y="17" dirX="0" dirY="-1"/>
 
 <heightmap>maps/points.bin</heightmap>
 

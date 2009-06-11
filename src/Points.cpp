@@ -146,6 +146,8 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       
       if (myAxis == axis::Y || myAxis == -axis::Y)
          glRotated(-90.0, 0.0, 1.0, 0.0);
+      
+      glTranslated(-0.5, 0.0, 0.0);
    }
    else if (aToken.position == straightEndpoint()) {
       debug() << "Section 2";
@@ -169,44 +171,63 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       
       if (myAxis == axis::Y || myAxis == -axis::Y)
          glRotated(-90.0, 0.0, 1.0, 0.0);
+      
+      glTranslated(-0.5, 0.0, 0.0);
    }
    else if (aToken.position == displacedEndpoint()) {
       // Curving onto the straight section
       debug() << "Section 3";
 
-      float xTrans, yTrans;
+      float xTrans, yTrans, rotate;
+
+      const float fValue = 3.0f - aDelta;
+      const float curveValue = hypTanCurveFunc(fValue);
+
+      // Calculate the angle that the tangent to the curve at this
+      // point makes to (one of) the axis at this point
+      const float grad = approxGradient(hypTanCurveFunc, fValue);
+      const float angle = radToDeg<float>(atanf(grad));
+      debug() << grad << " angle=" << angle;
       
       if (myAxis == -axis::X && aToken.direction == axis::X) {
          xTrans = aDelta - 2.0f;
 
          if (amReflected)
-            yTrans = hypTanCurveFunc(3.0f - aDelta);
+            yTrans = curveValue;
          else
-            yTrans = -hypTanCurveFunc(3.0f - aDelta);
+            yTrans = -curveValue;
+
+         rotate = amReflected ? angle : -angle;
       }
       else if (myAxis == axis::X && aToken.direction == -axis::X) {
          xTrans = 3.0f - aDelta;
          
          if (amReflected)
-            yTrans = -hypTanCurveFunc(3.0f - aDelta);
+            yTrans = -curveValue;
          else
-            yTrans = hypTanCurveFunc(3.0f - aDelta);
+            yTrans = curveValue;
+
+         rotate = amReflected ? -angle : angle;
       }
-      if (myAxis == -axis::Y && aToken.direction == axis::Y) {
+      else if (myAxis == -axis::Y && aToken.direction == axis::Y) {
          if (amReflected)
-            xTrans = -hypTanCurveFunc(3.0f - aDelta);
+            xTrans = -curveValue;
          else
-            xTrans = hypTanCurveFunc(3.0f - aDelta);
+            xTrans = curveValue;
          
          yTrans = aDelta - 2.0f;
+
+         rotate = amReflected ? angle : -angle;
       }
       else if (myAxis == axis::Y && aToken.direction == -axis::Y) {
          if (amReflected)
-            xTrans = hypTanCurveFunc(3.0f - aDelta);
+            xTrans = curveValue;
          else
-            xTrans = -hypTanCurveFunc(3.0f - aDelta);
+            xTrans = -curveValue;
          
          yTrans = 3.0f - aDelta;
+
+         rotate = amReflected ? angle : -angle;
       }
       else
          assert(false);
@@ -215,11 +236,13 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       
       if (myAxis == axis::Y || myAxis == -axis::Y)
          glRotated(-90.0, 0.0, 1.0, 0.0);
+      
+      glTranslated(-0.5, 0.0, 0.0);
+
+      glRotatef(rotate, 0.0f, 1.0f, 0.0f);
    }
    else
       assert(false);
-
-   glTranslated(-0.5, 0.0, 0.0);
    
    if (aToken.direction == -axis::X || aToken.direction == -axis::Y)
        glRotated(-180.0, 0.0, 1.0, 0.0);
