@@ -159,7 +159,7 @@ public:
 };
 
 void SphericalBillboard::render() const
-{
+{  
    // Based on code from
    // http://www.lighthouse3d.com/opengl/billboarding/index.php?billSphe
    Vector<float> lookAt, objToCamProj, upAux, objToCam;
