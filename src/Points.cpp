@@ -100,7 +100,10 @@ void Points::render() const
 
 double Points::segmentLength(const track::TravelToken& aToken) const
 {
-   return 3.0;
+   if (aToken.position == displacedEndpoint())
+      return 4.0;   // No idea how to calculate the /actual/ value
+   else
+      return 3.0;
 }
 
 track::TravelToken Points::getTravelToken(track::Position aPosition,
@@ -112,7 +115,7 @@ track::TravelToken Points::getTravelToken(track::Position aPosition,
 
    track::TravelToken tok = {
       aDirection,
-      aPosition
+      aPosition,
    };
    tok.transformer = bind(&Points::transform, this, tok, _1);
    return tok;
@@ -120,18 +123,13 @@ track::TravelToken Points::getTravelToken(track::Position aPosition,
 
 void Points::transform(const track::TravelToken& aToken, double aDelta) const
 {   
-   assert(aDelta < 3.0);
-
-   debug() << myAxis << " " << aToken.direction << " r=" << amReflected;
+   assert(aDelta < segmentLength(aToken));
 
    if (myX == aToken.position.x && myY == aToken.position.y) {
-      debug() << "Section 1";
 
       if (aToken.direction == myAxis
-          && (myAxis == -axis::X || myAxis == -axis::Y)) {
-         debug() << "transforming";
+          && (myAxis == -axis::X || myAxis == -axis::Y))
          aDelta -= 1.0;
-      }
       
       const double xTrans =
          myAxis == axis::X ? aDelta
@@ -150,8 +148,6 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       glTranslated(-0.5, 0.0, 0.0);
    }
    else if (aToken.position == straightEndpoint()) {
-      debug() << "Section 2";
-      
       aDelta = 2.0 - aDelta;
 
       if (aToken.direction == -myAxis
@@ -176,8 +172,6 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
    }
    else if (aToken.position == displacedEndpoint()) {
       // Curving onto the straight section
-      debug() << "Section 3";
-
       float xTrans, yTrans, rotate;
 
       const float fValue = 3.0f - aDelta;
@@ -187,46 +181,25 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       // point makes to (one of) the axis at this point
       const float grad = approxGradient(hypTanCurveFunc, fValue);
       const float angle = radToDeg<float>(atanf(grad));
-      debug() << grad << " angle=" << angle;
       
       if (myAxis == -axis::X && aToken.direction == axis::X) {
          xTrans = aDelta - 2.0f;
-
-         if (amReflected)
-            yTrans = curveValue;
-         else
-            yTrans = -curveValue;
-
+         yTrans = amReflected ? curveValue : -curveValue;
          rotate = amReflected ? angle : -angle;
       }
       else if (myAxis == axis::X && aToken.direction == -axis::X) {
          xTrans = 3.0f - aDelta;
-         
-         if (amReflected)
-            yTrans = -curveValue;
-         else
-            yTrans = curveValue;
-
+         yTrans = amReflected ? -curveValue : curveValue;
          rotate = amReflected ? -angle : angle;
       }
       else if (myAxis == -axis::Y && aToken.direction == axis::Y) {
-         if (amReflected)
-            xTrans = -curveValue;
-         else
-            xTrans = curveValue;
-         
+         xTrans = amReflected ? -curveValue : curveValue;
          yTrans = aDelta - 2.0f;
-
          rotate = amReflected ? angle : -angle;
       }
       else if (myAxis == axis::Y && aToken.direction == -axis::Y) {
-         if (amReflected)
-            xTrans = curveValue;
-         else
-            xTrans = -curveValue;
-         
+         xTrans = amReflected ? curveValue : -curveValue;
          yTrans = 3.0f - aDelta;
-
          rotate = amReflected ? angle : -angle;
       }
       else
