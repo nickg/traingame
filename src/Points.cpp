@@ -176,7 +176,7 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
 
       float xTrans, yTrans;
       
-      if ((myAxis == -axis::X && aToken.direction == axis::X)) {
+      if (myAxis == -axis::X && aToken.direction == axis::X) {
          xTrans = aDelta - 2.0f;
 
          if (amReflected)
@@ -184,7 +184,7 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
          else
             yTrans = -hypTanCurveFunc(3.0f - aDelta);
       }
-      else if ((myAxis == axis::X && aToken.direction == -axis::X)) {
+      else if (myAxis == axis::X && aToken.direction == -axis::X) {
          xTrans = 3.0f - aDelta;
          
          if (amReflected)
@@ -192,12 +192,29 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
          else
             yTrans = hypTanCurveFunc(3.0f - aDelta);
       }
+      if (myAxis == -axis::Y && aToken.direction == axis::Y) {
+         if (amReflected)
+            xTrans = -hypTanCurveFunc(3.0f - aDelta);
+         else
+            xTrans = hypTanCurveFunc(3.0f - aDelta);
+         
+         yTrans = aDelta - 2.0f;
+      }
+      else if (myAxis == axis::Y && aToken.direction == -axis::Y) {
+         if (amReflected)
+            xTrans = hypTanCurveFunc(3.0f - aDelta);
+         else
+            xTrans = -hypTanCurveFunc(3.0f - aDelta);
+         
+         yTrans = 3.0f - aDelta;
+      }
       else
          assert(false);
 
-      
-
       glTranslatef(myX + xTrans, 0.0f, myY + yTrans);
+      
+      if (myAxis == axis::Y || myAxis == -axis::Y)
+         glRotated(-90.0, 0.0, 1.0, 0.0);
    }
    else
       assert(false);
