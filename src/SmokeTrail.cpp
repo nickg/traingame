@@ -50,7 +50,7 @@ private:
    void newParticle();
    bool moveParticle(Particle& aParticle, int aDelta);
    
-   mutable list<Particle> myParticles;  // Need to sort particles in render()
+   list<Particle> myParticles; 
    float myX, myY, myZ;
    IBillboardPtr myBillboard;
 
@@ -159,19 +159,8 @@ void SmokeTrail::newParticle()
    myParticles.push_back(p);
 }
 
-struct CmpDistanceToCam {
-   bool operator()(const SmokeTrail::Particle& lhs,
-                   const SmokeTrail::Particle& rhs)
-   {
-      return distanceToCamera(makeVector(lhs.x, lhs.y, lhs.z))
-         > distanceToCamera(makeVector(rhs.x, rhs.y, rhs.z));
-   }
-};
-
 void SmokeTrail::render() const
-{
-   myParticles.sort(CmpDistanceToCam());
-   
+{   
    for (list<Particle>::const_iterator it = myParticles.begin();
         it != myParticles.end(); ++it) {
       myBillboard->setPosition((*it).x, (*it).y, (*it).z);

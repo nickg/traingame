@@ -122,6 +122,9 @@ void CylindricalBillboard::render() const
    // http://www.lighthouse3d.com/opengl/billboarding/index.php?billCheat1
    
    float modelview[16];
+
+   glPushAttrib(GL_DEPTH_BUFFER_BIT);
+   glDepthMask(GL_FALSE);
    
    glPushMatrix();
 
@@ -142,6 +145,7 @@ void CylindricalBillboard::render() const
    drawTextureQuad();
 
    glPopMatrix();
+   glPopAttrib();
 }
 
 // A billboard which always faces the viewer
@@ -160,6 +164,9 @@ void SphericalBillboard::render() const
    // http://www.lighthouse3d.com/opengl/billboarding/index.php?billSphe
    Vector<float> lookAt, objToCamProj, upAux, objToCam;
    float angleCosine;
+   
+   glPushAttrib(GL_DEPTH_BUFFER_BIT);
+   glDepthMask(GL_FALSE);
    
    glPushMatrix();
 
@@ -227,6 +234,7 @@ void SphericalBillboard::render() const
    drawTextureQuad();
 
    glPopMatrix();
+   glPopAttrib();
 }
 
 IBillboardPtr makeCylindricalBillboard(ITexturePtr aTexture)
