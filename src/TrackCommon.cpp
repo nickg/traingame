@@ -261,26 +261,15 @@ namespace {
 }
 
 // The function that determines the curve of points and S-bends
-float hypTanCurveFunc(float x)
+float displacedCurveFunc(float x)
 {
-   const float linearAbove = 2.7f;
-   const float wantOneAt = 2.9f;
-   if (x <= linearAbove)
-      // Use the curvey function   
-      return 0.5f * (1.0f + tanh(1.8f * x - 3.5f));
-   else {
-      // Interpolate linearly
-      const float fLinearAbove = hypTanCurveFunc(linearAbove);
-      const float m = (1.0f - fLinearAbove) / (wantOneAt - linearAbove);
-      
-      return m*(x - linearAbove) + fLinearAbove;
-   }
+   return 0.5f * (1.0f + tanh(1.8f * x - 3.5f));
 }
 
 // The above function reflected about the x-axis
-float reflectedHypTanCurveFunc(float x)
+float reflectedDisplacedCurveFunc(float x)
 {
-   return -hypTanCurveFunc(x);
+   return -displacedCurveFunc(x);
 }
 
 // Draw a sleeper in the current maxtrix location
@@ -308,7 +297,7 @@ void renderStraightRail()
 void renderHypTanRail()
 {
    if (!theHypTanRailMesh)
-      theHypTanRailMesh = generateFuncRailMesh(hypTanCurveFunc);
+      theHypTanRailMesh = generateFuncRailMesh(displacedCurveFunc);
 
    glPushMatrix();
 
@@ -325,7 +314,7 @@ void renderReflectedHypTanRail()
 {
    if (!theReflectedHypTanRailMesh)
       theReflectedHypTanRailMesh =
-         generateFuncRailMesh(reflectedHypTanCurveFunc);
+         generateFuncRailMesh(reflectedDisplacedCurveFunc);
 
    glPushMatrix();
 

@@ -182,11 +182,11 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       const float curveDelta = aDelta * 3.0f / len;
 
       const float fValue = 3.0f - curveDelta;
-      const float curveValue = hypTanCurveFunc(fValue);
+      const float curveValue = displacedCurveFunc(fValue);
 
       // Calculate the angle that the tangent to the curve at this
       // point makes to (one of) the axis at this point
-      const float grad = approxGradient(hypTanCurveFunc, fValue);
+      const float grad = approxGradient(displacedCurveFunc, fValue);
       const float angle = radToDeg<float>(atanf(grad));
       
       if (myAxis == -axis::X && aToken.direction == axis::X) {
