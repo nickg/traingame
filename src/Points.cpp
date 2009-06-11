@@ -122,8 +122,10 @@ track::TravelToken Points::getTravelToken(track::Position aPosition,
 }
 
 void Points::transform(const track::TravelToken& aToken, double aDelta) const
-{   
-   assert(aDelta < segmentLength(aToken));
+{
+   const float len = segmentLength(aToken);
+   
+   assert(aDelta < len);
 
    if (myX == aToken.position.x && myY == aToken.position.y) {
 
@@ -174,7 +176,12 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       // Curving onto the straight section
       float xTrans, yTrans, rotate;
 
-      const float fValue = 3.0f - aDelta;
+      // We have a slight problem in that the domain of the curve
+      // function is [0,3] but the delta is in [0,len] so we have
+      // to compress the delta into [0,3] here
+      const float curveDelta = aDelta * 3.0f / len;
+
+      const float fValue = 3.0f - curveDelta;
       const float curveValue = hypTanCurveFunc(fValue);
 
       // Calculate the angle that the tangent to the curve at this
@@ -183,23 +190,23 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       const float angle = radToDeg<float>(atanf(grad));
       
       if (myAxis == -axis::X && aToken.direction == axis::X) {
-         xTrans = aDelta - 2.0f;
+         xTrans = curveDelta - 3.0f + 1.0f;
          yTrans = amReflected ? curveValue : -curveValue;
          rotate = amReflected ? angle : -angle;
       }
       else if (myAxis == axis::X && aToken.direction == -axis::X) {
-         xTrans = 3.0f - aDelta;
+         xTrans = 3.0f - curveDelta;
          yTrans = amReflected ? -curveValue : curveValue;
          rotate = amReflected ? -angle : angle;
       }
       else if (myAxis == -axis::Y && aToken.direction == axis::Y) {
          xTrans = amReflected ? -curveValue : curveValue;
-         yTrans = aDelta - 2.0f;
+         yTrans = curveDelta - 3.0f + 1.0f;
          rotate = amReflected ? angle : -angle;
       }
       else if (myAxis == axis::Y && aToken.direction == -axis::Y) {
          xTrans = amReflected ? curveValue : -curveValue;
-         yTrans = 3.0f - aDelta;
+         yTrans = 3.0f - curveDelta;
          rotate = amReflected ? angle : -angle;
       }
       else

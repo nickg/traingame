@@ -263,7 +263,18 @@ namespace {
 // The function that determines the curve of points and S-bends
 float hypTanCurveFunc(float x)
 {
-   return 0.5f * (1.0f + tanh(1.8f * x - 3.5f));
+   const float linearAbove = 2.7f;
+   const float wantOneAt = 2.9f;
+   if (x <= linearAbove)
+      // Use the curvey function   
+      return 0.5f * (1.0f + tanh(1.8f * x - 3.5f));
+   else {
+      // Interpolate linearly
+      const float fLinearAbove = hypTanCurveFunc(linearAbove);
+      const float m = (1.0f - fLinearAbove) / (wantOneAt - linearAbove);
+      
+      return m*(x - linearAbove) + fLinearAbove;
+   }
 }
 
 // The above function reflected about the x-axis
