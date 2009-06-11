@@ -181,7 +181,7 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       else
          xTrans = aDelta;
 
-      yTrans = -hypTanCurveFunc(aDelta) + 1.0f;
+      yTrans = hypTanCurveFunc(3.0f - aDelta);
 
       glTranslatef(myX + xTrans, 0.0f, myY + yTrans);
    }
