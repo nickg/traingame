@@ -102,7 +102,27 @@ void Points::render() const
    
    glPopMatrix();
 
-   // Draw the sleepers
+   // Draw the curved sleepers
+   for (float i = 0.2f; i < 1.0f; i += 0.08f) {
+      glPushMatrix();
+      
+      Vector<float> v = (amReflected ? myReflectedCurve : myCurve)(i);
+
+      glTranslatef(v.x - 0.4f, 0.0f, v.y);
+      
+      const Vector<float> deriv =
+         (amReflected ? myReflectedCurve : myCurve).deriv(i);
+      const float angle =
+         radToDeg<float>(atanf(deriv.y / deriv.x));
+
+      glRotatef(-angle, 0.0f, 1.0f, 0.0f);
+
+      renderSleeper();
+      
+      glPopMatrix();
+   }
+   
+   // Draw the straight sleepers
    glTranslatef(-0.4f, 0.0f, 0.0f);
    
    for (int i = 0; i < 12; i++) {
