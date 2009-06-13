@@ -23,6 +23,7 @@
 
 #include <stdexcept>
 #include <cassert>
+#include <queue>
 
 #include <GL/gl.h>
 
@@ -44,8 +45,8 @@ public:
 private:
    // The different parts of the train are on different track segments
    struct Part {
-      explicit Part(IRollingStockPtr aVehicle)
-         : vehicle(aVehicle), segmentDelta(0.0)
+      explicit Part(IRollingStockPtr aVehicle, bool amDriving = false)
+         : vehicle(aVehicle), segmentDelta(0.0), isDriving(amDriving)
       {}
       
       IRollingStockPtr vehicle;
@@ -58,7 +59,13 @@ private:
       track::TravelToken travelToken;
       
       // Direction train part is travelling along the track
-      Vector<int> direction;      
+      Vector<int> direction;
+
+      // Turns to take if this is not the engine
+      queue<track::Choice> followQueue;
+
+      // True if this is driving the train
+      bool isDriving;
    };
    list<Part> myParts;
 
@@ -68,6 +75,7 @@ private:
    void addPart(IRollingStockPtr aVehicle);
    Vector<float> partPosition(const Part& aPart) const;
    void updateSmokePosition(int aDelta);
+   void makeFollow(track::Choice aChoice);
    
    IMapPtr myMap;
    ISmokeTrailPtr mySmokeTrail;
@@ -86,7 +94,7 @@ const double Train::SEPARATION(0.1);
 Train::Train(IMapPtr aMap)
    : myMap(aMap), myVelocityVector(makeVector(0.0f, 0.0f, 0.0f))
 {
-   myParts.push_front(Part(makeEngine()));
+   myParts.push_front(Part(makeEngine(), true));
    
    enterSegment(engine(), aMap->startLocation());
 
@@ -108,6 +116,14 @@ void Train::addPart(IRollingStockPtr aVehicle)
    move(part.vehicle->length() + SEPARATION);
    
    myParts.push_back(part);
+}
+
+// Make everything that's not the engine follow its choice
+void Train::makeFollow(track::Choice aChoice)
+{
+   for (list<Part>::iterator it = ++(myParts.begin());
+        it != myParts.end(); ++it)
+      (*it).followQueue.push(aChoice);
 }
 
 Train::Part& Train::engine()
@@ -205,8 +221,8 @@ void Train::enterSegment(Part& aPart, const track::Connection& aConnection)
    Point<int> pos;
    tie(pos, aPart.direction) = aConnection;
    
-   debug() << "Train part entered segment at " << pos
-           << " moving " << aPart.direction;
+   //debug() << "Train part entered segment at " << pos
+   //        << " moving " << aPart.direction;
 
    if (!myMap->isValidTrack(pos))
       throw runtime_error("Train fell off end of track!");
@@ -216,11 +232,21 @@ void Train::enterSegment(Part& aPart, const track::Connection& aConnection)
    aPart.travelToken = aPart.segment->getTravelToken(pos, aPart.direction);
 
    if (aPart.travelToken.choices.size() > 1) {
-      // Need to make a choice: see what the controller has pre-set
-      track::Choice choice = engine().vehicle->controller()->consumeChoice();
+      track::Choice choice;
+         
+      if (aPart.isDriving) {
+         // Need to make a choice: see what the controller has pre-set
+         choice = engine().vehicle->controller()->consumeChoice();
+         makeFollow(choice);
+      }
+      else {
+         // We're following another part so look in the follow queue
+         assert(!aPart.followQueue.empty());
 
-      debug() << "Choice: " << choice;
-
+         choice = aPart.followQueue.front();
+         aPart.followQueue.pop();
+      }
+      
       aPart.travelToken.activeChoice = choice;
    }
 }
