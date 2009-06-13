@@ -45,7 +45,8 @@ private:
    // The different parts of the train are on different track segments
    struct Part {
       explicit Part(IRollingStockPtr aVehicle)
-         : vehicle(aVehicle), segmentDelta(0.0) {}
+         : vehicle(aVehicle), segmentDelta(0.0)
+      {}
       
       IRollingStockPtr vehicle;
 
@@ -57,7 +58,7 @@ private:
       track::TravelToken travelToken;
       
       // Direction train part is travelling along the track
-      Vector<int> direction;
+      Vector<int> direction;      
    };
    list<Part> myParts;
 
@@ -92,7 +93,7 @@ Train::Train(IMapPtr aMap)
    // Bit of a hack to put the engine in the right place
    move(0.275);
    
-   for (int i = 1; i <= 0; i++)
+   for (int i = 1; i <= 5; i++)
       addPart(makeWaggon());
 
    mySmokeTrail = makeSmokeTrail();

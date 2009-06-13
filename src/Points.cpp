@@ -215,42 +215,22 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       const float angle =
          radToDeg<float>(atanf(deriv.y / deriv.x));
 
-      if (myAxis == -axis::X && aToken.direction == axis::X) {
+      if (myAxis == -axis::X) {
          xTrans = 1.0f - curveValue.x;
          yTrans = amReflected ? curveValue.y : -curveValue.y;
          rotate = amReflected ? angle : -angle;
       }
-      else if (myAxis == -axis::X && aToken.direction == -axis::X) {
-         xTrans = 1.0f - curveValue.x;
-         yTrans = amReflected ? curveValue.y : -curveValue.y;
-         rotate = amReflected ? angle : -angle;
-      }
-      else if (myAxis == axis::X && aToken.direction == -axis::X) {
+      else if (myAxis == axis::X) {
          xTrans = curveValue.x;
          yTrans = amReflected ? -curveValue.y : curveValue.y;
          rotate = amReflected ? angle : -angle;
       }
-      else if (myAxis == axis::X && aToken.direction == axis::X) {
-         xTrans = curveValue.x;
-         yTrans = amReflected ? -curveValue.y : curveValue.y;
-         rotate = amReflected ? angle : -angle;
-      }
-      else if (myAxis == -axis::Y && aToken.direction == axis::Y) {
+      else if (myAxis == -axis::Y) {
          xTrans = amReflected ? -curveValue.y : curveValue.y;
          yTrans = 1.0f - curveValue.x;
          rotate = amReflected ? angle : -angle;
       }
-      else if (myAxis == -axis::Y && aToken.direction == -axis::Y) {
-         xTrans = amReflected ? -curveValue.y : curveValue.y;
-         yTrans = 1.0f - curveValue.x;
-         rotate = amReflected ? angle : -angle;
-      }
-      else if (myAxis == axis::Y && aToken.direction == -axis::Y) {
-         xTrans = amReflected ? curveValue.y : -curveValue.y;
-         yTrans = curveValue.x;
-         rotate = amReflected ? angle : -angle;
-      }
-      else if (myAxis == axis::Y && aToken.direction == axis::Y) {
+      else if (myAxis == axis::Y) {
          xTrans = amReflected ? curveValue.y : -curveValue.y;
          yTrans = curveValue.x;
          rotate = amReflected ? angle : -angle;
@@ -295,10 +275,7 @@ bool Points::isValidDirection(const track::Direction& aDirection) const
 track::Connection Points::nextPosition(const track::TravelToken& aToken) const
 {
    bool branching = aToken.activeChoice != track::CHOOSE_STRAIGHT_ON;
-   
-   debug() << "axis=" << myAxis << " dir=" << aToken.direction
-           << " r=" << amReflected;
-      
+         
    if (myAxis == axis::X) {
       if (aToken.direction == -axis::X) {
          // Two possible entry points
