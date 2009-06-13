@@ -43,7 +43,8 @@ namespace track {
    // Angles for curved track
    typedef int Angle;
 
-   typedef std::tr1::function<void (double)> TransformFunc;
+   struct TravelToken;
+   typedef std::tr1::function<void (const TravelToken&, double)> TransformFunc;
 
    // Choices that the player may make for a track segment
    enum Choice {
@@ -64,13 +65,19 @@ namespace track {
       // Default choice
       Choice activeChoice;
       
-      // Choices available to the player
-      set<Choice> choices;
-
       // A function that transforms the location of the train
       // so it will render in the correct place for this track segment
       // The functions assumes that it is initially placed at the origin
       TransformFunc transformer;
+
+      // Wrapper for the above
+      void transform(double aDelta) const
+      {
+         transformer(*this, aDelta);
+      }
+      
+      // Choices available to the player
+      set<Choice> choices;
    };
 }
 

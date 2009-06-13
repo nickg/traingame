@@ -153,7 +153,7 @@ void Train::updateSmokePosition(int aDelta)
    glPushMatrix();
    glLoadIdentity();
 
-   e.travelToken.transformer(e.segmentDelta);
+   e.travelToken.transform(e.segmentDelta);
 
    const float smokeOffX = 0.63f;
    const float smokeOffY = 1.04f;
@@ -230,7 +230,7 @@ void Train::render() const
         it != myParts.end(); ++it) {
       glPushMatrix();
       
-      (*it).travelToken.transformer((*it).segmentDelta);
+      (*it).travelToken.transform((*it).segmentDelta);
       glTranslatef(0.0f, track::RAIL_HEIGHT, 0.0f);
       (*it).vehicle->render();
       
@@ -262,7 +262,7 @@ Vector<float> Train::partPosition(const Part& aPart) const
    glPushMatrix();
    glLoadIdentity();
    
-   aPart.travelToken.transformer(aPart.segmentDelta);
+   aPart.travelToken.transform(aPart.segmentDelta);
 
    float matrix[16];
    glGetFloatv(GL_MODELVIEW_MATRIX, matrix);

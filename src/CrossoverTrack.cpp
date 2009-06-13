@@ -52,7 +52,7 @@ public:
    xml::element toXml() const;
    
 private:
-   void transform(const track::Direction& aDirection, double aDelta) const;
+   void transform(const track::TravelToken& aToken, double aDelta) const;
    
    int myX, myY;
 };
@@ -108,25 +108,25 @@ CrossoverTrack::getTravelToken(track::Position aPosition,
    track::TravelToken tok = {
       aDirection,
       aPosition,
-      track::CHOOSE_STRAIGHT_ON
+      track::CHOOSE_STRAIGHT_ON,
+      bind(&CrossoverTrack::transform, this, _1, _2)
    };
-   tok.transformer = bind(&CrossoverTrack::transform, this, aDirection, _1);
    tok.choices.insert(track::CHOOSE_STRAIGHT_ON);
    return tok;
 }
 
-void CrossoverTrack::transform(const track::Direction& aDirection,
+void CrossoverTrack::transform(const track::TravelToken& aToken,
                                double aDelta) const
 {
    assert(aDelta < 1.0);
    
-   bool backwards = aDirection == -axis::X || aDirection == -axis::Y;
+   bool backwards = aToken.direction== -axis::X || aToken.direction == -axis::Y;
 
    if (backwards) {
       aDelta = 1.0 - aDelta;
    }
 
-   track::Direction dir = backwards ? -aDirection : aDirection;
+   track::Direction dir = backwards ? -aToken.direction : aToken.direction;
 
    const double xTrans = dir == axis::X ? aDelta : 0;
    const double yTrans = dir == axis::Y ? aDelta : 0;

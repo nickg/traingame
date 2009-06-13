@@ -132,8 +132,8 @@ track::TravelToken Points::getTravelToken(track::Position aPosition,
       aDirection,
       aPosition,
       track::CHOOSE_STRAIGHT_ON,
+      bind(&Points::transform, this, _1, _2)
    };
-   tok.transformer = bind(&Points::transform, this, tok, _1);
    tok.choices.insert(track::CHOOSE_STRAIGHT_ON);
 
    if (aPosition.x == myX && aPosition.y == myY)
@@ -148,7 +148,8 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
    
    assert(aDelta < len);
 
-   if (myX == aToken.position.x && myY == aToken.position.y) {
+   if (myX == aToken.position.x && myY == aToken.position.y
+       && aToken.activeChoice == track::CHOOSE_STRAIGHT_ON) {
 
       if (aToken.direction == myAxis
           && (myAxis == -axis::X || myAxis == -axis::Y))
@@ -193,7 +194,8 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       
       glTranslated(-0.5, 0.0, 0.0);
    }
-   else if (aToken.position == displacedEndpoint()) {
+   else if (aToken.position == displacedEndpoint()
+            || aToken.activeChoice != track::CHOOSE_STRAIGHT_ON) {
       // Curving onto the straight section
       float xTrans, yTrans, rotate;
 
@@ -202,7 +204,9 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       // to compress the delta into [0,1] here
       const float curveDelta = aDelta / len;
 
-      const float fValue = 1.0f - curveDelta;
+      bool backwards = aToken.position == displacedEndpoint();
+      
+      const float fValue = backwards ? 1.0f - curveDelta : curveDelta;
       const Vector<float> curveValue = myCurve(fValue);
       
       // Calculate the angle that the tangent to the curve at this
@@ -210,27 +214,43 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       const Vector<float> deriv = myCurve.deriv(fValue);
       const float angle =
          radToDeg<float>(atanf(deriv.y / deriv.x));
-      
+
       if (myAxis == -axis::X && aToken.direction == axis::X) {
-         debug() << "case 1 " << amReflected;
+         xTrans = 1.0f - curveValue.x;
+         yTrans = amReflected ? curveValue.y : -curveValue.y;
+         rotate = amReflected ? angle : -angle;
+      }
+      else if (myAxis == -axis::X && aToken.direction == -axis::X) {
          xTrans = 1.0f - curveValue.x;
          yTrans = amReflected ? curveValue.y : -curveValue.y;
          rotate = amReflected ? angle : -angle;
       }
       else if (myAxis == axis::X && aToken.direction == -axis::X) {
-         debug() << "case 2 " << amReflected;
+         xTrans = curveValue.x;
+         yTrans = amReflected ? -curveValue.y : curveValue.y;
+         rotate = amReflected ? angle : -angle;
+      }
+      else if (myAxis == axis::X && aToken.direction == axis::X) {
          xTrans = curveValue.x;
          yTrans = amReflected ? -curveValue.y : curveValue.y;
          rotate = amReflected ? angle : -angle;
       }
       else if (myAxis == -axis::Y && aToken.direction == axis::Y) {
-         debug() << "case 3 " << amReflected;
+         xTrans = amReflected ? -curveValue.y : curveValue.y;
+         yTrans = 1.0f - curveValue.x;
+         rotate = amReflected ? angle : -angle;
+      }
+      else if (myAxis == -axis::Y && aToken.direction == -axis::Y) {
          xTrans = amReflected ? -curveValue.y : curveValue.y;
          yTrans = 1.0f - curveValue.x;
          rotate = amReflected ? angle : -angle;
       }
       else if (myAxis == axis::Y && aToken.direction == -axis::Y) {
-         debug() << "case 4 " << amReflected;
+         xTrans = amReflected ? curveValue.y : -curveValue.y;
+         yTrans = curveValue.x;
+         rotate = amReflected ? angle : -angle;
+      }
+      else if (myAxis == axis::Y && aToken.direction == axis::Y) {
          xTrans = amReflected ? curveValue.y : -curveValue.y;
          yTrans = curveValue.x;
          rotate = amReflected ? angle : -angle;
@@ -273,7 +293,12 @@ bool Points::isValidDirection(const track::Direction& aDirection) const
 }
 
 track::Connection Points::nextPosition(const track::TravelToken& aToken) const
-{   
+{
+   bool branching = aToken.activeChoice != track::CHOOSE_STRAIGHT_ON;
+   
+   debug() << "axis=" << myAxis << " dir=" << aToken.direction
+           << " r=" << amReflected;
+      
    if (myAxis == axis::X) {
       if (aToken.direction == -axis::X) {
          // Two possible entry points
@@ -281,16 +306,30 @@ track::Connection Points::nextPosition(const track::TravelToken& aToken) const
       }
       else {
          // Two possible exits
-         return make_pair(makePoint(myX + 3, myY), axis::X);
+         if (branching) {
+            if (amReflected)
+               return make_pair(makePoint(myX + 3, myY - 1), axis::X);
+            else
+               return make_pair(makePoint(myX + 3, myY + 1), axis::X);
+         }
+         else
+            return make_pair(makePoint(myX + 3, myY), axis::X);
       }
    }
    else if (myAxis == -axis::X) {
       if (aToken.direction == -axis::X) {
-         // Two possible entry points
-         return make_pair(makePoint(myX - 3, myY), -axis::X);
+         // Two possible exits
+         if (branching) {
+            if (amReflected)
+               return make_pair(makePoint(myX - 3, myY + 1), -axis::X);
+            else
+               return make_pair(makePoint(myX - 3, myY - 1), -axis::X);
+         }
+         else
+            return make_pair(makePoint(myX - 3, myY), -axis::X);
       }
       else {
-         // Two possible exits
+         // Two possible entry points
          return make_pair(makePoint(myX + 1, myY), axis::X);
       }
    }
@@ -301,16 +340,30 @@ track::Connection Points::nextPosition(const track::TravelToken& aToken) const
       }
       else {
          // Two possible exits
-         return make_pair(makePoint(myX, myY + 3), axis::Y);
+         if (branching) {
+            if (amReflected)
+               return make_pair(makePoint(myX + 1, myY + 3), axis::Y);
+            else
+               return make_pair(makePoint(myX - 1, myY + 3), axis::Y);
+         }
+         else
+            return make_pair(makePoint(myX, myY + 3), axis::Y);
       }
    }
    else if (myAxis == -axis::Y) {
       if (aToken.direction == -axis::Y) {
-         // Two possible entry points
-         return make_pair(makePoint(myX, myY - 3), -axis::Y);
+         // Two possible exits
+         if (branching) {
+            if (amReflected)
+               return make_pair(makePoint(myX - 1, myY - 3), -axis::Y);
+            else
+               return make_pair(makePoint(myX + 1, myY - 3), -axis::Y);
+         }
+         else
+            return make_pair(makePoint(myX, myY - 3), -axis::Y);
       }
       else {
-         // Two possible exits
+         // Two possible entry points
          return make_pair(makePoint(myX, myY + 1), axis::Y);
       }
    }

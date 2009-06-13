@@ -171,7 +171,7 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
 
    myWaterMeter->setValue(8);
 
-   lookAhead();
+   //lookAhead();
 }
 
 // Signal that we are approaching a station

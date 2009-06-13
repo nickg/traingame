@@ -54,7 +54,7 @@ public:
                                      track::Direction aDirection) const;
    xml::element toXml() const;
 private:
-   void transform(const track::Direction& aDirection, double aDelta) const;
+   void transform(const track::TravelToken& aToken, double aDelta) const;
    void ensureValidDirection(const track::Direction& aDirection) const;
    
    int myX, myY;  // Absolute position
@@ -81,19 +81,19 @@ StraightTrack::getTravelToken(track::Position aPosition,
    track::TravelToken tok = {
       aDirection,
       aPosition,
-      track::CHOOSE_STRAIGHT_ON
+      track::CHOOSE_STRAIGHT_ON,
+      bind(&StraightTrack::transform, this, _1, _2)
    };
-   tok.transformer = bind(&StraightTrack::transform, this, aDirection, _1);
    tok.choices.insert(track::CHOOSE_STRAIGHT_ON);
    return tok;
 }
 
-void StraightTrack::transform(const track::Direction& aDirection,
+void StraightTrack::transform(const track::TravelToken& aToken,
                               double aDelta) const
 {
    assert(aDelta < 1.0);
 
-   if (aDirection == -myDirection)
+   if (aToken.direction == -myDirection)
       aDelta = 1.0 - aDelta;
 
    const double xTrans = myDirection == axis::X ? aDelta : 0;
@@ -108,7 +108,7 @@ void StraightTrack::transform(const track::Direction& aDirection,
 
    glTranslated(-0.5, 0.0, 0.0);
    
-   if (aDirection == -myDirection)
+   if (aToken.direction == -myDirection)
       glRotated(-180.0, 0.0, 1.0, 0.0);
 }
 
