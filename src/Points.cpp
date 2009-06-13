@@ -19,6 +19,7 @@
 #include "TrackCommon.hpp"
 #include "XMLBuilder.hpp"
 #include "ILogger.hpp"
+#include "BezierCurve.hpp"
 
 #include <cassert>
 
@@ -58,7 +59,16 @@ Points::Points(track::Direction aDirection, bool reflect)
    : myX(0), myY(0),
      myAxis(aDirection), amReflected(reflect)
 {
+   BezierCurve<float> f = makeBezierCurve
+      (makeVector(0.0f, 0.0f, 0.0f),
+       makeVector(1.0f, 0.0f, 0.0f),
+       makeVector(2.0f, 1.0f, 0.0f),
+       makeVector(3.0f, 1.0f, 0.0f));
+
+   for (float t = 0.0f; t < 1.0f; t += 0.1f)
+      debug() << t << " --> " << f(t);
    
+   abort();
 }
 
 void Points::render() const
