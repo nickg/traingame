@@ -116,7 +116,7 @@ void Points::render() const
 double Points::segmentLength(const track::TravelToken& aToken) const
 {
    if (aToken.position == displacedEndpoint())
-      return 4.0;   // No idea how to calculate the /actual/ value
+      return myCurve.length;
    else
       return 3.0;
 }

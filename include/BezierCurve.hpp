@@ -25,6 +25,30 @@
 template <typename T>
 struct BezierCurve {
    Vector<T> p[4];
+   T length;  // A very rough approximation to the length
+
+   BezierCurve(Vector<T> p1, Vector<T> p2, Vector<T> p3, Vector<T> p4)
+   {
+      p[0] = p1;
+      p[1] = p2;
+      p[2] = p3;
+      p[3] = p4;
+      
+      // Approximate the length
+      Vector<T> cur = operator()(0.0), prev;
+
+      length = 0.0;
+      
+      const T step = 0.01;
+      for (T t = 0.1; t <= 1.0; t += step) {
+         prev = cur;
+         cur = operator()(t);
+
+         const Vector<T> diff = cur - prev;
+         
+         length += sqrt(diff.x*diff.x + diff.y*diff.y + diff.z*diff.z);
+      }
+   }
 
    Vector<T> operator()(T t) const
    {
@@ -79,8 +103,7 @@ template <typename T>
 BezierCurve<T> makeBezierCurve(Vector<T> p1, Vector<T> p2,
                                Vector<T> p3, Vector<T> p4)
 {
-   BezierCurve<T> b = { { p1, p2, p3, p4 } };
-   return b;
+   return BezierCurve<T>(p1, p2, p3, p4);
 }
 
 #endif
