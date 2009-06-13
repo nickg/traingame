@@ -192,36 +192,41 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       float xTrans, yTrans, rotate;
 
       // We have a slight problem in that the domain of the curve
-      // function is [0,3] but the delta is in [0,len] so we have
-      // to compress the delta into [0,3] here
-      const float curveDelta = aDelta * 3.0f / len;
+      // function is [0,1] but the delta is in [0,len] so we have
+      // to compress the delta into [0,1] here
+      const float curveDelta = aDelta / len;
 
-      const float fValue = 3.0f - curveDelta;
-      const float curveValue = displacedCurveFunc(fValue);
-
+      const float fValue = 1.0f - curveDelta;
+      const Vector<float> curveValue = myCurve(fValue);
+      
       // Calculate the angle that the tangent to the curve at this
       // point makes to (one of) the axis at this point
-      const float grad = approxGradient(displacedCurveFunc, fValue);
-      const float angle = radToDeg<float>(atanf(grad));
+      const Vector<float> deriv = myCurve.deriv(fValue);
+      const float angle =
+         radToDeg<float>(atanf(deriv.y / deriv.x));
       
       if (myAxis == -axis::X && aToken.direction == axis::X) {
-         xTrans = curveDelta - 3.0f + 1.0f;
-         yTrans = amReflected ? curveValue : -curveValue;
+         debug() << "case 1 " << amReflected;
+         xTrans = 1.0f - curveValue.x;
+         yTrans = amReflected ? curveValue.y : -curveValue.y;
          rotate = amReflected ? angle : -angle;
       }
       else if (myAxis == axis::X && aToken.direction == -axis::X) {
-         xTrans = 3.0f - curveDelta;
-         yTrans = amReflected ? -curveValue : curveValue;
-         rotate = amReflected ? -angle : angle;
+         debug() << "case 2 " << amReflected;
+         xTrans = curveValue.x;
+         yTrans = amReflected ? -curveValue.y : curveValue.y;
+         rotate = amReflected ? angle : -angle;
       }
       else if (myAxis == -axis::Y && aToken.direction == axis::Y) {
-         xTrans = amReflected ? -curveValue : curveValue;
-         yTrans = curveDelta - 3.0f + 1.0f;
+         debug() << "case 3 " << amReflected;
+         xTrans = amReflected ? -curveValue.y : curveValue.y;
+         yTrans = 1.0f - curveValue.x;
          rotate = amReflected ? angle : -angle;
       }
       else if (myAxis == axis::Y && aToken.direction == -axis::Y) {
-         xTrans = amReflected ? curveValue : -curveValue;
-         yTrans = 3.0f - curveDelta;
+         debug() << "case 4 " << amReflected;
+         xTrans = amReflected ? curveValue.y : -curveValue.y;
+         yTrans = curveValue.x;
          rotate = amReflected ? angle : -angle;
       }
       else

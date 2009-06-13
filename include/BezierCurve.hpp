@@ -48,6 +48,30 @@ struct BezierCurve {
           + p[3].z * t * t * t
           );
    }
+
+   // The derivative with respect to t at a point
+   Vector<T> deriv(T t) const
+   {
+      return makeVector
+         (// X
+          p[0].x * -3 * (1 - t) * (1 - t)
+          + p[1].x * (3 - 12*t + 9*t*t)
+          + p[2].x * (6*t - 9*t*t)
+          + p[3].x * 3 * t * t,
+
+          // Y
+          p[0].y * -3 * (1 - t) * (1 - t)
+          + p[1].y * (3 - 12*t + 9*t*t)
+          + p[2].y * (6*t - 9*t*t)
+          + p[3].y * 3 * t * t,
+
+          // Z
+          p[0].z * -3 * (1 - t) * (1 - t)
+          + p[1].z * (3 - 12*t + 9*t*t)
+          + p[2].z * (6*t - 9*t*t)
+          + p[3].z * 3 * t * t
+          );
+   }
 };
 
 // Generate Bezier curves

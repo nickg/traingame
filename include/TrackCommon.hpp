@@ -25,15 +25,10 @@
 // Common track rendering functions
 void renderSleeper();
 void renderStraightRail();
-void renderHypTanRail();
-void renderReflectedHypTanRail();
 void renderCurvedTrack(int baseRadius, track::Angle startAngle,
                        track::Angle endAngle);
 void renderRailMesh(IMeshPtr aMesh);
 void transformToOrigin(int baseRadius, track::Angle startAngle);
-float displacedCurveFunc(float x);
-float reflectedDisplacedCurveFunc(float x);
-
 IMeshPtr makeBezierRailMesh(const BezierCurve<float>& aFunc);
 
 

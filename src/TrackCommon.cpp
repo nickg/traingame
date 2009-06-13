@@ -37,7 +37,6 @@ namespace {
    const float SLEEPER_LENGTH = 0.8f;
 
    IMeshPtr theSleeperMesh, theRailMesh;
-   IMeshPtr theHypTanRailMesh, theReflectedHypTanRailMesh;
 
    typedef map<int, IMeshPtr> CurvedRailMeshMap;
    CurvedRailMeshMap theCurvedRailMeshes;
@@ -133,8 +132,6 @@ namespace {
          Vector<float> v1 = aFunc(t);
          Vector<float> v2 = aFunc(t + step);
          
-         debug() << t << " --> " << v1;
-
          v1.y -= RAIL_WIDTH / 2.0f;
          v2.y -= RAIL_WIDTH / 2.0f;
 
@@ -157,44 +154,6 @@ namespace {
                       makeVector(v1.x, 0.0f, v1.y + RAIL_WIDTH),
                       makeVector(v2.x , 0.0f, v2.y + RAIL_WIDTH),
                       makeVector(v2.x, track::RAIL_HEIGHT, v2.y + RAIL_WIDTH),
-                      METAL);
-      }
-
-      return makeMesh(buf);
-   }
-   
-   // The rail mesh used for points and S-bends
-   IMeshPtr generateFuncRailMesh(function<float (float)> aFunc)
-   {
-      IMeshBufferPtr buf = makeMeshBuffer();
-      
-      const float step = 0.1f;
-      const float xmax = 3.0f;
-
-      for (float x = 0.0f; x < xmax - step; x += step) {
-         const float y1 = aFunc(x);
-         const float y2 = aFunc(x + step);
-
-         // Top of rail
-         buf->addQuad(makeVector(x, track::RAIL_HEIGHT, y1),
-                      makeVector(x, track::RAIL_HEIGHT, y1 + RAIL_WIDTH),
-                      makeVector(x + step, track::RAIL_HEIGHT, y2 + RAIL_WIDTH),
-                      makeVector(x + step, track::RAIL_HEIGHT, y2),
-                      METAL);
-
-         // Outer edge
-         buf->addQuad(makeVector(x + step, track::RAIL_HEIGHT, y2),
-                      makeVector(x + step , 0.0f, y2),
-                      makeVector(x, 0.0f, y1),
-                      makeVector(x, track::RAIL_HEIGHT, y1),
-                      METAL);
-
-         // Inner edge
-         buf->addQuad(
-                      makeVector(x, track::RAIL_HEIGHT, y1 + RAIL_WIDTH),
-                      makeVector(x, 0.0f, y1 + RAIL_WIDTH),
-                      makeVector(x + step , 0.0f, y2 + RAIL_WIDTH),
-                      makeVector(x + step, track::RAIL_HEIGHT, y2 + RAIL_WIDTH),
                       METAL);
       }
 
@@ -304,18 +263,6 @@ IMeshPtr makeBezierRailMesh(const BezierCurve<float>& aFunc)
    return generateBezierRailMesh(aFunc);
 }
 
-// The function that determines the curve of points and S-bends
-float displacedCurveFunc(float x)
-{
-   return 0.5f * (1.0f + tanh(1.8f * x - 3.5f));
-}
-
-// The above function reflected about the x-axis
-float reflectedDisplacedCurveFunc(float x)
-{
-   return -displacedCurveFunc(x);
-}
-
 // Draw a sleeper in the current maxtrix location
 void renderSleeper()
 {
@@ -350,39 +297,6 @@ void renderStraightRail()
    renderOneRail();
 
    glPopMatrix();
-}
-
-void renderHypTanRail()
-{
-   if (!theHypTanRailMesh)
-      theHypTanRailMesh = generateFuncRailMesh(displacedCurveFunc);
-
-   glPushMatrix();
-
-   glTranslatef(-0.5f, 0.0f, -GAUGE/2.0f);   
-   theHypTanRailMesh->render();
-
-   glTranslatef(0.0f, 0.0f, GAUGE);
-   theHypTanRailMesh->render();
-
-   glPopMatrix();
-}
-
-void renderReflectedHypTanRail()
-{
-   if (!theReflectedHypTanRailMesh)
-      theReflectedHypTanRailMesh =
-         generateFuncRailMesh(reflectedDisplacedCurveFunc);
-
-   glPushMatrix();
-
-   glTranslatef(-0.5f, 0.0f, -GAUGE/2.0f);   
-   theReflectedHypTanRailMesh->render();
-
-   glTranslatef(0.0f, 0.0f, GAUGE);
-   theReflectedHypTanRailMesh->render();
-
-   glPopMatrix();   
 }
 
 // Move to the origin of a curved section of track
