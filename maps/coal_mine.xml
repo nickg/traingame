@@ -2,14 +2,18 @@
 <map width="64" height="64">
 <name>No Name</name>
 
-<start x="7" y="6" dirX="1" dirY="0"/>
+<start x="44" y="20" dirX="1" dirY="0"/>
 
 <station id="2">
 <name>Yahyahyah</name>
 </station>
 
+<station id="3">
+<name>Harbour</name>
+</station>
+
 <station id="4">
-<name>Grimethorpe</name>
+<name>Coal Mine</name>
 </station>
 
 <heightmap>maps/coal_mine.bin</heightmap>
@@ -51,6 +55,14 @@
 <straightTrack align="y"/>
 </tile>
 
+<tile x="2" y="19">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="2" y="20">
+<curvedTrack startAngle="270" finishAngle="360" radius="4"/>
+</tile>
+
 <tile x="5" y="6">
 <curvedTrack startAngle="180" finishAngle="270" radius="4"/>
 </tile>
@@ -65,6 +77,94 @@
 
 <tile x="8" y="6">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="8" y="25">
+<curvedTrack startAngle="90" finishAngle="180" radius="3"/>
+</tile>
+
+<tile x="8" y="26">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="27">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="28">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="29">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="30">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="31">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="32">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="33">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="34">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="35">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="36">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="37">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="38">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="39">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="40">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="41">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="42">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="43">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="44">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="45">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="8" y="46">
+<curvedTrack startAngle="270" finishAngle="360" radius="5"/>
 </tile>
 
 <tile x="9" y="6">
@@ -91,6 +191,10 @@
 <stationPart id="2"/>
 </tile>
 
+<tile x="13" y="50">
+<curvedTrack startAngle="0" finishAngle="90" radius="5"/>
+</tile>
+
 <tile x="14" y="6">
 <straightTrack align="x"/>
 
@@ -113,6 +217,30 @@
 <straightTrack align="x"/>
 
 <stationPart id="2"/>
+</tile>
+
+<tile x="17" y="40">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="17" y="41">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="17" y="42">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="17" y="43">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="17" y="44">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="17" y="45">
+<straightTrack align="y"/>
 </tile>
 
 <tile x="18" y="6">
@@ -139,6 +267,14 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="22" y="34">
+<curvedTrack startAngle="180" finishAngle="270" radius="6"/>
+</tile>
+
+<tile x="23" y="34">
+<points align="x" reflect="0"/>
+</tile>
+
 <tile x="26" y="9">
 <curvedTrack startAngle="90" finishAngle="180" radius="4"/>
 </tile>
@@ -147,23 +283,227 @@
 <curvedTrack startAngle="270" finishAngle="360" radius="5"/>
 </tile>
 
+<tile x="26" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="26" y="35">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="27" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="27" y="35">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="28" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="28" y="35">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="29" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="29" y="35">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="30" y="34">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="31" y="14">
+<points align="x" reflect="0"/>
+</tile>
+
+<tile x="31" y="34">
 <straightTrack align="x"/>
 </tile>
 
-<tile x="32" y="14">
+<tile x="32" y="34">
 <straightTrack align="x"/>
 </tile>
 
-<tile x="33" y="14">
+<tile x="33" y="34">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="33" y="38">
+<curvedTrack startAngle="90" finishAngle="180" radius="4"/>
+</tile>
+
+<tile x="33" y="39">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="33" y="40">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="33" y="41">
+<points align="y" reflect="1"/>
+</tile>
+
+<tile x="33" y="44">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="33" y="45">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="33" y="46">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="33" y="47">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="33" y="48">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="33" y="49">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="33" y="50">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="33" y="51">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="33" y="52">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="33" y="53">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="33" y="54">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="33" y="57">
+<points align="-y" reflect="0"/>
+</tile>
+
+<tile x="33" y="58">
+<curvedTrack startAngle="270" finishAngle="360" radius="4"/>
 </tile>
 
 <tile x="34" y="14">
 <straightTrack align="x"/>
 </tile>
 
+<tile x="34" y="15">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="34" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="34" y="44">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="34" y="45">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="34" y="46">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="34" y="47">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="34" y="48">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="34" y="49">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="34" y="50">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="34" y="51">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="34" y="52">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="34" y="53">
+<straightTrack align="y"/>
+
+<stationPart id="3"/>
+</tile>
+
+<tile x="34" y="54">
+<straightTrack align="y"/>
+</tile>
+
 <tile x="35" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="35" y="15">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="35" y="34">
 <straightTrack align="x"/>
 </tile>
 
@@ -173,10 +513,30 @@
 <stationPart id="4"/>
 </tile>
 
+<tile x="36" y="15">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="36" y="34">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="37" y="14">
 <straightTrack align="x"/>
 
 <stationPart id="4"/>
+</tile>
+
+<tile x="37" y="15">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="37" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="37" y="61">
+<straightTrack align="x"/>
 </tile>
 
 <tile x="38" y="14">
@@ -185,10 +545,30 @@
 <stationPart id="4"/>
 </tile>
 
+<tile x="38" y="15">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="38" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="38" y="61">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="39" y="14">
 <straightTrack align="x"/>
 
 <stationPart id="4"/>
+</tile>
+
+<tile x="39" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="39" y="61">
+<straightTrack align="x"/>
 </tile>
 
 <tile x="40" y="14">
@@ -197,10 +577,34 @@
 <stationPart id="4"/>
 </tile>
 
+<tile x="40" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="40" y="61">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="41" y="14">
 <straightTrack align="x"/>
 
 <stationPart id="4"/>
+</tile>
+
+<tile x="41" y="17">
+<curvedTrack startAngle="90" finishAngle="180" radius="3"/>
+</tile>
+
+<tile x="41" y="18">
+<curvedTrack startAngle="270" finishAngle="360" radius="3"/>
+</tile>
+
+<tile x="41" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="41" y="61">
+<straightTrack align="x"/>
 </tile>
 
 <tile x="42" y="14">
@@ -209,10 +613,26 @@
 <stationPart id="4"/>
 </tile>
 
+<tile x="42" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="42" y="61">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="43" y="14">
 <straightTrack align="x"/>
 
 <stationPart id="4"/>
+</tile>
+
+<tile x="43" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="43" y="61">
+<straightTrack align="x"/>
 </tile>
 
 <tile x="44" y="14">
@@ -221,13 +641,49 @@
 <stationPart id="4"/>
 </tile>
 
+<tile x="44" y="20">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="44" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="44" y="61">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="45" y="14">
 <straightTrack align="x"/>
 
 <stationPart id="4"/>
 </tile>
 
+<tile x="45" y="20">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="45" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="45" y="61">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="46" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="46" y="20">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="46" y="34">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="46" y="61">
 <straightTrack align="x"/>
 </tile>
 
@@ -235,7 +691,23 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="47" y="20">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="47" y="61">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="48" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="48" y="20">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="48" y="61">
 <straightTrack align="x"/>
 </tile>
 
@@ -243,16 +715,124 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="49" y="20">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="49" y="61">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="50" y="14">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="50" y="20">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="50" y="61">
+<curvedTrack startAngle="0" finishAngle="90" radius="5"/>
 </tile>
 
 <tile x="51" y="14">
 <straightTrack align="x"/>
 </tile>
 
+<tile x="51" y="20">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="52" y="14">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="52" y="20">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="53" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="53" y="20">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="54" y="20">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="54" y="41">
+<curvedTrack startAngle="90" finishAngle="180" radius="8"/>
+</tile>
+
+<tile x="54" y="42">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="54" y="43">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="54" y="44">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="54" y="45">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="54" y="46">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="54" y="47">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="54" y="48">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="54" y="49">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="54" y="50">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="54" y="51">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="54" y="52">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="54" y="53">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="54" y="54">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="54" y="55">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="54" y="56">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="55" y="20">
+<curvedTrack startAngle="0" finishAngle="90" radius="3"/>
+</tile>
+
+<tile x="57" y="17">
+<curvedTrack startAngle="90" finishAngle="180" radius="4"/>
 </tile>
 </tileset>
 </map>

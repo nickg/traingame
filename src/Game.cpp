@@ -171,7 +171,7 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
 
    myWaterMeter->setValue(8);
 
-   //lookAhead();
+   lookAhead();
 }
 
 // Signal that we are approaching a station
@@ -201,7 +201,7 @@ void Game::lookAhead()
    TrackIterator it = iterateTrack(myMap, myTrain->tile(),
                                    myTrain->direction());
 
-   // Are we sitting on a station?'
+   // Are we sitting on a station?
    if (it.status == TRACK_STATION) {
       setStatus("Stop here for station " + it.station->name());
       nearStation(it.station);
@@ -305,8 +305,8 @@ void Game::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
 void Game::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
                        int xrel, int yrel)
 {   
-   myHorizAngle -= xrel / 150.0f;
-   myVertAngle += yrel / 150.0f;
+   myHorizAngle -= xrel / 100.0f;
+   myVertAngle += yrel / 100.0f;
 
    // Don't allow the camera to go under the ground
    const float ground = (M_PI / 2.0f) - 0.01f;
