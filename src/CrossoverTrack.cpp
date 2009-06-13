@@ -108,8 +108,10 @@ CrossoverTrack::getTravelToken(track::Position aPosition,
    track::TravelToken tok = {
       aDirection,
       aPosition,
-      bind(&CrossoverTrack::transform, this, aDirection, _1)
+      track::CHOOSE_STRAIGHT_ON
    };
+   tok.transformer = bind(&CrossoverTrack::transform, this, aDirection, _1);
+   tok.choices.insert(track::CHOOSE_STRAIGHT_ON);
    return tok;
 }
 

@@ -75,6 +75,7 @@ public:
    bool brakeOn() const { return isBrakeOn; }
    double pressure() const { return myBoilerPressure; }
    double temp() const { return myFireTemp; }
+   track::Choice consumeChoice();
 private:
    double tractiveEffort() const;
    double resistance() const;
@@ -86,6 +87,8 @@ private:
    double myStatTractiveEffort;
    bool isBrakeOn;
    int myThrottle;     // Ratio measured in tenths
+
+   track::Choice myNextChoice;
 
    // Boiler pressure lags behind temperature
    MovingAverage<double, 1000> myBoilerDelay;
@@ -169,6 +172,13 @@ void Engine::update(int aDelta)
            << " (delta=" << aDelta << ")";*/
 }
 
+track::Choice Engine::consumeChoice()
+{
+   track::Choice c = myNextChoice;
+   myNextChoice = track::CHOOSE_STRAIGHT_ON;
+   return c;
+}
+
 // User interface to the engine
 void Engine::actOn(Action anAction)
 {
@@ -185,7 +195,16 @@ void Engine::actOn(Action anAction)
       break;
    case THROTTLE_DOWN:
       myThrottle = max(myThrottle - 1, 0);
-      break;      
+      break;
+   case GO_STRAIGHT_ON:
+      myNextChoice = track::CHOOSE_STRAIGHT_ON;
+      break;
+   case GO_LEFT:
+      myNextChoice = track::CHOOSE_GO_LEFT;
+      break;
+   case GO_RIGHT:
+      myNextChoice = track::CHOOSE_GO_RIGHT;
+      break;
    default:
       break;
    }

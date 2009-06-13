@@ -36,7 +36,7 @@ TrackIterator iterateTrack(IMapPtr aMap, track::Position aPosition,
 {
    TrackIterator it;
    it.map = aMap;
-   it.status = TRACK_OK;
+   it.status = TRACK_OK ;
    
    if (aMap->isValidTrack(aPosition)) {
       it.track = aMap->trackAt(aPosition);
@@ -61,6 +61,9 @@ TrackIterator iterateTrack(IMapPtr aMap, track::Position aPosition,
          it.status = TRACK_STATION;
          break;
       }
+
+   if (it.token.choices.size() > 1)
+      it.status = TRACK_CHOICE;
    
    return it;   
 }

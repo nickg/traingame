@@ -213,6 +213,15 @@ void Train::enterSegment(Part& aPart, const track::Connection& aConnection)
    aPart.segmentDelta = 0.0;
    aPart.segment = myMap->trackAt(pos);
    aPart.travelToken = aPart.segment->getTravelToken(pos, aPart.direction);
+
+   if (aPart.travelToken.choices.size() > 1) {
+      // Need to make a choice: see what the controller has pre-set
+      track::Choice choice = engine().vehicle->controller()->consumeChoice();
+
+      debug() << "Choice: " << choice;
+
+      aPart.travelToken.activeChoice = choice;
+   }
 }
 
 void Train::render() const

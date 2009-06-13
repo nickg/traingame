@@ -213,18 +213,26 @@ void Game::lookAhead()
       it = it.next();
 
       if (it.status != TRACK_OK) {
+         bool clearStation = true;
+         
          switch (it.status) {
          case TRACK_STATION:
             setStatus("Approaching station " + it.station->name());
             nearStation(it.station);
-            break;
+            clearStation = false;
+            return;
          case TRACK_NO_MORE:
             setStatus("Oh no! You're going to crash!");
-            leftStation();
+            break;
+         case TRACK_CHOICE:
+            setStatus("Oh no! You have to make a decision!");
             break;
          default:
             break;
          }
+
+         if (!clearStation)
+            leftStation();
          return;
       }
    }
@@ -260,6 +268,15 @@ void Game::onKeyDown(SDLKey aKey)
    case SDLK_PRINT:
       getGameWindow()->takeScreenShot();
       break;
+   case SDLK_LEFT:
+      myTrain->controller()->actOn(GO_LEFT);
+      break;
+   case SDLK_RIGHT:
+      myTrain->controller()->actOn(GO_RIGHT);
+      break;
+   case SDLK_UP:
+      myTrain->controller()->actOn(GO_STRAIGHT_ON);
+      break;   
    default:
       break;
    }

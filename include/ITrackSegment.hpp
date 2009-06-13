@@ -22,6 +22,7 @@
 #include "Maths.hpp"
 
 #include <list>
+#include <set>
 
 namespace xml {
    struct element;
@@ -43,6 +44,13 @@ namespace track {
    typedef int Angle;
 
    typedef std::tr1::function<void (double)> TransformFunc;
+
+   // Choices that the player may make for a track segment
+   enum Choice {
+      CHOOSE_STRAIGHT_ON,
+      CHOOSE_GO_LEFT,
+      CHOOSE_GO_RIGHT
+   };
    
    // Sums up all the information required to travel along a piece
    // of track
@@ -52,6 +60,12 @@ namespace track {
 
       // Position of entry
       Position position;
+
+      // Default choice
+      Choice activeChoice;
+      
+      // Choices available to the player
+      set<Choice> choices;
 
       // A function that transforms the location of the train
       // so it will render in the correct place for this track segment

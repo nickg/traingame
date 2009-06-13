@@ -131,8 +131,14 @@ track::TravelToken Points::getTravelToken(track::Position aPosition,
    track::TravelToken tok = {
       aDirection,
       aPosition,
+      track::CHOOSE_STRAIGHT_ON,
    };
    tok.transformer = bind(&Points::transform, this, tok, _1);
+   tok.choices.insert(track::CHOOSE_STRAIGHT_ON);
+
+   if (aPosition.x == myX && aPosition.y == myY)
+      tok.choices.insert(track::CHOOSE_GO_RIGHT);
+   
    return tok;
 }
 

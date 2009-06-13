@@ -19,6 +19,7 @@
 #define INC_ICONTROLLER_HPP
 
 #include "Platform.hpp"
+#include "ITrackSegment.hpp"
 
 // Actions the user can send
 enum Action {
@@ -26,6 +27,9 @@ enum Action {
    SHOVEL_COAL,
    THROTTLE_UP,
    THROTTLE_DOWN,
+   GO_STRAIGHT_ON,
+   GO_LEFT,
+   GO_RIGHT,
 };
 
 // Interface to something that can be controlled by the user
@@ -34,6 +38,10 @@ struct IController {
 
    virtual void actOn(Action anAction) = 0;
 
+   // Return the choice for the next section of track and reset
+   // it to the default
+   virtual track::Choice consumeChoice() = 0;
+   
    // Get current values for the display
    virtual int throttle() const = 0;
    virtual bool brakeOn() const = 0;

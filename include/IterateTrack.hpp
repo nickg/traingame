@@ -32,6 +32,7 @@ enum IterationStatus {
    TRACK_OK,          // No problems
    TRACK_NO_MORE,     // Run off the end of the track!
    TRACK_STATION,     // This segment contains a valid station
+   TRACK_CHOICE,      // Choice to be made!
 };
 
 // Handle to the current iteration
