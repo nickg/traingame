@@ -19,6 +19,8 @@
 #define INC_TRACK_COMMON_HPP
 
 #include "ITrackSegment.hpp"
+#include "IMesh.hpp"
+#include "BezierCurve.hpp"
 
 // Common track rendering functions
 void renderSleeper();
@@ -27,9 +29,13 @@ void renderHypTanRail();
 void renderReflectedHypTanRail();
 void renderCurvedTrack(int baseRadius, track::Angle startAngle,
                        track::Angle endAngle);
+void renderRailMesh(IMeshPtr aMesh);
 void transformToOrigin(int baseRadius, track::Angle startAngle);
 float displacedCurveFunc(float x);
 float reflectedDisplacedCurveFunc(float x);
+
+IMeshPtr makeBezierRailMesh(const BezierCurve<float>& aFunc);
+
 
 // Track constants
 namespace track {

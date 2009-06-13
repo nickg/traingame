@@ -122,6 +122,47 @@ namespace {
       theRailMesh = makeMesh(buf);
    }
 
+   // Generate a rail mesh from a Bezier curve
+   IMeshPtr generateBezierRailMesh(const BezierCurve<float>& aFunc)
+   {
+      IMeshBufferPtr buf = makeMeshBuffer();
+      
+      const float step = 0.1f;
+
+      for (float t = 0.0f; t < 1.0f; t += step) {
+         Vector<float> v1 = aFunc(t);
+         Vector<float> v2 = aFunc(t + step);
+         
+         debug() << t << " --> " << v1;
+
+         v1.y -= RAIL_WIDTH / 2.0f;
+         v2.y -= RAIL_WIDTH / 2.0f;
+
+         // Top of rail
+         buf->addQuad(makeVector(v1.x, track::RAIL_HEIGHT, v1.y),
+                      makeVector(v1.x, track::RAIL_HEIGHT, v1.y + RAIL_WIDTH),
+                      makeVector(v2.x, track::RAIL_HEIGHT, v2.y + RAIL_WIDTH),
+                      makeVector(v2.x, track::RAIL_HEIGHT, v2.y),
+                      METAL);
+
+         // Outer edge
+         buf->addQuad(makeVector(v2.x, track::RAIL_HEIGHT, v2.y),
+                      makeVector(v2.x , 0.0f, v2.y),
+                      makeVector(v1.x, 0.0f, v1.y),
+                      makeVector(v1.x, track::RAIL_HEIGHT, v1.y),
+                      METAL);
+
+         // Inner edge
+         buf->addQuad(makeVector(v1.x, track::RAIL_HEIGHT, v1.y + RAIL_WIDTH),
+                      makeVector(v1.x, 0.0f, v1.y + RAIL_WIDTH),
+                      makeVector(v2.x , 0.0f, v2.y + RAIL_WIDTH),
+                      makeVector(v2.x, track::RAIL_HEIGHT, v2.y + RAIL_WIDTH),
+                      METAL);
+      }
+
+      return makeMesh(buf);
+   }
+   
    // The rail mesh used for points and S-bends
    IMeshPtr generateFuncRailMesh(function<float (float)> aFunc)
    {
@@ -132,8 +173,6 @@ namespace {
 
       for (float x = 0.0f; x < xmax - step; x += step) {
          const float y1 = aFunc(x);
-         debug() << x << " --> " << y1;
-
          const float y2 = aFunc(x + step);
 
          // Top of rail
@@ -260,6 +299,11 @@ namespace {
    }
 }
 
+IMeshPtr makeBezierRailMesh(const BezierCurve<float>& aFunc)
+{
+   return generateBezierRailMesh(aFunc);
+}
+
 // The function that determines the curve of points and S-bends
 float displacedCurveFunc(float x)
 {
@@ -279,6 +323,20 @@ void renderSleeper()
       generateSleeperMesh();
    
    theSleeperMesh->render();
+}
+
+// Render a pre-generated rail mesh in the right place
+void renderRailMesh(IMeshPtr aMesh)
+{
+   glPushMatrix();
+
+   glTranslatef(-0.5f, 0.0f, -GAUGE/2.0f);   
+   aMesh->render();
+   
+   glTranslatef(0.0f, 0.0f, GAUGE);
+   aMesh->render();
+
+   glPopMatrix();
 }
 
 void renderStraightRail()

@@ -53,26 +53,34 @@ private:
    int myX, myY;
    track::Direction myAxis;
    bool amReflected;
+
+   static const BezierCurve<float> myCurve, myReflectedCurve;
 };
 
+const BezierCurve<float> Points::myCurve = makeBezierCurve
+   (makeVector(0.0f, 0.0f, 0.0f),
+    makeVector(1.0f, 0.0f, 0.0f),
+    makeVector(2.0f, 1.0f, 0.0f),
+    makeVector(3.0f, 1.0f, 0.0f));
+
+const BezierCurve<float> Points::myReflectedCurve = makeBezierCurve
+   (makeVector(0.0f, 0.0f, 0.0f),
+    makeVector(1.0f, 0.0f, 0.0f),
+    makeVector(2.0f, -1.0f, 0.0f),
+    makeVector(3.0f, -1.0f, 0.0f));
+      
 Points::Points(track::Direction aDirection, bool reflect)
    : myX(0), myY(0),
      myAxis(aDirection), amReflected(reflect)
 {
-   BezierCurve<float> f = makeBezierCurve
-      (makeVector(0.0f, 0.0f, 0.0f),
-       makeVector(1.0f, 0.0f, 0.0f),
-       makeVector(2.0f, 1.0f, 0.0f),
-       makeVector(3.0f, 1.0f, 0.0f));
-
-   for (float t = 0.0f; t < 1.0f; t += 0.1f)
-      debug() << t << " --> " << f(t);
    
-   abort();
 }
 
 void Points::render() const
-{   
+{
+   static IMeshPtr railMesh = makeBezierRailMesh(myCurve);
+   static IMeshPtr reflectMesh = makeBezierRailMesh(myReflectedCurve);
+   
    glPushMatrix();
 
    if (myAxis == -axis::X)
@@ -82,10 +90,7 @@ void Points::render() const
    else if (myAxis == axis::Y)
       glRotatef(270.0f, 0.0f, 1.0f, 0.0f);
 
-   if (amReflected)
-      renderReflectedHypTanRail();
-   else
-      renderHypTanRail();
+   renderRailMesh(amReflected ? reflectMesh : railMesh);
 
    glPushMatrix();
    glRotatef(90.0f, 0.0f, 1.0f, 0.0f);

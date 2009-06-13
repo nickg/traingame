@@ -21,8 +21,6 @@
 #include "Platform.hpp"
 #include "Maths.hpp"
 
-#include <cassert>
-
 // Three-dimensional Bezier curve
 template <typename T>
 struct BezierCurve {
@@ -30,8 +28,6 @@ struct BezierCurve {
 
    Vector<T> operator()(T t) const
    {
-      assert(t >= 0 && t <= 1);
-
       return makeVector
          (// X
           p[0].x * (1 - t) * (1 - t) * (1 - t)
