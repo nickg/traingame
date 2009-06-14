@@ -64,6 +64,7 @@ private:
    void onLevelTerrainSelect();
    void onPlaceStartSelect();
    void onStationSelect();
+   void onBuildingSelect();
    
    IMapPtr myMap;
    
@@ -80,7 +81,7 @@ private:
    // Different tools the user can be using
    enum Tool {
       TRACK_TOOL, RAISE_TOOL, LOWER_TOOL, DELETE_TOOL,
-      LEVEL_TOOL, START_TOOL, STATION_TOOL
+      LEVEL_TOOL, START_TOOL, STATION_TOOL, BUILDING_TOOL
    };
    Tool myTool;
 
@@ -125,6 +126,10 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
    IButtonPtr stationButton = makeButton("data/images/station_icon.png");
    stationButton->onClick(bind(&Editor::onStationSelect, this));
    myToolbar->addChild(stationButton);
+
+   IButtonPtr buildingButton = makeButton("data/images/buildings_icon.png");
+   buildingButton->onClick(bind(&Editor::onBuildingSelect, this));
+   myToolbar->addChild(buildingButton);
 
    myMap->setGrid(true);
 
@@ -501,6 +506,12 @@ void Editor::onStationSelect()
 {
    log() << "Place station mode";
    myTool = STATION_TOOL;
+}
+
+void Editor::onBuildingSelect()
+{
+   log() << "Place buildings mode";
+   myTool = BUILDING_TOOL;
 }
 
 void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
