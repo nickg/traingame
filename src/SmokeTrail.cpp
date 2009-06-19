@@ -189,9 +189,9 @@ void SmokeTrail::setPosition(float x, float y, float z)
 }
 
 void SmokeTrail::setVelocity(float x, float y, float z)
-{
+{   
    myXSpeed = x;
-   myYSpeed = y;
+   myYSpeed = y + 0.02f;  // Make smoke shoot up
    myZSpeed = z;
 }
 
