@@ -77,8 +77,8 @@ Font::Font(const string& aFile, int aHeight, bool shadow)
    }
 
    // True height includes extra padding 
-   const float h = static_cast<float>(aHeight) / VERTICAL_PADDING;
-   myHeight = static_cast<int>(h);
+   //const float h = static_cast<float>(aHeight) / VERTICAL_PADDING;
+   myHeight = aHeight;
    
    unsigned char i;
 

@@ -22,9 +22,7 @@
 #include <functional>
 
 using namespace gui;
-using namespace std;
-using namespace std::tr1;
-using namespace std::tr1::placeholders;
+using namespace placeholders;
 
 // A container which grows either horizontally or vertically as controls
 // are added
@@ -55,7 +53,7 @@ private:
    typedef vector<IControlPtr> ControlList;
    ControlList myControls;
 
-   static const int SPACING = 3;
+   static const int SPACING = 10;
 };
 
 FlowBox::FlowBox(FlowBoxStyle aStyle, bool doesWantSpacing)
@@ -169,3 +167,7 @@ IContainerPtr gui::makeFlowBox(FlowBoxStyle aStyle, bool wantSpacing)
    return IContainerPtr(new Hideable<FlowBox>(aStyle, wantSpacing));
 }
 
+IContainerPtr gui::makeToolbar()
+{
+   return makeFlowBox(FLOW_BOX_HORIZ, false);
+}

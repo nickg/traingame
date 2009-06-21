@@ -113,7 +113,7 @@ Game::Game(IMapPtr aMap)
    myBrakeLabel->setColour(1.0f, 0.0f, 0.0f);
    myStatsPanel->addChild(myBrakeLabel);
 
-   myStatsPanel->setOrigin(5, 5);
+   myStatsPanel->setOrigin(5, 10);
 }
 
 Game::~Game()

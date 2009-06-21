@@ -47,6 +47,8 @@ namespace gui {
    
    // Standard containers
    IContainerPtr makeFlowBox(FlowBoxStyle aStyle, bool wantSpacing=true);
+   IContainerPtr makeToolbar();
+   IContainerPtr makePanel(const string& aTitle, IContainerPtr aContent);
 }
 
 #endif

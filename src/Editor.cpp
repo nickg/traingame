@@ -22,6 +22,7 @@
 #include "Maths.hpp"
 #include "ILight.hpp"
 #include "gui/IContainer.hpp"
+#include "BuildingPanel.hpp"
 
 #include <algorithm>
 
@@ -87,6 +88,7 @@ private:
 
    // GUI variables
    IContainerPtr myToolbar;
+   BuildingPanel myBuildingPanel;
 };
 
 Editor::Editor(IMapPtr aMap, const string& aFileName)
@@ -97,7 +99,7 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
    mySun = makeSunLight();
 
    // Build the GUI
-   myToolbar = makeFlowBox(FLOW_BOX_HORIZ, false);
+   myToolbar = makeToolbar();
 
    IButtonPtr trackButton = makeButton("data/images/track_icon.png");
    trackButton->onClick(bind(&Editor::onTrackSelect, this));
@@ -130,7 +132,7 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
    IButtonPtr buildingButton = makeButton("data/images/buildings_icon.png");
    buildingButton->onClick(bind(&Editor::onBuildingSelect, this));
    myToolbar->addChild(buildingButton);
-
+   
    myMap->setGrid(true);
 
    log() << "Editing " << aFileName;
@@ -178,6 +180,7 @@ void Editor::display(IGraphicsPtr aContext) const
 void Editor::overlay() const
 {
    myToolbar->render();
+   myBuildingPanel.render();
 }
 
 // Prepare the next frame

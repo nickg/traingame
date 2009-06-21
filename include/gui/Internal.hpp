@@ -82,8 +82,8 @@ namespace gui {
       
       virtual ~Defaults() {}
       
-      bool handleClick(int x, int y) { return false; }
-      bool handleMouseRelease(int x, int y) { return false; }
+      virtual bool handleClick(int x, int y) { return false; }
+      virtual bool handleMouseRelease(int x, int y) { return false; }
    };
 
    // Mixin to provide screen placement

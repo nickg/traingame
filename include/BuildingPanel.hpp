@@ -15,29 +15,20 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_IFONT_HPP
-#define INC_IFONT_HPP
+#ifndef INC_BUILDINGPANEL_HPP
+#define INC_BUILDINGPANEL_HPP
 
-#include "Platform.hpp"
+#include "gui/IContainer.hpp"
 
-#include <string>
+// The panel that displays building models
+class BuildingPanel {
+public:
+   BuildingPanel();
+   ~BuildingPanel();
 
-namespace gui {
-
-   // Wrapper for FreeType fonts
-   struct IFont {
-      virtual ~IFont() {}
-
-      virtual void setColour(float r, float g, float b, float a=1.0f) = 0;
-      virtual void getColour(float& r, float& g, float& b, float& a) const = 0;
-      virtual void print(int x, int y, const char* fmt, ...) const = 0;
-      virtual int stringWidth(const char* fmt, ...) const = 0;
-      virtual int maxHeight() const = 0;
-   };
-
-   typedef std::tr1::shared_ptr<IFont> IFontPtr;
-
-   IFontPtr loadFont(const std::string& aFile, int aHeight, bool shadow=true);
-}
+   void render() const;
+private:
+   gui::IContainerPtr myPanel;
+};
 
 #endif
