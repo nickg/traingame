@@ -51,18 +51,18 @@ int main(int argc, char** argv)
       const string mapFile("maps\\figure8.xml");
       const string cmd("play");
 #endif   // #ifndef WIN32
-
-      theWindow = makeSDLWindow();
-      
       IScreenPtr screen;
       if (cmd == "edit") {
-         if (exists(mapFile))
+         theWindow = makeFLTKWindow();
+         /*if (exists(mapFile))
             screen = makeEditorScreen(loadMap(mapFile), mapFile);
          else
-            screen = makeEditorScreen(makeEmptyMap(64, 64), mapFile);
+         screen = makeEditorScreen(makeEmptyMap(64, 64), mapFile);*/
       }
-      else if (cmd == "play")
+      else if (cmd == "play") {
+         theWindow = makeSDLWindow();
          screen = makeGameScreen(loadMap(mapFile));
+      }
       else
          throw runtime_error("Unrecognised command: " + cmd);
          

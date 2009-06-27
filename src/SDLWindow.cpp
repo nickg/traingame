@@ -19,6 +19,7 @@
 #include "ILogger.hpp"
 #include "IPickBuffer.hpp"
 #include "Maths.hpp"
+#include "OpenGLHelper.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -27,16 +28,13 @@
 
 #include <boost/lexical_cast.hpp>
 #include <SDL.h>
-#include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-using namespace std;
-using namespace std::tr1;
 using namespace boost;
 
 // Concrete implementation of SDL window
-class SDLWindow : public IWindow, public IGraphics, public IPickBuffer,
+class SDLWindow : public IWindow, public OpenGLGraphics, public IPickBuffer,
                   public enable_shared_from_this<SDLWindow> {
 public:
    SDLWindow();
@@ -50,42 +48,24 @@ public:
    int width() const { return myWidth; }
    int height() const { return myHeight; }
 
-   // IGraphics interface
-   bool cuboidInViewFrustum(float x, float y, float z,
-                            float sizeX, float sizeY, float sizeZ);
-   bool cubeInViewFrustum(float x, float y, float z, float size);
-   bool pointInViewFrustum(float x, float y, float z);
-   void setCamera(const Vector<float>& aPos,
-                  const Vector<float>& aRotation);
-   void lookAt(const Vector<float> anEyePoint,
-               const Vector<float> aTargetPoint);
+   // IPickBuffer interface
    IGraphicsPtr beginPick(int x, int y);
    unsigned endPick();
 private:
-   void resizeGLScene();
-   void initGL();
-   void initCEGUI();
    void processInput();
-   void drawGLScene();
    MouseButton fromSDLButton(Uint8 aSDLButton) const;
    void captureFrame() const;
    
    bool amRunning;
    int myWidth, myHeight;
    IScreenPtr myScreen;
-   Frustum myViewFrustum;
    bool willSkipNextFrame;
    bool willTakeScreenShot;
 
    // Picking data
    static const int SELECT_BUFFER_SZ = 128;
    GLuint mySelectBuffer[SELECT_BUFFER_SZ];
-
-   static const float NEAR_CLIP, FAR_CLIP;
 };
-
-const float SDLWindow::NEAR_CLIP(0.1f);
-const float SDLWindow::FAR_CLIP(70.0f);
 
 // Calculation and display of the FPS rate
 namespace {
@@ -170,8 +150,6 @@ SDLWindow::SDLWindow()
    // Hide the window manager cursor
    //SDL_ShowCursor(SDL_DISABLE);
    
-   resizeGLScene();
-
    // Start OpenGL
    initGL();
 
@@ -223,7 +201,7 @@ void SDLWindow::run(IScreenPtr aScreen)
          myScreen->update(shared_from_this(), delta);
          
          if (!willSkipNextFrame)
-            drawGLScene();
+            drawGLScene(shared_from_this(), shared_from_this(), myScreen);
          else
             willSkipNextFrame = false;
       }
@@ -252,84 +230,6 @@ void SDLWindow::run(IScreenPtr aScreen)
 void SDLWindow::quit()
 {
    amRunning = false;
-}
-
-// Called to set the camera position
-void SDLWindow::setCamera(const Vector<float>& aPos,
-                          const Vector<float>& aRotation)
-{
-   glRotatef(aRotation.x, 1.0f, 0.0f, 0.0f);
-   glRotatef(aRotation.y, 0.0f, 1.0f, 0.0f);
-   glRotatef(aRotation.z, 0.0f, 0.0f, 1.0f);
-   glTranslatef(aPos.x, aPos.y, aPos.z);
-
-   myViewFrustum = getViewFrustum();
-}
-
-// A wrapper around gluLookAt
-void SDLWindow::lookAt(const Vector<float> anEyePoint,
-                       const Vector<float> aTargetPoint)
-{
-   gluLookAt(anEyePoint.x, anEyePoint.y, anEyePoint.z,
-             aTargetPoint.x, aTargetPoint.y, aTargetPoint.z,
-             0, 1, 0);
-
-   myViewFrustum = getViewFrustum();
-}
-
-// Render the next screen
-void SDLWindow::drawGLScene()
-{
-   // Set up for 3D mode
-   glMatrixMode(GL_PROJECTION);
-   glLoadIdentity();
-
-   gluPerspective(45.0f, (GLfloat)myWidth/(GLfloat)myHeight,
-                  NEAR_CLIP, FAR_CLIP);
-
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
-
-   // Set default state
-   glEnable(GL_DEPTH_TEST);
-   glEnable(GL_TEXTURE_2D);
-   glEnable(GL_CULL_FACE);
-  
-   glEnable(GL_LIGHTING);
-   glEnable(GL_LIGHT0);
-   
-   // Clear the screen
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   glLoadIdentity();
-
-   // Draw the 3D part
-   myScreen->display(shared_from_this());
-
-   // Set up for 2D
-   glMatrixMode(GL_PROJECTION);
-   glLoadIdentity();
-   gluOrtho2D(0.0f, (GLfloat)myWidth, (GLfloat)myHeight, 0.0f);
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
-
-   // Set 2D defaults
-   glDisable(GL_LIGHTING);
-   glDisable(GL_DEPTH_TEST);
-   glEnable(GL_BLEND);
-   glDisable(GL_TEXTURE_2D);
-   glDisable(GL_CULL_FACE);
-
-   // Draw the 2D part
-   myScreen->overlay();
-
-   // Check for OpenGL errors
-   GLenum error = glGetError();
-   if (error != GL_NO_ERROR) {   
-      throw runtime_error
-         ("OpenGL error: " + lexical_cast<string>(gluErrorString(error)));
-   }
-
-   SDL_GL_SwapBuffers();
 }
 
 // Convert an SDL button constant to a MouseButton
@@ -390,56 +290,15 @@ void SDLWindow::processInput()
                                   e.button.x, e.button.y,
                                   fromSDLButton(e.button.button));
          break;
+
+      case SDL_VIDEORESIZE:
+         myWidth = e.resize.w;
+         myHeight = e.resize.h;
+         
+         resizeGLScene(shared_from_this());
+         break;
       }
    }
-}
-
-// Set initial OpenGL options
-void SDLWindow::initGL()
-{
-   glShadeModel(GL_SMOOTH);
-   glClearDepth(1.0f);
-   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-   glDepthFunc(GL_LEQUAL);
-   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-   // Check for OpenGL extensions
-   log() << "OpenGL version: " << glGetString(GL_VERSION);
-   log() << "GLEW version: " << glewGetString(GLEW_VERSION);
-
-   GLenum err = glewInit();
-   if (err != GLEW_OK)
-      throw runtime_error("GLEW initialisation failed: "
-                          + lexical_cast<string>(glewGetErrorString(err)));
-
-}
-
-// Change the perspective when the window is resized
-void SDLWindow::resizeGLScene()
-{
-   if (myHeight == 0)
-      myHeight = 1;
-
-   glViewport(0, 0, myWidth, myHeight);
-}
-
-// Intersect a cuboid with the current view frustum
-bool SDLWindow::cuboidInViewFrustum(float x, float y, float z,
-                                    float sizeX, float sizeY, float sizeZ)
-{
-   return myViewFrustum.cuboidInFrustum(x, y, z, sizeX, sizeY, sizeZ);
-}
-
-// Intersect a cube with the current view frustum
-bool SDLWindow::cubeInViewFrustum(float x, float y, float z, float size)
-{
-   return myViewFrustum.cubeInFrustum(x, y, z, size);
-}
-
-// True if the point is contained within the view frustum
-bool SDLWindow::pointInViewFrustum(float x, float y, float z)
-{
-   return myViewFrustum.pointInFrustum(x, y, z);
 }
 
 // Set up OpenGL to pick out objects

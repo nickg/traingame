@@ -38,5 +38,6 @@ typedef shared_ptr<IWindow> IWindowPtr;
 
 // Implementors
 IWindowPtr makeSDLWindow();
+IWindowPtr makeFLTKWindow();
 
 #endif
