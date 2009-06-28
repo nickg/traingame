@@ -28,6 +28,12 @@
 
 #include <GL/gl.h>
 
+#include <FL/Fl.H>
+#include <FL/Fl_Window.H>
+#include <FL/Fl_Menu_Button.H>
+#include <FL/Fl_Button.H>
+#include <FL/Fl_Menu_Item.H>
+
 using namespace gui;
 
 // Concrete editor class
@@ -46,6 +52,14 @@ public:
                      MouseButton aButton);
    void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
                        MouseButton aButton);
+   
+   // Different tools the user can be using
+   enum Tool {
+      TRACK_TOOL, RAISE_TOOL, LOWER_TOOL, DELETE_TOOL,
+      LEVEL_TOOL, START_TOOL, STATION_TOOL, BUILDING_TOOL
+   };
+   void setTool(Tool aTool) { myTool = aTool; }
+   
 private:
    void buildGUI();
    void drawDraggedTrack();
@@ -72,6 +86,7 @@ private:
    ILightPtr mySun;
    Vector<float> myPosition;
 
+   Tool myTool;
    string myFileName;
    bool amScrolling;
 
@@ -79,26 +94,62 @@ private:
    Point<int> myDragBegin, myDragEnd;
    bool amDragging;
 
-   // Different tools the user can be using
-   enum Tool {
-      TRACK_TOOL, RAISE_TOOL, LOWER_TOOL, DELETE_TOOL,
-      LEVEL_TOOL, START_TOOL, STATION_TOOL, BUILDING_TOOL
-   };
-   Tool myTool;
-
    // GUI variables
    IContainerPtr myToolbar;
    BuildingPanel myBuildingPanel;
 };
 
-Editor::Editor(IMapPtr aMap, const string& aFileName)
+// The FLTK toolbox
+namespace {
+   void changeTool(Fl_Widget* aWidget, Editor::Tool aTool);
+      
+   Fl_Menu_Item theTools[] = {
+      { "Track", 0, (Fl_Callback*)changeTool, (void*)Editor::TRACK_TOOL },
+      { "Raise", 0, (Fl_Callback*)changeTool, (void*)Editor::RAISE_TOOL },
+      { "Lower", 0, (Fl_Callback*)changeTool, (void*)Editor::LOWER_TOOL },
+      { "Level", 0, (Fl_Callback*)changeTool, (void*)Editor::LEVEL_TOOL },
+      { "Delete", 0, (Fl_Callback*)changeTool, (void*)Editor::DELETE_TOOL },
+      { "Start", 0, (Fl_Callback*)changeTool, (void*)Editor::START_TOOL },
+      { "Station", 0, (Fl_Callback*)changeTool, (void*)Editor::STATION_TOOL },
+      { "Building", 0, (Fl_Callback*)changeTool, (void*)Editor::BUILDING_TOOL },
+      { 0 }
+   };
+   
+   Fl_Window* theToolbox;
+   Fl_Menu_Button* theToolMenu;
+   
+   Editor* theEditor;
+
+   void makeToolbox(Editor* anEditor)
+   {
+      theEditor = anEditor;
+      
+      theToolbox = new Fl_Window(100, 300);
+      
+      theToolMenu = new Fl_Menu_Button(0, 0, 100, 32);
+      theToolMenu->copy(theTools);
+      
+      theToolbox->end();
+      theToolbox->show();
+   }
+   
+   void changeTool(Fl_Widget* aWidget, Editor::Tool aTool)
+   {
+      theToolMenu->label(theToolMenu->text());
+      theEditor->setTool(aTool);
+   }
+}
+
+Editor::Editor(IMapPtr aMap, const string& aFileName) 
    : myMap(aMap), myPosition(4.5, -17.5, -21.5),
-     myFileName(aFileName), amScrolling(false),
-     amDragging(false), myTool(TRACK_TOOL)
+     myTool(TRACK_TOOL), myFileName(aFileName),
+     amScrolling(false), amDragging(false)
 {
    mySun = makeSunLight();
 
    // Build the GUI
+   makeToolbox(this);
+   
    myToolbar = makeToolbar();
 
    IButtonPtr trackButton = makeButton("data/images/track_icon.png");
@@ -444,8 +495,6 @@ void Editor::deleteObjects()
 void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
                          int xrel, int yrel)
 {
-   debug() << "xrel=" << xrel << ", yrel=" << yrel;
-   
    if (amDragging) {
       // Extend the selection rectangle
       myMap->setPickMode(true);
