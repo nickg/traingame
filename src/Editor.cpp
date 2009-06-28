@@ -520,6 +520,8 @@ void Editor::onBuildingSelect()
 void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
                           MouseButton aButton)
 {
+   log() << "Click!";
+   
    // See if the GUI can handle it
    if (myToolbar->handleClick(x, y))
       return;

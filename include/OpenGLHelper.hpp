@@ -21,11 +21,16 @@
 #include "Platform.hpp"
 #include "IWindow.hpp"
 #include "IGraphics.hpp"
+#include "IPickBuffer.hpp"
 
 // Helper functions used by the different IWindow implementations
 void initGL();
 void drawGLScene(IWindowPtr aWindow, IGraphicsPtr aContext, IScreenPtr aScreen);
 void resizeGLScene(IWindowPtr aWindow);
+
+// Wrappers for OpenGL picking features
+void beginPick(IWindowPtr aWindow, unsigned* aBuffer, int x, int y);
+unsigned endPick(unsigned* aBuffer);
 
 const float NEAR_CLIP = 0.1f;
 const float FAR_CLIP = 70.0f;

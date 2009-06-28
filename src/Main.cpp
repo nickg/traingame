@@ -54,10 +54,10 @@ int main(int argc, char** argv)
       IScreenPtr screen;
       if (cmd == "edit") {
          theWindow = makeFLTKWindow();
-         /*if (exists(mapFile))
+         if (exists(mapFile))
             screen = makeEditorScreen(loadMap(mapFile), mapFile);
          else
-         screen = makeEditorScreen(makeEmptyMap(64, 64), mapFile);*/
+            screen = makeEditorScreen(makeEmptyMap(64, 64), mapFile);
       }
       else if (cmd == "play") {
          theWindow = makeSDLWindow();

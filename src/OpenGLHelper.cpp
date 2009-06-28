@@ -81,8 +81,6 @@ void drawGLScene(IWindowPtr aWindow, IGraphicsPtr aContext, IScreenPtr aScreen)
       throw runtime_error
          ("OpenGL error: " + lexical_cast<string>(gluErrorString(error)));
    }
-
-   SDL_GL_SwapBuffers();
 }
 
 // Set initial OpenGL options
@@ -111,6 +109,68 @@ void initGL()
 void resizeGLScene(IWindowPtr aWindow)
 {
    glViewport(0, 0, aWindow->width(), aWindow->height());
+}
+
+void beginPick(IWindowPtr aWindow, unsigned* aBuffer, int x, int y)
+{
+   // Set up selection buffer
+   glSelectBuffer(128, aBuffer);
+
+   // Get viewport coordinates
+   GLint viewportCoords[4];
+   glGetIntegerv(GL_VIEWPORT, viewportCoords);	
+   
+   // Switch to projection matrix
+   glMatrixMode(GL_PROJECTION);
+   glPushMatrix();
+   
+   // Render the objects, but don't change the frame buffer
+   glRenderMode(GL_SELECT);
+   glLoadIdentity();	
+   
+   // Set picking matrix
+   gluPickMatrix(x, viewportCoords[3] - y, 2, 2, viewportCoords);
+
+   // Just set the perspective
+   gluPerspective(45.0f, (GLfloat)(aWindow->width())/(GLfloat)(aWindow->height()),
+                  NEAR_CLIP, FAR_CLIP);
+
+   glMatrixMode(GL_MODELVIEW);
+   glInitNames();
+
+   // Let the user render their stuff
+   glLoadIdentity();
+}
+
+unsigned endPick(unsigned* aBuffer)
+{   
+   int objectsFound = glRenderMode(GL_RENDER);
+   
+   // Go back to normal
+   glMatrixMode(GL_PROJECTION);
+   glPopMatrix();
+   glMatrixMode(GL_MODELVIEW);
+   
+   // See if we found any objects
+   if (objectsFound > 0) {
+      // Find the object with the lowest depth
+      unsigned int lowestDepth = aBuffer[1];
+      int selectedObject = aBuffer[3];
+      
+      // Go through all the objects found
+      for (int i = 1; i < objectsFound; i++) {
+         // See if it's closer than the current nearest
+         if (aBuffer[(i*4) + 1] < lowestDepth)	{ // 4 values for each object
+            lowestDepth = aBuffer[(i * 4) + 1];
+            selectedObject = aBuffer[(i * 4) + 3];
+         }
+      }
+      
+      // Return closest object
+      return selectedObject;
+   }
+   else
+      return 0;
 }
 
 // Called to set the camera position

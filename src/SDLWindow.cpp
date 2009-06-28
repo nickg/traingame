@@ -200,8 +200,10 @@ void SDLWindow::run(IScreenPtr aScreen)
          processInput();
          myScreen->update(shared_from_this(), delta);
          
-         if (!willSkipNextFrame)
+         if (!willSkipNextFrame) {
             drawGLScene(shared_from_this(), shared_from_this(), myScreen);
+            SDL_GL_SwapBuffers();
+         }
          else
             willSkipNextFrame = false;
       }
@@ -304,33 +306,7 @@ void SDLWindow::processInput()
 // Set up OpenGL to pick out objects
 IGraphicsPtr SDLWindow::beginPick(int x, int y)
 {
-   // Set up selection buffer
-   glSelectBuffer(128, mySelectBuffer);
-
-   // Get viewport coordinates
-   GLint viewportCoords[4];
-   glGetIntegerv(GL_VIEWPORT, viewportCoords);	
-   
-   // Switch to projection matrix
-   glMatrixMode(GL_PROJECTION);
-   glPushMatrix();
-   
-   // Render the objects, but don't change the frame buffer
-   glRenderMode(GL_SELECT);
-   glLoadIdentity();	
-   
-   // Set picking matrix
-   gluPickMatrix(x, viewportCoords[3] - y, 2, 2, viewportCoords);
-
-   // Just set the perspective
-   gluPerspective(45.0f, (GLfloat)myWidth/(GLfloat)myHeight,
-                  NEAR_CLIP, FAR_CLIP);
-
-   glMatrixMode(GL_MODELVIEW);
-   glInitNames();
-
-   // Let the user render their stuff
-   glLoadIdentity();
+   ::beginPick(shared_from_this(), mySelectBuffer, x, y);
    return shared_from_this();
 }
 
@@ -339,33 +315,7 @@ IGraphicsPtr SDLWindow::beginPick(int x, int y)
 // beginPick or things will get very messed up
 unsigned SDLWindow::endPick()
 {
-   int objectsFound = glRenderMode(GL_RENDER);
-   
-   // Go back to normal
-   glMatrixMode(GL_PROJECTION);
-   glPopMatrix();
-   glMatrixMode(GL_MODELVIEW);
-   
-   // See if we found any objects
-   if (objectsFound > 0) {
-      // Find the object with the lowest depth
-      unsigned int lowestDepth = mySelectBuffer[1];
-      int selectedObject = mySelectBuffer[3];
-      
-      // Go through all the objects found
-      for (int i = 1; i < objectsFound; i++) {
-         // See if it's closer than the current nearest
-         if (mySelectBuffer[(i*4) + 1] < lowestDepth)	{ // 4 values for each object
-            lowestDepth = mySelectBuffer[(i * 4) + 1];
-            selectedObject = mySelectBuffer[(i * 4) + 3];
-         }
-      }
-      
-      // Return closest object
-      return selectedObject;
-   }
-   else
-      return 0;
+   return ::endPick(mySelectBuffer);
 }
 
 // Capture the OpenGL pixels and save them to a file

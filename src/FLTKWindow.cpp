@@ -27,7 +27,7 @@
 
 // An OpenGL window that supports FLTK widgets for the editor
 class FLTKWindow : public IWindow, public OpenGLGraphics,                   
-                   public Fl_Gl_Window,
+                   public Fl_Gl_Window, public IPickBuffer,
                    public enable_shared_from_this<FLTKWindow> {
 public:
    FLTKWindow();
@@ -44,14 +44,25 @@ public:
    // Fl_Gl_Window interface
    void draw();
    int handle(int anEvent);
+
+   // IPickBuffer inteface
+   IGraphicsPtr beginPick(int x, int y);
+   unsigned endPick();
 private:
+   void checkValid();
 
    IScreenPtr myScreen;
+
+   // Picking data
+   static const int SELECT_BUFFER_SZ = 128;
+   GLuint mySelectBuffer[SELECT_BUFFER_SZ];
 };
 
 FLTKWindow::FLTKWindow()
-   : Fl_Gl_Window(300, 180)
+   : Fl_Gl_Window(640, 480)
 {
+   size_range(300, 240);
+   resizable(this);
    //myWindow = new Fl_Window(300, 180);
    /*   myBox = new Fl_Box(20, 40, 260, 100, "Hello, World!");
 
@@ -61,6 +72,12 @@ FLTKWindow::FLTKWindow()
    myBox->labeltype(FL_SHADOW_LABEL);
    */
    //myWindow->end();
+
+   // Bit of a hack to get into a state where we can use OpenGL
+   show();
+   Fl::wait();
+
+   make_current();
 }
 
 FLTKWindow::~FLTKWindow()
@@ -68,14 +85,21 @@ FLTKWindow::~FLTKWindow()
    
 }
 
-void FLTKWindow::draw()
+void FLTKWindow::checkValid()
 {
    if (!valid()) {
       initGL();
       resizeGLScene(shared_from_this());
-   }
 
-   //drawGLScene(shared_from_this(), shared_from_this(), myScreen);
+      valid(1);
+   }
+}
+
+void FLTKWindow::draw()
+{
+   checkValid();
+
+   drawGLScene(shared_from_this(), shared_from_this(), myScreen);
 }
 
 int FLTKWindow::handle(int anEvent)
@@ -86,12 +110,18 @@ int FLTKWindow::handle(int anEvent)
    case FL_PUSH:
       // Mouse down event
       // Position in Fl::event_x() and Fl::event_y()
+      myScreen->onMouseClick(shared_from_this(), Fl::event_x(),
+                             Fl::event_y(), MOUSE_LEFT);
       return 1;
    case FL_DRAG:
       // Mouse moved while pressed down
+      myScreen->onMouseMove(shared_from_this(), Fl::event_x(),
+                            Fl::event_y(), 1, 1);
       return 1;
    case FL_RELEASE:
       // Mouse up event
+      myScreen->onMouseRelease(shared_from_this(), Fl::event_x(),
+                               Fl::event_y(), MOUSE_LEFT);
       return 1;
    case FL_FOCUS:
    case FL_UNFOCUS:
@@ -142,6 +172,21 @@ int FLTKWindow::width() const
 int FLTKWindow::height() const
 {
    return Fl_Gl_Window::h();
+}
+
+// Set up OpenGL to pick out objects
+IGraphicsPtr FLTKWindow::beginPick(int x, int y)
+{
+   ::beginPick(shared_from_this(), mySelectBuffer, x, y);
+   return shared_from_this();
+}
+
+// Finish picking and return the name of the clicked object or zero
+// It's *very* important that this is called exactly once for every
+// beginPick or things will get very messed up
+unsigned FLTKWindow::endPick()
+{
+   return ::endPick(mySelectBuffer);
 }
 
 IWindowPtr makeFLTKWindow()
