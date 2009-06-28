@@ -443,7 +443,9 @@ void Editor::deleteObjects()
 
 void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
                          int xrel, int yrel)
-{   
+{
+   debug() << "xrel=" << xrel << ", yrel=" << yrel;
+   
    if (amDragging) {
       // Extend the selection rectangle
       myMap->setPickMode(true);
@@ -464,6 +466,8 @@ void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
       myPosition.x += yrel * speed;
       myPosition.z -= yrel * speed;      
    }
+
+   getGameWindow()->redrawHint();
 }
 
 // Change to the terrain raising mode
@@ -520,8 +524,6 @@ void Editor::onBuildingSelect()
 void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
                           MouseButton aButton)
 {
-   log() << "Click!";
-   
    // See if the GUI can handle it
    if (myToolbar->handleClick(x, y))
       return;
@@ -551,7 +553,8 @@ void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
    else if (aButton == MOUSE_WHEEL_DOWN) {
       myPosition.y += 0.5;
    }
-      
+
+   getGameWindow()->redrawHint();
 }
 
 void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
@@ -591,6 +594,8 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
    else if (amScrolling) {
       amScrolling = false;
    }
+
+   getGameWindow()->redrawHint();
 }
 
 void Editor::onKeyUp(SDLKey aKey)

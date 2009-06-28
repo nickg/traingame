@@ -47,6 +47,7 @@ public:
    void takeScreenShot();
    int width() const { return myWidth; }
    int height() const { return myHeight; }
+   void redrawHint() {}
 
    // IGraphics interface
    bool cuboidInViewFrustum(float x, float y, float z,

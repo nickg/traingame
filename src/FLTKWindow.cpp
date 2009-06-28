@@ -41,6 +41,7 @@ public:
    void takeScreenShot();
    int width() const;
    int height() const;
+   void redrawHint();
 
    // IGraphics interface
    bool cuboidInViewFrustum(float x, float y, float z,
@@ -97,6 +98,11 @@ FLTKWindow::~FLTKWindow()
    
 }
 
+void FLTKWindow::redrawHint()
+{
+   redraw();
+}
+
 void FLTKWindow::checkValid()
 {
    if (!valid()) {
@@ -116,6 +122,26 @@ void FLTKWindow::draw()
 
 int FLTKWindow::handle(int anEvent)
 {
+   static int lastX = 0, lastY = 0;
+
+   int dx = 0, dy = 0;
+   if (anEvent == FL_PUSH || FL_DRAG || FL_RELEASE || FL_MOVE) {
+      dx = Fl::event_x() - lastX;
+      dy = Fl::event_y() - lastY;
+      lastX = Fl::event_x();
+      lastY = Fl::event_y();
+   }   
+   
+   MouseButton btn;
+   if (Fl::event_button1())
+      btn = MOUSE_LEFT;
+   else if (Fl::event_button2())
+      btn = MOUSE_MIDDLE;
+   else if (Fl::event_button3())
+      btn = MOUSE_RIGHT;
+   else
+      btn = MOUSE_UNKNOWN;
+   
    // Do not call any OpenGL drawing functions in here as the context
    // won't be set up correctly
    switch (anEvent) {
@@ -123,17 +149,16 @@ int FLTKWindow::handle(int anEvent)
       // Mouse down event
       // Position in Fl::event_x() and Fl::event_y()
       myScreen->onMouseClick(shared_from_this(), Fl::event_x(),
-                             Fl::event_y(), MOUSE_LEFT);
+                             Fl::event_y(), btn);
       return 1;
    case FL_DRAG:
       // Mouse moved while pressed down
-      myScreen->onMouseMove(shared_from_this(), Fl::event_x(),
-                            Fl::event_y(), 1, 1);
+      myScreen->onMouseMove(shared_from_this(), lastX, lastY, dx, dy);
       return 1;
    case FL_RELEASE:
       // Mouse up event
       myScreen->onMouseRelease(shared_from_this(), Fl::event_x(),
-                               Fl::event_y(), MOUSE_LEFT);
+                               Fl::event_y(), btn);
       return 1;
    case FL_FOCUS:
    case FL_UNFOCUS:

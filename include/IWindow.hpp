@@ -32,6 +32,10 @@ public:
    virtual void takeScreenShot() = 0;
    virtual int width() const = 0;
    virtual int height() const = 0;
+
+   // Ask the window to repaint the screen
+   // This is ignored by some implementations (e.g. SDL)
+   virtual void redrawHint() = 0;
 };
 
 typedef shared_ptr<IWindow> IWindowPtr;
