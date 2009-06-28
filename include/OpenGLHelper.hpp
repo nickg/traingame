@@ -35,22 +35,4 @@ unsigned endPick(unsigned* aBuffer);
 const float NEAR_CLIP = 0.1f;
 const float FAR_CLIP = 70.0f;
 
-// Standard implementation of IGraphics
-class OpenGLGraphics : public IGraphics {
-public:
-   OpenGLGraphics();
-   ~OpenGLGraphics();
-   
-   bool cuboidInViewFrustum(float x, float y, float z,
-                            float sizeX, float sizeY, float sizeZ);
-   bool cubeInViewFrustum(float x, float y, float z, float size);
-   bool pointInViewFrustum(float x, float y, float z);
-   void setCamera(const Vector<float>& aPos,
-                  const Vector<float>& aRotation);
-   void lookAt(const Vector<float> anEyePoint,
-               const Vector<float> aTargetPoint);
-private:
-   Frustum myViewFrustum;
-};
-
 #endif

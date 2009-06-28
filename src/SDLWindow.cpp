@@ -34,7 +34,7 @@
 using namespace boost;
 
 // Concrete implementation of SDL window
-class SDLWindow : public IWindow, public OpenGLGraphics, public IPickBuffer,
+class SDLWindow : public IWindow, public IGraphics, public IPickBuffer,
                   public enable_shared_from_this<SDLWindow> {
 public:
    SDLWindow();
@@ -47,6 +47,16 @@ public:
    void takeScreenShot();
    int width() const { return myWidth; }
    int height() const { return myHeight; }
+
+   // IGraphics interface
+   bool cuboidInViewFrustum(float x, float y, float z,
+                            float sizeX, float sizeY, float sizeZ);
+   bool cubeInViewFrustum(float x, float y, float z, float size);
+   bool pointInViewFrustum(float x, float y, float z);
+   void setCamera(const Vector<float>& aPos,
+                  const Vector<float>& aRotation);
+   void lookAt(const Vector<float> anEyePoint,
+               const Vector<float> aTargetPoint);
 
    // IPickBuffer interface
    IGraphicsPtr beginPick(int x, int y);
@@ -61,6 +71,7 @@ private:
    IScreenPtr myScreen;
    bool willSkipNextFrame;
    bool willTakeScreenShot;
+   Frustum myViewFrustum;
 
    // Picking data
    static const int SELECT_BUFFER_SZ = 128;
@@ -316,6 +327,48 @@ IGraphicsPtr SDLWindow::beginPick(int x, int y)
 unsigned SDLWindow::endPick()
 {
    return ::endPick(mySelectBuffer);
+}
+
+// Called to set the camera position
+void SDLWindow::setCamera(const Vector<float>& aPos,
+                          const Vector<float>& aRotation)
+{
+   glRotatef(aRotation.x, 1.0f, 0.0f, 0.0f);
+   glRotatef(aRotation.y, 0.0f, 1.0f, 0.0f);
+   glRotatef(aRotation.z, 0.0f, 0.0f, 1.0f);
+   glTranslatef(aPos.x, aPos.y, aPos.z);
+
+   myViewFrustum = getViewFrustum();
+}
+
+// A wrapper around gluLookAt
+void SDLWindow::lookAt(const Vector<float> anEyePoint,
+                       const Vector<float> aTargetPoint)
+{
+   gluLookAt(anEyePoint.x, anEyePoint.y, anEyePoint.z,
+             aTargetPoint.x, aTargetPoint.y, aTargetPoint.z,
+             0, 1, 0);
+
+   myViewFrustum = getViewFrustum();
+}
+
+// Intersect a cuboid with the current view frustum
+bool SDLWindow::cuboidInViewFrustum(float x, float y, float z,
+                                    float sizeX, float sizeY, float sizeZ)
+{
+   return myViewFrustum.cuboidInFrustum(x, y, z, sizeX, sizeY, sizeZ);
+}
+
+// Intersect a cube with the current view frustum
+bool SDLWindow::cubeInViewFrustum(float x, float y, float z, float size)
+{
+   return myViewFrustum.cubeInFrustum(x, y, z, size);
+}
+
+// True if the point is contained within the view frustum
+bool SDLWindow::pointInViewFrustum(float x, float y, float z)
+{
+   return myViewFrustum.pointInFrustum(x, y, z);
 }
 
 // Capture the OpenGL pixels and save them to a file

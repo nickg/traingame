@@ -24,9 +24,10 @@
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Gl_Window.H>
 #include <FL/gl.h>
+#include <GL/glu.h>
 
 // An OpenGL window that supports FLTK widgets for the editor
-class FLTKWindow : public IWindow, public OpenGLGraphics,                   
+class FLTKWindow : public IWindow, public IGraphics,                   
                    public Fl_Gl_Window, public IPickBuffer,
                    public enable_shared_from_this<FLTKWindow> {
 public:
@@ -41,6 +42,16 @@ public:
    int width() const;
    int height() const;
 
+   // IGraphics interface
+   bool cuboidInViewFrustum(float x, float y, float z,
+                            float sizeX, float sizeY, float sizeZ);
+   bool cubeInViewFrustum(float x, float y, float z, float size);
+   bool pointInViewFrustum(float x, float y, float z);
+   void setCamera(const Vector<float>& aPos,
+                  const Vector<float>& aRotation);
+   void lookAt(const Vector<float> anEyePoint,
+               const Vector<float> aTargetPoint);
+
    // Fl_Gl_Window interface
    void draw();
    int handle(int anEvent);
@@ -52,6 +63,7 @@ private:
    void checkValid();
 
    IScreenPtr myScreen;
+   Frustum myViewFrustum;
 
    // Picking data
    static const int SELECT_BUFFER_SZ = 128;
@@ -187,6 +199,48 @@ IGraphicsPtr FLTKWindow::beginPick(int x, int y)
 unsigned FLTKWindow::endPick()
 {
    return ::endPick(mySelectBuffer);
+}
+
+// Called to set the camera position
+void FLTKWindow::setCamera(const Vector<float>& aPos,
+                          const Vector<float>& aRotation)
+{
+   glRotatef(aRotation.x, 1.0f, 0.0f, 0.0f);
+   glRotatef(aRotation.y, 0.0f, 1.0f, 0.0f);
+   glRotatef(aRotation.z, 0.0f, 0.0f, 1.0f);
+   glTranslatef(aPos.x, aPos.y, aPos.z);
+
+   myViewFrustum = getViewFrustum();
+}
+
+// A wrapper around gluLookAt
+void FLTKWindow::lookAt(const Vector<float> anEyePoint,
+                       const Vector<float> aTargetPoint)
+{
+   gluLookAt(anEyePoint.x, anEyePoint.y, anEyePoint.z,
+             aTargetPoint.x, aTargetPoint.y, aTargetPoint.z,
+             0, 1, 0);
+
+   myViewFrustum = getViewFrustum();
+}
+
+// Intersect a cuboid with the current view frustum
+bool FLTKWindow::cuboidInViewFrustum(float x, float y, float z,
+                                    float sizeX, float sizeY, float sizeZ)
+{
+   return myViewFrustum.cuboidInFrustum(x, y, z, sizeX, sizeY, sizeZ);
+}
+
+// Intersect a cube with the current view frustum
+bool FLTKWindow::cubeInViewFrustum(float x, float y, float z, float size)
+{
+   return myViewFrustum.cubeInFrustum(x, y, z, size);
+}
+
+// True if the point is contained within the view frustum
+bool FLTKWindow::pointInViewFrustum(float x, float y, float z)
+{
+   return myViewFrustum.pointInFrustum(x, y, z);
 }
 
 IWindowPtr makeFLTKWindow()
