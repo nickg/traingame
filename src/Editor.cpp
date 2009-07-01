@@ -21,7 +21,6 @@
 #include "IMap.hpp"
 #include "Maths.hpp"
 #include "ILight.hpp"
-#include "gui/IContainer.hpp"
 #include "BuildingPanel.hpp"
 
 #include <algorithm>
@@ -33,8 +32,6 @@
 #include <FL/Fl_Menu_Button.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Menu_Item.H>
-
-using namespace gui;
 
 // Concrete editor class
 class Editor : public IScreen {
@@ -70,17 +67,7 @@ private:
                    const Point<int>& aSecondPoint) const;
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
    void deleteObjects();
-   
-   // Signal handlers
-   void onRaiseTerrainSelect();
-   void onTrackSelect();
-   void onLowerTerrainSelect();
-   void onDeleteSelect();
-   void onLevelTerrainSelect();
-   void onPlaceStartSelect();
-   void onStationSelect();
-   void onBuildingSelect();
-   
+      
    IMapPtr myMap;
    
    ILightPtr mySun;
@@ -93,10 +80,6 @@ private:
    // Variables for dragging track segments
    Point<int> myDragBegin, myDragEnd;
    bool amDragging;
-
-   // GUI variables
-   IContainerPtr myToolbar;
-   BuildingPanel myBuildingPanel;
 };
 
 // The FLTK toolbox
@@ -149,41 +132,7 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
 
    // Build the GUI
    makeToolbox(this);
-   
-   myToolbar = makeToolbar();
 
-   IButtonPtr trackButton = makeButton("data/images/track_icon.png");
-   trackButton->onClick(bind(&Editor::onTrackSelect, this));
-   myToolbar->addChild(trackButton);
-
-   IButtonPtr raiseButton = makeButton("data/images/raise_icon.png");
-   raiseButton->onClick(bind(&Editor::onRaiseTerrainSelect, this));
-   myToolbar->addChild(raiseButton);
-
-   IButtonPtr lowerButton = makeButton("data/images/lower_icon.png");
-   lowerButton->onClick(bind(&Editor::onLowerTerrainSelect, this));
-   myToolbar->addChild(lowerButton);
-
-   IButtonPtr levelButton = makeButton("data/images/level_icon.png");
-   levelButton->onClick(bind(&Editor::onLevelTerrainSelect, this));
-   myToolbar->addChild(levelButton);
-   
-   IButtonPtr deleteButton = makeButton("data/images/delete_icon.png");
-   deleteButton->onClick(bind(&Editor::onDeleteSelect, this));
-   myToolbar->addChild(deleteButton);
-      
-   IButtonPtr startButton = makeButton("data/images/start_icon.png");
-   startButton->onClick(bind(&Editor::onPlaceStartSelect, this));
-   myToolbar->addChild(startButton);
-
-   IButtonPtr stationButton = makeButton("data/images/station_icon.png");
-   stationButton->onClick(bind(&Editor::onStationSelect, this));
-   myToolbar->addChild(stationButton);
-
-   IButtonPtr buildingButton = makeButton("data/images/buildings_icon.png");
-   buildingButton->onClick(bind(&Editor::onBuildingSelect, this));
-   myToolbar->addChild(buildingButton);
-   
    myMap->setGrid(true);
 
    log() << "Editing " << aFileName;
@@ -230,8 +179,7 @@ void Editor::display(IGraphicsPtr aContext) const
 // Render the overlay
 void Editor::overlay() const
 {
-   myToolbar->render();
-   myBuildingPanel.render();
+   
 }
 
 // Prepare the next frame
@@ -519,64 +467,10 @@ void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
    getGameWindow()->redrawHint();
 }
 
-// Change to the terrain raising mode
-void Editor::onRaiseTerrainSelect()
-{
-   log() << "Raise terrain mode";
-   myTool = RAISE_TOOL;
-}
-
-// Change to the terrain lowering mode
-void Editor::onLowerTerrainSelect()
-{
-   log() << "Lower terrain mode";
-   myTool = LOWER_TOOL;
-}
-
-// Change to the track placing mode
-void Editor::onTrackSelect()
-{
-   log() << "Track placing mode";
-   myTool = TRACK_TOOL;
-}
-
-void Editor::onLevelTerrainSelect()
-{
-   log() << "Level terrain mode";
-   myTool = LEVEL_TOOL;
-}
-
-void Editor::onDeleteSelect()
-{
-   log() << "Delete mode";
-   myTool = DELETE_TOOL;
-}
-
-void Editor::onPlaceStartSelect()
-{
-   log() << "Place start mode";
-   myTool = START_TOOL;
-}
-
-void Editor::onStationSelect()
-{
-   log() << "Place station mode";
-   myTool = STATION_TOOL;
-}
-
-void Editor::onBuildingSelect()
-{
-   log() << "Place buildings mode";
-   myTool = BUILDING_TOOL;
-}
-
 void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
                           MouseButton aButton)
 {
-   // See if the GUI can handle it
-   if (myToolbar->handleClick(x, y))
-      return;
-   else if (aButton == MOUSE_RIGHT) {
+   if (aButton == MOUSE_RIGHT) {
       // Start scrolling
       amScrolling = true;
    }
@@ -609,10 +503,7 @@ void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
 void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
                             MouseButton aButton)
 {
-   // See if the GUI can handle it
-   if (myToolbar->handleMouseRelease(x, y))
-      return;
-   else if (amDragging) {
+   if (amDragging) {
       // Stop dragging and perform the action
       switch (myTool) {
       case TRACK_TOOL:
