@@ -26,6 +26,7 @@
 #include "GameScreens.hpp"
 #include "IBillboard.hpp"
 #include "IterateTrack.hpp"
+#include "ISkyBox.hpp"
 
 #include <GL/gl.h>
 
@@ -56,6 +57,7 @@ private:
    IMapPtr myMap;
    ITrainPtr myTrain;
    ILightPtr mySun;
+   ISkyBoxPtr mySkyBox;
 
    // Station the train is either approaching or stopped at
    IStationPtr myActiveStation;
@@ -80,6 +82,7 @@ Game::Game(IMapPtr aMap)
 {
    myTrain = makeTrain(myMap);
    mySun = makeSunLight();
+   mySkyBox = makeSkyBox("skybox");
 
    myMap->setGrid(false);
 
@@ -123,6 +126,9 @@ Game::~Game()
 
 void Game::display(IGraphicsPtr aContext) const
 {
+   // Render the skybox before everything else
+   mySkyBox->apply(myHorizAngle);
+   
    Vector<float> trainPos = myTrain->front();
 
    // Two angles give unique position on surface of a sphere
