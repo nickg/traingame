@@ -91,6 +91,8 @@ FLTKWindow::FLTKWindow()
    Fl::wait();
 
    make_current();
+
+   printGLVersion();
 }
 
 FLTKWindow::~FLTKWindow()

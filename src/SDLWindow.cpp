@@ -163,8 +163,9 @@ SDLWindow::SDLWindow()
    //SDL_ShowCursor(SDL_DISABLE);
    
    // Start OpenGL
+   printGLVersion();
    initGL();
-
+   
    log() << "Created " << myWidth << "x" << myHeight << " window";
 }
 

@@ -83,6 +83,13 @@ void drawGLScene(IWindowPtr aWindow, IGraphicsPtr aContext, IScreenPtr aScreen)
    }
 }
 
+// Report the current OpenGL version
+void printGLVersion()
+{
+   log() << "OpenGL version: " << glGetString(GL_VERSION);
+   log() << "GLEW version: " << glewGetString(GLEW_VERSION);
+}
+
 // Set initial OpenGL options
 void initGL()
 {
@@ -94,10 +101,7 @@ void initGL()
    glDepthFunc(GL_LEQUAL);
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-   // Check for OpenGL extensions
-   log() << "OpenGL version: " << glGetString(GL_VERSION);
-   log() << "GLEW version: " << glewGetString(GLEW_VERSION);
-
+   // Check for OpenGL extensions   
    GLenum err = glewInit();
    if (err != GLEW_OK)
       throw runtime_error("GLEW initialisation failed: "

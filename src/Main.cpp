@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 #ifndef WIN32
       if (argc != 3)
          throw runtime_error("Usage: TrainGame (edit|play) [map]");
-
+      
       const string mapFile(argv[2]);
       const string cmd(argv[1]);
 #else
