@@ -42,6 +42,7 @@ typedef shared_ptr<IWindow> IWindowPtr;
 
 // Implementors
 IWindowPtr makeSDLWindow();
-IWindowPtr makeFLTKWindow();
+IWindowPtr makeFLTKWindow(const string& aTitle,
+                          function<void ()> addControls);
 
 #endif

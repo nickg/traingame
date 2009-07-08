@@ -53,7 +53,7 @@ int main(int argc, char** argv)
 #endif   // #ifndef WIN32
       IScreenPtr screen;
       if (cmd == "edit") {
-         theWindow = makeFLTKWindow();
+         theWindow = makeFLTKWindow("Train Game Editor", addEditorGUI);
          if (exists(mapFile))
             screen = makeEditorScreen(loadMap(mapFile), mapFile);
          else

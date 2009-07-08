@@ -30,4 +30,7 @@ IScreenPtr makeGameScreen(IMapPtr aMap);
 // Access to the window the game is running in
 IWindowPtr getGameWindow();
 
+// Add editor GUI controls
+void addEditorGUI();
+
 #endif

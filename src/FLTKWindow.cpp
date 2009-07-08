@@ -23,15 +23,16 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Gl_Window.H>
+#include <FL/Fl_Box.h>
 #include <FL/gl.h>
 #include <GL/glu.h>
 
-// An OpenGL window that supports FLTK widgets for the editor
+// An OpenGL window for the editor
 class FLTKWindow : public IWindow, public IGraphics,                   
                    public Fl_Gl_Window, public IPickBuffer,
                    public enable_shared_from_this<FLTKWindow> {
 public:
-   FLTKWindow();
+   FLTKWindow(int x, int y, int w, int h);
    ~FLTKWindow();
 
    // IWindow interface
@@ -71,28 +72,10 @@ private:
    GLuint mySelectBuffer[SELECT_BUFFER_SZ];
 };
 
-FLTKWindow::FLTKWindow()
-   : Fl_Gl_Window(640, 480)
+FLTKWindow::FLTKWindow(int x, int y, int w, int h)
+   : Fl_Gl_Window(x, y, w, h)
 {
-   size_range(300, 240);
-   resizable(this);
-   //myWindow = new Fl_Window(300, 180);
-   /*   myBox = new Fl_Box(20, 40, 260, 100, "Hello, World!");
 
-   myBox->box(FL_UP_BOX);
-   myBox->labelsize(36);
-   myBox->labelfont(FL_BOLD + FL_ITALIC);
-   myBox->labeltype(FL_SHADOW_LABEL);
-   */
-   //myWindow->end();
-
-   // Bit of a hack to get into a state where we can use OpenGL
-   show();
-   Fl::wait();
-
-   make_current();
-
-   printGLVersion();
 }
 
 FLTKWindow::~FLTKWindow()
@@ -270,7 +253,47 @@ bool FLTKWindow::pointInViewFrustum(float x, float y, float z)
    return myViewFrustum.pointInFrustum(x, y, z);
 }
 
-IWindowPtr makeFLTKWindow()
+// The main application window that contains the actual
+// FLTKWindow and is hidden from the rest of the application
+class FLTKAppWindow : public Fl_Window {
+public:
+   FLTKAppWindow(const string& aTitle, function<void ()> addControls);
+
+   FLTKWindow* glWindow() const { return myGLWindow; }
+private:
+   FLTKWindow* myGLWindow;
+   Fl_Window* myContainer;
+};
+
+FLTKAppWindow::FLTKAppWindow(const string& aTitle,
+                             function<void ()> addControls)
+   : Fl_Window(980, 600, aTitle.c_str())
 {
-   return IWindowPtr(new FLTKWindow);
+   size_range(300, 240);
+   resizable(this);
+
+   const int panelW = 180;
+   myGLWindow = new FLTKWindow(0, 0, w()-panelW, h());
+   myContainer = new Fl_Window(w()-panelW, 0, panelW, h()); 
+   end();
+
+   myContainer->begin();
+   addControls();
+   myContainer->end();
+   
+   // Bit of a hack to get into a state where we can use OpenGL
+   show();
+   Fl::wait();
+
+   myGLWindow->make_current();
+
+   printGLVersion();
+}
+
+IWindowPtr makeFLTKWindow(const string& aTitle,
+                          function<void ()> addControls)
+{
+   FLTKAppWindow* appWindow = new FLTKAppWindow(aTitle, addControls);
+   
+   return IWindowPtr(appWindow->glWindow());
 }

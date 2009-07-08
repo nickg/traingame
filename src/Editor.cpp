@@ -98,29 +98,24 @@ namespace {
       { 0 }
    };
    
-   Fl_Window* theToolbox;
    Fl_Menu_Button* theToolMenu;
    
-   Editor* theEditor;
-
-   void makeToolbox(Editor* anEditor)
-   {
-      theEditor = anEditor;
-      
-      theToolbox = new Fl_Window(100, 300);
-      
-      theToolMenu = new Fl_Menu_Button(0, 0, 100, 32);
-      theToolMenu->copy(theTools);
-      
-      theToolbox->end();
-      theToolbox->show();
-   }
+   Editor* theEditor = NULL;
    
    void changeTool(Fl_Widget* aWidget, Editor::Tool aTool)
    {
       theToolMenu->label(theToolMenu->text());
       theEditor->setTool(aTool);
    }
+}
+
+// Add the editor panel to the FLTK window
+void addEditorGUI()
+{
+   const int panelW = 180;
+   
+   theToolMenu = new Fl_Menu_Button(0, 0, panelW, 32);
+   theToolMenu->copy(theTools);
 }
 
 Editor::Editor(IMapPtr aMap, const string& aFileName) 
@@ -130,8 +125,7 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
 {
    mySun = makeSunLight();
 
-   // Build the GUI
-   makeToolbox(this);
+   theEditor = this;
 
    myMap->setGrid(true);
 
