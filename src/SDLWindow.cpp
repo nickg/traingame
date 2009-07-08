@@ -143,8 +143,8 @@ SDLWindow::SDLWindow()
    atexit(SDL_Quit);
 
    // Set the video mode
-   const int DEFAULT_WIDTH = 1024;
-   const int DEFAULT_HEIGHT = 768;
+   const int DEFAULT_WIDTH = 800;
+   const int DEFAULT_HEIGHT = 600;
 
    myWidth = DEFAULT_WIDTH;
    myHeight = DEFAULT_HEIGHT;

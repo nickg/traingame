@@ -20,6 +20,7 @@
 
 #include <cstdarg>
 #include <cstring>
+#include <cstdio>
 
 using namespace gui;
 using namespace std;
