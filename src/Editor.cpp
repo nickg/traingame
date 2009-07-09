@@ -22,6 +22,7 @@
 #include "Maths.hpp"
 #include "ILight.hpp"
 #include "BuildingPanel.hpp"
+#include "ModelViewer.hpp"
 
 #include <algorithm>
 
@@ -99,6 +100,7 @@ namespace {
    };
    
    Fl_Menu_Button* theToolMenu;
+   ModelViewer* theModelViewer;
    
    Editor* theEditor = NULL;
    
@@ -116,6 +118,9 @@ void addEditorGUI()
    
    theToolMenu = new Fl_Menu_Button(0, 0, panelW, 32);
    theToolMenu->copy(theTools);
+
+   theModelViewer = new ModelViewer(0, 40, panelW, 200);
+   theModelViewer->setModel(loadModel("pclass.obj"));
 }
 
 Editor::Editor(IMapPtr aMap, const string& aFileName) 

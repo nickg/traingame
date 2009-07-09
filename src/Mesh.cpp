@@ -551,7 +551,7 @@ IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 {
    //aBuffer->printStats();
 
-   // Prefer VBOs for large meshes meshes
+   // Prefer VBOs for large meshes
    if (aBuffer->vertexCount() > 100 && GLEW_ARB_vertex_buffer_object)
       return IMeshPtr(new VBOMesh(aBuffer));
    else
