@@ -55,4 +55,13 @@ IFogPtr makeFog(float r, float g, float b,
    return IFogPtr(new Fog(r, g, b, density, start, end));
 }
 
+IFogPtr makeFog(float density, float start, float end)
+{
+   float params[4];
+   glGetFloatv(GL_COLOR_CLEAR_VALUE, params);
+   
+   return makeFog(params[0], params[1], params[2],
+                  density, start, end);
+}
+
 #endif

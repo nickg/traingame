@@ -204,8 +204,7 @@ Map::Map()
      myStartDirection(axis::X),
      shouldDrawGridLines(false), inPickMode(false)
 {
-   myFog = makeFog(0.6f, 0.7f, 0.8f,  // Colour
-                   0.25f,             // Density
+   myFog = makeFog(0.25f,             // Density
                    60.0f, 70.0f);     // Start and end distance
 }
 
@@ -381,8 +380,6 @@ void Map::resetMarks() const
 void Map::render(IGraphicsPtr aContext) const
 {
    resetMarks();
-   
-   glClearColor(0.6f, 0.7f, 0.8f, 1.0f);
    
    myFog->apply();
    

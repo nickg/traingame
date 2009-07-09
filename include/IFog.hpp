@@ -33,4 +33,7 @@ typedef std::tr1::shared_ptr<IFog> IFogPtr;
 IFogPtr makeFog(float r, float g, float b,
                 float density, float start, float end);
 
+// Construct a fog from the current clear colour
+IFogPtr makeFog(float density, float start, float end);
+
 #endif
