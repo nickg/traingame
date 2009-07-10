@@ -118,9 +118,12 @@ void addEditorGUI()
    
    theToolMenu = new Fl_Menu_Button(0, 0, panelW, 32);
    theToolMenu->copy(theTools);
+	theToolMenu->label("Track");
 
+   debug() << theToolMenu->value();
+   
    theModelViewer = new ModelViewer(0, 40, panelW, 200);
-   theModelViewer->setModel(loadModel("pclass.obj"));
+   theModelViewer->setModel(loadModel("house.obj"));
 }
 
 Editor::Editor(IMapPtr aMap, const string& aFileName) 

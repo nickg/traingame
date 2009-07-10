@@ -60,7 +60,7 @@ void ModelViewer::draw()
    if (myModel) {
       glRotatef(45.0f, 1.0f, 0.0f, 0.0f);
       glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
-      glTranslatef(5.0f, -8.0f, -4.0f);
+      glTranslatef(1.5f, -2.6f, -1.5f);
       glColor3f(1.0f, 1.0f, 1.0f);
       myModel->render();
    }
