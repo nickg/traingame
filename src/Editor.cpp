@@ -21,8 +21,8 @@
 #include "IMap.hpp"
 #include "Maths.hpp"
 #include "ILight.hpp"
-#include "BuildingPanel.hpp"
 #include "ModelViewer.hpp"
+#include "IBuilding.hpp"
 
 #include <algorithm>
 
@@ -118,12 +118,10 @@ void addEditorGUI()
    
    theToolMenu = new Fl_Menu_Button(0, 0, panelW, 32);
    theToolMenu->copy(theTools);
-	theToolMenu->label("Track");
-
-   debug() << theToolMenu->value();
+   theToolMenu->label("Track");
    
    theModelViewer = new ModelViewer(0, 40, panelW, 200);
-   theModelViewer->setModel(loadModel("house.obj"));
+   theModelViewer->setModel(loadBuilding("white_house")->model());
 }
 
 Editor::Editor(IMapPtr aMap, const string& aFileName) 

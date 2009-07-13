@@ -15,23 +15,33 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_IBUILDING_HPP
-#define INC_IBUILDING_HPP
+#ifndef INC_RESOURCES_HPP
+#define INC_RESOURCES_HPP
 
 #include "Platform.hpp"
-#include "IModel.hpp"
 
 #include <string>
+#include <list>
 
-// Interface to buildings and other bits of scenery
-struct IBuilding {
-   virtual ~IBuilding() {}
+// Interface to game resource
+// A game resource is a directory containing related media files
+// E.g. a building resource might contain the model, textures,
+// and the XML file describing it
+struct IResource {
+   virtual ~IResource() {}
 
-   virtual IModelPtr model() const = 0;
+   virtual string name() const = 0;
+   virtual string xmlFileName() const = 0;
 };
 
-typedef shared_ptr<IBuilding> IBuildingPtr;
+typedef shared_ptr<IResource> IResourcePtr;
 
-IBuildingPtr loadBuilding(const string& aResId);
+typedef list<IResourcePtr> ResourceList;
+typedef ResourceList::iterator ResourceListIt;
+
+// Generic interface to game resources
+void initResources();
+void enumResources(const string& aClass, ResourceList& aList);
+IResourcePtr findResource(const string& aResId, const string& aClass);
 
 #endif

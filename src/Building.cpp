@@ -16,3 +16,57 @@
 //
 
 #include "IBuilding.hpp"
+#include "Resources.hpp"
+#include "ResourceCache.hpp"
+#include "ILogger.hpp"
+#include "IXMLParser.hpp"
+
+// Concrete implementation of buildings
+class Building : public IBuilding, public IXMLCallback {
+public:
+   Building(IResourcePtr aRes);
+
+   // IBuildingInterface
+   IModelPtr model() const { return myModel; }
+
+   // IXMLCallback interface
+   void text(const string& localName, const string& aString);
+private:
+   IModelPtr myModel;
+   string myName;
+   IResourcePtr myResource;
+};
+
+Building::Building(IResourcePtr aRes)
+   : myName("???"), myResource(aRes)
+{
+   static IXMLParserPtr parser = makeXMLParser("schemas/building.xsd");
+
+   parser->parse(aRes->xmlFileName(), *this);
+}
+
+void Building::text(const string& localName, const string& aString)
+{
+   debug() << "text " << localName << " = " << aString;
+   
+   if (localName == "name")
+      myName = aString;
+   else if (localName == "model")
+      myModel = loadModel(aString);
+}
+
+namespace {
+   
+   IBuildingPtr loadBuildingXml(IResourcePtr aRes)
+   {      
+      log() << "Loading building from " << aRes->xmlFileName();
+
+      return IBuildingPtr(new Building(aRes));
+   }
+}
+
+IBuildingPtr loadBuilding(const string& aResId)
+{
+   static ResourceCache<IBuildingPtr> cache(loadBuildingXml, "buildings");
+   return cache.load(aResId);
+}

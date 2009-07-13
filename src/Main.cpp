@@ -18,6 +18,7 @@
 #include "IWindow.hpp"
 #include "ILogger.hpp"
 #include "GameScreens.hpp"
+#include "Resources.hpp"
 
 #include <stdexcept>
 
@@ -42,6 +43,8 @@ int main(int argc, char** argv)
 #ifndef WIN32
       if (argc != 3)
          throw runtime_error("Usage: TrainGame (edit|play) [map]");
+
+      initResources();
       
       const string mapFile(argv[2]);
       const string cmd(argv[1]);

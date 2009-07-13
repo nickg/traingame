@@ -64,11 +64,11 @@ private:
 struct IXMLCallback {
    virtual ~IXMLCallback() {}
 
-   virtual void startElement(const std::string& localName,
-                             const AttributeSet& attrs) = 0;
-   virtual void endElement(const std::string& localName) = 0;
-   virtual void text(const std::string& localName,
-                     const std::string& aString) = 0;
+   virtual void startElement(const string& localName,
+                             const AttributeSet& attrs) {}
+   virtual void endElement(const string& localName) {}
+   virtual void text(const string& localName,
+                     const string& aString) {}
 };
 
 // Interface to a validating XML parser
@@ -79,8 +79,8 @@ struct IXMLParser {
 };
 
 typedef std::tr1::shared_ptr<IXMLParser> IXMLParserPtr;
-
+ 
 IXMLParserPtr makeXMLParser(const std::string& aSchemaFile);
-
+     
 #endif
 
