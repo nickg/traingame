@@ -227,28 +227,31 @@ Material::Material()
 }
 
 void Material::apply() const
-{
-   glDisable(GL_COLOR_MATERIAL);
-   
+{  
    if (texture) {
       glEnable(GL_TEXTURE_2D);
       texture->bind();
+
+      glEnable(GL_COLOR_MATERIAL);
+      glColor3f(1.0f, 1.0f, 1.0f);
    }
-   else
+   else {
+      glDisable(GL_COLOR_MATERIAL);
       glDisable(GL_TEXTURE_2D);
    
-   float diffuse[] = { diffuseR, diffuseG, diffuseB, 1.0 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
-   
-   float ambient[] = { ambientR, ambientG, ambientB, 1.0 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
-   
-   // Note we're ignoring the specular values in the model
-   float specular[] = { 0, 0, 0, 1.0 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
-   
-   float emission[] = { 0, 0, 0, 1 };
-   glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emission);
+      float diffuse[] = { diffuseR, diffuseG, diffuseB, 1.0 };
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+      
+      float ambient[] = { ambientR, ambientG, ambientB, 1.0 };
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+      
+      // Note we're ignoring the specular values in the model
+      float specular[] = { 0, 0, 0, 1.0 };
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+      
+      float emission[] = { 0, 0, 0, 1 };
+      glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emission);
+   }
 }
 
 // Simple implementation using display lists
@@ -350,7 +353,7 @@ namespace {
          
          if (buf->hasTexture) {
             vd->tx = buf->texCoords[i].x;
-            vd->ty = buf->texCoords[i].y;
+            vd->ty = 1.0f - buf->texCoords[i].y;
          }
          
          if (!buf->hasMaterial) {
@@ -411,11 +414,6 @@ void VertexArrayMesh::render() const
 
    glDisable(GL_BLEND);
    
-   if (hasTexture)
-      glEnable(GL_TEXTURE_2D);
-   else
-      glDisable(GL_TEXTURE_2D);
-
    if (hasMaterial)
       myMaterial.apply();
    else {
@@ -424,6 +422,12 @@ void VertexArrayMesh::render() const
       glEnableClientState(GL_COLOR_ARRAY);
       glColorPointer(3, GL_FLOAT, sizeof(VertexData),
                      reinterpret_cast<GLvoid*>(&myVertexData->r));
+   }
+   
+   if (hasTexture) {
+      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+      glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData),
+                        reinterpret_cast<GLvoid*>(&myVertexData->tx));
    }
       
    glEnableClientState(GL_VERTEX_ARRAY);
@@ -434,7 +438,7 @@ void VertexArrayMesh::render() const
                    reinterpret_cast<GLvoid*>(&myVertexData->nx));
 
    glDrawElements(GL_TRIANGLES, myIndexCount, GL_UNSIGNED_SHORT, myIndices);
-
+   
    glPopClientAttrib();
    glPopAttrib();
 }
@@ -552,7 +556,7 @@ IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
    //aBuffer->printStats();
 
    // Prefer VBOs for large meshes
-   if (aBuffer->vertexCount() > 100 && GLEW_ARB_vertex_buffer_object)
+   if (aBuffer->vertexCount() > 50 && GLEW_ARB_vertex_buffer_object)
       return IMeshPtr(new VBOMesh(aBuffer));
    else
       return IMeshPtr(new VertexArrayMesh(aBuffer));

@@ -19,6 +19,7 @@
 #define INC_ITEXTURE_HPP
 
 #include "Platform.hpp"
+#include "IResource.hpp"
 
 #include <string>
 
@@ -38,6 +39,9 @@ typedef shared_ptr<ITexture> ITexturePtr;
 // Load a texture and return a pointer to
 // A texture will only be loaded at most once no matter how many
 // times this is called
-ITexturePtr loadTexture(const std::string& aFileName);
+ITexturePtr loadTexture(const string& aFileName);
+
+// Load a texture from a resource
+ITexturePtr loadTexture(IResourcePtr aRes, const string& aFileName);
 
 #endif

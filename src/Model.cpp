@@ -47,7 +47,7 @@ namespace {
 // Abstracts a WaveFront material file
 class MaterialFile {
 public:
-   MaterialFile(IResource::Handle aHandle);
+   MaterialFile(const string& aFileName, IResourcePtr aRes);
    ~MaterialFile() {}
 
    const Material& get(const string& aName) const;
@@ -58,11 +58,13 @@ private:
 
 typedef tr1::shared_ptr<MaterialFile> MaterialFilePtr;
 
-MaterialFile::MaterialFile(IResource::Handle aHandle)
+MaterialFile::MaterialFile(const string& aFileName, IResourcePtr aRes)
 {
-   log() << "Loading materials from " << aHandle.fileName();
+   IResource::Handle h = aRes->openFile(aFileName);
+   
+   log() << "Loading materials from " << h.fileName();
 
-   istream& is = aHandle.rstream();
+   istream& is = h.rstream();
    
    string activeMaterial;
    while (!is.eof()) {
@@ -81,7 +83,7 @@ MaterialFile::MaterialFile(IResource::Handle aHandle)
       else if (word == "map_Kd") {
          // Texture
          is >> word;
-         myMaterials[activeMaterial].texture = loadTexture(word);
+         myMaterials[activeMaterial].texture = loadTexture(aRes, word);
       }
       else if (word == "Kd") {
          // Diffuse colour
@@ -194,7 +196,7 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
          f >> fileName;
          
          materialFile =
-            MaterialFilePtr(new MaterialFile(aRes->openFile(fileName)));
+            MaterialFilePtr(new MaterialFile(fileName, aRes));
       }
       else if (first == "v") {
          // Vertex

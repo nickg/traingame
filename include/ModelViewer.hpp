@@ -30,7 +30,7 @@ public:
    ModelViewer(int x, int y, int w, int h);
    ~ModelViewer();
 
-   void setModel(IModelPtr aModel) { myModel = aModel; }
+   void setModel(IModelPtr aModel);
 
    // Fl_Gl_Window interface
    void draw();

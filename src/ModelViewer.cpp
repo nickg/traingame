@@ -76,3 +76,10 @@ int ModelViewer::handle(int anEvent)
 {
    return Fl_Gl_Window::handle(anEvent);
 }
+
+void ModelViewer::setModel(IModelPtr aModel)
+{
+   myModel = aModel;
+
+   Fl_Gl_Window::redraw();
+}

@@ -110,6 +110,10 @@ namespace {
    {
       theToolMenu->label(theToolMenu->text());
       theEditor->setTool(aTool);
+
+      if (aTool == Editor::BUILDING_TOOL) {
+         theModelViewer->setModel(loadBuilding("white_house")->model());
+      }
    }
 
    void onSaveClick(Fl_Widget* aWidget)
@@ -128,7 +132,6 @@ void addEditorGUI()
    theToolMenu->label("Track");
    
    theModelViewer = new ModelViewer(0, 40, panelW, 200);
-   theModelViewer->setModel(loadBuilding("white_house")->model());
    
    theSaveButton = new Fl_Button(0, 248, panelW, 25, "Save");
    theSaveButton->callback(onSaveClick);

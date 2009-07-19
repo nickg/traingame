@@ -69,6 +69,20 @@ ITexturePtr loadTexture(const string& aFileName)
    }      
 }
 
+ITexturePtr loadTexture(IResourcePtr aRes, const string& aFileName)
+{
+   // Hack alert! Just use the handle to find out the file name
+   // This should be replaced with a solution where all textures come
+   // from resources...
+   string realFileName;
+   {
+      IResource::Handle h = aRes->openFile(aFileName);
+      realFileName = h.fileName();
+   } // Handle closed here
+
+   return loadTexture(realFileName);
+}
+
 Texture::Texture(const string &file)
 {
    SDL_Surface *surface = IMG_Load(file.c_str());
