@@ -27,28 +27,40 @@
 template <class T>
 class ResourceCache {
 public:
-   typedef function<T (IResourcePtr)> LoaderType;
+   typedef function<T* (IResourcePtr)> LoaderType;
    
    ResourceCache(LoaderType aLoader, const string& aClass)
       : myLoader(aLoader), myClass(aClass) {}
-   
-   T load(const string& aResId)
+
+   // Load one single copy of this object
+   // -> use this if the object has no state
+   shared_ptr<T> load(const string& aResId)
    {
       typename CacheType::iterator it = myCache.find(aResId);
       if (it != myCache.end())
          return (*it).second;
       else {
-         T loaded = myLoader(findResource(aResId, myClass));
-         myCache[aResId] = loaded;
-         return loaded;
+         T* loaded = myLoader(findResource(aResId, myClass));
+         shared_ptr<T> ptr(loaded);
+         myCache[aResId] = ptr;
+         return ptr;
       }
+   }
+
+   // Make a copy each time a new object is loaded but only
+   // parse the XML once
+   // -> use this if the object has state
+   shared_ptr<T> loadCopy(const string& aResId)
+   {
+      shared_ptr<T> original = load(aResId);
+      return shared_ptr<T>(new T(*original.get()));
    }
    
 private:
    LoaderType myLoader;
    const string myClass;
    
-   typedef map<string, T> CacheType;
+   typedef map<string, shared_ptr<T> > CacheType;
    CacheType myCache;
 };
 

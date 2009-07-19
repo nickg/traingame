@@ -19,6 +19,8 @@
 #include "IModel.hpp"
 #include "ILogger.hpp"
 #include "MovingAverage.hpp"
+#include "IXMLParser.hpp"
+#include "ResourceCache.hpp"
 
 #include <GL/gl.h>
 
@@ -55,9 +57,10 @@
 // Concrete implementation of a steam engine
 class Engine : public IRollingStock,
                public IController,
+               public IXMLCallback,
                public enable_shared_from_this<Engine> {
 public:
-   Engine();
+   Engine(IResourcePtr aRes);
 
    // IRollingStock interface
    void render() const;
@@ -74,6 +77,9 @@ public:
    double pressure() const { return myBoilerPressure; }
    double temp() const { return myFireTemp; }
    track::Choice consumeChoice();
+
+   // IXMLCallback interface
+   void text(const string& localName, const string& aString);
 private:
    double tractiveEffort() const;
    double resistance() const;
@@ -90,6 +96,8 @@ private:
 
    // Boiler pressure lags behind temperature
    MovingAverage<double, 1000> myBoilerDelay;
+
+   IResourcePtr myResource;
    
    static const float MODEL_SCALE;
    static const double TRACTIVE_EFFORT_KNEE;
@@ -102,16 +110,24 @@ const double Engine::TRACTIVE_EFFORT_KNEE(10.0);
 const double Engine::INIT_PRESSURE(0.2);
 const double Engine::INIT_TEMP(50.0);
 
-Engine::Engine()
+Engine::Engine(IResourcePtr aRes)
    : mySpeed(0.0), myMass(29.0),
      myBoilerPressure(INIT_PRESSURE),
      myFireTemp(INIT_TEMP),
      myStatTractiveEffort(34.7),
-     isBrakeOn(true), myThrottle(0)
+     isBrakeOn(true), myThrottle(0),
+     myResource(aRes)
 {
-   IResourcePtr res = findResource("pclass", "engines");
-   
-   myModel = loadModel(res, "pclass.obj", MODEL_SCALE);
+   static IXMLParserPtr parser = makeXMLParser("schemas/engine.xsd");
+
+   parser->parse(myResource->xmlFileName(), *this);
+}
+
+// Callback for loading elements from the XML file
+void Engine::text(const string& localName, const string& aString)
+{
+   if (localName == "model")
+      myModel = loadModel(myResource, aString, MODEL_SCALE);
 }
 
 // Draw the engine model
@@ -210,8 +226,18 @@ void Engine::actOn(Action anAction)
    }
 }
 
-// Make a new engine
-IRollingStockPtr makeEngine()
+namespace {
+   Engine* loadEngineXml(IResourcePtr aRes)
+   {
+      log() << "Loading engine from " << aRes->xmlFileName();
+
+      return new Engine(aRes);
+   }
+}
+
+// Load an engine from a resource file
+IRollingStockPtr loadEngine(const string& aResId)
 {
-   return IRollingStockPtr(new Engine);
+   static ResourceCache<Engine> cache(loadEngineXml, "engines");
+   return cache.loadCopy(aResId);
 }

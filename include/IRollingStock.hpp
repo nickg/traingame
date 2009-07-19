@@ -45,7 +45,7 @@ struct IRollingStock {
 typedef shared_ptr<IRollingStock> IRollingStockPtr;
 
 // Make various waggons and engines
-IRollingStockPtr makeEngine();
+IRollingStockPtr loadEngine(const string& aResId);
 IRollingStockPtr makeWaggon();
 
 #endif

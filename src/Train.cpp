@@ -94,7 +94,7 @@ const double Train::SEPARATION(0.1);
 Train::Train(IMapPtr aMap)
    : myMap(aMap), myVelocityVector(makeVector(0.0f, 0.0f, 0.0f))
 {
-   myParts.push_front(Part(makeEngine(), true));
+   myParts.push_front(Part(loadEngine("red"), true));
    
    enterSegment(engine(), aMap->startLocation());
 

@@ -33,6 +33,7 @@ struct IResource {
 
    virtual string name() const = 0;
    virtual string xmlFileName() const = 0;  // REMOVE
+   // (Should be replaced by Handle openXmlFile()
    
    // A handle for reading data out of files in resources
    class Handle {

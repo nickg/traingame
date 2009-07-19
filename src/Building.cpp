@@ -56,17 +56,16 @@ void Building::text(const string& localName, const string& aString)
 }
 
 namespace {
-   
-   IBuildingPtr loadBuildingXml(IResourcePtr aRes)
+   Building* loadBuildingXml(IResourcePtr aRes)
    {      
       log() << "Loading building from " << aRes->xmlFileName();
 
-      return IBuildingPtr(new Building(aRes));
+      return new Building(aRes);
    }
 }
 
 IBuildingPtr loadBuilding(const string& aResId)
 {
-   static ResourceCache<IBuildingPtr> cache(loadBuildingXml, "buildings");
+   static ResourceCache<Building> cache(loadBuildingXml, "buildings");
    return cache.load(aResId);
 }
