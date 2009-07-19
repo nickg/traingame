@@ -63,11 +63,11 @@ set (PKGNAME "${PROJECT_NAME}-${REL}")
 
 # Installation
 install (PROGRAMS bin/${PROJECT_NAME} 
-  DESTINATION ${PKGNAME}/bin)
+  DESTINATION bin)
 install (DIRECTORY data maps buildings schemas waggons engines
-  DESTINATION ${PKGNAME})
+  DESTINATION .)
 install (FILES COPYING.txt README.txt COPYRIGHT.vera 
-  DESTINATION ${PKGNAME})
+  DESTINATION .)
 
 # Packaging
 include (InstallRequiredSystemLibraries)
