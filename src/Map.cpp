@@ -40,7 +40,7 @@
 #include <boost/lexical_cast.hpp>
 
 // A single piece of track may appear multiple times in the map - this
-// will be true for all track segments that cover multiple tiles
+// will be true for all track segments that cover multiple tiles.
 // For various map algorithms (e.g. drawing) it is useful to keep track
 // of which track segments have already been visited. So track segments
 // are wrapped inside TrackNode which is used to store map-specific
@@ -112,9 +112,7 @@ public:
                      Point<int> botLeft, Point<int> topRight);
    void postRenderSector(IGraphicsPtr aContext, int id,
                          Point<int> botLeft, Point<int> topRight);
-
-   // Inteface used soley by MapLoader
-   void setStationAt(int x, int y, IStationPtr aStation);
+   
 private:
    // Tiles on the map
    struct Tile {
@@ -176,6 +174,7 @@ private:
    void tileVertices(int x, int y, int* indexes) const;
    void renderPickSector(Point<int> botLeft, Point<int> topRight);
    void drawStartLocation() const;
+   void setStationAt(int x, int y, IStationPtr aStation);
 
    // Mesh modification
    void buildMesh(int id, Point<int> botLeft, Point<int> topRight);

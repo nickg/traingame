@@ -16,7 +16,7 @@
 <name>Coal Mine</name>
 </station>
 
-<heightmap>maps/coal_mine.bin</heightmap>
+<heightmap>coal_mine.bin</heightmap>
 
 <tileset>
 <tile x="2" y="10">
