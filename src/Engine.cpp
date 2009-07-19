@@ -201,7 +201,6 @@ void Engine::actOn(Action anAction)
    switch (anAction) {
    case BRAKE_TOGGLE:
       isBrakeOn = !isBrakeOn;
-      debug() << "Brake is" << (isBrakeOn ? "" : " not") << " on";
       break;
    case SHOVEL_COAL:
       myFireTemp += 10.0;

@@ -96,7 +96,7 @@ namespace {
 
    void addResourceDir(const char* aClass, const path& aPath)
    {
-      debug() << "Add " << aClass << " from " << aPath;
+      debug() << "Adding " <<  aPath << " to " << aClass << " class";
 
       const path xmlFile = aPath / (aPath.filename() + ".xml");
 
@@ -112,8 +112,6 @@ namespace {
 
       for (const char** p = classes; *p != NULL; ++p) {
          if (exists(aPath / *p)) {
-            debug() << "Adding class " << *p;
-
             for (directory_iterator it(aPath / *p);
                  it != directory_iterator(); ++it)
                if (is_directory(it->status()))

@@ -47,8 +47,6 @@ Building::Building(IResourcePtr aRes)
 
 void Building::text(const string& localName, const string& aString)
 {
-   debug() << "text " << localName << " = " << aString;
-   
    if (localName == "name")
       myName = aString;
    else if (localName == "model")

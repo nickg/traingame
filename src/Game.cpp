@@ -97,17 +97,17 @@ Game::Game(IMapPtr aMap)
 
    myCoalMeter = makeFuelMeter(stdFont, "Coal",
                                make_tuple(0.1f, 0.1f, 0.1f));
-   myStatsPanel->addChild(myCoalMeter);
+   //myStatsPanel->addChild(myCoalMeter);
    
    myWaterMeter = makeFuelMeter(stdFont, "Water",
                                 make_tuple(0.1f, 0.1f, 0.8f));
-   myStatsPanel->addChild(myWaterMeter);
+   //myStatsPanel->addChild(myWaterMeter);
 
    myTempLabel = makeLabel(stdFont, "Temp");
-   myStatsPanel->addChild(myTempLabel);
+   //myStatsPanel->addChild(myTempLabel);
 
    myPressureLabel = makeLabel(stdFont, "Pressure");
-   myStatsPanel->addChild(myPressureLabel);
+   //myStatsPanel->addChild(myPressureLabel);
 
    myBrakeLabel = makeLabel(stdFont, "Brake on");
    myBrakeLabel->setColour(1.0f, 0.0f, 0.0f);

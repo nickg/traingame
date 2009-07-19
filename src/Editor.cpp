@@ -102,6 +102,9 @@ namespace {
    
    Fl_Menu_Button* theToolMenu;
    Fl_Button* theSaveButton;
+   Fl_Button* theBldNextButton;
+   Fl_Button* theBldPrevButton;
+   Fl_Button* theBldRotateButton;
    ModelViewer* theModelViewer;
    
    Editor* theEditor = NULL;
@@ -132,8 +135,14 @@ void addEditorGUI()
    theToolMenu->label("Track");
    
    theModelViewer = new ModelViewer(0, 40, panelW, 200);
+
+   theBldPrevButton = new Fl_Button(0, 240, 60, 25, "Prev");
    
-   theSaveButton = new Fl_Button(0, 248, panelW, 25, "Save");
+   theBldNextButton = new Fl_Button(60, 240, 60, 25, "Next");
+   
+   theBldRotateButton = new Fl_Button(120, 240, 60, 25, "Rotate");
+   
+   theSaveButton = new Fl_Button(0, 273, panelW, 25, "Save");
    theSaveButton->callback(onSaveClick);
 }
 
