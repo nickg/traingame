@@ -46,6 +46,6 @@ typedef shared_ptr<IRollingStock> IRollingStockPtr;
 
 // Make various waggons and engines
 IRollingStockPtr loadEngine(const string& aResId);
-IRollingStockPtr makeWaggon();
+IRollingStockPtr loadWaggon(const string& aResId);
 
 #endif

@@ -94,7 +94,7 @@ const double Train::SEPARATION(0.1);
 Train::Train(IMapPtr aMap)
    : myMap(aMap), myVelocityVector(makeVector(0.0f, 0.0f, 0.0f))
 {
-   myParts.push_front(Part(loadEngine("red"), true));
+   myParts.push_front(Part(loadEngine("pclass"), true));
    
    enterSegment(engine(), aMap->startLocation());
 
@@ -102,14 +102,14 @@ Train::Train(IMapPtr aMap)
    move(0.275);
    
    for (int i = 1; i <= 5; i++)
-      addPart(makeWaggon());
+      addPart(loadWaggon("coal_truck"));
 
    mySmokeTrail = makeSmokeTrail();
 }
 
 void Train::addPart(IRollingStockPtr aVehicle)
 {
-   Part part(makeWaggon());
+   Part part(aVehicle);
    enterSegment(part, myMap->startLocation());
    
    // Push the rest of the train along some

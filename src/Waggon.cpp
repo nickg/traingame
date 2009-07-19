@@ -18,35 +18,51 @@
 #include "IRollingStock.hpp"
 #include "IModel.hpp"
 #include "IResource.hpp"
+#include "IXMLParser.hpp"
+#include "ILogger.hpp"
+#include "ResourceCache.hpp"
 
 #include <stdexcept>
 
 using namespace std;
 
 // All cargo waggons
-class Waggon : public IRollingStock {
+class Waggon : public IRollingStock, public IXMLCallback {
 public:
-   Waggon();
+   Waggon(IResourcePtr aRes);
    ~Waggon() {}
 
+   // IRollingStock interface
    void update(int aDelta);
    void render() const;
    IControllerPtr controller();
    double speed() const { return 0.0; }
    double length() const { return myModel->dimensions().x; }
+
+   // IXMLCallback interface
+   void text(const string& localName, const string& aString);
 private:
    IModelPtr myModel;
+   IResourcePtr myResource;
 
    static const float MODEL_SCALE;
 };
 
 const float Waggon::MODEL_SCALE(0.4f);
 
-Waggon::Waggon()
+Waggon::Waggon(IResourcePtr aRes)
+   : myResource(aRes)
 {
-   IResourcePtr res = findResource("coal_truck", "waggons");
-   
-   myModel = loadModel(res, "coal_truck.obj", MODEL_SCALE);
+   static IXMLParserPtr parser = makeXMLParser("schemas/waggon.xsd");
+
+   parser->parse(myResource->xmlFileName(), *this);
+}
+
+// Load information from the XML file
+void Waggon::text(const string& localName, const string& aString)
+{
+   if (localName == "model")
+      myModel = loadModel(myResource, aString, MODEL_SCALE);
 }
 
 void Waggon::update(int aDelta)
@@ -64,8 +80,19 @@ IControllerPtr Waggon::controller()
    throw runtime_error("Cannot control a waggon!");
 }
 
-IRollingStockPtr makeWaggon()
+namespace {
+   Waggon* loadWaggonXml(IResourcePtr aRes)
+   {
+      log() << "Loading waggon from " << aRes->xmlFileName();
+
+      return new Waggon(aRes);
+   }
+}
+
+// Load a waggon from a resource file
+IRollingStockPtr loadWaggon(const string& aResId)
 {
-   return IRollingStockPtr(new Waggon);
+   static ResourceCache<Waggon> cache(loadWaggonXml, "waggons");
+   return cache.loadCopy(aResId);
 }
 
