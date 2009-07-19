@@ -57,3 +57,46 @@ target_link_libraries (${PROJECT_NAME} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY}
 # Profiling
 #set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS -pg)
 #add_definitions ("-pg")
+
+set (REL "${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}")
+set (PKGNAME "${PROJECT_NAME}-${REL}")
+
+# Installation
+install (PROGRAMS bin/${PROJECT_NAME} 
+  DESTINATION ${PKGNAME}/bin)
+install (DIRECTORY data maps buildings schemas waggons engines
+  DESTINATION ${PKGNAME})
+install (FILES COPYING.txt README.txt COPYRIGHT.vera 
+  DESTINATION ${PKGNAME})
+
+# Packaging
+include (InstallRequiredSystemLibraries)
+
+set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Train Game!")
+set (CPACK_PACKAGE_VENDOR "doof.me.uk")
+set (CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.txt")
+set (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING.txt")
+set (CPACK_PACKAGE_VERSION_MAJOR "${${PROJECT_NAME}_MAJOR_VERSION}")
+set (CPACK_PACKAGE_VERSION_MINOR "${${PROJECT_NAME}_MINOR_VERSION}")
+set (CPACK_PACKAGE_VERSION_PATCH "${${PROJECT_NAME}_PATCH_LEVEL}")
+set (CPACK_PACKAGE_INSTALL_DIRECTORY "${PKGNAME}")
+if (WIN32 AND NOT UNIX)
+  # There is a bug in NSI that does not handle full unix paths properly. Make
+  # sure there is at least one set of four (4) backlasshes.
+  set (CPACK_PACKAGE_ICON "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
+  set (CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\MyExecutable.exe")
+  set (CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} My Famous Project")
+  set (CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.my-project-home-page.org")
+  set (CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.my-personal-home-page.com")
+  set (CPACK_NSIS_CONTACT "nick@nickg.me.uk")
+  set (CPACK_NSIS_MODIFY_PATH ON)
+else (WIN32 AND NOT UNIX)
+  set (CPACK_STRIP_FILES "bin/${PROJECT_NAME}")
+  set (CPACK_SOURCE_STRIP_FILES "")
+endif (WIN32 AND NOT UNIX)
+set (CPACK_PACKAGE_EXECUTABLES "bin/${PROJECT_NAME}")
+
+# Generators to use
+set (CPACK_GENERATOR "STGZ;TGZ")
+
+include (CPack)
