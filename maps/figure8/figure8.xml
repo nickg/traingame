@@ -4,7 +4,7 @@
 
 <start x="3" y="7" dirX="0" dirY="1"/>
 
-<heightmap>maps/figure8.bin</heightmap>
+<heightmap>figure8.bin</heightmap>
 
 <tileset>
 <tile x="3" y="6">

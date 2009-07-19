@@ -25,6 +25,7 @@
 #include "XMLBuilder.hpp"
 #include "IMesh.hpp"
 #include "IStation.hpp"
+#include "IResource.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -169,7 +170,7 @@ private:
 
    void resetMarks() const;
    void writeHeightMap(const string& aFileName) const;
-   void readHeightMap(const string& aFileName);
+   void readHeightMap(IResource::Handle aHandle);
    void tileVertices(int x, int y, int* indexes) const;
    void renderPickSector(Point<int> botLeft, Point<int> topRight);
    void drawStartLocation() const;
@@ -1044,16 +1045,14 @@ void Map::writeHeightMap(const string& aFileName) const
 }
 
 // Read the height data back out of a binary file
-void Map::readHeightMap(const string& aFileName)
+void Map::readHeightMap(IResource::Handle aHandle)
 {
    using namespace boost;
 
-   log() << "Reading height map from " << aFileName;
-   
-   ifstream is(aFileName.c_str(), ios::binary);
-   if (!is.good())
-      throw runtime_error("Failed to open " + aFileName + " for reading");
+   log() << "Reading height map from " << aHandle.fileName();
 
+   istream& is = aHandle.stream();
+   
    // Check the dimensions of the binary file match the XML file
    int32_t wl, dl;
    is.read(reinterpret_cast<char*>(&wl), sizeof(int32_t));
@@ -1063,7 +1062,7 @@ void Map::readHeightMap(const string& aFileName)
       error() << "Expected width " << myWidth << " got " << wl;
       error() << "Expected height " << myDepth << " got " << dl;
       throw runtime_error
-         ("Binary file " + aFileName + " dimensions are incorrect");
+         ("Binary file " + aHandle.fileName() + " dimensions are incorrect");
    }
 
    for (int i = 0; i < (myWidth + 1) * (myDepth + 1); i++)
@@ -1176,8 +1175,9 @@ IMapPtr makeEmptyMap(int aWidth, int aDepth)
 // Build a map through XML callbacks
 class MapLoader : public IXMLCallback {
 public:
-   MapLoader(shared_ptr<Map> aMap)
-      : myMap(aMap), myXPtr(0), myYPtr(0) {}
+   MapLoader(shared_ptr<Map> aMap, IResourcePtr aRes)
+      : myMap(aMap), myXPtr(0), myYPtr(0),
+        myResource(aRes) {}
 
    void startElement(const std::string& localName,
                      const AttributeSet& attrs)
@@ -1211,7 +1211,7 @@ public:
    void text(const string& localName, const string& aString)
    {
       if (localName == "heightmap")
-         myMap->readHeightMap(aString);
+         myMap->readHeightMap(myResource->openFile(aString));
       else if (myActiveStation) {
          if (localName == "name") {
             debug() << "Saw station " << aString;
@@ -1226,8 +1226,6 @@ private:
       int width, height;
       attrs.get("width", width);
       attrs.get("height", height);
-
-      debug() << "width=" << width << ", height=" << height;
 
       myMap->resetMap(width, height);
    }
@@ -1322,18 +1320,22 @@ private:
    map<int, IStationPtr> myStations;
    IStationPtr myActiveStation;
    int myXPtr, myYPtr;
+
+   IResourcePtr myResource;
 }; 
 
-IMapPtr loadMap(const string& aFileName)
+IMapPtr loadMap(const string& aResId)
 {
    shared_ptr<Map> map(new Map);
 
-   log() << "Loading map from file " << aFileName;
+   IResourcePtr res = findResource(aResId, "maps");
+   
+   log() << "Loading map from file " << res->xmlFileName();
 
    static IXMLParserPtr xmlParser = makeXMLParser("schemas/map.xsd");
 
-   MapLoader loader(map);
-   xmlParser->parse(aFileName, loader);
+   MapLoader loader(map, res);
+   xmlParser->parse(res->xmlFileName(), loader);
       
    return IMapPtr(map);
 }
