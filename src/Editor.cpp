@@ -57,6 +57,8 @@ public:
       LEVEL_TOOL, START_TOOL, STATION_TOOL, BUILDING_TOOL
    };
    void setTool(Tool aTool) { myTool = aTool; }
+
+   IMapPtr map() { return myMap; }
    
 private:
    void buildGUI();
@@ -99,6 +101,7 @@ namespace {
    };
    
    Fl_Menu_Button* theToolMenu;
+   Fl_Button* theSaveButton;
    ModelViewer* theModelViewer;
    
    Editor* theEditor = NULL;
@@ -107,6 +110,11 @@ namespace {
    {
       theToolMenu->label(theToolMenu->text());
       theEditor->setTool(aTool);
+   }
+
+   void onSaveClick(Fl_Widget* aWidget)
+   {
+      theEditor->map()->save();
    }
 }
 
@@ -121,6 +129,9 @@ void addEditorGUI()
    
    theModelViewer = new ModelViewer(0, 40, panelW, 200);
    theModelViewer->setModel(loadBuilding("white_house")->model());
+   
+   theSaveButton = new Fl_Button(0, 248, panelW, 25, "Save");
+   theSaveButton->callback(onSaveClick);
 }
 
 Editor::Editor(IMapPtr aMap) 
@@ -544,20 +555,9 @@ void Editor::onKeyUp(SDLKey aKey)
 void Editor::onKeyDown(SDLKey aKey)
 {   
    switch (aKey) {
-   case SDLK_x:
-      // Write out to disk
-      myMap->save();
-      break;
    case SDLK_g:
       // Toggle grid
       myMap->setGrid(true);
-      break;
-   case SDLK_p:
-      // Switch to play mode
-      {
-         IScreenPtr game = makeGameScreen(myMap);
-         getGameWindow()->switchScreen(game);
-      }
       break;
    default:
       break;
