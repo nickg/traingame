@@ -21,7 +21,7 @@
 #include <string>
 #include <map>
 
-#include "Resources.hpp"
+#include "IResource.hpp"
 
 // A generic cache for resources
 template <class T>

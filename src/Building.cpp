@@ -16,7 +16,7 @@
 //
 
 #include "IBuilding.hpp"
-#include "Resources.hpp"
+#include "IResource.hpp"
 #include "ResourceCache.hpp"
 #include "ILogger.hpp"
 #include "IXMLParser.hpp"
@@ -52,7 +52,7 @@ void Building::text(const string& localName, const string& aString)
    if (localName == "name")
       myName = aString;
    else if (localName == "model")
-      myModel = loadModel(aString);
+      myModel = loadModel(myResource, aString);
 }
 
 namespace {

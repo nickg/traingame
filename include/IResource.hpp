@@ -22,6 +22,7 @@
 
 #include <string>
 #include <list>
+#include <fstream>
 
 // Interface to game resource
 // A game resource is a directory containing related media files
@@ -31,7 +32,21 @@ struct IResource {
    virtual ~IResource() {}
 
    virtual string name() const = 0;
-   virtual string xmlFileName() const = 0;
+   virtual string xmlFileName() const = 0;  // REMOVE
+   
+   // A handle for reading data out of files in resources
+   class Handle {
+   public:
+      explicit Handle(const string& aFileName);
+      
+      ifstream& stream() { return *myStream; }
+      string fileName() const { return myFileName; }
+   private:
+      shared_ptr<ifstream> myStream;
+      const string myFileName;
+   };
+
+   virtual Handle openFile(const string& aName) = 0;
 };
 
 typedef shared_ptr<IResource> IResourcePtr;

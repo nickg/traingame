@@ -22,8 +22,6 @@
 
 #include <GL/gl.h>
 
-using namespace std;
-
 //
 //    READ THIS FIRST: physics model used by the steam engine
 //
@@ -57,7 +55,7 @@ using namespace std;
 // Concrete implementation of a steam engine
 class Engine : public IRollingStock,
                public IController,
-               public std::tr1::enable_shared_from_this<Engine> {
+               public enable_shared_from_this<Engine> {
 public:
    Engine();
 
@@ -111,7 +109,9 @@ Engine::Engine()
      myStatTractiveEffort(34.7),
      isBrakeOn(true), myThrottle(0)
 {
-   myModel = loadModel("pclass.obj", MODEL_SCALE);
+   IResourcePtr res = findResource("pclass", "engines");
+   
+   myModel = loadModel(res, "pclass.obj", MODEL_SCALE);
 }
 
 // Draw the engine model

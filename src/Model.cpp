@@ -20,6 +20,7 @@
 #include "ITexture.hpp"
 #include "ILogger.hpp"
 #include "IMesh.hpp"
+#include "ResourceCache.hpp"
 
 #include <string>
 #include <fstream>
@@ -46,7 +47,7 @@ namespace {
 // Abstracts a WaveFront material file
 class MaterialFile {
 public:
-   MaterialFile(const string& aFileName);
+   MaterialFile(IResource::Handle aHandle);
    ~MaterialFile() {}
 
    const Material& get(const string& aName) const;
@@ -57,14 +58,12 @@ private:
 
 typedef tr1::shared_ptr<MaterialFile> MaterialFilePtr;
 
-MaterialFile::MaterialFile(const string& aFileName)
+MaterialFile::MaterialFile(IResource::Handle aHandle)
 {
-   ifstream is(aFileName.c_str());
-   if (!is.good())
-      throw runtime_error("Failed to load material: " + aFileName);
+   log() << "Loading materials from " << aHandle.fileName();
 
-   log() << "Loading materials from " << aFileName;
-
+   istream& is = aHandle.stream();
+   
    string activeMaterial;
    while (!is.eof()) {
       string word;
@@ -146,22 +145,21 @@ void Model::render() const
       (*it)->render();
 }
 
-// Load a WaveFront .obj model from disk or the cache
-// Each vertex is scaled by `aScale'
-IModelPtr loadModel(const string& fileName, float aScale)
+// Load a model from a resource
+IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
 {
-   ModelCache::iterator it = theCache.find(fileName);
+   // Make a unique cache name
+   const string cacheName = aRes->name() + ":" + aFileName;
+
+   // Check the cache for the model
+   ModelCache::iterator it = theCache.find(cacheName);
    if (it != theCache.end())
       return (*it).second;
-   
-   ifstream f(fileName.c_str());
-   if (!f.good()) {
-      ostringstream ss;
-      ss << "Failed to open model: " << fileName;
-      throw runtime_error(ss.str());
-   }
 
-   log() << "Loading model " << fileName;
+   log() << "Loading model " << cacheName;
+
+   // Not in the cache, load it from the resource
+   IResource::Handle h = aRes->openFile(aFileName);
 
    vector<IMeshBuffer::Vertex> vertices;
    vector<IMeshBuffer::Normal> normals;
@@ -176,6 +174,8 @@ IModelPtr loadModel(const string& fileName, float aScale)
    int faceCount = 0;
 
    MaterialFilePtr materialFile;
+
+   ifstream& f = h.stream();
    
    while (!f.eof()) {
       string first;
@@ -194,7 +194,8 @@ IModelPtr loadModel(const string& fileName, float aScale)
          string fileName;
          f >> fileName;
          
-         materialFile = MaterialFilePtr(new MaterialFile(fileName));
+         materialFile =
+            MaterialFilePtr(new MaterialFile(aRes->openFile(fileName)));
       }
       else if (first == "v") {
          // Vertex
@@ -320,8 +321,9 @@ IModelPtr loadModel(const string& fileName, float aScale)
          << faceCount << " faces";
    
    IModelPtr ptr(new Model(dim, meshes));
-   
-   theCache[fileName] = ptr;
-   
+
+   theCache[cacheName] = ptr;
    return ptr;
 }
+
+

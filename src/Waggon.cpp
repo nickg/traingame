@@ -17,6 +17,7 @@
 
 #include "IRollingStock.hpp"
 #include "IModel.hpp"
+#include "IResource.hpp"
 
 #include <stdexcept>
 
@@ -43,7 +44,9 @@ const float Waggon::MODEL_SCALE(0.4f);
 
 Waggon::Waggon()
 {
-   myModel = loadModel("coal_truck.obj", MODEL_SCALE);
+   IResourcePtr res = findResource("coal_truck", "waggons");
+   
+   myModel = loadModel(res, "coal_truck.obj", MODEL_SCALE);
 }
 
 void Waggon::update(int aDelta)

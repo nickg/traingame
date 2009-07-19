@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "Resources.hpp"
+#include "IResource.hpp"
 #include "ILogger.hpp"
 
 #include <map>
@@ -40,9 +40,22 @@ public:
    {
       return (myPath / (name() + ".xml")).file_string();
    }
+
+   Handle openFile(const string& aFileName)
+   {
+      return Handle((myPath / aFileName).file_string());
+   }
 private:
    const path myPath;
 };
+
+IResource::Handle::Handle(const string& aFileName)
+   : myStream(new ifstream(aFileName.c_str())),
+     myFileName(aFileName)
+{
+   if (!myStream->good())
+      throw runtime_error("Failed to open resource file " + aFileName);
+}
 
 namespace {
    const char* classes[] = {

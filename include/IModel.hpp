@@ -20,6 +20,7 @@
 
 #include "Platform.hpp"
 #include "Maths.hpp"
+#include "IResource.hpp"
 
 #include <string>
 
@@ -33,6 +34,7 @@ struct IModel {
 typedef std::tr1::shared_ptr<IModel> IModelPtr;
 
 // Load a model from a WaveFront .obj file
-IModelPtr loadModel(const std::string& fileName, float aScale = 1.0);
+IModelPtr loadModel(IResourcePtr aRes, const string& aFileName,
+                    float aScale = 1.0f);
 
 #endif
