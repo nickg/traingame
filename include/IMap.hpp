@@ -21,6 +21,7 @@
 #include "IGraphics.hpp"
 #include "ITrackSegment.hpp"
 #include "IStation.hpp"
+#include "IResource.hpp"
 
 #include <memory>
 #include <string>
@@ -72,8 +73,11 @@ public:
    // True if this names a valid tile
    virtual bool isValidTileName(unsigned aName) const = 0;
 
-   // Save the map to the given file
-   virtual void save(const std::string& aFileName) = 0;
+   // Save the map to its resource
+   virtual void save() = 0;
+
+   // Return the name of the map resource
+   virtual string name() const = 0;
 
    // Change the start location
    // The second variant allows setting the direction as well
@@ -103,12 +107,12 @@ public:
   
 };
 
-typedef std::tr1::shared_ptr<IMap> IMapPtr;
+typedef shared_ptr<IMap> IMapPtr;
 
-// Make an empty map
-IMapPtr makeEmptyMap(int aWidth, int aHeight);
+// Make an empty map inside a resource
+IMapPtr makeEmptyMap(const string& aResId, int aWidth, int aHeight);
 
-// Load a map from an XML file
-IMapPtr loadMap(const std::string& aFileName);
+// Load a map from a resource
+IMapPtr loadMap(const string& aResId);
 
 #endif

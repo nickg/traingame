@@ -62,7 +62,7 @@ MaterialFile::MaterialFile(IResource::Handle aHandle)
 {
    log() << "Loading materials from " << aHandle.fileName();
 
-   istream& is = aHandle.stream();
+   istream& is = aHandle.rstream();
    
    string activeMaterial;
    while (!is.eof()) {
@@ -156,10 +156,9 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
    if (it != theCache.end())
       return (*it).second;
 
-   log() << "Loading model " << cacheName;
-
    // Not in the cache, load it from the resource
    IResource::Handle h = aRes->openFile(aFileName);
+   log() << "Loading model " << h.fileName();
 
    vector<IMeshBuffer::Vertex> vertices;
    vector<IMeshBuffer::Normal> normals;
@@ -175,7 +174,7 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
 
    MaterialFilePtr materialFile;
 
-   ifstream& f = h.stream();
+   ifstream& f = h.rstream();
    
    while (!f.eof()) {
       string first;

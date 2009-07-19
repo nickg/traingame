@@ -24,7 +24,7 @@
 
 // Create the various screens
 // These may be called multiple times
-IScreenPtr makeEditorScreen(IMapPtr aMap, const std::string& aFileName);
+IScreenPtr makeEditorScreen(IMapPtr aMap);
 IScreenPtr makeGameScreen(IMapPtr aMap);
 
 // Access to the window the game is running in

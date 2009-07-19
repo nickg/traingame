@@ -18,7 +18,7 @@
 #include "IWindow.hpp"
 #include "ILogger.hpp"
 #include "GameScreens.hpp"
-#include "Resources.hpp"
+#include "IResource.hpp"
 
 #include <stdexcept>
 
@@ -50,16 +50,16 @@ int main(int argc, char** argv)
       const string cmd(argv[1]);
 #else
       // For ease of debugging, specify a default map 
-      const string mapFile("maps\\figure8.xml");
+      const string mapFile("figure8");
       const string cmd("play");
 #endif   // #ifndef WIN32
       IScreenPtr screen;
       if (cmd == "edit") {
          theWindow = makeFLTKWindow("Train Game Editor", addEditorGUI);
-         if (exists(mapFile))
-            screen = makeEditorScreen(loadMap(mapFile), mapFile);
+         if (resourceExists(mapFile, "maps"))
+            screen = makeEditorScreen(loadMap(mapFile));
          else
-            screen = makeEditorScreen(makeEmptyMap(64, 64), mapFile);
+            screen = makeEditorScreen(makeEmptyMap(mapFile, 64, 64));
       }
       else if (cmd == "play") {
          theWindow = makeSDLWindow();

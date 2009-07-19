@@ -38,16 +38,22 @@ struct IResource {
    // A handle for reading data out of files in resources
    class Handle {
    public:
-      explicit Handle(const string& aFileName);
+      enum Mode { READ, WRITE };
       
-      ifstream& stream() { return *myStream; }
+      explicit Handle(const string& aFileName, Mode aMode = READ);
+      
+      ifstream& rstream() { return *myReadStream; }
+      ofstream& wstream() { return *myWriteStream; }
+      
       string fileName() const { return myFileName; }
    private:
-      shared_ptr<ifstream> myStream;
+      shared_ptr<ifstream> myReadStream;
+      shared_ptr<ofstream> myWriteStream;
       const string myFileName;
    };
 
    virtual Handle openFile(const string& aName) = 0;
+   virtual Handle writeFile(const string& aName) = 0;
 };
 
 typedef shared_ptr<IResource> IResourcePtr;
@@ -59,5 +65,7 @@ typedef ResourceList::iterator ResourceListIt;
 void initResources();
 void enumResources(const string& aClass, ResourceList& aList);
 IResourcePtr findResource(const string& aResId, const string& aClass);
+IResourcePtr makeNewResource(const string& aResId, const string& aClass);
+bool resourceExists(const string& aResId, const string& aClass);
 
 #endif

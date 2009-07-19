@@ -70,13 +70,15 @@ class Map : public IMap, public ISectorRenderable,
             public enable_shared_from_this<Map> {
    friend class MapLoader;
 public:
-   Map();
+   Map(IResourcePtr aRes);
    ~Map();
 
    // IMap interface
    int width() const { return myWidth; }
    int depth() const { return myDepth; }
    double heightAt() const { return 0.0; }
+
+   string name() const { return myResource->name(); }
 
    void setStart(int x, int y);
    void setStart(int x, int y, int dirX, int dirY);
@@ -100,7 +102,7 @@ public:
                   const Point<int>& aFinishPos);
    void levelArea(Point<int> aStartPos, Point<int> aFinishPos);
    
-   void save(const string& aFileName);
+   void save();
 
    IStationPtr extendStation(Point<int> aStartPos,
                              Point<int> aFinishPos);
@@ -169,7 +171,7 @@ private:
    }
 
    void resetMarks() const;
-   void writeHeightMap(const string& aFileName) const;
+   void writeHeightMap() const;
    void readHeightMap(IResource::Handle aHandle);
    void tileVertices(int x, int y, int* indexes) const;
    void renderPickSector(Point<int> botLeft, Point<int> topRight);
@@ -195,15 +197,17 @@ private:
    IFogPtr myFog;
    bool shouldDrawGridLines, inPickMode;
    list<Point<int> > myDirtyTiles;
+   IResourcePtr myResource;
 };
 
 const float Map::TILE_HEIGHT(0.2f);
 
-Map::Map()
+Map::Map(IResourcePtr aRes)
    : myTiles(NULL), myHeightMap(NULL), myWidth(0), myDepth(0),
      myStartLocation(makePoint(1, 1)),
      myStartDirection(axis::X),
-     shouldDrawGridLines(false), inPickMode(false)
+     shouldDrawGridLines(false), inPickMode(false),
+     myResource(aRes)
 {
    myFog = makeFog(0.25f,             // Density
                    60.0f, 70.0f);     // Start and end distance
@@ -1024,16 +1028,16 @@ IStationPtr Map::extendStation(Point<int> aStartPos, Point<int> aFinishPos)
 //   Bytes 0-3   Width of map
 //   Bytes 4-7   Depth of map
 //   Bytes 8+    Raw height data
-void Map::writeHeightMap(const string& aFileName) const
+void Map::writeHeightMap() const
 {
    using namespace boost;
 
-   log() << "Writing terrain height map to " << aFileName;
+   IResource::Handle h = myResource->writeFile(myResource->name() + ".bin");
 
-   ofstream of(aFileName.c_str(), ios::binary);
-   if (!of.good())
-      throw runtime_error("Failed to open " + aFileName + " for writing");
+   log() << "Writing terrain height map to " << h.fileName();
 
+   ofstream& of = h.wstream();
+   
    const int32_t wl = static_cast<int32_t>(myWidth);
    const int32_t dl = static_cast<int32_t>(myDepth);
    of.write(reinterpret_cast<const char*>(&wl), sizeof(int32_t));
@@ -1051,7 +1055,7 @@ void Map::readHeightMap(IResource::Handle aHandle)
 
    log() << "Reading height map from " << aHandle.fileName();
 
-   istream& is = aHandle.stream();
+   istream& is = aHandle.rstream();
    
    // Check the dimensions of the binary file match the XML file
    int32_t wl, dl;
@@ -1076,16 +1080,16 @@ void Map::readHeightMap(IResource::Handle aHandle)
 }
 
 // Turn the map into XML
-void Map::save(const string& aFileName)
+void Map::save()
 {
    using namespace boost::filesystem;
+
+   IResource::Handle h = myResource->writeFile(myResource->name() + ".xml");
    
-   log() << "Saving map to " << aFileName;
+   log() << "Saving map to " << h.fileName();
 
-   ofstream of(aFileName.c_str());
-   if (!of.good())
-      throw runtime_error("Failed to open " + aFileName + " for writing");
-
+   ofstream& of = h.wstream();
+   
    xml::element root("map");
    root.addAttribute("width", myWidth);
    root.addAttribute("height", myDepth);
@@ -1119,14 +1123,11 @@ void Map::save(const string& aFileName)
    }
    
    // Generate the height map
-   // Note: change_extension is deprecated (use .replace_extension() instead
-   // when boost is updated in Debian)
-   const string binFile(change_extension(path(aFileName), ".bin").file_string());
-   writeHeightMap(binFile);
+   writeHeightMap();
 
    root.addChild
       (xml::element("heightmap")
-       .addText(binFile));
+       .addText(myResource->name() + ".bin"));
 
    xml::element tileset("tileset");
    
@@ -1165,10 +1166,13 @@ void Map::save(const string& aFileName)
    of << xml::document(root);
 }
 
-IMapPtr makeEmptyMap(int aWidth, int aDepth)
+IMapPtr makeEmptyMap(const string& aResId, int aWidth, int aDepth)
 {
-   shared_ptr<Map> ptr(new Map);
+   IResourcePtr res = makeNewResource(aResId, "maps");
+   
+   shared_ptr<Map> ptr(new Map(res));
    ptr->resetMap(aWidth, aDepth);
+   ptr->save();
    return IMapPtr(ptr);
 }
 
@@ -1326,10 +1330,10 @@ private:
 
 IMapPtr loadMap(const string& aResId)
 {
-   shared_ptr<Map> map(new Map);
-
    IResourcePtr res = findResource(aResId, "maps");
    
+   shared_ptr<Map> map(new Map(res));
+
    log() << "Loading map from file " << res->xmlFileName();
 
    static IXMLParserPtr xmlParser = makeXMLParser("schemas/map.xsd");

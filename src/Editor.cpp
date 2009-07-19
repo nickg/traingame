@@ -37,7 +37,7 @@
 // Concrete editor class
 class Editor : public IScreen {
 public:
-   Editor(IMapPtr aMap, const string& aFileName);
+   Editor(IMapPtr aMap);
    ~Editor();
    
    void display(IGraphicsPtr aContext) const;
@@ -75,7 +75,6 @@ private:
    Vector<float> myPosition;
 
    Tool myTool;
-   string myFileName;
    bool amScrolling;
 
    // Variables for dragging track segments
@@ -124,10 +123,9 @@ void addEditorGUI()
    theModelViewer->setModel(loadBuilding("white_house")->model());
 }
 
-Editor::Editor(IMapPtr aMap, const string& aFileName) 
+Editor::Editor(IMapPtr aMap) 
    : myMap(aMap), myPosition(4.5, -17.5, -21.5),
-     myTool(TRACK_TOOL), myFileName(aFileName),
-     amScrolling(false), amDragging(false)
+     myTool(TRACK_TOOL), amScrolling(false), amDragging(false)
 {
    mySun = makeSunLight();
 
@@ -135,7 +133,7 @@ Editor::Editor(IMapPtr aMap, const string& aFileName)
 
    myMap->setGrid(true);
 
-   log() << "Editing " << aFileName;
+   log() << "Editing " << aMap->name();
 }
 
 Editor::~Editor()
@@ -548,7 +546,7 @@ void Editor::onKeyDown(SDLKey aKey)
    switch (aKey) {
    case SDLK_x:
       // Write out to disk
-      myMap->save(myFileName);
+      myMap->save();
       break;
    case SDLK_g:
       // Toggle grid
@@ -567,7 +565,7 @@ void Editor::onKeyDown(SDLKey aKey)
 }
 
 // Create an instance of the editor screen
-IScreenPtr makeEditorScreen(IMapPtr aMap, const string& aFileName)
+IScreenPtr makeEditorScreen(IMapPtr aMap)
 {
-   return IScreenPtr(new Editor(aMap, aFileName));
+   return IScreenPtr(new Editor(aMap));
 }
