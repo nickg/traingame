@@ -23,8 +23,8 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Gl_Window.H>
-#include <FL/Fl_Box.h>
-#include <FL/gl.h>
+#include <FL/Fl_Box.H>
+#include <FL/gl.H>
 #include <GL/glu.h>
 
 // An OpenGL window for the editor
