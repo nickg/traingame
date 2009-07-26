@@ -31,12 +31,14 @@ public:
    ~ModelViewer();
 
    void setModel(IModelPtr aModel);
+   void rotate(float anAngle);
 
    // Fl_Gl_Window interface
    void draw();
    int handle(int anEvent);
 private:
    IModelPtr myModel;
+   float myRotation;
 };
 
 #endif

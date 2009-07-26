@@ -24,7 +24,7 @@
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Gl_Window.H>
 #include <FL/Fl_Box.H>
-#include <FL/gl.H>
+#include <FL/gl.h>
 #include <GL/glu.h>
 
 // An OpenGL window for the editor

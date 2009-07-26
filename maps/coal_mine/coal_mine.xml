@@ -521,6 +521,10 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="37" y="12">
+<building>white_house</building>
+</tile>
+
 <tile x="37" y="14">
 <straightTrack align="x"/>
 
@@ -607,6 +611,10 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="42" y="12">
+<building>white_house</building>
+</tile>
+
 <tile x="42" y="14">
 <straightTrack align="x"/>
 
@@ -619,6 +627,10 @@
 
 <tile x="42" y="61">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="43" y="10">
+<building>white_house</building>
 </tile>
 
 <tile x="43" y="14">
@@ -669,6 +681,10 @@
 
 <tile x="45" y="61">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="46" y="12">
+<building>white_house</building>
 </tile>
 
 <tile x="46" y="14">

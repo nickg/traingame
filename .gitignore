@@ -6,3 +6,6 @@ cmake_install.cmake
 *~
 gmon.out
 TAGS
+CPackConfig.cmake
+CPackSourceConfig.cmake
+install_manifest.txt

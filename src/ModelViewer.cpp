@@ -28,7 +28,7 @@
 using namespace boost;
 
 ModelViewer::ModelViewer(int x, int y, int w, int h)
-   : Fl_Gl_Window(x, y, w, h)
+   : Fl_Gl_Window(x, y, w, h), myRotation(0.0f)
 {
 
 }
@@ -36,6 +36,12 @@ ModelViewer::ModelViewer(int x, int y, int w, int h)
 ModelViewer::~ModelViewer()
 {
 
+}
+
+void ModelViewer::rotate(float anAngle)
+{
+   myRotation += anAngle;
+   redraw();
 }
 
 void ModelViewer::draw()
@@ -50,6 +56,7 @@ void ModelViewer::draw()
    gluPerspective(45.0f, wf/hf, 0.1f, 50.0f);
 
    glMatrixMode(GL_MODELVIEW);
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glLoadIdentity();
 
    glEnable(GL_LIGHTING);
@@ -62,6 +69,7 @@ void ModelViewer::draw()
       glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
       glTranslatef(1.5f, -2.6f, -1.5f);
       glColor3f(1.0f, 1.0f, 1.0f);
+      glRotatef(myRotation, 0.0f, 1.0f, 0.0f);
       myModel->render();
    }
 

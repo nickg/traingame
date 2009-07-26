@@ -72,6 +72,9 @@
                       </xs:complexType>
                     </xs:element>
                     
+                    <xs:element name="building" minOccurs="0" maxOccurs="1"
+                                type="xs:string" />
+                    
                   </xs:sequence>
                   
                   <xs:attribute name="x" type="xs:nonNegativeInteger" use="required"/>

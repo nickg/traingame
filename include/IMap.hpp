@@ -22,6 +22,7 @@
 #include "ITrackSegment.hpp"
 #include "IStation.hpp"
 #include "IResource.hpp"
+#include "IBuilding.hpp"
 
 #include <memory>
 #include <string>
@@ -104,6 +105,9 @@ public:
    // Create a new station covering this area or extend an existing station
    virtual IStationPtr extendStation(Point<int> aStartPos,
                                      Point<int> aFinishPos) = 0;
+
+   // Place a building at this location
+   virtual void placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding) = 0;
   
 };
 

@@ -106,6 +106,7 @@ public:
 
    IStationPtr extendStation(Point<int> aStartPos,
                              Point<int> aFinishPos);
+   void placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding);
    
    // ISectorRenderable interface
    void renderSector(IGraphicsPtr aContext, int id,
@@ -116,8 +117,9 @@ public:
 private:
    // Tiles on the map
    struct Tile {
-      TrackNodePtr track;   // Track at this location, if any
-      IStationPtr station;  // Station on this tile, if any
+      TrackNodePtr track;    // Track at this location, if any
+      IStationPtr station;   // Station on this tile, if any
+      IBuildingPtr building; // Building on this tile, if any
    } *myTiles;
 
    // Vertices on the terrain
@@ -735,6 +737,14 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
          if (myStartLocation.x == x && myStartLocation.y == y
              && shouldDrawGridLines)
             drawStartLocation();
+
+         // Draw any buildings
+         if (tile.building) {
+            glPushMatrix();
+            glTranslatef(static_cast<float>(x), 0.0f, static_cast<float>(y));
+            tile.building->model()->render();
+            glPopMatrix();
+         }
       }			
    }
 }
@@ -947,6 +957,11 @@ void Map::lowerArea(const Point<int>& aStartPos,
    changeAreaHeight(aStartPos, aFinishPos, -0.1f);
 }
 
+void Map::placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding)
+{
+   tileAt(aPoint.x, aPoint.y).building = aBuilding;
+}
+
 // Either extend an existing station which borders this area
 // or build a new station
 IStationPtr Map::extendStation(Point<int> aStartPos, Point<int> aFinishPos)
@@ -1155,6 +1170,13 @@ void Map::save()
             useful = true;
          }
 
+         if (tile.building) {
+            tileXml.addChild
+               (xml::element("building")
+                .addText("white_house"));
+            useful = true;
+         }
+
          if (useful)
             tileset.addChild(tileXml);
       }
@@ -1215,6 +1237,8 @@ public:
    {
       if (localName == "heightmap")
          myMap->readHeightMap(myResource->openFile(aString));
+      else if (localName == "building")
+         myMap->placeBuilding(makePoint(myXPtr, myYPtr), loadBuilding(aString));
       else if (myActiveStation) {
          if (localName == "name") {
             debug() << "Saw station " << aString;
@@ -1243,7 +1267,7 @@ private:
 
       myStations[id] = myActiveStation;
    }
-
+   
    void handleStart(const AttributeSet& attrs)
    {
       int x, y, dirX, dirY;

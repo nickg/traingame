@@ -108,6 +108,8 @@ namespace {
    ModelViewer* theModelViewer;
    
    Editor* theEditor = NULL;
+
+   static IBuildingPtr REMOVE_ME;
    
    void changeTool(Fl_Widget* aWidget, Editor::Tool aTool)
    {
@@ -115,13 +117,19 @@ namespace {
       theEditor->setTool(aTool);
 
       if (aTool == Editor::BUILDING_TOOL) {
-         theModelViewer->setModel(loadBuilding("white_house")->model());
+         REMOVE_ME = loadBuilding("white_house");
+         theModelViewer->setModel(REMOVE_ME->model());
       }
    }
 
    void onSaveClick(Fl_Widget* aWidget)
    {
       theEditor->map()->save();
+   }
+
+   void onBldRotateClick(Fl_Widget* aWidget)
+   {
+      theModelViewer->rotate(90.0f);
    }
 }
 
@@ -141,6 +149,7 @@ void addEditorGUI()
    theBldNextButton = new Fl_Button(60, 240, 60, 25, "Next");
    
    theBldRotateButton = new Fl_Button(120, 240, 60, 25, "Rotate");
+   theBldRotateButton->callback(onBldRotateClick);
    
    theSaveButton = new Fl_Button(0, 273, panelW, 25, "Save");
    theSaveButton->callback(onSaveClick);
@@ -547,6 +556,9 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
          break;
       case STATION_TOOL:
          myMap->extendStation(myDragBegin, myDragEnd);
+         break;
+      case BUILDING_TOOL:
+         myMap->placeBuilding(myDragBegin, REMOVE_ME);
          break;
       }
          
