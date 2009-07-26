@@ -109,17 +109,45 @@ namespace {
    
    Editor* theEditor = NULL;
 
-   static IBuildingPtr REMOVE_ME;
+   // Data related to the building picking dialog
+   struct BuildingPicker {
+      BuildingPicker()
+      {
+         enumResources("buildings", all);
+
+         if (all.empty())
+            warn() << "No buildings found";
+      }
+
+      void switchTo()
+      {
+         if (!active) {
+            active = loadBuilding(all.front()->name());
+            theModelViewer->setModel(active->model());
+         }             
+      }
+
+      void next()
+      {
+
+      }
+
+      void prev()
+      {
+
+      }
+      
+      IBuildingPtr active;
+      ResourceList all;
+   } *theBuildingPicker;
    
    void changeTool(Fl_Widget* aWidget, Editor::Tool aTool)
    {
       theToolMenu->label(theToolMenu->text());
       theEditor->setTool(aTool);
 
-      if (aTool == Editor::BUILDING_TOOL) {
-         REMOVE_ME = loadBuilding("white_house");
-         theModelViewer->setModel(REMOVE_ME->model());
-      }
+      if (aTool == Editor::BUILDING_TOOL)
+         theBuildingPicker->switchTo();
    }
 
    void onSaveClick(Fl_Widget* aWidget)
@@ -130,6 +158,16 @@ namespace {
    void onBldRotateClick(Fl_Widget* aWidget)
    {
       theModelViewer->rotate(90.0f);
+   }
+
+   void onBldNextClick(Fl_Widget* aWidget)
+   {
+      theBuildingPicker->next();
+   }
+   
+   void onBldPrevClick(Fl_Widget* aWidget)
+   {
+      theBuildingPicker->prev();
    }
 }
 
@@ -145,11 +183,15 @@ void addEditorGUI()
    theModelViewer = new ModelViewer(0, 40, panelW, 200);
 
    theBldPrevButton = new Fl_Button(0, 240, 60, 25, "Prev");
+   theBldRotateButton->callback(onBldPrevClick);
    
    theBldNextButton = new Fl_Button(60, 240, 60, 25, "Next");
+   theBldRotateButton->callback(onBldNextClick);
    
    theBldRotateButton = new Fl_Button(120, 240, 60, 25, "Rotate");
    theBldRotateButton->callback(onBldRotateClick);
+
+   theBuildingPicker = new BuildingPicker;
    
    theSaveButton = new Fl_Button(0, 273, panelW, 25, "Save");
    theSaveButton->callback(onSaveClick);
@@ -558,7 +600,7 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
          myMap->extendStation(myDragBegin, myDragEnd);
          break;
       case BUILDING_TOOL:
-         myMap->placeBuilding(myDragBegin, REMOVE_ME);
+         myMap->placeBuilding(myDragBegin, theBuildingPicker->active);
          break;
       }
          

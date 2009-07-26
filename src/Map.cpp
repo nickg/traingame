@@ -959,7 +959,10 @@ void Map::lowerArea(const Point<int>& aStartPos,
 
 void Map::placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding)
 {
-   tileAt(aPoint.x, aPoint.y).building = aBuilding;
+   if (tileAt(aPoint.x, aPoint.y).track)
+      warn() << "Cannot place building on track";
+   else
+      tileAt(aPoint.x, aPoint.y).building = aBuilding;
 }
 
 // Either extend an existing station which borders this area
@@ -1173,7 +1176,7 @@ void Map::save()
          if (tile.building) {
             tileXml.addChild
                (xml::element("building")
-                .addText("white_house"));
+                .addText(tile.building->name()));
             useful = true;
          }
 
@@ -1240,10 +1243,8 @@ public:
       else if (localName == "building")
          myMap->placeBuilding(makePoint(myXPtr, myYPtr), loadBuilding(aString));
       else if (myActiveStation) {
-         if (localName == "name") {
-            debug() << "Saw station " << aString;
+         if (localName == "name")
             myActiveStation->setName(aString);
-         }
       }
    }
    

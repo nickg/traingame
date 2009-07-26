@@ -130,7 +130,8 @@ void initResources()
 // Find all the resources of the given type
 void enumResources(const string& aClass, ResourceList& aList)
 {
-
+   ResourceList& lst = resClassList(aClass);
+   copy(lst.begin(), lst.end(), back_inserter(aList));
 }
 
 namespace {
