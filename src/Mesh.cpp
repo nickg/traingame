@@ -298,12 +298,12 @@ DisplayListMesh::DisplayListMesh(IMeshBufferPtr aBuffer)
            
    glEnd();
    
-   /*for (it = buf->indices.begin();
+   for (it = buf->indices.begin();
         it != buf->indices.end(); ++it) {
       const MeshBuffer::Vertex& v = buf->vertices[*it];
       const MeshBuffer::Normal& n = buf->normals[*it];
       drawNormal(v, n);
-      } */       
+   }     
 
    glEndList();
 }
@@ -553,8 +553,8 @@ void VBOMesh::render() const
 
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 {
-   //aBuffer->printStats();
-
+   aBuffer->printStats();
+   
    // Prefer VBOs for large meshes
    if (aBuffer->vertexCount() > 50 && GLEW_ARB_vertex_buffer_object)
       return IMeshPtr(new VBOMesh(aBuffer));

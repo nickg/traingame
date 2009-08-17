@@ -557,8 +557,8 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
             } while (get<0>(hcol) > h);
 
             buf->add(makeVector(v.pos.x, v.pos.y, v.pos.z),
-                     makeVector(v.normal.x, v.normal.y, v.normal.z),
-                     make_tuple(get<1>(hcol), get<2>(hcol), get<3>(hcol)));
+               makeVector(v.normal.x, v.normal.y, v.normal.z),
+               make_tuple(get<1>(hcol), get<2>(hcol), get<3>(hcol)));
          }
       }			
    }
@@ -641,7 +641,7 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
                       brown);
       }
    }
-   
+
    myTerrainMeshes[id] = makeMesh(buf);
 }
 
