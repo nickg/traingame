@@ -231,7 +231,7 @@ void Material::apply() const
    if (texture) {
       glEnable(GL_TEXTURE_2D);
       texture->bind();
-
+      
       glEnable(GL_COLOR_MATERIAL);
       glColor3f(1.0f, 1.0f, 1.0f);
    }
@@ -425,9 +425,9 @@ void VertexArrayMesh::render() const
    }
    
    if (hasTexture) {
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData),
-                        reinterpret_cast<GLvoid*>(&myVertexData->tx));
+       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+       glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData),
+          reinterpret_cast<GLvoid*>(&myVertexData->tx));
    }
       
    glEnableClientState(GL_VERTEX_ARRAY);
