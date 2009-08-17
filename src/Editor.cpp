@@ -183,10 +183,10 @@ void addEditorGUI()
    theModelViewer = new ModelViewer(0, 40, panelW, 200);
 
    theBldPrevButton = new Fl_Button(0, 240, 60, 25, "Prev");
-   theBldRotateButton->callback(onBldPrevClick);
+   theBldPrevButton->callback(onBldPrevClick);
    
    theBldNextButton = new Fl_Button(60, 240, 60, 25, "Next");
-   theBldRotateButton->callback(onBldNextClick);
+   theBldNextButton->callback(onBldNextClick);
    
    theBldRotateButton = new Fl_Button(120, 240, 60, 25, "Rotate");
    theBldRotateButton->callback(onBldRotateClick);

@@ -20,14 +20,13 @@
 
 #include "Platform.hpp"
 #include "IFont.hpp"
+#include "Colour.hpp"
 
 #include <string>
 
 #include <boost/cast.hpp>
 
 namespace gui {
-
-   typedef std::tr1::tuple<float, float, float> Colour;
 
    // Interface to any UI control
    struct IControl {
