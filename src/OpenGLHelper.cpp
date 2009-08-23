@@ -102,7 +102,8 @@ void initGL()
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
    // Clear to the sky colour
-   glClearColor(0.6f, 0.7f, 0.8f, 1.0f);
+   //glClearColor(0.6f, 0.7f, 0.8f, 1.0f);
+   glClearColor(176.0f/255.0f, 196.0f/255.0f, 222.0f/255.0f, 1.0f);
    
    // Check for OpenGL extensions   
    GLenum err = glewInit();

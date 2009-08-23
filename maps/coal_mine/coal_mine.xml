@@ -719,6 +719,10 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="48" y="17">
+<building>house2</building>
+</tile>
+
 <tile x="48" y="20">
 <straightTrack align="x"/>
 </tile>
@@ -763,6 +767,10 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="52" y="18">
+<building>house2</building>
+</tile>
+
 <tile x="52" y="20">
 <straightTrack align="x"/>
 </tile>
@@ -773,6 +781,10 @@
 
 <tile x="53" y="20">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="54" y="11">
+<building>house2</building>
 </tile>
 
 <tile x="54" y="20">
@@ -849,6 +861,10 @@
 
 <tile x="57" y="17">
 <curvedTrack startAngle="90" finishAngle="180" radius="4"/>
+</tile>
+
+<tile x="59" y="52">
+<building>house2</building>
 </tile>
 </tileset>
 </map>

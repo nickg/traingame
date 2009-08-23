@@ -210,8 +210,8 @@ Map::Map(IResourcePtr aRes)
      shouldDrawGridLines(false), inPickMode(false),
      myResource(aRes)
 {
-   myFog = makeFog(0.25f,             // Density
-                   60.0f, 70.0f);     // Start and end distance
+   myFog = makeFog(0.005f,            // Density
+                   50.0f, 70.0f);     // Start and end distance
 }
 
 Map::~Map()
@@ -527,9 +527,11 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
    
    static const tuple<float, float, float, float> colourMap[] = {
       //          Start height         colour
-      make_tuple(    5.0f,     RGBi(255, 255, 255) ),
-      make_tuple(    3.0f,     RGBi(187, 156, 83)  ),
-      make_tuple(    0.0f,     RGBi(133, 204, 98)  ),
+      make_tuple(    5.0f,     RGBi(238, 233, 233) ),
+      //make_tuple(    3.0f,     RGBi(187, 156, 83)  ),
+      make_tuple(    3.0f,     RGBi(189, 183, 107) ),
+      //make_tuple(    0.0f,     RGBi(133, 204, 98)  ),
+      make_tuple(    0.0f,     RGBi(123, 186, 102) ),
       make_tuple(   -1.0f,     RGBi(224, 223, 134) ),
       make_tuple(   -1e10f,    RGBi(178, 247, 220) )
    };
@@ -569,7 +571,7 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
    const float y1 = static_cast<float>(botLeft.y) - 0.5f;
    const float y2 = static_cast<float>(topRight.y) - 0.5f;
 
-   const IMeshBuffer::Colour brown = make_tuple(0.9f, 0.5f, 0.3f);
+   const IMeshBuffer::Colour brown = make_tuple(RGBi(205, 133, 63));
    const float depth = -3.0f;
    
    int index[4];
