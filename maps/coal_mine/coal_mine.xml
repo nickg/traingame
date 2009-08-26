@@ -547,6 +547,10 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="36" y="13">
+<building>platform_end</building>
+</tile>
+
 <tile x="36" y="14">
 <straightTrack align="x"/>
 
@@ -563,6 +567,10 @@
 
 <tile x="37" y="12">
 <building>white_house</building>
+</tile>
+
+<tile x="37" y="13">
+<building>platform_middle</building>
 </tile>
 
 <tile x="37" y="14">
@@ -583,6 +591,10 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="38" y="13">
+<building>platform_middle</building>
+</tile>
+
 <tile x="38" y="14">
 <straightTrack align="x"/>
 
@@ -601,6 +613,10 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="39" y="13">
+<building>platform_middle</building>
+</tile>
+
 <tile x="39" y="14">
 <straightTrack align="x"/>
 
@@ -615,6 +631,10 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="40" y="13">
+<building>platform_middle</building>
+</tile>
+
 <tile x="40" y="14">
 <straightTrack align="x"/>
 
@@ -627,6 +647,10 @@
 
 <tile x="40" y="61">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="41" y="13">
+<building>platform_middle</building>
 </tile>
 
 <tile x="41" y="14">
@@ -655,6 +679,10 @@
 <building>white_house</building>
 </tile>
 
+<tile x="42" y="13">
+<building>platform_middle</building>
+</tile>
+
 <tile x="42" y="14">
 <straightTrack align="x"/>
 
@@ -665,12 +693,20 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="42" y="41">
+<building>platform_end</building>
+</tile>
+
 <tile x="42" y="61">
 <straightTrack align="x"/>
 </tile>
 
 <tile x="43" y="10">
 <building>white_house</building>
+</tile>
+
+<tile x="43" y="13">
+<building>platform_middle</building>
 </tile>
 
 <tile x="43" y="14">
@@ -685,6 +721,10 @@
 
 <tile x="43" y="61">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="44" y="13">
+<building>platform_middle</building>
 </tile>
 
 <tile x="44" y="14">
@@ -705,6 +745,10 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="45" y="13">
+<building>platform_end</building>
+</tile>
+
 <tile x="45" y="14">
 <straightTrack align="x"/>
 
@@ -717,6 +761,10 @@
 
 <tile x="45" y="34">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="45" y="43">
+<building>platform_middle</building>
 </tile>
 
 <tile x="45" y="61">
@@ -905,6 +953,10 @@
 
 <tile x="59" y="52">
 <building>house2</building>
+</tile>
+
+<tile x="63" y="54">
+<building>platform_end</building>
 </tile>
 </tileset>
 </map>
