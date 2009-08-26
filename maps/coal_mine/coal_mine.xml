@@ -185,10 +185,18 @@
 <stationPart id="2"/>
 </tile>
 
+<tile x="12" y="7">
+<building>Platform middle segment</building>
+</tile>
+
 <tile x="13" y="6">
 <straightTrack align="x"/>
 
 <stationPart id="2"/>
+</tile>
+
+<tile x="13" y="7">
+<building>Platform middle segment</building>
 </tile>
 
 <tile x="13" y="50">
@@ -201,10 +209,18 @@
 <stationPart id="2"/>
 </tile>
 
+<tile x="14" y="7">
+<building>Platform middle segment</building>
+</tile>
+
 <tile x="15" y="6">
 <straightTrack align="x"/>
 
 <stationPart id="2"/>
+</tile>
+
+<tile x="15" y="7">
+<building>Platform middle segment</building>
 </tile>
 
 <tile x="16" y="6">
@@ -213,10 +229,18 @@
 <stationPart id="2"/>
 </tile>
 
+<tile x="16" y="7">
+<building>Platform middle segment</building>
+</tile>
+
 <tile x="17" y="6">
 <straightTrack align="x"/>
 
 <stationPart id="2"/>
+</tile>
+
+<tile x="17" y="7">
+<building>Platform middle segment</building>
 </tile>
 
 <tile x="17" y="40">
@@ -249,14 +273,26 @@
 <stationPart id="2"/>
 </tile>
 
+<tile x="18" y="7">
+<building>Platform middle segment</building>
+</tile>
+
 <tile x="19" y="6">
 <straightTrack align="x"/>
 
 <stationPart id="2"/>
 </tile>
 
+<tile x="19" y="7">
+<building>Platform middle segment</building>
+</tile>
+
 <tile x="20" y="6">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="20" y="7">
+<building>Platform middle segment</building>
 </tile>
 
 <tile x="21" y="6">
@@ -273,6 +309,10 @@
 
 <tile x="23" y="34">
 <points align="x" reflect="0"/>
+</tile>
+
+<tile x="24" y="42">
+<building>Platform middle segment</building>
 </tile>
 
 <tile x="26" y="9">
@@ -522,7 +562,7 @@
 </tile>
 
 <tile x="37" y="12">
-<building>white_house</building>
+<building>White House</building>
 </tile>
 
 <tile x="37" y="14">
@@ -612,7 +652,7 @@
 </tile>
 
 <tile x="42" y="12">
-<building>white_house</building>
+<building>White House</building>
 </tile>
 
 <tile x="42" y="14">
@@ -630,7 +670,7 @@
 </tile>
 
 <tile x="43" y="10">
-<building>white_house</building>
+<building>White House</building>
 </tile>
 
 <tile x="43" y="14">
@@ -684,7 +724,7 @@
 </tile>
 
 <tile x="46" y="12">
-<building>white_house</building>
+<building>White House</building>
 </tile>
 
 <tile x="46" y="14">
@@ -720,7 +760,7 @@
 </tile>
 
 <tile x="48" y="17">
-<building>house2</building>
+<building>House 2</building>
 </tile>
 
 <tile x="48" y="20">
@@ -768,7 +808,7 @@
 </tile>
 
 <tile x="52" y="18">
-<building>house2</building>
+<building>House 2</building>
 </tile>
 
 <tile x="52" y="20">
@@ -784,7 +824,7 @@
 </tile>
 
 <tile x="54" y="11">
-<building>house2</building>
+<building>House 2</building>
 </tile>
 
 <tile x="54" y="20">
@@ -864,7 +904,7 @@
 </tile>
 
 <tile x="59" y="52">
-<building>house2</building>
+<building>House 2</building>
 </tile>
 </tileset>
 </map>
