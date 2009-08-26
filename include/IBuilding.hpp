@@ -29,7 +29,6 @@ struct IBuilding {
 
    virtual IModelPtr model() const = 0;
    virtual const string& name() const = 0;
-   virtual string resId() const = 0;
 };
 
 typedef shared_ptr<IBuilding> IBuildingPtr;
