@@ -553,7 +553,7 @@ void VBOMesh::render() const
 
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 {
-   aBuffer->printStats();
+   //aBuffer->printStats();
    
    // Prefer VBOs for large meshes
    if (aBuffer->vertexCount() > 50 && GLEW_ARB_vertex_buffer_object)

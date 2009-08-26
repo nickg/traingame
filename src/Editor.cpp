@@ -110,35 +110,53 @@ namespace {
    Editor* theEditor = NULL;
 
    // Data related to the building picking dialog
-   struct BuildingPicker {
+   class BuildingPicker {
+   public:
       BuildingPicker()
       {
-         enumResources("buildings", all);
+         enumResources("buildings", myBuildingList);
 
-         if (all.empty())
+         if (myBuildingList.empty())
             warn() << "No buildings found";
+         else {
+            myBuildingIt = myBuildingList.begin();
+            myActiveBuilding = loadBuilding((*myBuildingIt)->name());
+         }
       }
 
       void switchTo()
       {
-         if (!active) {
-            active = loadBuilding(all.front()->name());
-            theModelViewer->setModel(active->model());
-         }             
+         theModelViewer->setModel(myActiveBuilding->model());
       }
 
       void next()
       {
+         if (++myBuildingIt == myBuildingList.end())
+            myBuildingIt = myBuildingList.begin();
 
+         myActiveBuilding = loadBuilding((*myBuildingIt)->name());
+         switchTo();
       }
 
       void prev()
       {
+         if (myBuildingIt == myBuildingList.begin())
+            myBuildingIt = myBuildingList.end();
+         myBuildingIt--;
 
+         myActiveBuilding = loadBuilding((*myBuildingIt)->name());
+         switchTo();
       }
-      
-      IBuildingPtr active;
-      ResourceList all;
+
+      IBuildingPtr active()
+      {
+         return myActiveBuilding;
+      }
+
+   private:
+      ResourceList myBuildingList;
+      ResourceList::const_iterator myBuildingIt;
+      IBuildingPtr myActiveBuilding;
    } *theBuildingPicker;
    
    void changeTool(Fl_Widget* aWidget, Editor::Tool aTool)
@@ -600,7 +618,7 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
          myMap->extendStation(myDragBegin, myDragEnd);
          break;
       case BUILDING_TOOL:
-         myMap->placeBuilding(myDragBegin, theBuildingPicker->active);
+         myMap->placeBuilding(myDragBegin, theBuildingPicker->active());
          break;
       }
          
