@@ -29,6 +29,7 @@ public:
    // IBuildingInterface
    IModelPtr model() const { return myModel; }
    const string& name() const { return myName; }
+   string resId() const { return myResource->name(); }
 
    // IXMLCallback interface
    void text(const string& localName, const string& aString);

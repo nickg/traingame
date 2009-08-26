@@ -1178,7 +1178,7 @@ void Map::save()
          if (tile.building) {
             tileXml.addChild
                (xml::element("building")
-                .addText(tile.building->name()));
+                .addText(tile.building->resId()));
             useful = true;
          }
 
