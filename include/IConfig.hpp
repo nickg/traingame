@@ -20,13 +20,13 @@
 
 #include "Platform.hpp"
 
-#include <boost/variant.hpp>
+#include <boost/any.hpp>
 
 // Interface to config file
 struct IConfig {
    virtual ~IConfig() {}
 
-   typedef boost::variant<int, float, string, bool> Option;
+   typedef boost::any Option;
 
    virtual const Option& get(const string& aKey) const = 0;
    virtual void flush() = 0;
@@ -34,13 +34,13 @@ struct IConfig {
    template <class T>
    T get(const string& aKey) const
    {
-      return boost::get<T>(get(aKey));
+      return boost::any_cast<T>(get(aKey));
    }
 
    template <class T>
    void get(const string& aKey, T& t) const
    {
-      t = boost::get<T>(get(aKey));
+      t = boost::any_cast<T>(get(aKey));
    }
 };
 
