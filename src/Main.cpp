@@ -19,6 +19,7 @@
 #include "ILogger.hpp"
 #include "GameScreens.hpp"
 #include "IResource.hpp"
+#include "IConfig.hpp"
 
 #include <stdexcept>
 
@@ -53,6 +54,7 @@ int main(int argc, char** argv)
       const string mapFile("figure8");
       const string cmd("play");
 #endif   // #ifndef WIN32
+      
       IScreenPtr screen;
       if (cmd == "edit") {
          theWindow = makeFLTKWindow("Train Game Editor", addEditorGUI);

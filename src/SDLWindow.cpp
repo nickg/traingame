@@ -20,6 +20,7 @@
 #include "IPickBuffer.hpp"
 #include "Maths.hpp"
 #include "OpenGLHelper.hpp"
+#include "IConfig.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -134,6 +135,8 @@ SDLWindow::SDLWindow()
    : amRunning(false), willSkipNextFrame(false),
      willTakeScreenShot(false)
 {
+   IConfigPtr cfg = getConfig();
+      
    // Start SDL
    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
       ostringstream ss;
@@ -143,11 +146,8 @@ SDLWindow::SDLWindow()
    atexit(SDL_Quit);
 
    // Set the video mode
-   const int DEFAULT_WIDTH = 800;
-   const int DEFAULT_HEIGHT = 600;
-
-   myWidth = DEFAULT_WIDTH;
-   myHeight = DEFAULT_HEIGHT;
+   cfg->get("XRes", myWidth);
+   cfg->get("YRes", myHeight);
 
    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
    if (SDL_SetVideoMode(myWidth, myHeight, 0, SDL_OPENGL) == NULL) {

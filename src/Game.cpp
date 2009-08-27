@@ -26,8 +26,7 @@
 #include "GameScreens.hpp"
 #include "IBillboard.hpp"
 #include "IterateTrack.hpp"
-
-#include "OpenGLHelper.hpp"  // REMOVE (REPLACE NEAR/FAR_CLIP)
+#include "IConfig.hpp"
 
 #include <GL/gl.h>
 
@@ -88,7 +87,7 @@ Game::Game(IMapPtr aMap)
    : myMap(aMap),
      myHorizAngle(2.5f), myVertAngle(1.0f), myViewRadius(10.0f),
      myCameraHTarget(2.5f), myCameraVTarget(1.0f),
-     myCameraMode(CAMERA_FLOATING)
+     myCameraSpeed(1.0f), myCameraMode(CAMERA_FLOATING)
 {
    myTrain = makeTrain(myMap);
    mySun = makeSunLight();
@@ -195,7 +194,8 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    // Move the camera vertically if it's currently underground
 
    // Calculate the location of the near clip plane
-   Vector<float> clipPosition = cameraPosition(myViewRadius - NEAR_CLIP);
+   const float nearClip = getConfig()->get<float>("NearClip");
+   Vector<float> clipPosition = cameraPosition(myViewRadius - nearClip);
 
    // A hack because we don't calculate the height properly
    const float MIN_HEIGHT = 0.25f;

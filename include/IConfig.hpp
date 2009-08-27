@@ -15,22 +15,34 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_OPENGL_HELPER_HPP
-#define INC_OPENGL_HELPER_HPP
+#ifndef INC_ICONFIG_HPP
+#define INC_ICONFIG_HPP
 
 #include "Platform.hpp"
-#include "IWindow.hpp"
-#include "IGraphics.hpp"
-#include "IPickBuffer.hpp"
 
-// Helper functions used by the different IWindow implementations
-void initGL();
-void drawGLScene(IWindowPtr aWindow, IGraphicsPtr aContext, IScreenPtr aScreen);
-void resizeGLScene(IWindowPtr aWindow);
-void printGLVersion();
+#include <boost/any.hpp>
 
-// Wrappers for OpenGL picking features
-void beginPick(IWindowPtr aWindow, unsigned* aBuffer, int x, int y);
-unsigned endPick(unsigned* aBuffer);
+// Interface to config file
+struct IConfig {
+   virtual ~IConfig() {}
+
+   virtual const boost::any& get(const string& aKey) const = 0;
+ 
+   template <class T>
+   T get(const string& aKey) const
+   {
+      return boost::any_cast<T>(get(aKey));
+   }
+
+   template <class T>
+   void get(const string& aKey, T& t) const
+   {
+      t = boost::any_cast<T>(get(aKey));
+   }
+};
+
+typedef shared_ptr<IConfig> IConfigPtr;
+
+IConfigPtr getConfig();
 
 #endif

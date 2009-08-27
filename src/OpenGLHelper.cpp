@@ -17,6 +17,7 @@
 
 #include "OpenGLHelper.hpp"
 #include "ILogger.hpp"
+#include "IConfig.hpp"
 
 #include <stdexcept>
 
@@ -37,8 +38,10 @@ void drawGLScene(IWindowPtr aWindow, IGraphicsPtr aContext, IScreenPtr aScreen)
    const int w = aWindow->width();
    const int h = aWindow->height();
 
+   IConfigPtr cfg = getConfig();
    gluPerspective(45.0f, (GLfloat)w/(GLfloat)h,
-                  NEAR_CLIP, FAR_CLIP);
+      cfg->get<float>("NearClip"),
+      cfg->get<float>("FarClip"));
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
@@ -140,8 +143,10 @@ void beginPick(IWindowPtr aWindow, unsigned* aBuffer, int x, int y)
    gluPickMatrix(x, viewportCoords[3] - y, 2, 2, viewportCoords);
 
    // Just set the perspective
+   IConfigPtr cfg = getConfig();
    gluPerspective(45.0f, (GLfloat)(aWindow->width())/(GLfloat)(aWindow->height()),
-                  NEAR_CLIP, FAR_CLIP);
+      cfg->get<float>("NearClip"),
+      cfg->get<float>("FarClip"));
 
    glMatrixMode(GL_MODELVIEW);
    glInitNames();
