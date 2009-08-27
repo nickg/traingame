@@ -132,6 +132,10 @@ void Game::display(IGraphicsPtr aContext) const
    position.x += myViewRadius * cosf(myHorizAngle) * sinf(myVertAngle);
    position.z += myViewRadius * sinf(myHorizAngle) * sinf(myVertAngle);
    position.y = myViewRadius * cosf(myVertAngle) + yCentre;
+
+   float h = myMap->heightAt(position.x, position.z);
+   debug() << position << " " << h
+           << (h > position.y ? " BELOW" : " ABOVE");
    
    aContext->lookAt(position, trainPos);
    setBillboardCameraOrigin(position);

@@ -107,6 +107,7 @@ public:
    IStationPtr extendStation(Point<int> aStartPos,
                              Point<int> aFinishPos);
    void placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding);
+   float heightAt(float x, float y) const;
    
    // ISectorRenderable interface
    void renderSector(IGraphicsPtr aContext, int id,
@@ -907,6 +908,27 @@ void Map::setTileHeight(int x, int y, float h)
    
    fixNormals(x, y);
    dirtyTile(x, y);
+}
+
+float Map::heightAt(float x, float y) const
+{
+   const int xFloor = static_cast<int>(floorf(x));
+   const int yFloor = static_cast<int>(floorf(y));
+
+   debug() << makePoint(xFloor, yFloor);
+
+   if (xFloor < 0 || yFloor < 0
+      || xFloor >= myWidth || yFloor >= myDepth)
+      return 0.0f;
+
+   int indexes[4];
+   tileVertices(x, y, indexes);
+
+   float avg = 0.0f;
+   for (int i = 0; i < 4; i++)
+      avg += myHeightMap[indexes[i]].pos.y;
+   
+   return avg / 4.0f;
 }
 
 void Map::changeAreaHeight(const Point<int>& aStartPos,
