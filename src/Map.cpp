@@ -915,8 +915,6 @@ float Map::heightAt(float x, float y) const
    const int xFloor = static_cast<int>(floorf(x));
    const int yFloor = static_cast<int>(floorf(y));
 
-   debug() << makePoint(xFloor, yFloor);
-
    if (xFloor < 0 || yFloor < 0
       || xFloor >= myWidth || yFloor >= myDepth)
       return 0.0f;

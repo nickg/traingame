@@ -27,6 +27,8 @@
 #include "IBillboard.hpp"
 #include "IterateTrack.hpp"
 
+#include "OpenGLHelper.hpp"  // REMOVE (REPLACE NEAR/FAR_CLIP)
+
 #include <GL/gl.h>
 
 using namespace gui;
@@ -52,6 +54,7 @@ private:
    void setStatus(const string& aString) { myStatusMsg = aString; }
    void nearStation(IStationPtr aStation);
    void leftStation();
+   Vector<float> cameraPosition(float aRadius) const;
    
    IMapPtr myMap;
    ITrainPtr myTrain;
@@ -62,6 +65,7 @@ private:
 
    // Camera position
    float myHorizAngle, myVertAngle, myViewRadius;
+   float myCameraBounce;  // Camera vertical adjusting movement
 
    // GUI elements
    IContainerPtr myStatsPanel;
@@ -76,7 +80,8 @@ private:
 
 Game::Game(IMapPtr aMap)
    : myMap(aMap),
-     myHorizAngle(2.5f), myVertAngle(1.0f), myViewRadius(10.0f)
+     myHorizAngle(2.5f), myVertAngle(1.0f), myViewRadius(10.0f),
+     myCameraBounce(0.0f)
 {
    myTrain = makeTrain(myMap);
    mySun = makeSunLight();
@@ -121,21 +126,24 @@ Game::~Game()
    
 }
 
+Vector<float> Game::cameraPosition(float aRadius) const
+{
+   // Two angles give unique position on surface of a sphere
+   // Look up ``spherical coordinates''
+   const float yCentre = 0.9f;
+   Vector<float> position = myTrain->front();
+   position.x += aRadius * cosf(myHorizAngle) * sinf(myVertAngle);
+   position.z += aRadius * sinf(myHorizAngle) * sinf(myVertAngle);
+   position.y = aRadius * cosf(myVertAngle) + yCentre;
+
+   return position;
+}
+
 void Game::display(IGraphicsPtr aContext) const
 {
    Vector<float> trainPos = myTrain->front();
 
-   // Two angles give unique position on surface of a sphere
-   // Look up ``spherical coordinates''
-   const float yCentre = 0.9f;
-   Vector<float> position = trainPos;
-   position.x += myViewRadius * cosf(myHorizAngle) * sinf(myVertAngle);
-   position.z += myViewRadius * sinf(myHorizAngle) * sinf(myVertAngle);
-   position.y = myViewRadius * cosf(myVertAngle) + yCentre;
-
-   float h = myMap->heightAt(position.x, position.z);
-   debug() << position << " " << h
-           << (h > position.y ? " BELOW" : " ABOVE");
+   Vector<float> position = cameraPosition(myViewRadius);
    
    aContext->lookAt(position, trainPos);
    setBillboardCameraOrigin(position);
@@ -176,6 +184,22 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    myWaterMeter->setValue(8);
 
    lookAhead();
+
+   // Move the camera vertically if it's currently underground
+
+   // Calculate the location of the near clip plane
+   Vector<float> clipPosition = cameraPosition(myViewRadius - NEAR_CLIP);
+
+   // A hack because we don't calculate the height properly
+   const float MIN_HEIGHT = 0.25f;
+   float h = myMap->heightAt(clipPosition.x, clipPosition.z);
+
+   if (h + MIN_HEIGHT > clipPosition.y)
+      myCameraBounce = -0.001f;
+   
+   // Bounce the camera if we need to
+   myVertAngle += myCameraBounce;
+   myCameraBounce /= 2.0f;
 }
 
 // Signal that we are approaching a station
