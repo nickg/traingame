@@ -55,6 +55,8 @@ int main(int argc, char** argv)
       const string cmd("play");
 #endif   // #ifndef WIN32
       
+      IConfigPtr cfg = getConfig();
+      
       IScreenPtr screen;
       if (cmd == "edit") {
          theWindow = makeFLTKWindow("Train Game Editor", addEditorGUI);
@@ -71,6 +73,8 @@ int main(int argc, char** argv)
          throw runtime_error("Unrecognised command: " + cmd);
          
       theWindow->run(screen);
+
+      cfg->flush();
    }
    catch (const runtime_error& e) {
       error() << "Fatal: " << e.what();
