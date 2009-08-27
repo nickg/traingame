@@ -65,8 +65,14 @@ private:
 
    // Camera position
    float myHorizAngle, myVertAngle, myViewRadius;
-   float myCameraBounce;  // Camera vertical adjusting movement
 
+   // Camera adjustment
+   float myCameraHTarget, myCameraVTarget;
+   float myCameraSpeed;
+
+   enum CameraMode { CAMERA_FLOATING, CAMERA_FIXED, CAMERA_BIRD };
+   CameraMode myCameraMode;
+   
    // GUI elements
    IContainerPtr myStatsPanel;
    ITextControlPtr mySpeedLabel, myBrakeLabel;
@@ -81,7 +87,8 @@ private:
 Game::Game(IMapPtr aMap)
    : myMap(aMap),
      myHorizAngle(2.5f), myVertAngle(1.0f), myViewRadius(10.0f),
-     myCameraBounce(0.0f)
+     myCameraHTarget(2.5f), myCameraVTarget(1.0f),
+     myCameraMode(CAMERA_FLOATING)
 {
    myTrain = makeTrain(myMap);
    mySun = makeSunLight();
@@ -194,12 +201,14 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    const float MIN_HEIGHT = 0.25f;
    float h = myMap->heightAt(clipPosition.x, clipPosition.z);
 
-   if (h + MIN_HEIGHT > clipPosition.y)
-      myCameraBounce = -0.001f;
+   if (h + MIN_HEIGHT > clipPosition.y) {    
+      myCameraVTarget -= 0.001f * static_cast<float>(aDelta);
+      myCameraSpeed = 200.0f;
+   }
    
    // Bounce the camera if we need to
-   myVertAngle += myCameraBounce;
-   myCameraBounce /= 2.0f;
+   myVertAngle -= (myVertAngle - myCameraVTarget) / myCameraSpeed;
+   myHorizAngle -= (myHorizAngle - myCameraHTarget) / myCameraSpeed;
 }
 
 // Signal that we are approaching a station
@@ -304,7 +313,21 @@ void Game::onKeyDown(SDLKey aKey)
       break;
    case SDLK_UP:
       myTrain->controller()->actOn(GO_STRAIGHT_ON);
-      break;   
+      break;
+   case SDLK_TAB:
+      if (myCameraMode == CAMERA_FLOATING)
+         myCameraMode = CAMERA_FIXED;
+      else if (myCameraMode == CAMERA_FIXED) {
+         myCameraMode = CAMERA_BIRD;
+
+         myCameraHTarget = M_PI/4.0f;
+         myCameraVTarget = M_PI/4.0f;
+
+         myCameraSpeed = 100.0f;
+      }
+      else
+         myCameraMode = CAMERA_FLOATING;
+      break;
    default:
       break;
    }
@@ -332,19 +355,23 @@ void Game::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
 
 void Game::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
                        int xrel, int yrel)
-{   
-   myHorizAngle -= xrel / 100.0f;
-   myVertAngle += yrel / 100.0f;
+{
+   if (myCameraMode == CAMERA_FLOATING) {
+      myCameraHTarget -= xrel / 100.0f;
+      myCameraVTarget += yrel / 100.0f;
+      
+      // Don't allow the camera to go under the ground
+      const float ground = (M_PI / 2.0f) - 0.01f;
+      if (myCameraVTarget > ground)
+         myCameraVTarget = ground;
+      
+      // Don't let the camera flip over the top
+      const float top = 0.01f;
+      if (myCameraVTarget < top)
+         myCameraVTarget = top;
 
-   // Don't allow the camera to go under the ground
-   const float ground = (M_PI / 2.0f) - 0.01f;
-   if (myVertAngle > ground)
-      myVertAngle = ground;
-
-   // Don't let the camera flip over the top
-   const float top = 0.01f;
-   if (myVertAngle < top)
-      myVertAngle = top;
+      myCameraSpeed = 2.0f;
+   }
 }
 
 // Create an instance of the play screen with the given map
