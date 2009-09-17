@@ -65,7 +65,7 @@ private:
    void setFromString(const string& aKey, const string& aString);
    
    template <class T>
-   void bindNextOption(const string& aKey);
+   void bindNextOption(const AttributeSet& attrs);
    
    typedef map<string, IConfig::Option> ConfigMap;
    ConfigMap myConfigMap;
@@ -95,8 +95,12 @@ Config::Config()
       // Ignore all the set() calls made by the XML parser
       amDirty = false;
    }
-   else
+   else {
       warn() << "Config file not present: " << myConfigFile;
+
+      // Write a default config file when we exit
+      amDirty = true;
+   }
 }
 
 Config::~Config()
@@ -139,21 +143,14 @@ string Config::configFileName()
 
 void Config::startElement(const string& localName, const AttributeSet& attrs)
 {
-   if (localName == "option") {
-      const string name = attrs.get<string>("name");
-      const string type = attrs.get<string>("type");
-
-      if (type == "string")
-         bindNextOption<string>(name);
-      else if (type == "int")
-         bindNextOption<int>(name);
-      else if (type == "float")
-         bindNextOption<float>(name);
-      else if (type == "bool")
-         bindNextOption<bool>(name);
-      else
-         throw runtime_error("Cannot de-XMLify " + type);
-   }
+   if (localName == "stringOption")
+      bindNextOption<string>(attrs);
+   else if (localName == "intOption")
+      bindNextOption<int>(attrs);
+   else if (localName == "floatOption")
+      bindNextOption<float>(attrs);
+   else if (localName == "boolOption")
+      bindNextOption<bool>(attrs);
 }
 
 void Config::text(const string& localName, const string& aString)
@@ -162,11 +159,12 @@ void Config::text(const string& localName, const string& aString)
 }
 
 template <class T>
-void Config::bindNextOption(const string& aKey)
+void Config::bindNextOption(const AttributeSet& attrs)
 {
    using namespace placeholders;
    
-   myOptionSetter = bind(&Config::setFromString<T>, this, aKey, _1);
+   myOptionSetter = bind(&Config::setFromString<T>, this,
+      attrs.get<string>("name"), _1);
 }
 
 template <class T>
@@ -195,14 +193,11 @@ void Config::flush()
    xml::element root("config");
    for (ConfigMap::const_iterator it = myConfigMap.begin();
         it != myConfigMap.end(); ++it) {
-      xml::element option("option");
-      option.addAttribute("name", (*it).first);
 
       // We can only serialize some types
       const any& a = (*it).second;
       const type_info& t = a.type();
-      const char* typeName;
-      string text;
+      string text, typeName;
       if (t == typeid(string)) {
          typeName = "string";
          text = any_cast<string>(a);
@@ -224,7 +219,8 @@ void Config::flush()
             "Cannot XMLify objects of type "
             + boost::lexical_cast<string>(t.name()));
 
-      option.addAttribute("type", typeName);
+      xml::element option(typeName + "Option");
+      option.addAttribute("name", (*it).first);
       option.addText(text);
       
       root.addChild(option);

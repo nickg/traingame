@@ -2,19 +2,47 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:element name="config">
     <xs:complexType>
-      <xs:sequence>
-        <xs:element name="option" minOccurs="0" 
-                    maxOccurs="unbounded">
+
+        <xs:element name="stringOption" >
           <xs:complexType>
             <xs:simpleContent>
               <xs:extension base="xs:string">
                 <xs:attribute name="name" type="xs:string" use="required"/>
-                <xs:attribute name="type" type="xs:string" use="required"/>
               </xs:extension>
             </xs:simpleContent>
           </xs:complexType>
         </xs:element>
-      </xs:sequence>
+
+        <xs:element name="intOption" >
+          <xs:complexType>
+            <xs:simpleContent>
+              <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="floatOption" >
+          <xs:complexType>
+            <xs:simpleContent>
+              <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="boolOption" >
+          <xs:complexType>
+            <xs:simpleContent>
+              <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+        </xs:element>
+
     </xs:complexType>
   </xs:element>
 </xs:schema>
