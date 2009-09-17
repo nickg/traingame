@@ -41,7 +41,7 @@ namespace {
    typedef map<int, IMeshPtr> CurvedRailMeshMap;
    CurvedRailMeshMap theCurvedRailMeshes;
    
-   const IMeshBuffer::Colour METAL = make_tuple(0.7f, 0.7f, 0.7f);
+   const IMeshBuffer::Colour METAL = make_tuple(0.5f, 0.5f, 0.5f);
    
    void generateSleeperMesh()
    {

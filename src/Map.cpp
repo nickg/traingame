@@ -528,11 +528,10 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
    
    static const tuple<float, float, float, float> colourMap[] = {
       //          Start height         colour
-      make_tuple(    5.0f,     RGBi(238, 233, 233) ),
-      //make_tuple(    3.0f,     RGBi(187, 156, 83)  ),
-      make_tuple(    3.0f,     RGBi(189, 183, 107) ),
-      //make_tuple(    0.0f,     RGBi(133, 204, 98)  ),
-      make_tuple(    0.0f,     RGBi(123, 186, 102) ),
+      make_tuple(    7.0f,     RGBi(238, 233, 233) ),
+      make_tuple(    5.0f,     RGBi(124, 113, 36) ),
+      make_tuple(    3.0f,     RGBi(129, 142, 57) ),
+      make_tuple(    0.0f,     RGBi(103, 142, 57) ),
       make_tuple(   -1.0f,     RGBi(224, 223, 134) ),
       make_tuple(   -1e10f,    RGBi(178, 247, 220) )
    };
@@ -572,7 +571,7 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
    const float y1 = static_cast<float>(botLeft.y) - 0.5f;
    const float y2 = static_cast<float>(topRight.y) - 0.5f;
 
-   const IMeshBuffer::Colour brown = make_tuple(RGBi(205, 133, 63));
+   const IMeshBuffer::Colour brown = make_tuple(RGBi(104, 57, 12));
    const float depth = -3.0f;
    
    int index[4];
