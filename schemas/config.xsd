@@ -2,47 +2,23 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:element name="config">
     <xs:complexType>
-
-        <xs:element name="stringOption" >
+      <xs:sequence>
+        
+        <xs:element name="option" minOccurs="1" maxOccurs="unbounded">
           <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="xs:string">
-                <xs:attribute name="name" type="xs:string" use="required"/>
-              </xs:extension>
-            </xs:simpleContent>
+            <xs:choice>              
+              <xs:element name="string" type="xs:string"/>
+              <xs:element name="float" type="xs:float"/>
+              <xs:element name="int" type="xs:integer"/>
+              <xs:element name="bool" type="xs:boolean"/>
+            </xs:choice>
+
+            <xs:attribute name="name" type="xs:string"
+                          use="required"/>
           </xs:complexType>
         </xs:element>
 
-        <xs:element name="intOption" >
-          <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="xs:string">
-                <xs:attribute name="name" type="xs:string" use="required"/>
-              </xs:extension>
-            </xs:simpleContent>
-          </xs:complexType>
-        </xs:element>
-
-        <xs:element name="floatOption" >
-          <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="xs:string">
-                <xs:attribute name="name" type="xs:string" use="required"/>
-              </xs:extension>
-            </xs:simpleContent>
-          </xs:complexType>
-        </xs:element>
-
-        <xs:element name="boolOption" >
-          <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="xs:string">
-                <xs:attribute name="name" type="xs:string" use="required"/>
-              </xs:extension>
-            </xs:simpleContent>
-          </xs:complexType>
-        </xs:element>
-
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 </xs:schema>

@@ -178,9 +178,12 @@ void XercesXMLParser::parse(const string& aFileName, IXMLCallback& aCallback)
    catch (const SAXParseException& e) {
       char* message = XMLString::transcode(e.getMessage());
       error() << "SAXParseException: " << message;
+      error() << "At " << aFileName << " line "
+              << e.getLineNumber() << " col "
+              << e.getColumnNumber();
       XMLString::release(&message);
 
-      throw runtime_error("Failed to load XML file: " + aFileName);
+      throw runtime_error("Failed to load XML file");
    }
 
    myHandler->callbackPtr = NULL;

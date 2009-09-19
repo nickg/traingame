@@ -74,7 +74,7 @@ private:
    bool amDirty;
 
    // Used by the XML parser
-   function<void (const string&)> myOptionSetter;
+   string myActiveOption;
 };
 
 // Read the config file from disk
@@ -143,28 +143,20 @@ string Config::configFileName()
 
 void Config::startElement(const string& localName, const AttributeSet& attrs)
 {
-   if (localName == "stringOption")
-      bindNextOption<string>(attrs);
-   else if (localName == "intOption")
-      bindNextOption<int>(attrs);
-   else if (localName == "floatOption")
-      bindNextOption<float>(attrs);
-   else if (localName == "boolOption")
-      bindNextOption<bool>(attrs);
+   if (localName == "option")
+      attrs.get("name", myActiveOption);
 }
 
 void Config::text(const string& localName, const string& aString)
 {
-   myOptionSetter(aString);
-}
-
-template <class T>
-void Config::bindNextOption(const AttributeSet& attrs)
-{
-   using namespace placeholders;
-   
-   myOptionSetter = bind(&Config::setFromString<T>, this,
-      attrs.get<string>("name"), _1);
+   if (localName == "string")
+      setFromString<string>(myActiveOption, aString);
+   else if (localName == "int")
+      setFromString<int>(myActiveOption, aString);
+   else if (localName == "bool")
+      setFromString<bool>(myActiveOption, aString);
+   else if (localName == "float")
+      setFromString<float>(myActiveOption, aString);
 }
 
 template <class T>
@@ -219,9 +211,12 @@ void Config::flush()
             "Cannot XMLify objects of type "
             + boost::lexical_cast<string>(t.name()));
 
-      xml::element option(typeName + "Option");
+      xml::element option("option");
       option.addAttribute("name", (*it).first);
-      option.addText(text);
+
+      xml::element type(typeName);
+      type.addText(text);
+      option.addChild(type);
       
       root.addChild(option);
    }
