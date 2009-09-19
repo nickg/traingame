@@ -148,9 +148,12 @@ XercesXMLParser::XercesXMLParser(const string& aSchemaFile)
    catch (const SAXParseException& e) {
       char* message = XMLString::transcode(e.getMessage());
       error() << "SAXParseException: " << message;
+      error() << "At " << aSchemaFile << " line "
+              << e.getLineNumber() << " col "
+              << e.getColumnNumber();
       XMLString::release(&message);
 
-      throw runtime_error("Failed to load XML schema: " + aSchemaFile);
+      throw runtime_error("Failed to load XML schema");
    }
 
    XMLString::release(&schemaName);
