@@ -41,6 +41,7 @@ include_directories (include ${GLEW_INCLUDE_DIR})
 include_directories (include ${XERCES_INCLUDE_DIRS})
 include_directories (include ${FREETYPE_INCLUDE_DIRS})
 include_directories (include ${FLTK_INCLUDE_DIRS})
+include_directories (include ${CMAKE_CURRENT_BINARY_DIR})
 
 if (NOT WIN32) # Unix
   add_definitions ("-Wall")
@@ -55,8 +56,10 @@ target_link_libraries (${PROJECT_NAME} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY}
   ${FREETYPE_LIBRARIES} ${GLEW_LIBRARY} ${FLTK_LIBRARIES})
 
 # Profiling
-#set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS -pg)
-#add_definitions ("-pg")
+if (PROFILE)
+  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS -pg)
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+endif (PROFILE)
 
 set (REL "${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}")
 set (PKGNAME "${PROJECT_NAME}-${REL}")
@@ -100,3 +103,5 @@ set (CPACK_PACKAGE_EXECUTABLES "bin/${PROJECT_NAME}")
 set (CPACK_GENERATOR "STGZ;TGZ")
 
 include (CPack)
+
+configure_file (config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)

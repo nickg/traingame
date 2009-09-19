@@ -113,10 +113,12 @@ XercesXMLParser::XercesXMLParser(const string& aSchemaFile)
 
          throw runtime_error("Cannot continue");
       }
+      
+      atexit(XMLPlatformUtils::Terminate);
 
       log() << "Xerces initialised";
    }   
-   
+
    myReader = XMLReaderFactory::createXMLReader();
    
    myReader->setFeature(XMLUni::fgSAX2CoreValidation, true);
@@ -163,9 +165,6 @@ XercesXMLParser::~XercesXMLParser()
 {
    delete myReader;
    delete myHandler;
-
-   if (--ourParserCount == 0)
-      XMLPlatformUtils::Terminate();
 }
 
 void XercesXMLParser::parse(const string& aFileName, IXMLCallback& aCallback)

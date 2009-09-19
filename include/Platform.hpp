@@ -23,6 +23,8 @@
 // a variety of platforms
 //
 
+#include "config.h"
+
 // First, make sure we get a decent TR1 implementation
 #if defined __GNUC__
 

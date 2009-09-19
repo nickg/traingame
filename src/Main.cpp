@@ -22,6 +22,7 @@
 #include "IConfig.hpp"
 
 #include <stdexcept>
+#include <iostream>
 
 #include <boost/filesystem.hpp>
 
@@ -37,7 +38,15 @@ IWindowPtr getGameWindow()
 }
 
 int main(int argc, char** argv)
-{   
+{
+   cout << PACKAGE << " " << VERSION << "." << PATCH << endl << endl
+        << "Copyright (C) 2009  Nick Gasson" << endl
+        << "This program comes with ABSOLUTELY NO WARRANTY. "
+        << "This is free software, and" << endl
+        << "you are welcome to redistribute it under certain conditions. "
+        << "See the GNU" << endl
+        << "General Public Licence for details." << endl << endl;
+   
    log() << "Program started";
 
    try {

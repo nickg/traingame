@@ -134,7 +134,7 @@ string Config::configFileName()
    else
       ss << XDG_CONFIG_HOME;
 
-   ss << "/TrainGame/config.xml";
+   ss << "/" PACKAGE "/config.xml";
             
    return ss.str();
 
