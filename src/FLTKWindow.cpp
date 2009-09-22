@@ -145,6 +145,9 @@ int FLTKWindow::handle(int anEvent)
       myScreen->onMouseRelease(shared_from_this(), Fl::event_x(),
                                Fl::event_y(), btn);
       return 1;
+   case FL_ENTER:
+      redraw();
+      return 1;
    case FL_FOCUS:
    case FL_UNFOCUS:
       // Return 1 if we want keyboard events

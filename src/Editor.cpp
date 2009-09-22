@@ -559,7 +559,7 @@ void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
 
 void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
                           MouseButton aButton)
-{
+{   
    if (aButton == MOUSE_RIGHT) {
       // Start scrolling
       amScrolling = true;
