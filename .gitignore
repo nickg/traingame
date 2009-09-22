@@ -10,3 +10,4 @@ CPackConfig.cmake
 CPackSourceConfig.cmake
 install_manifest.txt
 GG/
+config.h

@@ -257,6 +257,9 @@ void Map::eraseTile(int x, int y)
            it != endpoints.end(); ++it)
          tileAt((*it).x, (*it).y).track.reset();
    }
+
+   if (tile.building)
+      tile.building.reset();
 }
 
 void Map::setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack)
