@@ -179,6 +179,10 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="11" y="7">
+<building angle="180" name="platform_end"/>
+</tile>
+
 <tile x="12" y="6">
 <straightTrack align="x"/>
 
@@ -186,7 +190,7 @@
 </tile>
 
 <tile x="12" y="7">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="13" y="6">
@@ -196,7 +200,7 @@
 </tile>
 
 <tile x="13" y="7">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="13" y="50">
@@ -210,7 +214,7 @@
 </tile>
 
 <tile x="14" y="7">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="15" y="6">
@@ -220,7 +224,7 @@
 </tile>
 
 <tile x="15" y="7">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="16" y="6">
@@ -230,7 +234,7 @@
 </tile>
 
 <tile x="16" y="7">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="17" y="6">
@@ -240,7 +244,7 @@
 </tile>
 
 <tile x="17" y="7">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="17" y="40">
@@ -274,7 +278,7 @@
 </tile>
 
 <tile x="18" y="7">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="19" y="6">
@@ -284,7 +288,7 @@
 </tile>
 
 <tile x="19" y="7">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="20" y="6">
@@ -292,11 +296,15 @@
 </tile>
 
 <tile x="20" y="7">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="21" y="6">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="21" y="7">
+<building angle="720" name="platform_end"/>
 </tile>
 
 <tile x="22" y="6">
@@ -312,7 +320,7 @@
 </tile>
 
 <tile x="24" y="42">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="26" y="9">
@@ -369,6 +377,42 @@
 
 <tile x="32" y="34">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="32" y="45">
+<building angle="90" name="platform_end"/>
+</tile>
+
+<tile x="32" y="46">
+<building angle="450" name="platform_middle"/>
+</tile>
+
+<tile x="32" y="47">
+<building angle="450" name="platform_middle"/>
+</tile>
+
+<tile x="32" y="48">
+<building angle="450" name="platform_middle"/>
+</tile>
+
+<tile x="32" y="49">
+<building angle="450" name="platform_middle"/>
+</tile>
+
+<tile x="32" y="50">
+<building angle="450" name="platform_middle"/>
+</tile>
+
+<tile x="32" y="51">
+<building angle="450" name="platform_middle"/>
+</tile>
+
+<tile x="32" y="52">
+<building angle="450" name="platform_middle"/>
+</tile>
+
+<tile x="32" y="53">
+<building angle="270" name="platform_end"/>
 </tile>
 
 <tile x="33" y="34">
@@ -547,6 +591,46 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="35" y="45">
+<building angle="90" name="platform_end"/>
+</tile>
+
+<tile x="35" y="46">
+<building angle="450" name="platform_middle"/>
+</tile>
+
+<tile x="35" y="47">
+<building angle="450" name="platform_middle"/>
+</tile>
+
+<tile x="35" y="48">
+<building angle="450" name="platform_middle"/>
+</tile>
+
+<tile x="35" y="49">
+<building angle="450" name="platform_middle"/>
+</tile>
+
+<tile x="35" y="50">
+<building angle="450" name="platform_middle"/>
+</tile>
+
+<tile x="35" y="51">
+<building angle="450" name="platform_middle"/>
+</tile>
+
+<tile x="35" y="52">
+<building angle="450" name="platform_middle"/>
+</tile>
+
+<tile x="35" y="53">
+<building angle="270" name="platform_end"/>
+</tile>
+
+<tile x="36" y="13">
+<building angle="180" name="platform_end"/>
+</tile>
+
 <tile x="36" y="14">
 <straightTrack align="x"/>
 
@@ -562,7 +646,7 @@
 </tile>
 
 <tile x="37" y="13">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="37" y="14">
@@ -584,7 +668,7 @@
 </tile>
 
 <tile x="38" y="13">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="38" y="14">
@@ -606,7 +690,7 @@
 </tile>
 
 <tile x="39" y="13">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="39" y="14">
@@ -624,7 +708,7 @@
 </tile>
 
 <tile x="40" y="13">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="40" y="14">
@@ -642,7 +726,7 @@
 </tile>
 
 <tile x="41" y="13">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="41" y="14">
@@ -668,7 +752,7 @@
 </tile>
 
 <tile x="42" y="13">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="42" y="14">
@@ -686,11 +770,11 @@
 </tile>
 
 <tile x="43" y="10">
-<building>white_house</building>
+<building angle="0" name="white_house"/>
 </tile>
 
 <tile x="43" y="13">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="43" y="14">
@@ -708,7 +792,7 @@
 </tile>
 
 <tile x="44" y="13">
-<building>platform_middle</building>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="44" y="14">
@@ -730,7 +814,7 @@
 </tile>
 
 <tile x="45" y="13">
-<building>platform_end</building>
+<building angle="0" name="platform_end"/>
 </tile>
 
 <tile x="45" y="14">
@@ -752,7 +836,7 @@
 </tile>
 
 <tile x="46" y="12">
-<building>white_house</building>
+<building angle="0" name="white_house"/>
 </tile>
 
 <tile x="46" y="14">
@@ -788,7 +872,7 @@
 </tile>
 
 <tile x="48" y="17">
-<building>house2</building>
+<building angle="0" name="house2"/>
 </tile>
 
 <tile x="48" y="20">
@@ -836,7 +920,7 @@
 </tile>
 
 <tile x="52" y="18">
-<building>house2</building>
+<building angle="0" name="house2"/>
 </tile>
 
 <tile x="52" y="20">
@@ -852,7 +936,7 @@
 </tile>
 
 <tile x="54" y="11">
-<building>house2</building>
+<building angle="0" name="house2"/>
 </tile>
 
 <tile x="54" y="20">
@@ -932,7 +1016,7 @@
 </tile>
 
 <tile x="63" y="54">
-<building>platform_end</building>
+<building angle="0" name="platform_end"/>
 </tile>
 </tileset>
 </map>

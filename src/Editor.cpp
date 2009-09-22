@@ -618,7 +618,8 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
          myMap->extendStation(myDragBegin, myDragEnd);
          break;
       case BUILDING_TOOL:
-         myMap->placeBuilding(myDragBegin, theBuildingPicker->active());
+         myMap->placeBuilding(myDragBegin, theBuildingPicker->active(),
+            theModelViewer->angle());
          break;
       }
          

@@ -32,6 +32,7 @@ public:
 
    void setModel(IModelPtr aModel);
    void rotate(float anAngle);
+   float angle() const { return myRotation; }
 
    // Fl_Gl_Window interface
    void draw();

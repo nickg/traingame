@@ -105,15 +105,16 @@ public:
    void save();
 
    IStationPtr extendStation(Point<int> aStartPos,
-                             Point<int> aFinishPos);
-   void placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding);
+      Point<int> aFinishPos);
+   void placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding,
+      float anAngle);
    float heightAt(float x, float y) const;
    
    // ISectorRenderable interface
    void renderSector(IGraphicsPtr aContext, int id,
-                     Point<int> botLeft, Point<int> topRight);
+      Point<int> botLeft, Point<int> topRight);
    void postRenderSector(IGraphicsPtr aContext, int id,
-                         Point<int> botLeft, Point<int> topRight);
+      Point<int> botLeft, Point<int> topRight);
    
 private:
    // Tiles on the map
@@ -121,6 +122,7 @@ private:
       TrackNodePtr track;    // Track at this location, if any
       IStationPtr station;   // Station on this tile, if any
       IBuildingPtr building; // Building on this tile, if any
+      float buildingAngle;   // Orientation of building
    } *myTiles;
 
    // Vertices on the terrain
@@ -747,6 +749,7 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
          if (tile.building) {
             glPushMatrix();
             glTranslatef(static_cast<float>(x), 0.0f, static_cast<float>(y));
+            glRotatef(tile.buildingAngle, 0.0f, 1.0f, 0.0f);
             tile.building->model()->render();
             glPopMatrix();
          }
@@ -981,12 +984,15 @@ void Map::lowerArea(const Point<int>& aStartPos,
    changeAreaHeight(aStartPos, aFinishPos, -0.1f);
 }
 
-void Map::placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding)
+void Map::placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding, float anAngle)
 {
    if (tileAt(aPoint.x, aPoint.y).track)
       warn() << "Cannot place building on track";
-   else
-      tileAt(aPoint.x, aPoint.y).building = aBuilding;
+   else {
+      Tile& t = tileAt(aPoint.x, aPoint.y);
+      t.building = aBuilding;
+      t.buildingAngle = anAngle;
+   }
 }
 
 // Either extend an existing station which borders this area
@@ -1200,7 +1206,8 @@ void Map::save()
          if (tile.building) {
             tileXml.addChild
                (xml::element("building")
-                .addText(tile.building->resId()));
+                  .addAttribute("angle", tile.buildingAngle)
+                  .addAttribute("name", tile.building->resId()));
             useful = true;
          }
 
@@ -1252,6 +1259,8 @@ public:
          handleStationPart(attrs);
       else if (localName == "station")
          handleStation(attrs);
+      else if (localName == "building")
+         handleBuilding(attrs);
    }
 
    void endElement(const string& localName)
@@ -1264,8 +1273,6 @@ public:
    {
       if (localName == "heightmap")
          myMap->readHeightMap(myResource->openFile(aString));
-      else if (localName == "building")
-         myMap->placeBuilding(makePoint(myXPtr, myYPtr), loadBuilding(aString));
       else if (myActiveStation) {
          if (localName == "name")
             myActiveStation->setName(aString);
@@ -1282,6 +1289,17 @@ private:
       myMap->resetMap(width, height);
    }
 
+   void handleBuilding(const AttributeSet& attrs)
+   {
+      float angle;
+      string name;
+      attrs.get("name", name);
+      attrs.get("angle", angle);
+
+      myMap->placeBuilding(makePoint(myXPtr, myYPtr),
+         loadBuilding(name), angle);
+   }      
+   
    void handleStation(const AttributeSet& attrs)
    {
       myActiveStation = makeStation();
