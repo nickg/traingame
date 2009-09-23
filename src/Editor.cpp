@@ -102,12 +102,29 @@ namespace {
    
    Fl_Menu_Button* theToolMenu;
    Fl_Button* theSaveButton;
+   Fl_Button* theNewButton;
    Fl_Button* theBldNextButton;
    Fl_Button* theBldPrevButton;
    Fl_Button* theBldRotateButton;
    ModelViewer* theModelViewer;
    
    Editor* theEditor = NULL;
+
+   // Pop up dialog for new maps
+   class NewMapDialog : public Fl_Window {
+   public:
+      NewMapDialog()
+         : Fl_Window(300, 150, "New Map")
+      {
+         myCancelBtn = new Fl_Button(10, 100, 100, 25, "Cancel");
+         myOKBtn = new Fl_Button(120, 100, 50, 25, "OK");
+
+         set_modal();
+      }
+   private:
+      Fl_Button* myCancelBtn;
+      Fl_Button* myOKBtn;
+   } *theNewMapDialog;
 
    // Data related to the building picking dialog
    class BuildingPicker {
@@ -173,6 +190,12 @@ namespace {
       theEditor->map()->save();
    }
 
+   void onNewClick(Fl_Widget* aWidget)
+   {
+      theNewMapDialog->hotspot(theNewMapDialog);
+      theNewMapDialog->show();
+   }
+   
    void onBldRotateClick(Fl_Widget* aWidget)
    {
       theModelViewer->rotate(90.0f);
@@ -213,6 +236,11 @@ void addEditorGUI()
    
    theSaveButton = new Fl_Button(0, 273, panelW, 25, "Save");
    theSaveButton->callback(onSaveClick);
+
+   theNewButton = new Fl_Button(0, 300, panelW, 25, "New");
+   theNewButton->callback(onNewClick);
+
+   theNewMapDialog = new NewMapDialog;
 }
 
 Editor::Editor(IMapPtr aMap) 
