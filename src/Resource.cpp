@@ -173,7 +173,7 @@ IResourcePtr makeNewResource(const string& aResId, const string& aClass)
 
    if (exists(p))
       throw runtime_error("Cannot create resource " + aResId
-                          + "in class " + aClass + ": already exists!");
+                          + " in class " + aClass + ": already exists!");
 
    if (!create_directories(p))
       throw runtime_error("Failed to create resource directory "

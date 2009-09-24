@@ -15,23 +15,16 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GAME_SCREENS_HPP
-#define INC_GAME_SCREENS_HPP
+#ifndef INC_NEW_BUILDING_DIALOG_HPP
+#define INC_NEW_BUILDING_DIALOG_HPP
 
-#include "IScreen.hpp"
+#include "Platform.hpp"
 #include "IMap.hpp"
-#include "IWindow.hpp"
 
-// Create the various screens
-// These may be called multiple times
-IScreenPtr makeEditorScreen(IMapPtr aMap);
-IScreenPtr makeEditorScreen(const string& aMapName);
-IScreenPtr makeGameScreen(IMapPtr aMap);
+enum NewMapDlgResult { OK, CANCEL };
 
-// Access to the window the game is running in
-IWindowPtr getGameWindow();
+typedef function<void (IMapPtr, NewMapDlgResult)> NewMapDlgCallback;
 
-// Add editor GUI controls
-void addEditorGUI();
+void showNewMapDialog(NewMapDlgCallback callback);
 
 #endif

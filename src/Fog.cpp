@@ -61,7 +61,7 @@ IFogPtr makeFog(float density, float start, float end)
    glGetFloatv(GL_COLOR_CLEAR_VALUE, params);
    
    return makeFog(params[0], params[1], params[2],
-                  density, start, end);
+      density, start, end);
 }
 
 #endif

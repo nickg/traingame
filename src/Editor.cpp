@@ -23,8 +23,10 @@
 #include "ILight.hpp"
 #include "ModelViewer.hpp"
 #include "IBuilding.hpp"
+#include "NewMapDialog.hpp"
 
 #include <algorithm>
+#include <stdexcept>
 
 #include <GL/gl.h>
 
@@ -61,6 +63,7 @@ public:
    void setTool(Tool aTool) { myTool = aTool; }
 
    IMapPtr map() { return myMap; }
+   void setMap(IMapPtr aMap);
    
 private:
    void buildGUI();
@@ -112,25 +115,6 @@ namespace {
    
    Editor* theEditor = NULL;
 
-   // Pop up dialog for new maps
-   class NewMapDialog : public Fl_Window {
-   public:
-      NewMapDialog()
-         : Fl_Window(300, 150, "New Map")
-      {
-         myNameInput = new Fl_Input(50, 10, 100, 25, "Name");
-         
-         myCancelBtn = new Fl_Button(10, 100, 100, 25, "Cancel");
-         myOKBtn = new Fl_Button(120, 100, 50, 25, "OK");
-
-         set_modal();
-      }
-   private:
-      Fl_Button* myCancelBtn;
-      Fl_Button* myOKBtn;
-      Fl_Input* myNameInput;
-   } *theNewMapDialog;
-
    // Data related to the building picking dialog
    class BuildingPicker {
    public:
@@ -180,6 +164,15 @@ namespace {
       ResourceList::const_iterator myBuildingIt;
       IBuildingPtr myActiveBuilding;
    } *theBuildingPicker;
+
+   void newMapDialogCallback(Editor* anEditor, IMapPtr aMap,
+      NewMapDlgResult aResult)
+   {
+      if (aResult == OK)
+         anEditor->setMap(aMap);
+      else if (!anEditor->map())
+         throw runtime_error("No map to edit!");
+   }
    
    void changeTool(Fl_Widget* aWidget, Editor::Tool aTool)
    {
@@ -197,8 +190,9 @@ namespace {
 
    void onNewClick(Fl_Widget* aWidget)
    {
-      theNewMapDialog->hotspot(theNewMapDialog);
-      theNewMapDialog->show();
+      using namespace placeholders;
+      
+      showNewMapDialog(bind(&newMapDialogCallback, theEditor, _1, _2));
    }
    
    void onBldRotateClick(Fl_Widget* aWidget)
@@ -244,8 +238,6 @@ void addEditorGUI()
 
    theNewButton = new Fl_Button(0, 300, panelW, 25, "New");
    theNewButton->callback(onNewClick);
-
-   theNewMapDialog = new NewMapDialog;
 }
 
 Editor::Editor(IMapPtr aMap) 
@@ -266,6 +258,12 @@ Editor::Editor(IMapPtr aMap)
 Editor::~Editor()
 {
    
+}
+
+void Editor::setMap(IMapPtr aMap)
+{
+   myMap = aMap;
+   myMap->setGrid(true);
 }
 
 // Calculate the bounds of the drag box accounting for the different
@@ -695,20 +693,11 @@ IScreenPtr makeEditorScreen(IMapPtr aMap)
 
 IScreenPtr makeEditorScreen(const string& aMapName)
 {
-   NewMapDialog* dlg = new NewMapDialog;
-   dlg->hotspot(dlg);
-   dlg->show();
-
-   return IScreenPtr(new Editor(IMapPtr()));
-}
-
-IMapPtr runNewMapDialog(const string& aMapName)
-{
-   NewMapDialog* dlg = new NewMapDialog;
-   dlg->hotspot(dlg);
-   dlg->show();
-
-   Fl::run();
-
-   return IMapPtr();
+   using namespace placeholders;
+   
+   Editor* editor = new Editor(IMapPtr());
+   
+   showNewMapDialog(bind(&newMapDialogCallback, editor, _1, _2));
+   
+   return IScreenPtr();
 }
