@@ -25,6 +25,7 @@
 // Create the various screens
 // These may be called multiple times
 IScreenPtr makeEditorScreen(IMapPtr aMap);
+IScreenPtr makeEditorScreen(const string& aMapName);
 IScreenPtr makeGameScreen(IMapPtr aMap);
 
 // Access to the window the game is running in
@@ -32,5 +33,8 @@ IWindowPtr getGameWindow();
 
 // Add editor GUI controls
 void addEditorGUI();
+
+// Get the editor to prompt for a new map
+IMapPtr runNewMapDialog(const string& aMapName = "");
 
 #endif

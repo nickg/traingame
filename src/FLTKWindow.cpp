@@ -102,7 +102,8 @@ void FLTKWindow::draw()
 {
    checkValid();
 
-   drawGLScene(shared_from_this(), shared_from_this(), myScreen);
+   if (myScreen)
+      drawGLScene(shared_from_this(), shared_from_this(), myScreen);
 }
 
 int FLTKWindow::handle(int anEvent)
@@ -216,7 +217,7 @@ unsigned FLTKWindow::endPick()
 
 // Called to set the camera position
 void FLTKWindow::setCamera(const Vector<float>& aPos,
-                          const Vector<float>& aRotation)
+   const Vector<float>& aRotation)
 {
    glRotatef(aRotation.x, 1.0f, 0.0f, 0.0f);
    glRotatef(aRotation.y, 0.0f, 1.0f, 0.0f);
@@ -228,7 +229,7 @@ void FLTKWindow::setCamera(const Vector<float>& aPos,
 
 // A wrapper around gluLookAt
 void FLTKWindow::lookAt(const Vector<float> anEyePoint,
-                       const Vector<float> aTargetPoint)
+   const Vector<float> aTargetPoint)
 {
    gluLookAt(anEyePoint.x, anEyePoint.y, anEyePoint.z,
              aTargetPoint.x, aTargetPoint.y, aTargetPoint.z,
@@ -239,7 +240,7 @@ void FLTKWindow::lookAt(const Vector<float> anEyePoint,
 
 // Intersect a cuboid with the current view frustum
 bool FLTKWindow::cuboidInViewFrustum(float x, float y, float z,
-                                    float sizeX, float sizeY, float sizeZ)
+   float sizeX, float sizeY, float sizeZ)
 {
    return myViewFrustum.cuboidInFrustum(x, y, z, sizeX, sizeY, sizeZ);
 }
@@ -269,7 +270,7 @@ private:
 };
 
 FLTKAppWindow::FLTKAppWindow(const string& aTitle,
-                             function<void ()> addControls)
+   function<void ()> addControls)
    : Fl_Window(980, 600, aTitle.c_str())
 {
    size_range(300, 240);
@@ -283,7 +284,7 @@ FLTKAppWindow::FLTKAppWindow(const string& aTitle,
    myContainer->begin();
    addControls();
    myContainer->end();
-   
+
    // Bit of a hack to get into a state where we can use OpenGL
    show();
    Fl::wait();

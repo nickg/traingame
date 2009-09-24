@@ -33,11 +33,13 @@
 #include <FL/Fl_Menu_Button.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Menu_Item.H>
+#include <FL/Fl_Input.H>
 
 // Concrete editor class
 class Editor : public IScreen {
 public:
    Editor(IMapPtr aMap);
+   Editor(const string& aMapName);
    ~Editor();
    
    void display(IGraphicsPtr aContext) const;
@@ -116,6 +118,8 @@ namespace {
       NewMapDialog()
          : Fl_Window(300, 150, "New Map")
       {
+         myNameInput = new Fl_Input(50, 10, 100, 25, "Name");
+         
          myCancelBtn = new Fl_Button(10, 100, 100, 25, "Cancel");
          myOKBtn = new Fl_Button(120, 100, 50, 25, "OK");
 
@@ -124,6 +128,7 @@ namespace {
    private:
       Fl_Button* myCancelBtn;
       Fl_Button* myOKBtn;
+      Fl_Input* myNameInput;
    } *theNewMapDialog;
 
    // Data related to the building picking dialog
@@ -251,9 +256,11 @@ Editor::Editor(IMapPtr aMap)
 
    theEditor = this;
 
-   myMap->setGrid(true);
+   if (myMap) {
+      myMap->setGrid(true);
 
-   log() << "Editing " << aMap->name();
+      log() << "Editing " << aMap->name();
+   }
 }
 
 Editor::~Editor()
@@ -274,7 +281,10 @@ void Editor::dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const
    
 // Render the next frame
 void Editor::display(IGraphicsPtr aContext) const
-{  
+{
+   if (!myMap)
+      return;
+   
    aContext->setCamera(myPosition, makeVector(45.0f, 45.0f, 0.0f));
  
    mySun->apply();
@@ -681,4 +691,24 @@ void Editor::onKeyDown(SDLKey aKey)
 IScreenPtr makeEditorScreen(IMapPtr aMap)
 {
    return IScreenPtr(new Editor(aMap));
+}
+
+IScreenPtr makeEditorScreen(const string& aMapName)
+{
+   NewMapDialog* dlg = new NewMapDialog;
+   dlg->hotspot(dlg);
+   dlg->show();
+
+   return IScreenPtr(new Editor(IMapPtr()));
+}
+
+IMapPtr runNewMapDialog(const string& aMapName)
+{
+   NewMapDialog* dlg = new NewMapDialog;
+   dlg->hotspot(dlg);
+   dlg->show();
+
+   Fl::run();
+
+   return IMapPtr();
 }

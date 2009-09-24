@@ -51,12 +51,12 @@ int main(int argc, char** argv)
 
    try {
 #ifndef WIN32
-      if (argc != 3)
+      if (argc != 2 && argc != 3)
          throw runtime_error("Usage: TrainGame (edit|play) [map]");
 
       initResources();
       
-      const string mapFile(argv[2]);
+      const string mapFile(argc == 3 ? argv[2] : "");
       const string cmd(argv[1]);
 #else
       // For ease of debugging, specify a default map 
@@ -71,8 +71,13 @@ int main(int argc, char** argv)
          theWindow = makeFLTKWindow("Train Game Editor", addEditorGUI);
          if (resourceExists(mapFile, "maps"))
             screen = makeEditorScreen(loadMap(mapFile));
-         else
-            screen = makeEditorScreen(makeEmptyMap(mapFile, 64, 64));
+         else {
+            //IMapPtr map = runNewMapDialog(mapFile);
+            //if (!map)
+            //   goto finish;
+                 
+            screen = makeEditorScreen(mapFile);
+         }
       }
       else if (cmd == "play") {
          theWindow = makeSDLWindow();
@@ -92,7 +97,8 @@ int main(int argc, char** argv)
       MessageBox(NULL, e.what(), "Fatal error", MB_ICONERROR | MB_OK);
 #endif
    }
-   
+
+ finish:
    log() << "Finished";   
    return 0;
 }
