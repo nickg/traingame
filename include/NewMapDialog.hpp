@@ -15,8 +15,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_NEW_BUILDING_DIALOG_HPP
-#define INC_NEW_BUILDING_DIALOG_HPP
+#ifndef INC_NEW_MAP_DIALOG_HPP
+#define INC_NEW_MAP_DIALOG_HPP
 
 #include "Platform.hpp"
 #include "IMap.hpp"
