@@ -27,23 +27,23 @@
 namespace gui {
    
    // A generic UI element
-   struct IElement {
-      virtual ~IElement() {}
+   struct IWidget {
+      virtual ~IWidget() {}
 
       virtual boost::any get_property(const string& key) const = 0;
       virtual void set_property(const string& key, boost::any value) = 0;
    };
 
-   typedef shared_ptr<IElement> IElementPtr;
+   typedef shared_ptr<IWidget> IWidgetPtr;
 
    template <typename T>
-   inline T get_property(IElementPtr elem, const string& key)
+   inline T get_property(IWidgetPtr elem, const string& key)
    {
       return boost::any_cast<T>(elem->get_property(key));
    }
 
    template <typename T>
-   inline void set_property(IElementPtr elem, const string& key,
+   inline void set_property(IWidgetPtr elem, const string& key,
       const T& value)
    {
       elem->set_property(key, value);
@@ -53,7 +53,8 @@ namespace gui {
    struct ILayout {
       virtual ~ILayout() {}
 
-      virtual IElementPtr get(const string& path) const = 0;
+      virtual IWidgetPtr get(const string& path) const = 0;
+      virtual void render() const = 0;
    };
 
    typedef shared_ptr<ILayout> ILayoutPtr;

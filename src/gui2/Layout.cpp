@@ -18,6 +18,9 @@
 #include "gui2/ILayout.hpp"
 #include "IXMLParser.hpp"
 
+#include <vector>
+#include <sstream>
+
 using namespace gui;
 
 class Layout : public ILayout, private IXMLCallback {
@@ -25,10 +28,24 @@ public:
    Layout(const string& file_name);
 
    // ILayout interface
-   IElementPtr get(const string& path) const;
+   IWidgetPtr get(const string& path) const;
+   void render() const;
 
    // IXMLCallback interface
+   void startElement(const string& local_name, const AttributeSet &attrs);
 private:
+
+   // Manages paths during parsing
+   class PathStack {
+   public:
+      void push(const string& s) { path_comps.push_back(s); }
+      void pop() { path_comps.pop_back(); }
+
+      string str() const;
+      
+   private:
+      vector<string> path_comps;
+   };
 };
 
 Layout::Layout(const string& file_name)
@@ -37,9 +54,35 @@ Layout::Layout(const string& file_name)
    parser->parse(file_name, *this);
 }
 
-IElementPtr Layout::get(const string& path) const
+void Layout::startElement(const string& local_name,
+   const AttributeSet &attrs)
 {
-   return IElementPtr();
+   
+}
+
+void Layout::render() const
+{
+
+}
+
+IWidgetPtr Layout::get(const string& path) const
+{
+   return IWidgetPtr();
+}
+
+string Layout::PathStack::str() const
+{
+   ostringstream ss;
+
+   if (path_comps.empty())
+      return "/";
+   else {
+      for (vector<string>::const_iterator it = path_comps.begin();
+           it != path_comps.end(); ++it)
+         ss << "/" << *it;
+      
+      return ss.str();
+   }
 }
 
 ILayoutPtr gui::make_layout(const string& file_name)

@@ -32,7 +32,17 @@ class AttributeSet {
 public:
    AttributeSet(const xercesc::Attributes& attrs)
       : myAttrs(attrs) {}
-   
+
+   bool has(const string& name) const
+   {
+      XMLCh* xmlName = xercesc::XMLString::transcode(name.c_str());
+
+      int index = myAttrs.getIndex(xmlName);
+      xercesc::XMLString::release(&xmlName);
+
+      return index != -1;
+   }
+
    template <class T>
    T get(const std::string& aName) const
    {
@@ -50,12 +60,20 @@ public:
       else
          throw std::runtime_error("No attribute: " + aName);
    }
-
+   
    template <class T>
    void get(const std::string& aName, T& aT) const
    {
       aT = get<T>(aName);
    }
+
+   // Get with default
+   template <class T>
+   T get(const string& name, const T& def) const
+   {
+      return has(name) ? get<T>(name) : def;
+   }
+   
 private:
    const xercesc::Attributes& myAttrs;
 };
@@ -75,7 +93,8 @@ struct IXMLCallback {
 struct IXMLParser {
    virtual ~IXMLParser() {}
 
-   virtual void parse(const std::string& aFileName, IXMLCallback& aCallback) = 0;
+   virtual void parse(const std::string& aFileName,
+      IXMLCallback& aCallback) = 0;
 };
 
 typedef std::tr1::shared_ptr<IXMLParser> IXMLParserPtr;

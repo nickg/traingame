@@ -36,17 +36,17 @@ public:
       MouseButton button) {}
    
 private:
-   gui::ILayoutPtr layout_;
+   gui::ILayoutPtr layout;
 };
 
 UIDemo::UIDemo()
 {
-   layout_ = gui::make_layout("layouts/demo.xml");
+   layout = gui::make_layout("layouts/demo.xml");
 }
 
 void UIDemo::overlay() const
 {
-
+   layout->render();
 }
 
 IScreenPtr make_ui_demo()
