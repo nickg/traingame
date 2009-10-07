@@ -79,6 +79,10 @@ int main(int argc, char** argv)
          theWindow = makeSDLWindow();
          screen = makeGameScreen(loadMap(mapFile));
       }
+      else if (cmd == "uidemo") {
+         theWindow = makeSDLWindow();
+         screen = make_ui_demo();
+      }
       else
          throw runtime_error("Unrecognised command: " + cmd);
          

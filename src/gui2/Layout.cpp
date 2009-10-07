@@ -15,24 +15,34 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GAME_SCREENS_HPP
-#define INC_GAME_SCREENS_HPP
+#include "gui2/ILayout.hpp"
+#include "IXMLParser.hpp"
 
-#include "IScreen.hpp"
-#include "IMap.hpp"
-#include "IWindow.hpp"
+using namespace gui;
 
-// Create the various screens
-// These may be called multiple times
-IScreenPtr makeEditorScreen(IMapPtr aMap);
-IScreenPtr makeEditorScreen(const string& aMapName);
-IScreenPtr makeGameScreen(IMapPtr aMap);
-IScreenPtr make_ui_demo();
+class Layout : public ILayout, private IXMLCallback {
+public:
+   Layout(const string& file_name);
 
-// Access to the window the game is running in
-IWindowPtr getGameWindow();
+   // ILayout interface
+   IElementPtr get(const string& path) const;
 
-// Add editor GUI controls
-void addEditorGUI();
+   // IXMLCallback interface
+private:
+};
 
-#endif
+Layout::Layout(const string& file_name)
+{
+   IXMLParserPtr parser = makeXMLParser("schemas/layout.xsd");
+   parser->parse(file_name, *this);
+}
+
+IElementPtr Layout::get(const string& path) const
+{
+   return IElementPtr();
+}
+
+ILayoutPtr gui::make_layout(const string& file_name)
+{
+   return ILayoutPtr(new Layout(file_name));
+}
