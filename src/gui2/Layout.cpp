@@ -18,6 +18,12 @@
 #include "gui2/ILayout.hpp"
 #include "IXMLParser.hpp"
 
+#include "gui2/Widget.hpp"
+#include "gui2/ContainerWidget.hpp"
+#include "gui2/Window.hpp"
+#include "gui2/Button.hpp"
+#include "gui2/Label.hpp"
+
 #include <vector>
 #include <sstream>
 
@@ -47,26 +53,11 @@ private:
       vector<string> path_comps;
    };
 
-   // Tree of widgets
-   struct WidgetTree {
-      WidgetTree(IWidgetPtr w, WidgetTree* p)
-         : widget(w), parent(p) {}
-      
-      IWidgetPtr widget;
-      WidgetTree* parent;
-      vector<WidgetTree*> children;
-
-      typedef vector<WidgetTree*>::iterator Iterator;
-   };
-
-   WidgetTree* rootWidget;
+   PathStack parse_path;
 };
 
 Layout::Layout(const string& file_name)
-{
-   // Make a dummy root widget
-   rootWidget = new WidgetTree(IWidgetPtr(), NULL);
-   
+{   
    IXMLParserPtr parser = makeXMLParser("schemas/layout.xsd");
    parser->parse(file_name, *this);
 }
@@ -74,8 +65,22 @@ Layout::Layout(const string& file_name)
 void Layout::startElement(const string& local_name,
    const AttributeSet &attrs)
 {
-   if (local_name == "window")
-      ;
+   Widget* w = NULL;
+
+   if (local_name == "layout") {
+      parse_path.push("<<layout>>");
+      return;
+   }
+   else if (local_name == "window")
+      w = new Window(attrs);
+   else if (local_name == "button")
+      w = new Button(attrs);
+   else if (local_name == "label")
+      w = new Label(attrs);
+   else
+      throw runtime_error("Unexpected " + local_name);
+
+   parse_path.push(w->name());
 }
 
 void Layout::render() const

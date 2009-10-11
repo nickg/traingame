@@ -15,39 +15,12 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_WIDGET_HPP
-#define INC_WIDGET_HPP
-
-#include "gui2/Widget.hpp"
+#include "gui2/Label.hpp"
 
 using namespace gui;
 
-int Widget::unique_id(0);
-
-Widget::Widget(const AttributeSet& attrs)
-   : tmp_attrs(attrs)
+Label::Label(const AttributeSet& attrs)
+   : Widget(attrs)
 {
-   const_property("name", name_, unique_name());
+   property("text", text_);
 }
-
-string Widget::unique_name()
-{
-   return "widget" + unique_id++;
-}
-
-boost::any Widget::get_property(const string& key) const
-{
-   PropertyMap::const_iterator it = read_properties.find(key);
-   if (it != read_properties.end())
-      return (*it).second;
-   else
-      throw runtime_error("Widget " + name()
-         + " does not have property " + key);
-}
-
-void Widget::set_property(const string& key, boost::any value)
-{
-   write_properties[key] = value;
-}
-
-#endif

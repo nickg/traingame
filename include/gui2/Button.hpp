@@ -15,39 +15,28 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_WIDGET_HPP
-#define INC_WIDGET_HPP
+#ifndef INC_GUI_BUTTON_HPP
+#define INC_GUI_BUTTON_HPP
 
+// Internal header: do not include this file directly
+
+#include "Platform.hpp"
 #include "gui2/Widget.hpp"
 
-using namespace gui;
+#include <string>
 
-int Widget::unique_id(0);
+namespace gui {
 
-Widget::Widget(const AttributeSet& attrs)
-   : tmp_attrs(attrs)
-{
-   const_property("name", name_, unique_name());
-}
+   class Button : public Widget {
+   public:
+      Button(const AttributeSet& attrs);
 
-string Widget::unique_name()
-{
-   return "widget" + unique_id++;
-}
-
-boost::any Widget::get_property(const string& key) const
-{
-   PropertyMap::const_iterator it = read_properties.find(key);
-   if (it != read_properties.end())
-      return (*it).second;
-   else
-      throw runtime_error("Widget " + name()
-         + " does not have property " + key);
-}
-
-void Widget::set_property(const string& key, boost::any value)
-{
-   write_properties[key] = value;
+      const string& label() const { return label_; }
+      void label(const string& t) { label_ = t; }
+   private:
+      string label_;
+   };
+   
 }
 
 #endif

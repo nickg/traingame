@@ -37,6 +37,9 @@ namespace gui {
 
       const string& name() const { return name_; }
 
+      boost::any get_property(const string& key) const;
+      void set_property(const string& key, boost::any value);
+
    protected:      
       template <class T>
       void const_property(const string& key, T& value,
@@ -59,7 +62,8 @@ namespace gui {
       string name_;
       const AttributeSet& tmp_attrs;   // Do not use after initialisation
       
-      map<string, boost::any> read_properties, write_properties;
+      typedef map<string, boost::any> PropertyMap;
+      PropertyMap read_properties, write_properties;
 
       static int unique_id;
    };

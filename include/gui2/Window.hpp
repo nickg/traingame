@@ -22,12 +22,13 @@
 
 #include "Platform.hpp"
 #include "gui2/Widget.hpp"
+#include "gui2/ContainerWidget.hpp"
 
 #include <string>
 
 namespace gui {
 
-   class Window : public Widget {
+   class Window : public ContainerWidget {
    public:
       Window(const AttributeSet& attrs);
 

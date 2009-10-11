@@ -20,7 +20,7 @@
 using namespace gui;
 
 Window::Window(const AttributeSet& attrs)
-   : Widget(attrs)
+   : ContainerWidget(attrs)
 {
    property("title", title_);
 }
