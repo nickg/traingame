@@ -46,10 +46,27 @@ private:
    private:
       vector<string> path_comps;
    };
+
+   // Tree of widgets
+   struct WidgetTree {
+      WidgetTree(IWidgetPtr w, WidgetTree* p)
+         : widget(w), parent(p) {}
+      
+      IWidgetPtr widget;
+      WidgetTree* parent;
+      vector<WidgetTree*> children;
+
+      typedef vector<WidgetTree*>::iterator Iterator;
+   };
+
+   WidgetTree* rootWidget;
 };
 
 Layout::Layout(const string& file_name)
 {
+   // Make a dummy root widget
+   rootWidget = new WidgetTree(IWidgetPtr(), NULL);
+   
    IXMLParserPtr parser = makeXMLParser("schemas/layout.xsd");
    parser->parse(file_name, *this);
 }
@@ -57,7 +74,8 @@ Layout::Layout(const string& file_name)
 void Layout::startElement(const string& local_name,
    const AttributeSet &attrs)
 {
-   
+   if (local_name == "window")
+      ;
 }
 
 void Layout::render() const

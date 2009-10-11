@@ -37,7 +37,7 @@ namespace gui {
 
       const string& name() const { return name_; }
 
-   protected:
+   protected:      
       template <class T>
       void const_property(const string& key, T& value,
          const T& def = T())
