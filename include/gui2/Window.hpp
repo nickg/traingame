@@ -34,6 +34,8 @@ namespace gui {
 
       const string& title() const { return title_; }
       void title(const string& t) { title_ = t; }
+
+      void render() const;
    private:
       string title_;
    };

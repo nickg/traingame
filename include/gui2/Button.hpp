@@ -33,6 +33,8 @@ namespace gui {
 
       const string& label() const { return label_; }
       void label(const string& t) { label_ = t; }
+
+      void render() const;
    private:
       string label_;
    };

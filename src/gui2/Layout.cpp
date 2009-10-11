@@ -39,6 +39,7 @@ public:
 
    // IXMLCallback interface
    void startElement(const string& local_name, const AttributeSet &attrs);
+   void endElement(const string& local_name);
 private:
 
    // Manages paths during parsing
@@ -53,7 +54,16 @@ private:
       vector<string> path_comps;
    };
 
+   // Root of widget hierarchy
+   class RootWidget : public ContainerWidget {
+   public:
+      RootWidget(const AttributeSet& attrs) : ContainerWidget(attrs) {}
+      
+      void render() const;
+   };
+
    PathStack parse_path;
+   Widget* root;
 };
 
 Layout::Layout(const string& file_name)
@@ -68,6 +78,7 @@ void Layout::startElement(const string& local_name,
    Widget* w = NULL;
 
    if (local_name == "layout") {
+      root = new RootWidget(attrs);
       parse_path.push("<<layout>>");
       return;
    }
@@ -83,9 +94,21 @@ void Layout::startElement(const string& local_name,
    parse_path.push(w->name());
 }
 
+void Layout::endElement(const string& local_name)
+{
+   parse_path.pop();
+}
+
 void Layout::render() const
 {
 
+}
+
+void Layout::RootWidget::render() const
+{
+   for (ChildList::const_iterator it = const_begin();
+        it != const_end(); ++it)
+      (*it)->render();
 }
 
 IWidgetPtr Layout::get(const string& path) const

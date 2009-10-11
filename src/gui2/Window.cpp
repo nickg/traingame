@@ -24,3 +24,9 @@ Window::Window(const AttributeSet& attrs)
 {
    property("title", title_);
 }
+
+void Window::render() const
+{
+
+}
+

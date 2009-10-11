@@ -38,8 +38,10 @@ namespace gui {
       ChildList::iterator begin() { return children.begin(); }
       ChildList::iterator end() { return children.end(); }
 
-      ChildList::const_iterator const_begin() { return children.begin(); }
-      ChildList::const_iterator const_end() { return children.end(); }
+      ChildList::const_iterator const_begin() const
+      { return children.begin(); }
+      ChildList::const_iterator const_end() const
+      { return children.end(); }
    private:
       ChildList children;
    };

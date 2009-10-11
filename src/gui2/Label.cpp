@@ -24,3 +24,8 @@ Label::Label(const AttributeSet& attrs)
 {
    property("text", text_);
 }
+
+void Label::render() const
+{
+
+}

@@ -40,6 +40,8 @@ namespace gui {
       boost::any get_property(const string& key) const;
       void set_property(const string& key, boost::any value);
 
+      virtual void render() const = 0;
+
    protected:      
       template <class T>
       void const_property(const string& key, T& value,

@@ -24,3 +24,8 @@ Button::Button(const AttributeSet& attrs)
 {
    property("label", label_);
 }
+
+void Button::render() const
+{
+
+}
