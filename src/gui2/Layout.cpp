@@ -17,6 +17,7 @@
 
 #include "gui2/ILayout.hpp"
 #include "IXMLParser.hpp"
+#include "ILogger.hpp"
 
 #include "gui2/Widget.hpp"
 #include "gui2/ContainerWidget.hpp"
@@ -45,21 +46,20 @@ private:
    // Manages paths during parsing
    class PathStack {
    public:
-      void push(const string& s) { path_comps.push_back(s); }
+      void push(Widget* w) { path_comps.push_back(w); }
       void pop() { path_comps.pop_back(); }
 
       string str() const;
+      Widget* top() const;
       
    private:
-      vector<string> path_comps;
+      vector<Widget*> path_comps;
    };
 
    // Root of widget hierarchy
    class RootWidget : public ContainerWidget {
    public:
       RootWidget(const AttributeSet& attrs) : ContainerWidget(attrs) {}
-      
-      void render() const;
    };
 
    PathStack parse_path;
@@ -70,6 +70,8 @@ Layout::Layout(const string& file_name)
 {   
    IXMLParserPtr parser = makeXMLParser("schemas/layout.xsd");
    parser->parse(file_name, *this);
+
+   log() << "Loaded UI layout from " << file_name;
 }
 
 void Layout::startElement(const string& local_name,
@@ -79,7 +81,7 @@ void Layout::startElement(const string& local_name,
 
    if (local_name == "layout") {
       root = new RootWidget(attrs);
-      parse_path.push("<<layout>>");
+      parse_path.push(root);
       return;
    }
    else if (local_name == "window")
@@ -91,7 +93,19 @@ void Layout::startElement(const string& local_name,
    else
       throw runtime_error("Unexpected " + local_name);
 
-   parse_path.push(w->name());
+   Widget* parent = parse_path.top();
+   if (ContainerWidget* c = dynamic_cast<ContainerWidget*>(parent)) {
+      c->add_child(w);
+   }
+   else {
+      throw runtime_error("Widget " + parse_path.str()
+         + " cannot contain children");
+   }      
+
+   parse_path.push(w);
+
+   debug() << "Add widget " << parse_path.str()
+           << " (" << local_name << ")";
 }
 
 void Layout::endElement(const string& local_name)
@@ -101,14 +115,8 @@ void Layout::endElement(const string& local_name)
 
 void Layout::render() const
 {
-
-}
-
-void Layout::RootWidget::render() const
-{
-   for (ChildList::const_iterator it = const_begin();
-        it != const_end(); ++it)
-      (*it)->render();
+   RenderContext rc;
+   root->render(rc);
 }
 
 IWidgetPtr Layout::get(const string& path) const
@@ -120,15 +128,23 @@ string Layout::PathStack::str() const
 {
    ostringstream ss;
 
-   if (path_comps.empty())
+   if (path_comps.empty() || path_comps.size() == 1)
       return "/";
    else {
-      for (vector<string>::const_iterator it = path_comps.begin();
-           it != path_comps.end(); ++it)
-         ss << "/" << *it;
+      // Skip over root element
+      vector<Widget*>::const_iterator it = path_comps.begin() + 1;
+      for (; it != path_comps.end(); ++it)
+         ss << "/" << (*it)->name();
       
       return ss.str();
    }
+}
+
+Widget* Layout::PathStack::top() const
+{
+   assert(!path_comps.empty());
+
+   return path_comps.back();
 }
 
 ILayoutPtr gui::make_layout(const string& file_name)

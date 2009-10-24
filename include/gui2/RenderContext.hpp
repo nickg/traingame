@@ -15,28 +15,41 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GUI_BUTTON_HPP
-#define INC_GUI_BUTTON_HPP
+#ifndef INC_GUI_RENDERCONTEXT_HPP
+#define INC_GUI_RENDERCONTEXT_HPP
 
 // Internal header: do not include this file directly
 
 #include "Platform.hpp"
-#include "gui2/Widget.hpp"
+#include "gui2/Colour.hpp"
+#include "gui2/Theme.hpp"
 
 #include <string>
+#include <stack>
 
 namespace gui {
 
-   class Button : public Widget {
+   class RenderContext {
    public:
-      Button(const AttributeSet& attrs);
+      RenderContext();
+      ~RenderContext();
 
-      const string& label() const { return label_; }
-      void label(const string& t) { label_ = t; }
+      void push_origin(int x, int y);
+      void pop_origin();
 
-      void render(RenderContext& rc) const;
+      void rectangle(int x, int y, int w, int h, Colour c);
+      void border(int x, int y, int w, int h, Colour c);
+
+      void print(IFontPtr font, int x, int y, const string& s);
+
+      const Theme& theme() const { return theme_; }
    private:
-      string label_;
+      void offset(int& x, int& y) const;
+      
+      Theme theme_;
+      int origin_x, origin_y;
+
+      stack<pair<int, int> > origin_stack;
    };
    
 }

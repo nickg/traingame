@@ -22,6 +22,7 @@
 
 #include "Platform.hpp"
 #include "gui2/ILayout.hpp"
+#include "gui2/RenderContext.hpp"
 #include "IXMLParser.hpp"
 
 #include <string>
@@ -36,11 +37,15 @@ namespace gui {
       Widget(const AttributeSet& attrs);
 
       const string& name() const { return name_; }
+      int x() const { return x_; }
+      int y() const { return y_; }
+      int width() const { return width_; }
+      int height() const { return height_; }
 
       boost::any get_property(const string& key) const;
       void set_property(const string& key, boost::any value);
 
-      virtual void render() const = 0;
+      virtual void render(RenderContext& rc) const = 0;
 
    protected:      
       template <class T>
@@ -62,6 +67,8 @@ namespace gui {
       static string unique_name();
       
       string name_;
+      int x_, y_, width_, height_;
+      
       const AttributeSet& tmp_attrs;   // Do not use after initialisation
       
       typedef map<string, boost::any> PropertyMap;

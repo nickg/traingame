@@ -37,7 +37,8 @@ namespace gui {
 
    typedef std::tr1::shared_ptr<IFont> IFontPtr;
 
-   IFontPtr loadFont(const std::string& aFile, int aHeight, bool shadow=true);
+   IFontPtr loadFont(const std::string& aFile, int aHeight,
+      bool shadow=true);
 }
 
 #endif

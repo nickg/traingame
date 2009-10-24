@@ -15,17 +15,29 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gui2/Label.hpp"
+#ifndef INC_GUI_RENDERBUFFER_HPP
+#define INC_GUI_RENDERBUFFER_HPP
 
-using namespace gui;
+// Internal header: do not include this file directly
 
-Label::Label(const AttributeSet& attrs)
-   : Widget(attrs)
-{
-   property("text", text_);
+#include "Platform.hpp"
+
+#include <string>
+
+namespace gui {
+
+   class Window : public ContainerWidget {
+   public:
+      Window(const AttributeSet& attrs);
+
+      const string& title() const { return title_; }
+      void title(const string& t) { title_ = t; }
+
+      void render() const;
+   private:
+      string title_;
+   };
+   
 }
 
-void Label::render(RenderContext& rc) const
-{
-
-}
+#endif

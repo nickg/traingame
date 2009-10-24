@@ -15,17 +15,21 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gui2/Label.hpp"
+#include "gui2/Theme.hpp"
 
 using namespace gui;
 
-Label::Label(const AttributeSet& attrs)
-   : Widget(attrs)
+Theme::Theme()
 {
-   property("text", text_);
+   normal_font_ = loadFont("data/fonts/Vera.ttf", 14);
+}
+      
+Colour Theme::background() const
+{
+   return make_colour(0.3f, 0.0f, 0.0f, 0.5f);
 }
 
-void Label::render(RenderContext& rc) const
+Colour Theme::border() const
 {
-
+   return make_colour(1.0f, 0.0f, 0.0f, 0.5f);
 }

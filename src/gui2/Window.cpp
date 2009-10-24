@@ -16,6 +16,7 @@
 //
 
 #include "gui2/Window.hpp"
+#include "ILogger.hpp"
 
 using namespace gui;
 
@@ -25,8 +26,17 @@ Window::Window(const AttributeSet& attrs)
    property("title", title_);
 }
 
-void Window::render() const
-{
+void Window::render(RenderContext& rc) const
+{   
+   rc.rectangle(x(), y(), width(), height(),
+      rc.theme().background());
+   rc.border(x(), y(), width(), height(),
+      rc.theme().border());
 
+   rc.push_origin(x(), y());
+
+   ContainerWidget::render(rc);
+   
+   rc.pop_origin();
 }
 

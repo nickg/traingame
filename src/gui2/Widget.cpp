@@ -20,6 +20,8 @@
 
 #include "gui2/Widget.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 using namespace gui;
 
 int Widget::unique_id(0);
@@ -28,11 +30,15 @@ Widget::Widget(const AttributeSet& attrs)
    : tmp_attrs(attrs)
 {
    const_property("name", name_, unique_name());
+   property("x", x_);
+   property("y", y_);
+   property("width", width_);
+   property("height", height_);
 }
 
 string Widget::unique_name()
 {
-   return "widget" + unique_id++;
+   return "widget" + boost::lexical_cast<string>(unique_id++);
 }
 
 boost::any Widget::get_property(const string& key) const

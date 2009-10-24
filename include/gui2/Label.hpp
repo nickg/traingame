@@ -34,7 +34,7 @@ namespace gui {
       const string& text() const { return text_; }
       void text(const string& t) { text_ = t; }
 
-      void render() const;
+      void render(RenderContext& rc) const;
    private:
       string text_;
    };

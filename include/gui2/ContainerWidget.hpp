@@ -29,6 +29,10 @@ namespace gui {
    class ContainerWidget : public Widget {
    public:
       ContainerWidget(const AttributeSet& attrs);
+
+      virtual void render(RenderContext& rc) const;
+
+      void add_child(Widget* w);
       
    protected:
       virtual void child_added(Widget* w) {};
@@ -42,6 +46,7 @@ namespace gui {
       { return children.begin(); }
       ChildList::const_iterator const_end() const
       { return children.end(); }
+      
    private:
       ChildList children;
    };

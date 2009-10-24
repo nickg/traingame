@@ -15,17 +15,32 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gui2/Label.hpp"
+#ifndef INC_GUI_THEME_HPP
+#define INC_GUI_THEME_HPP
 
-using namespace gui;
+// Internal header: do not include this file directly
 
-Label::Label(const AttributeSet& attrs)
-   : Widget(attrs)
-{
-   property("text", text_);
+#include "Platform.hpp"
+#include "gui2/Colour.hpp"
+#include "gui/IFont.hpp"
+
+namespace gui {
+
+   class Theme {
+   public:
+      Theme();
+
+      // Colours
+      Colour background() const;
+      Colour border() const;
+
+      // Fonts
+      IFontPtr normal_font() const { return normal_font_; }
+      
+   private:
+      IFontPtr normal_font_; 
+   };
+   
 }
 
-void Label::render(RenderContext& rc) const
-{
-
-}
+#endif

@@ -19,6 +19,10 @@
   <!-- Attributes for all widgets -->
   <xs:complexType name="widgetType">
     <xs:attribute name="name" type="xs:string"/>
+    <xs:attribute name="x" type="xs:integer"/>
+    <xs:attribute name="y" type="xs:integer"/>
+    <xs:attribute name="width" type="xs:integer"/>
+    <xs:attribute name="height" type="xs:integer"/>
   </xs:complexType>
 
   <!-- Top-level windows -->

@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2006-2009  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,17 +15,18 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gui2/Label.hpp"
+#ifndef INC_GUI2_COLOUR_HPP
+#define INC_GUI2_COLOUR_HPP
 
-using namespace gui;
+#include "Platform.hpp"
 
-Label::Label(const AttributeSet& attrs)
-   : Widget(attrs)
-{
-   property("text", text_);
+namespace gui {
+   typedef tuple<float, float, float, float> Colour;
+
+   inline Colour make_colour(float r, float g, float b, float a=1.0f)
+   {
+      return make_tuple(r, g, b, a);
+   }
 }
 
-void Label::render(RenderContext& rc) const
-{
-
-}
+#endif
