@@ -29,6 +29,8 @@
 
 namespace gui {
 
+   class Widget;
+
    class RenderContext {
    public:
       RenderContext();
@@ -37,6 +39,8 @@ namespace gui {
       void push_origin(int x, int y);
       void pop_origin();
 
+      void scissor(Widget* w);
+      
       void rectangle(int x, int y, int w, int h, Colour c);
       void border(int x, int y, int w, int h, Colour c);
 

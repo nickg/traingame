@@ -28,8 +28,10 @@ ContainerWidget::ContainerWidget(const AttributeSet& attrs)
 void ContainerWidget::render(RenderContext& rc) const
 {
    for (ChildList::const_iterator it = const_begin();
-        it != const_end(); ++it)
+        it != const_end(); ++it) {
+      rc.scissor(*it);
       (*it)->render(rc);
+   }
 }
 
 void ContainerWidget::add_child(Widget* w)

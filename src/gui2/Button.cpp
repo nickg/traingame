@@ -29,9 +29,10 @@ void Button::render(RenderContext& rc) const
 {
    rc.rectangle(x(), y(), width(), height(),
       rc.theme().background());
-   rc.border(x(), y(), width(), height(),
-      rc.theme().border());
 
    rc.print(rc.theme().normal_font(), x() + 5, y() + 5,
       "Yahyahyah");
+
+   rc.border(x(), y(), width(), height(),
+      rc.theme().border());
 }

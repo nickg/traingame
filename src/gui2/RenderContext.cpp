@@ -16,10 +16,15 @@
 //
 
 #include "gui2/RenderContext.hpp"
+#include "gui2/Widget.hpp"
+#include "ILogger.hpp"
+#include "IWindow.hpp"
 
 #include <GL/gl.h>
 
 using namespace gui;
+
+IWindowPtr getGameWindow();
 
 namespace {
    inline void set_colour(Colour c)
@@ -31,12 +36,13 @@ namespace {
 RenderContext::RenderContext()
    : origin_x(0), origin_y(0)
 {
-
+   glPushAttrib(GL_ENABLE_BIT);
+   glEnable(GL_SCISSOR_TEST);
 }
 
 RenderContext::~RenderContext()
 {
-
+   glPopAttrib();
 }
 
 void RenderContext::push_origin(int x, int y)
@@ -75,12 +81,26 @@ void RenderContext::border(int x, int y, int w, int h, Colour c)
 {
    offset(x, y);
    set_colour(c);
-   
-   glBegin(GL_LINE_LOOP);
+
+   x += 1;
+   y += 1;
+   w -= 1;
+   h -= 1;
+
+   glBegin(GL_LINES);
+
    glVertex2i(x, y);
    glVertex2i(x + w, y);
+   
+   glVertex2i(x + w, y);
+   glVertex2i(x + w, y + h);
+   
    glVertex2i(x + w, y + h);
    glVertex2i(x, y + h);
+   
+   glVertex2i(x, y + h);
+   glVertex2i(x, y - 1);
+   
    glEnd();
 }
 
@@ -88,4 +108,17 @@ void RenderContext::print(IFontPtr font, int x, int y, const string& s)
 {
    offset(x, y);
    font->print(x, y, "%s", s.c_str());
+}
+
+void RenderContext::scissor(Widget* w)
+{
+   static int wh = getGameWindow()->height();
+   
+   int x = w->x() - 1;
+   int y = w->y() - 1;
+   offset(x, y);
+
+   y = wh - y - w->height() - 1;
+   
+   glScissor(x, y, w->width() + 1, w->height() + 1);
 }

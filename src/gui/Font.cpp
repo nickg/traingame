@@ -21,6 +21,7 @@
 #include <vector>
 #include <stdexcept>
 #include <cstdarg>
+#include <map>
 
 #include <GL/gl.h>
 #include "ft2build.h"
@@ -335,5 +336,17 @@ int Font::stringWidth(const char* fmt, ...) const
 
 IFontPtr gui::loadFont(const string& aFile, int aHeight, bool shadow)
 {
-   return IFontPtr(new Font(aFile, aHeight, shadow));
+   typedef tuple<string, int, bool> FontToken;
+   static map<FontToken, IFontPtr> cache;
+
+   FontToken t = make_tuple(aFile, aHeight, shadow);
+   map<FontToken, IFontPtr>::iterator it = cache.find(t);
+
+   if (it != cache.end())
+      return (*it).second;
+   else {
+      IFontPtr p(new Font(aFile, aHeight, shadow));
+      cache[t] = p;
+      return p;
+   }
 }

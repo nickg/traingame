@@ -21,7 +21,7 @@ using namespace gui;
 
 Theme::Theme()
 {
-   normal_font_ = loadFont("data/fonts/Vera.ttf", 14);
+   normal_font_ = loadFont("data/fonts/Vera.ttf", 11, false);
 }
       
 Colour Theme::background() const
@@ -31,5 +31,5 @@ Colour Theme::background() const
 
 Colour Theme::border() const
 {
-   return make_colour(1.0f, 0.0f, 0.0f, 0.5f);
+   return make_colour(1.0f, 0.0f, 0.0f, 1.0f);
 }
