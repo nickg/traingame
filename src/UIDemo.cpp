@@ -17,6 +17,7 @@
 
 #include "IScreen.hpp"
 #include "gui2/ILayout.hpp"
+#include "ft/IFont.hpp"
 
 class UIDemo : public IScreen {
 public:
@@ -37,16 +38,20 @@ public:
    
 private:
    gui::ILayoutPtr layout;
+   ft::IFontPtr font;
 };
 
 UIDemo::UIDemo()
 {
    layout = gui::make_layout("layouts/demo.xml");
+   font = ft::load_font("data/fonts/Vera.ttf", 16);
 }
 
 void UIDemo::overlay() const
 {
-   layout->render();
+   //layout->render();
+
+   font->print(100, 100, "yah");
 }
 
 IScreenPtr make_ui_demo()

@@ -96,7 +96,7 @@ Font::Font(const string& aFile, int aHeight, bool shadow)
       throw runtime_error("FT_New_Face failed, file name: " + aFile);
 
    // FreeType measures font sizes in 1/64ths of a pixel...
-   FT_Set_Char_Size(face, aHeight<<6, aHeight<<6, 96, 96);
+   FT_Set_Char_Size(face, aHeight<<6, aHeight<<6, 0, 0);
 
    listBase = glGenLists(128);
    glGenTextures(128, textures);
@@ -162,7 +162,7 @@ void Font::makeDisplayList(FT_Face face, char ch, GLuint listBase,
       throw runtime_error("FT_Get_Glyph failed");
 
    // Convert the glyph to a bitmap
-   FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1);
+   FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_MONO, 0, 1);
    FT_BitmapGlyph bitmapGlyph = (FT_BitmapGlyph)glyph;
 
    // Get a reference to the bitmap
@@ -196,7 +196,7 @@ void Font::makeDisplayList(FT_Face face, char ch, GLuint listBase,
 
    // Free expanded data
    delete[] expandedData;
-
+   
    // Create the display list
    glNewList(listBase+ch, GL_COMPILE);
    glBindTexture(GL_TEXTURE_2D, texBase[(int)ch]);

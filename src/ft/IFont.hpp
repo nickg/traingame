@@ -15,21 +15,23 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gui2/Theme.hpp"
+#ifndef INC_FT_IFONT_HPP
+#define INC_FT_IFONT_HPP
 
-using namespace gui;
+#include "Platform.hpp"
 
-Theme::Theme()
-{
-   normal_font_ = load_font("data/fonts/DejaVuSansMono.ttf", 15, false);
-}
-      
-Colour Theme::background() const
-{
-   return make_colour(0.3f, 0.0f, 0.0f, 0.5f);
+namespace ft {
+
+   struct IFont {
+      virtual ~IFont() {}
+
+      virtual void print(int x, int y, const string& s) const = 0;
+   };
+
+   typedef shared_ptr<IFont> IFontPtr;
+   
+   IFontPtr load_font(const string& file, int h);
+   
 }
 
-Colour Theme::border() const
-{
-   return make_colour(1.0f, 0.0f, 0.0f, 1.0f);
-}
+#endif
