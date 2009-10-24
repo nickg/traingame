@@ -55,7 +55,7 @@ const int ThrottleMeter::METER_WIDTH(100);
 
 ThrottleMeter::ThrottleMeter(IFontPtr aFont)
    : myValue(0), myFont(aFont),
-     myTextWidth(myFont->stringWidth("Throttle: ")),
+     myTextWidth(myFont->string_width("Throttle: ")),
      myMin(THROTTLE_MIN), myMax(THROTTLE_MAX)
 {
    
@@ -63,7 +63,7 @@ ThrottleMeter::ThrottleMeter(IFontPtr aFont)
 
 int ThrottleMeter::height() const
 {
-   return max(myFont->maxHeight(), METER_HEIGHT);
+   return max(myFont->max_height(), METER_HEIGHT);
 }
 
 int ThrottleMeter::width() const

@@ -97,8 +97,8 @@ Game::Game(IMapPtr aMap)
    // Build the GUI
    myStatsPanel = makeFlowBox(FLOW_BOX_VERT);
 
-   IFontPtr stdFont = loadFont("data/fonts/Vera.ttf", 14);
-   myStatusFont = loadFont("data/fonts/Vera.ttf", 18);
+   IFontPtr stdFont = load_font("data/fonts/Vera.ttf", 14);
+   myStatusFont = load_font("data/fonts/Vera.ttf", 18);
    
    mySpeedLabel = makeLabel(stdFont);
    myStatsPanel->addChild(mySpeedLabel);
@@ -166,7 +166,7 @@ void Game::overlay() const
 
    const int screenH = getGameWindow()->height();
    const int screenW = getGameWindow()->width();
-   const int len = myStatusFont->stringWidth("%s", myStatusMsg.c_str());
+   const int len = myStatusFont->string_width("%s", myStatusMsg.c_str());
    myStatusFont->print((screenW - len)/2, screenH - 50,
                        "%s", myStatusMsg.c_str());
 }

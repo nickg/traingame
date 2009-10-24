@@ -47,9 +47,9 @@ private:
 Panel::Panel(const string& aTitle, IContainerPtr aContent)
    : myTitle(aTitle), myContent(aContent)
 {
-   myFont = loadFont("data/fonts/Vera.ttf", 13, false);
-   myFont->setColour(0.0f, 0.0f, 0.0f);
-   myTitleWidth = myFont->stringWidth(aTitle.c_str());
+   myFont = load_font("data/fonts/Vera.ttf", 13, false);
+   myFont->set_colour(0.0f, 0.0f, 0.0f);
+   myTitleWidth = myFont->string_width(aTitle.c_str());
 }
 
 void Panel::render(int x, int y) const
@@ -78,7 +78,7 @@ int Panel::width() const
 
 int Panel::height() const
 {
-   return myFont->maxHeight() + 2*TITLE_PAD + myContent->height();
+   return myFont->max_height() + 2*TITLE_PAD + myContent->height();
 }
 
 IContainerPtr gui::makePanel(const string& aTitle, IContainerPtr aContent)

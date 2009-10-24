@@ -62,23 +62,23 @@ void Label::setColour(float r, float g, float b)
 
 int Label::width() const
 {
-   return myFont->stringWidth(myText.c_str());
+   return myFont->string_width(myText.c_str());
 }
 
 int Label::height() const
 {
-   return myFont->maxHeight();
+   return myFont->max_height();
 }
 
 void Label::render(int x, int y) const
 {
    float r, g, b, a;
-   myFont->getColour(r, g, b, a);
+   myFont->get_colour(r, g, b, a);
    
-   myFont->setColour(myR, myG, myB, 1.0f);
+   myFont->set_colour(myR, myG, myB, 1.0f);
    myFont->print(x, y, myText.c_str());
 
-   myFont->setColour(r, g, b, a);
+   myFont->set_colour(r, g, b, a);
 }
 
 void Label::setText(const char* fmt, ...)

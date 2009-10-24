@@ -39,10 +39,10 @@ public:
    ~Font();
 
    void print(int x, int y, const char* fmt, ...) const;
-   int stringWidth(const char* fmt, ...) const;
-   void setColour(float r, float g, float b, float a);
-   void getColour(float& r, float& g, float& b, float& a) const;
-   int maxHeight() const { return myHeight; }
+   int string_width(const char* fmt, ...) const;
+   void set_colour(float r, float g, float b, float a);
+   void get_colour(float& r, float& g, float& b, float& a) const;
+   int max_height() const { return myHeight; }
 private:
    int nextPowerOf2(int a);
    void makeDisplayList(FT_Face face, char ch, GLuint listBase,
@@ -123,7 +123,7 @@ Font::~Font()
       FT_Done_FreeType(library);
 }
 
-void Font::getColour(float& r, float& g, float& b, float& a) const
+void Font::get_colour(float& r, float& g, float& b, float& a) const
 {
    r = myR;
    g = myG;
@@ -131,7 +131,7 @@ void Font::getColour(float& r, float& g, float& b, float& a) const
    a = myA;
 }
 
-void Font::setColour(float r, float g, float b, float a)
+void Font::set_colour(float r, float g, float b, float a)
 {
    myR = r;
    myG = g;
@@ -311,7 +311,7 @@ void Font::print(int x, int y, const char* fmt, ...) const
    glPopAttrib();
 }
 
-int Font::stringWidth(const char* fmt, ...) const
+int Font::string_width(const char* fmt, ...) const
 {
    va_list ap;
    vector<string> lines;
@@ -334,7 +334,7 @@ int Font::stringWidth(const char* fmt, ...) const
    return maxlen;
 }
 
-IFontPtr gui::loadFont(const string& aFile, int aHeight, bool shadow)
+IFontPtr gui::load_font(const string& aFile, int aHeight, bool shadow)
 {
    typedef tuple<string, int, bool> FontToken;
    static map<FontToken, IFontPtr> cache;
