@@ -44,14 +44,14 @@ private:
 UIDemo::UIDemo()
 {
    layout = gui::make_layout("layouts/demo.xml");
-   font = ft::load_font("data/fonts/Vera.ttf", 16);
+   font = ft::load_font("data/fonts/Vera.ttf", 16, ft::FONT_NORMAL);
 }
 
 void UIDemo::overlay() const
 {
    //layout->render();
 
-   font->print(100, 100, "yah");
+   font->print(100, 100, gui::make_colour(0.0f, 1.0f, 0.0f), "yah");
 }
 
 IScreenPtr make_ui_demo()

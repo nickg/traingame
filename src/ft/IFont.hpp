@@ -19,18 +19,26 @@
 #define INC_FT_IFONT_HPP
 
 #include "Platform.hpp"
+#include "gui2/Colour.hpp"
 
 namespace ft {
+   using namespace gui;
 
    struct IFont {
       virtual ~IFont() {}
 
-      virtual void print(int x, int y, const string& s) const = 0;
+      virtual void print(int x, int y, Colour c,
+         const string& s) const = 0;
    };
 
    typedef shared_ptr<IFont> IFontPtr;
+
+   enum FontType {
+      FONT_NORMAL, FONT_MONO
+   };
    
-   IFontPtr load_font(const string& file, int h);
+   IFontPtr load_font(const string& file, int h,
+      FontType type=FONT_NORMAL);
    
 }
 
