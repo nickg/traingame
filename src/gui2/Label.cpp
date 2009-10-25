@@ -21,13 +21,13 @@
 using namespace gui;
 
 Label::Label(const AttributeSet& attrs)
-   : Widget(attrs)
+   : Widget(attrs),
+     text_(attrs.get<string>("text"))
 {
-   property("text", text_);
+   width(500);
 }
 
 void Label::render(RenderContext& rc) const
 {
-   debug() << "Label::render x=" << x() << " y=" << y();
    rc.print(rc.theme().normal_font(), x(), y(), text_);
 }

@@ -29,25 +29,9 @@ namespace gui {
    // A generic UI element
    struct IWidget {
       virtual ~IWidget() {}
-
-      virtual boost::any get_property(const string& key) const = 0;
-      virtual void set_property(const string& key, boost::any value) = 0;
    };
 
    typedef shared_ptr<IWidget> IWidgetPtr;
-
-   template <typename T>
-   inline T get_property(IWidgetPtr elem, const string& key)
-   {
-      return boost::any_cast<T>(elem->get_property(key));
-   }
-
-   template <typename T>
-   inline void set_property(IWidgetPtr elem, const string& key,
-      const T& value)
-   {
-      elem->set_property(key, value);
-   }
    
    // A complete set of UI elements
    struct ILayout {

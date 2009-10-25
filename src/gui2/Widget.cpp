@@ -19,6 +19,7 @@
 #define INC_WIDGET_HPP
 
 #include "gui2/Widget.hpp"
+#include "ILogger.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -27,33 +28,18 @@ using namespace gui;
 int Widget::unique_id(0);
 
 Widget::Widget(const AttributeSet& attrs)
-   : tmp_attrs(attrs)
+   : name_(attrs.get<string>("name", unique_name())),
+     x_(attrs.get<int>("x", 0)),
+     y_(attrs.get<int>("y", 0)),
+     width_(attrs.get<int>("width", 0)),
+     height_(attrs.get<int>("height", 0))
 {
-   const_property("name", name_, unique_name());
-   property("x", x_);
-   property("y", y_);
-   property("width", width_);
-   property("height", height_);
+   
 }
 
 string Widget::unique_name()
 {
    return "widget" + boost::lexical_cast<string>(unique_id++);
-}
-
-boost::any Widget::get_property(const string& key) const
-{
-   PropertyMap::const_iterator it = read_properties.find(key);
-   if (it != read_properties.end())
-      return (*it).second;
-   else
-      throw runtime_error("Widget " + name()
-         + " does not have property " + key);
-}
-
-void Widget::set_property(const string& key, boost::any value)
-{
-   write_properties[key] = value;
 }
 
 #endif

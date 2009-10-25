@@ -28,8 +28,6 @@
 #include <string>
 #include <map>
 
-#include <boost/any.hpp>
-
 namespace gui {
 
    class Widget : public IWidget {
@@ -41,39 +39,21 @@ namespace gui {
       int y() const { return y_; }
       int width() const { return width_; }
       int height() const { return height_; }
+      
+      void width(int w) { width_ = w; }
+      void height(int h) { height_ = h; }
 
       boost::any get_property(const string& key) const;
       void set_property(const string& key, boost::any value);
 
       virtual void render(RenderContext& rc) const = 0;
 
-   protected:      
-      template <class T>
-      void const_property(const string& key, T& value,
-         const T& def = T())
-      {
-         value = tmp_attrs.get<T>(key, def);
-         read_properties[key] = value;
-      }
-
-      template <class T>
-      void property(const string& key, T& value, const T& def = T())
-      {
-         const_property(key, value);   // Readable as well
-         write_properties[key] = ref(value);
-      }
-      
    private:
       static string unique_name();
       
       string name_;
       int x_, y_, width_, height_;
-      
-      const AttributeSet& tmp_attrs;   // Do not use after initialisation
-      
-      typedef map<string, boost::any> PropertyMap;
-      PropertyMap read_properties, write_properties;
-
+            
       static int unique_id;
    };
  

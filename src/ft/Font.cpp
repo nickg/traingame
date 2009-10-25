@@ -191,6 +191,7 @@ public:
    void print(int x, int y, Colour c, const string& s) const;
 
    int height() const { return height_; }
+   int text_width(const string& s) const;
 private:
    FT_Face face;
    vector<Glyph*> glyphs;
@@ -264,6 +265,16 @@ void Font::print(int x, int y, Colour c, const string& s) const
 
    glPopMatrix();
    glPopAttrib();
+}
+
+int Font::text_width(const string& s) const
+{
+   float w = 0.0f;
+   for (string::const_iterator it = s.begin();
+        it != s.end(); ++it)
+      w += glyphs.at(*it)->advance_x();
+
+   return static_cast<int>(w);
 }
 
 }

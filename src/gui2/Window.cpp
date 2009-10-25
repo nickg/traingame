@@ -21,9 +21,10 @@
 using namespace gui;
 
 Window::Window(const AttributeSet& attrs)
-   : ContainerWidget(attrs)
+   : ContainerWidget(attrs),
+     title_(attrs.get<string>("title", ""))
 {
-   property("title", title_);
+   
 }
 
 void Window::render(RenderContext& rc) const

@@ -18,8 +18,6 @@
 #ifndef INC_GUI_LABEL_HPP
 #define INC_GUI_LABEL_HPP
 
-// Internal header: do not include this file directly
-
 #include "Platform.hpp"
 #include "gui2/Widget.hpp"
 

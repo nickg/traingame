@@ -20,9 +20,10 @@
 using namespace gui;
 
 Button::Button(const AttributeSet& attrs)
-   : Widget(attrs)
+   : Widget(attrs),
+     label_(attrs.get<string>("label"))
 {
-   property("label", label_);
+   
 }
 
 void Button::render(RenderContext& rc) const

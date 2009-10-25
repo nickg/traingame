@@ -31,6 +31,7 @@ namespace ft {
          const string& s) const = 0;
 
       virtual int height() const = 0;
+      virtual int text_width(const string& s) const = 0;
    };
 
    typedef shared_ptr<IFont> IFontPtr;
