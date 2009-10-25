@@ -31,6 +31,12 @@ namespace gui {
    struct ILayout {
       virtual ~ILayout() {}
 
+      template <class T>
+      T& get_cast(const string& path) const
+      {
+         return dynamic_cast<T&>(get(path));
+      }
+
       virtual Widget& get(const string& path) const = 0;
       virtual void render() const = 0;
 

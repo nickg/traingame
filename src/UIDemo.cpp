@@ -60,7 +60,7 @@ void UIDemo::btn1_click(gui::Widget& w)
    static int cnt = 0;
    debug() << "Clicked button 1!";
 
-   dynamic_cast<gui::Label&>(layout->get("/wnd1/cntlabel")).text(
+   layout->get_cast<gui::Label>("/wnd1/cntlabel").text(
       boost::lexical_cast<string>(++cnt));
 }
 
