@@ -120,7 +120,8 @@ Glyph::Glyph(FT_Face& face, FT_ULong uch, FontType type)
                bmp_byte++;
             }
          }
-            
+
+         bmp_bit = 7;
          bmp_byte = 0;
       }
    }
