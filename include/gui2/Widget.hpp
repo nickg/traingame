@@ -21,7 +21,6 @@
 // Internal header: do not include this file directly
 
 #include "Platform.hpp"
-#include "gui2/ILayout.hpp"
 #include "gui2/RenderContext.hpp"
 #include "IXMLParser.hpp"
 
@@ -30,7 +29,7 @@
 
 namespace gui {
 
-   class Widget : public IWidget {
+   class Widget {
    public:
       Widget(const AttributeSet& attrs);
 
@@ -43,16 +42,29 @@ namespace gui {
       void width(int w) { width_ = w; }
       void height(int h) { height_ = h; }
 
-      boost::any get_property(const string& key) const;
-      void set_property(const string& key, boost::any value);
+      enum Signal {
+         SIG_CLICK
+      };
+
+      typedef function<void (Widget&)> SignalHandler;
+
+      void connect(Signal sig, SignalHandler handler);
 
       virtual void render(RenderContext& rc) const = 0;
+      virtual void adjust_for_theme(Theme& theme) {}
+      
+      virtual void handle_click(int x, int y);
+      
+   protected:
+      void raise(Signal sig);
 
    private:
       static string unique_name();
       
       string name_;
       int x_, y_, width_, height_;
+
+      map<Signal, SignalHandler> handlers;
             
       static int unique_id;
    };

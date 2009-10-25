@@ -19,6 +19,7 @@
 #define INC_GUI_ILAYOUT_HPP
 
 #include "Platform.hpp"
+#include "gui2/Widget.hpp"
 
 #include <string>
 
@@ -26,19 +27,14 @@
 
 namespace gui {
    
-   // A generic UI element
-   struct IWidget {
-      virtual ~IWidget() {}
-   };
-
-   typedef shared_ptr<IWidget> IWidgetPtr;
-   
    // A complete set of UI elements
    struct ILayout {
       virtual ~ILayout() {}
 
-      virtual IWidgetPtr get(const string& path) const = 0;
+      virtual Widget& get(const string& path) const = 0;
       virtual void render() const = 0;
+
+      virtual void click(int x, int y) = 0;
    };
 
    typedef shared_ptr<ILayout> ILayoutPtr;

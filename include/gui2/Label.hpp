@@ -33,6 +33,7 @@ namespace gui {
       void text(const string& t) { text_ = t; }
 
       void render(RenderContext& rc) const;
+      void adjust_for_theme(Theme& theme);
    private:
       string text_;
    };

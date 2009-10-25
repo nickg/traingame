@@ -15,9 +15,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_WIDGET_HPP
-#define INC_WIDGET_HPP
-
 #include "gui2/Widget.hpp"
 #include "ILogger.hpp"
 
@@ -42,4 +39,20 @@ string Widget::unique_name()
    return "widget" + boost::lexical_cast<string>(unique_id++);
 }
 
-#endif
+void Widget::raise(Signal sig)
+{
+   map<Signal, SignalHandler>::iterator it = handlers.find(sig);
+   if (it != handlers.end())
+      (*it).second(*this);
+}
+
+void Widget::connect(Signal sig, SignalHandler handler)
+{
+   handlers[sig] = handler;
+}
+
+void Widget::handle_click(int x, int y)
+{
+   raise(SIG_CLICK);
+}
+

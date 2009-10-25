@@ -24,10 +24,16 @@ Label::Label(const AttributeSet& attrs)
    : Widget(attrs),
      text_(attrs.get<string>("text"))
 {
-   width(500);
+   
 }
 
 void Label::render(RenderContext& rc) const
 {
    rc.print(rc.theme().normal_font(), x(), y(), text_);
+}
+
+void Label::adjust_for_theme(Theme& theme)
+{
+   width(theme.normal_font()->text_width(text_));
+   height(theme.normal_font()->height());
 }

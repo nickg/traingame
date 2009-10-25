@@ -27,16 +27,20 @@
 
 #include <vector>
 #include <sstream>
+#include <map>
 
 using namespace gui;
 
 class Layout : public ILayout, private IXMLCallback {
 public:
    Layout(const string& file_name);
+   ~Layout();
 
    // ILayout interface
-   IWidgetPtr get(const string& path) const;
+   Widget& get(const string& path) const;
    void render() const;
+
+   void click(int x, int y);
 
    // IXMLCallback interface
    void startElement(const string& local_name, const AttributeSet &attrs);
@@ -64,6 +68,9 @@ private:
 
    PathStack parse_path;
    Widget* root;
+   
+   typedef map<string, Widget*> WidgetMap;
+   WidgetMap widgets;
 };
 
 Layout::Layout(const string& file_name)
@@ -71,7 +78,18 @@ Layout::Layout(const string& file_name)
    IXMLParserPtr parser = makeXMLParser("schemas/layout.xsd");
    parser->parse(file_name, *this);
 
+   assert(root);
+   Theme dummy;
+   root->adjust_for_theme(dummy);
+
    log() << "Loaded UI layout from " << file_name;
+}
+
+Layout::~Layout()
+{
+   for (WidgetMap::iterator it = widgets.begin();
+        it != widgets.end(); ++it)
+      delete (*it).second;
 }
 
 void Layout::startElement(const string& local_name,
@@ -104,12 +122,14 @@ void Layout::startElement(const string& local_name,
 
    parse_path.push(w);
 
+   widgets[parse_path.str()] = w;
+   
    debug() << "Add widget " << parse_path.str()
            << " (" << local_name << ")";
 }
 
 void Layout::endElement(const string& local_name)
-{
+{   
    parse_path.pop();
 }
 
@@ -119,9 +139,18 @@ void Layout::render() const
    root->render(rc);
 }
 
-IWidgetPtr Layout::get(const string& path) const
+Widget& Layout::get(const string& path) const
 {
-   return IWidgetPtr();
+   WidgetMap::const_iterator it = widgets.find(path);
+   if (it != widgets.end())
+      return *(*it).second;
+   else
+      throw runtime_error("Widget " + path + " does not exist");
+}
+
+void Layout::click(int x, int y)
+{
+   root->handle_click(x, y);
 }
 
 string Layout::PathStack::str() const

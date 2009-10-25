@@ -16,6 +16,7 @@
 //
 
 #include "gui2/ContainerWidget.hpp"
+#include "ILogger.hpp"
 
 using namespace gui;
 
@@ -38,4 +39,23 @@ void ContainerWidget::add_child(Widget* w)
 {
    children.push_back(w);
    child_added(w);
+}
+
+void ContainerWidget::adjust_for_theme(Theme& theme)
+{
+   for (ChildList::const_iterator it = const_begin();
+        it != const_end(); ++it)
+      (*it)->adjust_for_theme(theme);
+}
+
+void ContainerWidget::handle_click(int x, int y)
+{
+   for (ChildList::const_iterator it = const_begin();
+        it != const_end(); ++it) {
+      Widget& w = **it;
+
+      if (w.x() <= x && x < w.x() + w.width()
+         && w.y() <= y && y < w.y() + w.height())
+         w.handle_click(x - w.x(), y - w.y());
+   }
 }

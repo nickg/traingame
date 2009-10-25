@@ -4,8 +4,15 @@
           name="wnd1">
     <button name="btn1" label="One"
             x="5" y="5" width="80" height="25" />
-    <button name="btn2" label="Two"/>
+    <button name="btn2" label="Two"
+            x="5" y="35" width="80" height="25" />
     <label text="abcdefghijklmnopqrstuvwxyz"
-           x="5" y="60" width="150" height="20"/>
+           name="cntlabel"
+           x="5" y="60"/>
+  </window>
+
+  <window x="300" y="100" width="200" height="250"
+          name="bigwnd">
+    
   </window>
 </layout>

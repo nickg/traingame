@@ -31,8 +31,11 @@ namespace gui {
       ContainerWidget(const AttributeSet& attrs);
 
       virtual void render(RenderContext& rc) const;
+      virtual void adjust_for_theme(Theme& theme);
 
       void add_child(Widget* w);
+      
+      virtual void handle_click(int x, int y);
       
    protected:
       virtual void child_added(Widget* w) {};

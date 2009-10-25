@@ -17,7 +17,10 @@
 
 #include "IScreen.hpp"
 #include "gui2/ILayout.hpp"
-#include "ft/IFont.hpp"
+#include "gui2/Label.hpp"
+#include "ILogger.hpp"
+
+#include <boost/lexical_cast.hpp>
 
 class UIDemo : public IScreen {
 public:
@@ -32,22 +35,44 @@ public:
    void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
       int xrel, int yrel) {}
    void onMouseClick(IPickBufferPtr pick_buffer, int x, int y,
-      MouseButton button) {}
+      MouseButton button);
    void onMouseRelease(IPickBufferPtr pick_buffer, int x, int y,
       MouseButton button) {}
    
 private:
+   void btn1_click(gui::Widget& w);
+   
    gui::ILayoutPtr layout;
 };
 
 UIDemo::UIDemo()
 {
+   using namespace placeholders;
+   
    layout = gui::make_layout("layouts/demo.xml");
+
+   layout->get("/wnd1/btn1").connect(gui::Widget::SIG_CLICK,
+      bind(&UIDemo::btn1_click, this, _1));
+}
+
+void UIDemo::btn1_click(gui::Widget& w)
+{
+   static int cnt = 0;
+   debug() << "Clicked button 1!";
+
+   dynamic_cast<gui::Label&>(layout->get("/wnd1/cntlabel")).text(
+      boost::lexical_cast<string>(++cnt));
 }
 
 void UIDemo::overlay() const
 {
    layout->render();
+}
+
+void UIDemo::onMouseClick(IPickBufferPtr pick_buffer, int x, int y,
+   MouseButton button)
+{
+   layout->click(x, y);
 }
 
 IScreenPtr make_ui_demo()
