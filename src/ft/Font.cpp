@@ -266,7 +266,7 @@ void Font::print(int x, int y, Colour c, const string& s) const
    glPopMatrix();
    glPopAttrib();
 }
-
+   
 int Font::text_width(const string& s) const
 {
    float w = 0.0f;

@@ -24,15 +24,15 @@ using namespace gui;
 Theme::Theme()
 {
    normal_font_ = ft::load_font("data/fonts/Vera.ttf",
-      15, ft::FONT_MONO);
+      18, ft::FONT_NORMAL);
 }
       
 Colour Theme::background() const
 {
-   return make_colour(0.3f, 0.0f, 0.0f, 0.5f);
+   return make_colour(0.0f, 0.0f, 0.3f, 0.5f);
 }
 
 Colour Theme::border() const
 {
-   return make_colour(1.0f, 0.0f, 0.0f, 1.0f);
+   return make_colour(0.0f, 0.0f, 1.0f, 1.0f);
 }

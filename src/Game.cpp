@@ -28,6 +28,9 @@
 #include "IterateTrack.hpp"
 #include "IConfig.hpp"
 
+#include "gui2/ILayout.hpp"
+#include "gui2/Label.hpp"
+
 #include <GL/gl.h>
 
 using namespace gui;
@@ -78,9 +81,10 @@ private:
    ITextControlPtr myTempLabel, myPressureLabel;
    IMeterControlPtr myThrottleMeter;
    IMeterControlPtr myCoalMeter, myWaterMeter;
-
+   ILayoutPtr layout;
+   
    string myStatusMsg;
-   IFontPtr myStatusFont;
+   gui::IFontPtr myStatusFont;
 };
 
 Game::Game(IMapPtr aMap)
@@ -97,8 +101,8 @@ Game::Game(IMapPtr aMap)
    // Build the GUI
    myStatsPanel = makeFlowBox(FLOW_BOX_VERT);
 
-   IFontPtr stdFont = load_font("data/fonts/Vera.ttf", 14);
-   myStatusFont = load_font("data/fonts/Vera.ttf", 18);
+   gui::IFontPtr stdFont = gui::load_font("data/fonts/Vera.ttf", 14);
+   myStatusFont = gui::load_font("data/fonts/Vera.ttf", 18);
    
    mySpeedLabel = makeLabel(stdFont);
    myStatsPanel->addChild(mySpeedLabel);
@@ -107,11 +111,11 @@ Game::Game(IMapPtr aMap)
    myStatsPanel->addChild(myThrottleMeter);
 
    myCoalMeter = makeFuelMeter(stdFont, "Coal",
-                               make_tuple(0.1f, 0.1f, 0.1f));
+                               make_colour(0.1f, 0.1f, 0.1f));
    //myStatsPanel->addChild(myCoalMeter);
    
    myWaterMeter = makeFuelMeter(stdFont, "Water",
-                                make_tuple(0.1f, 0.1f, 0.8f));
+                                make_colour(0.1f, 0.1f, 0.8f));
    //myStatsPanel->addChild(myWaterMeter);
 
    myTempLabel = makeLabel(stdFont, "Temp");
@@ -125,6 +129,8 @@ Game::Game(IMapPtr aMap)
    myStatsPanel->addChild(myBrakeLabel);
 
    myStatsPanel->setOrigin(5, 10);
+
+   layout = gui::make_layout("layouts/game.xml");
 }
 
 Game::~Game()
@@ -162,7 +168,9 @@ void Game::display(IGraphicsPtr aContext) const
 
 void Game::overlay() const
 {
-   myStatsPanel->render();
+   //myStatsPanel->render();
+
+   layout->render();
 
    const int screenH = getGameWindow()->height();
    const int screenW = getGameWindow()->width();
@@ -181,6 +189,9 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    myThrottleMeter->setValue(myTrain->controller()->throttle());
    myBrakeLabel->setVisible(myTrain->controller()->brakeOn());
 
+   layout->get_cast<gui::Label>("/status_wnd/speed_label").format(
+      "Speed: %.1lfmph", myTrain->speed() * msToMPH);
+   
    const double pressure = myTrain->controller()->pressure();
    myPressureLabel->setText("Pressure: %.lfpsi", pressure);
 

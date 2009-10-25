@@ -15,8 +15,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GUI2_COLOUR_HPP
-#define INC_GUI2_COLOUR_HPP
+#ifndef INC_GUI_COLOUR_HPP
+#define INC_GUI_COLOUR_HPP
 
 #include "Platform.hpp"
 

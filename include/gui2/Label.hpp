@@ -32,6 +32,8 @@ namespace gui {
       const string& text() const { return text_; }
       void text(const string& t) { text_ = t; }
 
+      void format(const char* fmt, ...);
+
       void render(RenderContext& rc) const;
       void adjust_for_theme(Theme& theme);
    private:

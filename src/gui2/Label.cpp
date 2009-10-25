@@ -18,6 +18,9 @@
 #include "gui2/Label.hpp"
 #include "ILogger.hpp"
 
+#include <cstdarg>
+#include <cstdio>
+
 using namespace gui;
 
 Label::Label(const AttributeSet& attrs)
@@ -37,3 +40,17 @@ void Label::adjust_for_theme(Theme& theme)
    width(theme.normal_font()->text_width(text_));
    height(theme.normal_font()->height());
 }
+
+void Label::format(const char* fmt, ...)
+{
+   va_list ap;
+   va_start(ap, fmt);
+
+   char* buf;
+   vasprintf(&buf, fmt, ap);
+   text(buf);
+   
+   free(buf);
+   va_end(ap);
+}
+

@@ -78,10 +78,6 @@ Layout::Layout(const string& file_name)
    IXMLParserPtr parser = makeXMLParser("schemas/layout.xsd");
    parser->parse(file_name, *this);
 
-   assert(root);
-   Theme dummy;
-   root->adjust_for_theme(dummy);
-
    log() << "Loaded UI layout from " << file_name;
 }
 
@@ -135,6 +131,10 @@ void Layout::endElement(const string& local_name)
 
 void Layout::render() const
 {
+   assert(root);
+   Theme dummy;
+   root->adjust_for_theme(dummy);
+   
    RenderContext rc;
    root->render(rc);
 }
