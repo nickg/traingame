@@ -22,10 +22,12 @@
 
 #include "Platform.hpp"
 #include "gui2/Colour.hpp"
-#include "gui/IFont.hpp"
+#include "ft/IFont.hpp"
 
 namespace gui {
 
+   using namespace ft;
+   
    class Theme {
    public:
       Theme();

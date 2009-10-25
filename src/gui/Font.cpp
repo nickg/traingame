@@ -162,7 +162,7 @@ void Font::makeDisplayList(FT_Face face, char ch, GLuint listBase,
       throw runtime_error("FT_Get_Glyph failed");
 
    // Convert the glyph to a bitmap
-   FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_MONO, 0, 1);
+   FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, 0, 1);
    FT_BitmapGlyph bitmapGlyph = (FT_BitmapGlyph)glyph;
 
    // Get a reference to the bitmap

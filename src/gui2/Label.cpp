@@ -16,6 +16,7 @@
 //
 
 #include "gui2/Label.hpp"
+#include "ILogger.hpp"
 
 using namespace gui;
 
@@ -27,5 +28,6 @@ Label::Label(const AttributeSet& attrs)
 
 void Label::render(RenderContext& rc) const
 {
-
+   debug() << "Label::render x=" << x() << " y=" << y();
+   rc.print(rc.theme().normal_font(), x(), y(), text_);
 }

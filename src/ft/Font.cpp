@@ -70,71 +70,71 @@ Glyph::Glyph(FT_Face& face, FT_ULong uch, FontType type)
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       
-      err = FT_Render_Glyph(face->glyph,
-         type == FONT_NORMAL
-         ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO);
-      assert(err == 0);
+   err = FT_Render_Glyph(face->glyph,
+      type == FONT_NORMAL
+      ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO);
+   assert(err == 0);
 
-      FT_Bitmap& bmp = face->glyph->bitmap;
+   FT_Bitmap& bmp = face->glyph->bitmap;
       
-      // Pad out the bitmap to be a power-of-2 square
+   // Pad out the bitmap to be a power-of-2 square
       
-      int tex_width = next_power_of_2(bmp.width);
-      int tex_height = next_power_of_2(bmp.rows);
+   int tex_width = next_power_of_2(bmp.width);
+   int tex_height = next_power_of_2(bmp.rows);
 
-      GLubyte* expanded = new GLubyte[2 * tex_width * tex_height];
+   GLubyte* expanded = new GLubyte[2 * tex_width * tex_height];
 
-      if (type == FONT_NORMAL) {
-         // Anti-aliased font
+   if (type == FONT_NORMAL) {
+      // Anti-aliased font
          
-         for (int j = 0; j < tex_height; j++) {
-            for (int i = 0; i < tex_width; i++) {
-               expanded[2*(i + j*tex_width)]
-                  = expanded[2*(i + j*tex_width) + 1]
-                  = (i >= bmp.width || j >= bmp.rows)
-                  ? 0
-                  : bmp.buffer[i + bmp.width*j];
-            }
+      for (int j = 0; j < tex_height; j++) {
+         for (int i = 0; i < tex_width; i++) {
+            expanded[2*(i + j*tex_width)]
+               = expanded[2*(i + j*tex_width) + 1]
+               = (i >= bmp.width || j >= bmp.rows)
+               ? 0
+               : bmp.buffer[i + bmp.width*j];
          }
       }
-      else {
-         // Monochrome font
+   }
+   else {
+      // Monochrome font
          
-         int bmp_bit = 7, bmp_byte = 0;      
+      int bmp_bit = 7, bmp_byte = 0;      
          
-         for (int j = 0; j < tex_height; j++) {
-            for (int i = 0; i < tex_width; i++) {
+      for (int j = 0; j < tex_height; j++) {
+         for (int i = 0; i < tex_width; i++) {
                
-               int val;
-               if (i >= bmp.width || j >= bmp.rows)
-                  val = 0;
-               else
-                  val = bmp.buffer[bmp_byte + j*bmp.pitch] & (1<<bmp_bit);
+            int val;
+            if (i >= bmp.width || j >= bmp.rows)
+               val = 0;
+            else
+               val = bmp.buffer[bmp_byte + j*bmp.pitch] & (1<<bmp_bit);
                
-               expanded[2*(i + j*tex_width)]
-                  = expanded[2*(i + j*tex_width) + 1]
-                  = (val ? 255 : 0);
+            expanded[2*(i + j*tex_width)]
+               = expanded[2*(i + j*tex_width) + 1]
+               = (val ? 255 : 0);
 
-               if (bmp_bit-- == 0) {
-                  bmp_bit = 7;
-                  bmp_byte++;
-               }
+            if (bmp_bit-- == 0) {
+               bmp_bit = 7;
+               bmp_byte++;
             }
+         }
             
-            bmp_byte = 0;
-         }
+         bmp_byte = 0;
       }
+   }
       
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width,
-         tex_height, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, expanded);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width,
+      tex_height, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, expanded);
 
-      delete[] expanded;
+   delete[] expanded;
 
-      width_ = static_cast<float>(bmp.width);
-      height_ = static_cast<float>(bmp.rows);   
+   width_ = static_cast<float>(bmp.width);
+   height_ = static_cast<float>(bmp.rows);   
 
-      tex_xmax = width_ / tex_width;
-      tex_ymax = height_ / tex_height;
+   tex_xmax = width_ / tex_width;
+   tex_ymax = height_ / tex_height;
       
    top = face->glyph->bitmap_top;
    left = face->glyph->bitmap_left;
@@ -165,7 +165,7 @@ void Glyph::render() const
    
    glTexCoord2f(tex_xmax, tex_ymax);
    glVertex2f(left + width_, height_ - top);
-   
+
    glEnd();
 
    glTranslatef(advance_x_, advance_y_, 0.0f);
@@ -188,9 +188,13 @@ public:
    ~Font();
    
    void print(int x, int y, Colour c, const string& s) const;
+
+   int height() const { return height_; }
 private:
    FT_Face face;
    vector<Glyph*> glyphs;
+   int height_;
+   int line_skip_;
    
    static FT_Library library;
    static int library_ref_count;
@@ -199,7 +203,7 @@ private:
 FT_Library Font::library;
 int Font::library_ref_count = 0;
 
-   Font::Font(const string& file, int h, FontType type)
+Font::Font(const string& file, int h, FontType type)
 {
    if (++library_ref_count == 1) {
       if (FT_Init_FreeType(&library))
@@ -219,7 +223,13 @@ int Font::library_ref_count = 0;
 
    for (char ch = 0; ch < 127; ch++)
       glyphs.push_back(new Glyph(face, ch, type));
+   
+   int ascent  = static_cast<int>(face->size->metrics.ascender / 64.0);
+   int descent  = static_cast<int>(face->size->metrics.descender / 64.0);
+   height_ = ascent - descent + 1;
 
+   line_skip_ = static_cast<int>(face->size->metrics.height / 64.0); 
+    
    log() << "Loaded font " << file;
 }
 
@@ -228,6 +238,8 @@ Font::~Font()
    for (vector<Glyph*>::iterator it = glyphs.begin();
         it != glyphs.end(); ++it)
       delete *it;
+
+   FT_Done_Face(face);
    
    if (--library_ref_count == 0)
       FT_Done_FreeType(library);
@@ -243,7 +255,7 @@ void Font::print(int x, int y, Colour c, const string& s) const
    glPushMatrix();
 
    glColor4f(get<0>(c), get<1>(c), get<2>(c), get<3>(c));
-   glTranslatef(x, y, 0.0f);
+   glTranslatef(x, y + (face->size->metrics.ascender>>6), 0.0f);
 
    for (string::const_iterator it = s.begin();
         it != s.end(); ++it)

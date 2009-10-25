@@ -29,6 +29,8 @@ namespace ft {
 
       virtual void print(int x, int y, Colour c,
          const string& s) const = 0;
+
+      virtual int height() const = 0;
    };
 
    typedef shared_ptr<IFont> IFontPtr;

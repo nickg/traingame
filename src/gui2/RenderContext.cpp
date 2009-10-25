@@ -107,7 +107,7 @@ void RenderContext::border(int x, int y, int w, int h, Colour c)
 void RenderContext::print(IFontPtr font, int x, int y, const string& s)
 {
    offset(x, y);
-   font->print(x, y, "%s", s.c_str());
+   font->print(x, y, make_colour(1.0f, 1.0f, 1.0f), s);
 }
 
 void RenderContext::scissor(Widget* w)
@@ -120,5 +120,5 @@ void RenderContext::scissor(Widget* w)
 
    y = wh - y - w->height() - 1;
    
-   glScissor(x, y, w->width() + 1, w->height() + 1);
+   glScissor(x, y, w->width() + 1, w->height());
 }

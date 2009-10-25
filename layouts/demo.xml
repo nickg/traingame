@@ -5,6 +5,7 @@
     <button name="btn1" label="One"
             x="5" y="5" width="80" height="25" />
     <button name="btn2" label="Two"/>
-    <label text="Hello, World!"/>
+    <button label="Hello, World!"
+           x="5" y="60" width="100" height="20"/>
   </window>
 </layout>

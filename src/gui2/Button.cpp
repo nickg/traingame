@@ -30,8 +30,11 @@ void Button::render(RenderContext& rc) const
    rc.rectangle(x(), y(), width(), height(),
       rc.theme().background());
 
-   rc.print(rc.theme().normal_font(), x() + 5, y() + 5,
-      "Yahyahyah");
+   IFontPtr f = rc.theme().normal_font();
+
+   int center = (height() - f->height()) / 2;
+   
+   rc.print(f, x() + 5, y() + center, label_);
 
    rc.border(x(), y(), width(), height(),
       rc.theme().border());
