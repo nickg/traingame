@@ -79,8 +79,8 @@ Glyph::Glyph(FT_Face& face, FT_ULong uch, FontType type)
       
    // Pad out the bitmap to be a power-of-2 square
       
-   int tex_width = next_power_of_2(bmp.width);
-   int tex_height = next_power_of_2(bmp.rows);
+   int tex_width = max(next_power_of_2(bmp.width), 2);
+   int tex_height = max(next_power_of_2(bmp.rows), 2);
 
    GLubyte* expanded = new GLubyte[2 * tex_width * tex_height];
 
