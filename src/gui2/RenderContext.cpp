@@ -45,16 +45,17 @@ RenderContext::~RenderContext()
    glPopAttrib();
 }
 
-void RenderContext::push_origin(int x, int y)
+void RenderContext::push_origin(const Widget* w)
 {
-   origin_x = x;
-   origin_y = y;
-   origin_stack.push(make_pair(x, y));
+   origin_x = w->x();
+   origin_y = w->y();
+   origin_stack.push(w);
 }
 
 void RenderContext::pop_origin()
 {
-   tie(origin_x, origin_y) = origin_stack.top();
+   origin_x = origin_stack.top()->x();
+   origin_y = origin_stack.top()->y();
    origin_stack.pop();
 }
 
@@ -112,7 +113,16 @@ void RenderContext::print(IFontPtr font, int x, int y, const string& s)
 
 void RenderContext::scissor(Widget* w)
 {
-   static int wh = getGameWindow()->height();
+   int wh = getGameWindow()->height();
+
+   const Widget* parent = origin_stack.empty() ? NULL : origin_stack.top();
+   int max_w, max_h;
+   if (parent) {
+      max_w = parent->width() - w->x();
+      max_h = parent->height() - w->y();
+   }
+   else
+      max_w = max_h = 100000;
    
    int x = w->x() - 1;
    int y = w->y() - 1;
@@ -120,5 +130,8 @@ void RenderContext::scissor(Widget* w)
 
    y = wh - y - w->height() - 1;
    
-   glScissor(x, y, w->width() + 1, w->height());
+   int width = min(w->width() + 1, max_w);
+   int height = min(w->height(), max_h);
+   
+   glScissor(x, y, width, height);
 }

@@ -34,7 +34,7 @@ void Window::render(RenderContext& rc) const
    rc.border(x(), y(), width(), height(),
       rc.theme().border());
 
-   rc.push_origin(x(), y());
+   rc.push_origin(this);
 
    ContainerWidget::render(rc);
    

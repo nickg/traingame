@@ -36,7 +36,7 @@ namespace gui {
       RenderContext();
       ~RenderContext();
 
-      void push_origin(int x, int y);
+      void push_origin(const Widget* w);
       void pop_origin();
 
       void scissor(Widget* w);
@@ -53,7 +53,7 @@ namespace gui {
       Theme theme_;
       int origin_x, origin_y;
 
-      stack<pair<int, int> > origin_stack;
+      stack<const Widget*> origin_stack;
    };
    
 }
