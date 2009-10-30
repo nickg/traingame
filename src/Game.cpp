@@ -57,7 +57,7 @@ private:
    
    IMapPtr myMap;
    ITrainPtr myTrain;
-   ILightPtr mySun;
+   ILightPtr sun;
 
    // Station the train is either approaching or stopped at
    IStationPtr myActiveStation;
@@ -90,7 +90,7 @@ Game::Game(IMapPtr aMap)
      myCameraSpeed(1.0f), myCameraMode(CAMERA_FLOATING)
 {
    myTrain = makeTrain(myMap);
-   mySun = makeSunLight();
+   sun = make_sun_light();
 
    myMap->setGrid(false);
 
@@ -154,7 +154,7 @@ void Game::display(IGraphicsPtr aContext) const
    aContext->lookAt(position, trainPos);
    setBillboardCameraOrigin(position);
    
-   mySun->apply();
+   sun->apply();
    
    myMap->render(aContext);
    myTrain->render();

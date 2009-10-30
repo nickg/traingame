@@ -31,6 +31,6 @@ struct ILight {
 typedef std::tr1::shared_ptr<ILight> ILightPtr;
 
 // A weak non-directional light
-ILightPtr makeSunLight();
+ILightPtr make_sun_light();
 
 #endif

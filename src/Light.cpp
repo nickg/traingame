@@ -48,7 +48,7 @@ struct SunLight : ILight {
 
 };
 
-ILightPtr makeSunLight()
+ILightPtr make_sun_light()
 {
    return ILightPtr(new SunLight);
 }
