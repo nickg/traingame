@@ -46,7 +46,7 @@ void ModelViewer::rotate(float anAngle)
 
 void ModelViewer::draw()
 {
-   static ILightPtr sun = make_sun_light();
+   static ILightPtr sun = makeSunLight();
    
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();

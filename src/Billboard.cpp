@@ -22,7 +22,7 @@
 using namespace std;
 
 namespace {
-   Vector<float> camera_position;
+   Vector<float> theCameraPosition;
 }
 
 // Common functions used by billboards
@@ -174,9 +174,9 @@ void SphericalBillboard::render() const
    
    // objToCamProj is the vector in world coordinates from the 
    // local origin to the camera projected in the XZ plane
-   objToCamProj = makeVector(::camera_position.x - myX,
+   objToCamProj = makeVector(theCameraPosition.x - myX,
                              0.0f,
-                             ::camera_position.z - myZ);
+                             theCameraPosition.z - myZ);
 
    // This is the original lookAt vector for the object 
    // in world coordinates
@@ -207,9 +207,9 @@ void SphericalBillboard::render() const
 
    // objToCam is the vector in world coordinates from 
    // the local origin to the camera
-   objToCam = makeVector(::camera_position.x - myX,
-                         ::camera_position.y - myY,
-                         ::camera_position.z - myZ);
+   objToCam = makeVector(theCameraPosition.x - myX,
+                         theCameraPosition.y - myY,
+                         theCameraPosition.z - myZ);
 
    // Normalize to get the cosine afterwards
    objToCam.normalise();
@@ -249,10 +249,10 @@ IBillboardPtr makeSphericalBillboard(ITexturePtr aTexture)
 
 void setBillboardCameraOrigin(Vector<float> aPosition)
 {
-   ::camera_position = aPosition;
+   theCameraPosition = aPosition;
 }
 
 float distanceToCamera(Vector<float> aPosition)
 {
-   return (::camera_position - aPosition).length();
+   return (theCameraPosition - aPosition).length();
 }

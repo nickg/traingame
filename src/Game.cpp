@@ -52,18 +52,18 @@ public:
    void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
                        MouseButton aButton) {}
 private:
-   void look_ahead();
-   void set_status(const string& aString) { myStatusMsg = aString; }
-   void near_station(IStationPtr aStation);
-   void left_station();
+   void lookAhead();
+   void setStatus(const string& aString) { myStatusMsg = aString; }
+   void nearStation(IStationPtr aStation);
+   void leftStation();
    Vector<float> cameraPosition(float aRadius) const;
    
-   IMapPtr map;
-   ITrainPtr train;
+   IMapPtr myMap;
+   ITrainPtr myTrain;
    ILightPtr sun;
 
    // Station the train is either approaching or stopped at
-   IStationPtr active_station;
+   IStationPtr myActiveStation;
 
    // Camera position
    float myHorizAngle, myVertAngle, myViewRadius;
@@ -88,15 +88,15 @@ private:
 };
 
 Game::Game(IMapPtr aMap)
-   : map(aMap),
+   : myMap(aMap),
      myHorizAngle(2.5f), myVertAngle(1.0f), myViewRadius(10.0f),
      myCameraHTarget(2.5f), myCameraVTarget(1.0f),
      myCameraSpeed(1.0f), myCameraMode(CAMERA_FLOATING)
 {
-   train = makeTrain(map);
+   myTrain = makeTrain(myMap);
    sun = make_sun_light();
 
-   map->setGrid(false);
+   myMap->setGrid(false);
 
    // Build the GUI
    myStatsPanel = makeFlowBox(FLOW_BOX_VERT);
@@ -130,7 +130,7 @@ Game::Game(IMapPtr aMap)
 
    myStatsPanel->setOrigin(5, 10);
 
-   //layout = gui::make_layout("layouts/game.xml");
+   layout = gui::make_layout("layouts/game.xml");
 }
 
 Game::~Game()
@@ -143,7 +143,7 @@ Vector<float> Game::cameraPosition(float aRadius) const
    // Two angles give unique position on surface of a sphere
    // Look up ``spherical coordinates''
    const float yCentre = 0.9f;
-   Vector<float> position = train->front();
+   Vector<float> position = myTrain->front();
    position.x += aRadius * cosf(myHorizAngle) * sinf(myVertAngle);
    position.z += aRadius * sinf(myHorizAngle) * sinf(myVertAngle);
    position.y = aRadius * cosf(myVertAngle) + yCentre;
@@ -153,7 +153,7 @@ Vector<float> Game::cameraPosition(float aRadius) const
 
 void Game::display(IGraphicsPtr aContext) const
 {
-   Vector<float> trainPos = train->front();
+   Vector<float> trainPos = myTrain->front();
 
    Vector<float> position = cameraPosition(myViewRadius);
    
@@ -162,18 +162,18 @@ void Game::display(IGraphicsPtr aContext) const
    
    sun->apply();
    
-   map->render(aContext);
-   train->render();
+   myMap->render(aContext);
+   myTrain->render();
 }
 
 void Game::overlay() const
 {
    //myStatsPanel->render();
 
-   //layout->render();
+   layout->render();
 
-   const int screenH = get_game_window()->height();
-   const int screenW = get_game_window()->width();
+   const int screenH = getGameWindow()->height();
+   const int screenW = getGameWindow()->width();
    const int len = myStatusFont->string_width("%s", myStatusMsg.c_str());
    myStatusFont->print((screenW - len)/2, screenH - 50,
                        "%s", myStatusMsg.c_str());
@@ -181,26 +181,26 @@ void Game::overlay() const
 
 void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
 {
-   train->update(aDelta);
+   myTrain->update(aDelta);
 
    // Update the GUI elements
    const double msToMPH = 2.237;
-   mySpeedLabel->setText("Speed: %.1lfmph\n", train->speed() * msToMPH);
-   myThrottleMeter->setValue(train->controller()->throttle());
-   myBrakeLabel->setVisible(train->controller()->brakeOn());
+   mySpeedLabel->setText("Speed: %.1lfmph\n", myTrain->speed() * msToMPH);
+   myThrottleMeter->setValue(myTrain->controller()->throttle());
+   myBrakeLabel->setVisible(myTrain->controller()->brakeOn());
 
-   //layout->get_cast<gui::Label>("/status_wnd/speed_label").format(
-   //   "Speed: %.1lfmph", train->speed() * msToMPH);
+   layout->get_cast<gui::Label>("/status_wnd/speed_label").format(
+      "Speed: %.1lfmph", myTrain->speed() * msToMPH);
    
-   const double pressure = train->controller()->pressure();
+   const double pressure = myTrain->controller()->pressure();
    myPressureLabel->setText("Pressure: %.lfpsi", pressure);
 
-   const double temp = train->controller()->temp();
+   const double temp = myTrain->controller()->temp();
    myTempLabel->setText("Temp: %.lfdeg", temp);
 
    myWaterMeter->setValue(8);
 
-   look_ahead();
+   lookAhead();
 
    // Move the camera vertically if it's currently underground
 
@@ -210,7 +210,7 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
 
    // A hack because we don't calculate the height properly
    const float MIN_HEIGHT = 0.25f;
-   float h = map->heightAt(clipPosition.x, clipPosition.z);
+   float h = myMap->heightAt(clipPosition.x, clipPosition.z);
 
    if (h + MIN_HEIGHT > clipPosition.y) {    
       myCameraVTarget -= 0.001f * static_cast<float>(aDelta);
@@ -223,36 +223,36 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
 }
 
 // Signal that we are approaching a station
-void Game::near_station(IStationPtr aStation)
+void Game::nearStation(IStationPtr aStation)
 {
-   left_station();  // Clear any previous station
+   leftStation();  // Clear any previous station
 
-   if (aStation != active_station) {
-      active_station = aStation;
+   if (aStation != myActiveStation) {
+      myActiveStation = aStation;
       aStation->setHighlightVisible(true);
    }
 }
 
 // Signal that we are no longer at or approaching a station
-void Game::left_station()
+void Game::leftStation()
 { 
-   if (active_station) {
-      active_station->setHighlightVisible(false);
-      active_station.reset();
+   if (myActiveStation) {
+      myActiveStation->setHighlightVisible(false);
+      myActiveStation.reset();
    }
 }
 
 // Look along the track and notify the player of any stations, points, etc.
 // that they are approaching
-void Game::look_ahead()
+void Game::lookAhead()
 {
-   TrackIterator it = iterateTrack(map, train->tile(),
-                                   train->direction());
+   TrackIterator it = iterateTrack(myMap, myTrain->tile(),
+                                   myTrain->direction());
 
    // Are we sitting on a station?
    if (it.status == TRACK_STATION) {
-      set_status("Stop here for station " + it.station->name());
-      near_station(it.station);
+      setStatus("Stop here for station " + it.station->name());
+      nearStation(it.station);
       return;
    }
 
@@ -265,31 +265,31 @@ void Game::look_ahead()
          
          switch (it.status) {
          case TRACK_STATION:
-            set_status("Approaching station " + it.station->name());
-            near_station(it.station);
+            setStatus("Approaching station " + it.station->name());
+            nearStation(it.station);
             clearStation = false;
             return;
          case TRACK_NO_MORE:
-            set_status("Oh no! You're going to crash!");
+            setStatus("Oh no! You're going to crash!");
             break;
          case TRACK_CHOICE:
-            set_status("Oh no! You have to make a decision!");
+            setStatus("Oh no! You have to make a decision!");
             break;
          default:
             break;
          }
 
          if (!clearStation)
-            left_station();
+            leftStation();
          return;
       }
    }
    
    // We're not approaching any station
-   left_station();
+   leftStation();
    
    // Nothing to report
-   set_status("");
+   setStatus("");
 }
 
 void Game::onKeyDown(SDLKey aKey)
@@ -302,28 +302,28 @@ void Game::onKeyDown(SDLKey aKey)
       myViewRadius += 0.2f;
       break;
    case SDLK_b:
-      train->controller()->actOn(BRAKE_TOGGLE);
+      myTrain->controller()->actOn(BRAKE_TOGGLE);
       break;
    case SDLK_LCTRL:
-      train->controller()->actOn(SHOVEL_COAL);
+      myTrain->controller()->actOn(SHOVEL_COAL);
       break;
    case SDLK_a:
-      train->controller()->actOn(THROTTLE_DOWN);
+      myTrain->controller()->actOn(THROTTLE_DOWN);
       break;
    case SDLK_s:
-      train->controller()->actOn(THROTTLE_UP);
+      myTrain->controller()->actOn(THROTTLE_UP);
       break;
    case SDLK_PRINT:
-      get_game_window()->takeScreenShot();
+      getGameWindow()->takeScreenShot();
       break;
    case SDLK_LEFT:
-      train->controller()->actOn(GO_LEFT);
+      myTrain->controller()->actOn(GO_LEFT);
       break;
    case SDLK_RIGHT:
-      train->controller()->actOn(GO_RIGHT);
+      myTrain->controller()->actOn(GO_RIGHT);
       break;
    case SDLK_UP:
-      train->controller()->actOn(GO_STRAIGHT_ON);
+      myTrain->controller()->actOn(GO_STRAIGHT_ON);
       break;
    case SDLK_TAB:
       if (myCameraMode == CAMERA_FLOATING)

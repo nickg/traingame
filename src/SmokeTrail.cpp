@@ -50,9 +50,9 @@ private:
    void newParticle();
    bool moveParticle(Particle& aParticle, int aDelta);
    
-   mutable list<Particle> particles; // Need to sort particles in render() 
+   mutable list<Particle> myParticles; // Need to sort particles in render() 
    float myX, myY, myZ;
-   IBillboardPtr billboard;
+   IBillboardPtr myBillboard;
 
    // New particles are created every `mySpawnDelay`
    int mySpawnDelay, mySpawnCounter;
@@ -67,7 +67,7 @@ SmokeTrail::SmokeTrail()
      myXSpeed(0.0f), myYSpeed(0.0f), myZSpeed(0.0f)
 {
    ITexturePtr particle(loadTexture("data/images/smoke_particle.png"));
-   billboard = makeSphericalBillboard(particle);
+   myBillboard = makeSphericalBillboard(particle);
 }
 
 // Returns true if the particle is dead
@@ -110,10 +110,10 @@ bool SmokeTrail::moveParticle(Particle& aParticle, int aDelta)
 void SmokeTrail::update(int aDelta)
 {
    // Move the existing particles
-   list<Particle>::iterator it = particles.begin();
-   while (it != particles.end()) {
+   list<Particle>::iterator it = myParticles.begin();
+   while (it != myParticles.end()) {
       if (moveParticle(*it, aDelta))
-         it = particles.erase(it);
+         it = myParticles.erase(it);
       else
          ++it;
    }
@@ -156,7 +156,7 @@ void SmokeTrail::newParticle()
       true,                         // Appearing
    };
    
-   particles.push_back(p);
+   myParticles.push_back(p);
 }
 
 struct CmpDistanceToCam {
@@ -170,14 +170,14 @@ struct CmpDistanceToCam {
 
 void SmokeTrail::render() const
 {   
-   particles.sort(CmpDistanceToCam());
+   myParticles.sort(CmpDistanceToCam());
  
-   for (list<Particle>::const_iterator it = particles.begin();
-        it != particles.end(); ++it) {
-      billboard->setPosition((*it).x, (*it).y, (*it).z);
-      billboard->setColour((*it).r, (*it).g, (*it).b, (*it).a);
-      billboard->setScale((*it).scale);
-      billboard->render();
+   for (list<Particle>::const_iterator it = myParticles.begin();
+        it != myParticles.end(); ++it) {
+      myBillboard->setPosition((*it).x, (*it).y, (*it).z);
+      myBillboard->setColour((*it).r, (*it).g, (*it).b, (*it).a);
+      myBillboard->setScale((*it).scale);
+      myBillboard->render();
    }
 }
 

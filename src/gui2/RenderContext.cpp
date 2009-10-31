@@ -24,7 +24,7 @@
 
 using namespace gui;
 
-IWindowPtr get_game_window();
+IWindowPtr getGameWindow();
 
 namespace {
    inline void set_colour(Colour c)
@@ -113,7 +113,7 @@ void RenderContext::print(IFontPtr font, int x, int y, const string& s)
 
 void RenderContext::scissor(Widget* w)
 {
-   int wh = get_game_window()->height();
+   int wh = getGameWindow()->height();
 
    const Widget* parent = origin_stack.empty() ? NULL : origin_stack.top();
    int max_w, max_h;

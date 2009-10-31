@@ -29,12 +29,12 @@
 using namespace boost::filesystem;
 
 namespace {
-   IWindowPtr window;
+   IWindowPtr theWindow;
 }
 
-IWindowPtr get_game_window()
+IWindowPtr getGameWindow()
 {
-   return ::window;
+   return theWindow;
 }
 
 int main(int argc, char** argv)
@@ -68,7 +68,7 @@ int main(int argc, char** argv)
       
       IScreenPtr screen;
       if (cmd == "edit") {
-         ::window = makeFLTKWindow("Train Game Editor", addEditorGUI);
+         theWindow = makeFLTKWindow("Train Game Editor", addEditorGUI);
          if (resourceExists(mapFile, "maps"))
             screen = makeEditorScreen(loadMap(mapFile));
          else {
@@ -76,17 +76,17 @@ int main(int argc, char** argv)
          }
       }
       else if (cmd == "play") {
-         ::window = makeSDLWindow();
+         theWindow = makeSDLWindow();
          screen = makeGameScreen(loadMap(mapFile));
       }
       else if (cmd == "uidemo") {
-         ::window = makeSDLWindow();
+         theWindow = makeSDLWindow();
          screen = make_ui_demo();
       }
       else
          throw runtime_error("Unrecognised command: " + cmd);
          
-      ::window->run(screen);
+      theWindow->run(screen);
 
       cfg->flush();
    }

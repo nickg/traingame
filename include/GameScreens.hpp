@@ -30,7 +30,7 @@ IScreenPtr makeGameScreen(IMapPtr aMap);
 IScreenPtr make_ui_demo();
 
 // Access to the window the game is running in
-IWindowPtr get_game_window();
+IWindowPtr getGameWindow();
 
 // Add editor GUI controls
 void addEditorGUI();
