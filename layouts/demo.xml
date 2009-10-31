@@ -8,7 +8,7 @@
             x="5" y="35" width="80" height="25" />
     <label text="abcdefghijklmnopqrstuvwxyz"
            name="cntlabel"
-           x="5" y="60"/>
+           x="5" y="65"/>
   </window>
 
   <window x="300" y="100" width="200" height="250"

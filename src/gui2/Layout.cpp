@@ -109,7 +109,7 @@ void Layout::startElement(const string& local_name,
 
    Widget* parent = parse_path.top();
    if (ContainerWidget* c = dynamic_cast<ContainerWidget*>(parent)) {
-      c->add_child(w);
+      c->addChild(w);
    }
    else {
       throw runtime_error("Widget " + parse_path.str()
@@ -133,7 +133,7 @@ void Layout::render() const
 {
    assert(root);
    Theme dummy;
-   root->adjust_for_theme(dummy);
+   root->adjustForTheme(dummy);
    
    RenderContext rc;
    root->render(rc);
@@ -150,7 +150,7 @@ Widget& Layout::get(const string& path) const
 
 void Layout::click(int x, int y)
 {
-   root->handle_click(x, y);
+   root->handleClick(x, y);
 }
 
 string Layout::PathStack::str() const
@@ -176,7 +176,7 @@ Widget* Layout::PathStack::top() const
    return path_comps.back();
 }
 
-ILayoutPtr gui::make_layout(const string& file_name)
+ILayoutPtr gui::makeLayout(const string& file_name)
 {
    return ILayoutPtr(new Layout(file_name));
 }

@@ -51,22 +51,22 @@ namespace gui {
       void connect(Signal sig, SignalHandler handler);
 
       virtual void render(RenderContext& rc) const = 0;
-      virtual void adjust_for_theme(Theme& theme) {}
+      virtual void adjustForTheme(Theme& theme) {}
       
-      virtual void handle_click(int x, int y);
+      virtual void handleClick(int x, int y);
       
    protected:
       void raise(Signal sig);
 
    private:
-      static string unique_name();
+      static string uniqueName();
       
       string name_;
       int x_, y_, width_, height_;
 
       map<Signal, SignalHandler> handlers;
             
-      static int unique_id;
+      static int ourUniqueId;
    };
  
 }

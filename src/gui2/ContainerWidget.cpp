@@ -28,34 +28,34 @@ ContainerWidget::ContainerWidget(const AttributeSet& attrs)
 
 void ContainerWidget::render(RenderContext& rc) const
 {
-   for (ChildList::const_iterator it = const_begin();
-        it != const_end(); ++it) {
+   for (ChildList::const_iterator it = constBegin();
+        it != constEnd(); ++it) {
       rc.scissor(*it);
       (*it)->render(rc);
    }
 }
 
-void ContainerWidget::add_child(Widget* w)
+void ContainerWidget::addChild(Widget* w)
 {
    children.push_back(w);
-   child_added(w);
+   childAdded(w);
 }
 
-void ContainerWidget::adjust_for_theme(Theme& theme)
+void ContainerWidget::adjustForTheme(Theme& theme)
 {
-   for (ChildList::const_iterator it = const_begin();
-        it != const_end(); ++it)
-      (*it)->adjust_for_theme(theme);
+   for (ChildList::const_iterator it = constBegin();
+        it != constEnd(); ++it)
+      (*it)->adjustForTheme(theme);
 }
 
-void ContainerWidget::handle_click(int x, int y)
+void ContainerWidget::handleClick(int x, int y)
 {
-   for (ChildList::const_iterator it = const_begin();
-        it != const_end(); ++it) {
+   for (ChildList::const_iterator it = constBegin();
+        it != constEnd(); ++it) {
       Widget& w = **it;
 
       if (w.x() <= x && x < w.x() + w.width()
          && w.y() <= y && y < w.y() + w.height())
-         w.handle_click(x - w.x(), y - w.y());
+         w.handleClick(x - w.x(), y - w.y());
    }
 }

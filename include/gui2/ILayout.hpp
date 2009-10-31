@@ -32,7 +32,7 @@ namespace gui {
       virtual ~ILayout() {}
 
       template <class T>
-      T& get_cast(const string& path) const
+      T& cast(const string& path) const
       {
          return dynamic_cast<T&>(get(path));
       }
@@ -45,7 +45,7 @@ namespace gui {
 
    typedef shared_ptr<ILayout> ILayoutPtr;
 
-   ILayoutPtr make_layout(const string& file_name);
+   ILayoutPtr makeLayout(const string& file_name);
 
 }
 

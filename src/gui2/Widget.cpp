@@ -22,10 +22,10 @@
 
 using namespace gui;
 
-int Widget::unique_id(0);
+int Widget::ourUniqueId(0);
 
 Widget::Widget(const AttributeSet& attrs)
-   : name_(attrs.get<string>("name", unique_name())),
+   : name_(attrs.get<string>("name", uniqueName())),
      x_(attrs.get<int>("x", 0)),
      y_(attrs.get<int>("y", 0)),
      width_(attrs.get<int>("width", 0)),
@@ -34,9 +34,9 @@ Widget::Widget(const AttributeSet& attrs)
    
 }
 
-string Widget::unique_name()
+string Widget::uniqueName()
 {
-   return "widget" + boost::lexical_cast<string>(unique_id++);
+   return "widget" + boost::lexical_cast<string>(ourUniqueId++);
 }
 
 void Widget::raise(Signal sig)
@@ -51,7 +51,7 @@ void Widget::connect(Signal sig, SignalHandler handler)
    handlers[sig] = handler;
 }
 
-void Widget::handle_click(int x, int y)
+void Widget::handleClick(int x, int y)
 {
    raise(SIG_CLICK);
 }

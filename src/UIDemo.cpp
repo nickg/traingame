@@ -40,7 +40,7 @@ public:
       MouseButton button) {}
    
 private:
-   void btn1_click(gui::Widget& w);
+   void btn1Click(gui::Widget& w);
    
    gui::ILayoutPtr layout;
 };
@@ -49,18 +49,18 @@ UIDemo::UIDemo()
 {
    using namespace placeholders;
    
-   layout = gui::make_layout("layouts/demo.xml");
+   layout = gui::makeLayout("layouts/demo.xml");
 
    layout->get("/wnd1/btn1").connect(gui::Widget::SIG_CLICK,
-      bind(&UIDemo::btn1_click, this, _1));
+      bind(&UIDemo::btn1Click, this, _1));
 }
 
-void UIDemo::btn1_click(gui::Widget& w)
+void UIDemo::btn1Click(gui::Widget& w)
 {
    static int cnt = 0;
    debug() << "Clicked button 1!";
 
-   layout->get_cast<gui::Label>("/wnd1/cntlabel").text(
+   layout->cast<gui::Label>("/wnd1/cntlabel").text(
       boost::lexical_cast<string>(++cnt));
 }
 
@@ -75,7 +75,7 @@ void UIDemo::onMouseClick(IPickBufferPtr pick_buffer, int x, int y,
    layout->click(x, y);
 }
 
-IScreenPtr make_ui_demo()
+IScreenPtr makeUIDemo()
 {
    return IScreenPtr(new UIDemo);
 }

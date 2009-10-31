@@ -29,17 +29,16 @@ namespace gui {
    public:
       Label(const AttributeSet& attrs);
 
-      const string& text() const { return text_; }
-      void text(const string& t) { text_ = t; }
+      const string& text() const { return _text; }
+      void text(const string& t) { _text = t; }
 
       void format(const char* fmt, ...);
 
       void render(RenderContext& rc) const;
-      void adjust_for_theme(Theme& theme);
+      void adjustForTheme(Theme& theme);
    private:
-      string text_;
+      string _text;
    };
-   
 }
 
 #endif

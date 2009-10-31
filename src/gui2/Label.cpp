@@ -25,19 +25,19 @@ using namespace gui;
 
 Label::Label(const AttributeSet& attrs)
    : Widget(attrs),
-     text_(attrs.get<string>("text"))
+     _text(attrs.get<string>("text"))
 {
-   
+   _text = "foo";
 }
 
 void Label::render(RenderContext& rc) const
 {
-   rc.print(rc.theme().normal_font(), x(), y(), text_);
+   rc.print(rc.theme().normal_font(), x(), y(), _text);
 }
 
-void Label::adjust_for_theme(Theme& theme)
+void Label::adjustForTheme(Theme& theme)
 {
-   width(theme.normal_font()->text_width(text_));
+   width(theme.normal_font()->text_width(_text));
    height(theme.normal_font()->height());
 }
 
