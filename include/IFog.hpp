@@ -27,13 +27,13 @@ struct IFog {
    virtual void apply() const = 0;
 };
 
-typedef shared_ptr<IFog> IFogPtr;
+typedef std::tr1::shared_ptr<IFog> IFogPtr;
 
 // Construct a generic fog
-IFogPtr make_fog(float r, float g, float b,
-                 float density, float start, float end);
+IFogPtr makeFog(float r, float g, float b,
+                float density, float start, float end);
 
 // Construct a fog from the current clear colour
-IFogPtr make_fog(float density, float start, float end);
+IFogPtr makeFog(float density, float start, float end);
 
 #endif

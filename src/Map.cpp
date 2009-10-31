@@ -48,11 +48,11 @@
 class TrackNode {
 public:
    TrackNode(ITrackSegmentPtr aTrack, int x, int y)
-      : myTrack(aTrack), marked_(false), myX(x), myY(y) {}
+      : myTrack(aTrack), amMarked(false), myX(x), myY(y) {}
 
-   inline void set_mark() { marked_ = true; }
-   inline void reset_mark() { marked_ = false; }
-   inline bool marked() const { return marked_; }
+   inline void setMark() { amMarked = true; }
+   inline void resetMark() { amMarked = false; }
+   inline bool marked() const { return amMarked; }
 
    inline ITrackSegmentPtr get() { return myTrack; }
 
@@ -60,7 +60,7 @@ public:
    inline int originY() const { return myY; }
 private:
    ITrackSegmentPtr myTrack;
-   bool marked_;
+   bool amMarked;
    int myX, myY;   // Position of origin
 };
 
@@ -173,7 +173,7 @@ private:
       return makePoint(a % myWidth, a / myWidth);
    }
 
-   void reset_marks() const;
+   void resetMarks() const;
    void writeHeightMap() const;
    void readHeightMap(IResource::Handle aHandle);
    void tileVertices(int x, int y, int* indexes) const;
@@ -213,8 +213,8 @@ Map::Map(IResourcePtr aRes)
      shouldDrawGridLines(false), inPickMode(false),
      myResource(aRes)
 {
-   myFog = make_fog(0.005f,            // Density
-                    50.0f, 70.0f);     // Start and end distance
+   myFog = makeFog(0.005f,            // Density
+                   50.0f, 70.0f);     // Start and end distance
 }
 
 Map::~Map()
@@ -376,7 +376,7 @@ void Map::resetMap(int aWidth, int aDepth)
    myQuadTree = makeQuadTree(shared_from_this(), myWidth);
 }
 
-void Map::reset_marks() const
+void Map::resetMarks() const
 {   
    // Clear the mark bit of every track segment
    // This is set whenever we render a track endpoint to ensure
@@ -384,14 +384,14 @@ void Map::reset_marks() const
    for (int x = 0; x < myWidth; x++) {
       for (int y = 0; y < myDepth; y++) {
          if (tileAt(x, y).track)
-            tileAt(x, y).track->reset_mark();
+            tileAt(x, y).track->resetMark();
       }
    }  
 }
 
 void Map::render(IGraphicsPtr aContext) const
 {
-   reset_marks();
+   resetMarks();
    
    myFog->apply();
    
@@ -724,7 +724,7 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
             tile.track->get()->render();
             glPopMatrix();
             
-            tile.track->set_mark();
+            tile.track->setMark();
             
             // Draw the endpoints for debugging
             //list<Point<int> > endpoints;
