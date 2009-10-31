@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2006-2009  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,24 +15,18 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GAME_SCREENS_HPP
-#define INC_GAME_SCREENS_HPP
+#ifndef INC_GUI_COLOUR_HPP
+#define INC_GUI_COLOUR_HPP
 
-#include "IScreen.hpp"
-#include "IMap.hpp"
-#include "IWindow.hpp"
+#include "Platform.hpp"
 
-// Create the various screens
-// These may be called multiple times
-IScreenPtr makeEditorScreen(IMapPtr aMap);
-IScreenPtr makeEditorScreen(const string& aMapName);
-IScreenPtr makeGameScreen(IMapPtr aMap);
-IScreenPtr make_ui_demo();
+namespace gui {
+   typedef tuple<float, float, float, float> Colour;
 
-// Access to the window the game is running in
-IWindowPtr getGameWindow();
-
-// Add editor GUI controls
-void addEditorGUI();
+   inline Colour make_colour(float r, float g, float b, float a=1.0f)
+   {
+      return make_tuple(r, g, b, a);
+   }
+}
 
 #endif

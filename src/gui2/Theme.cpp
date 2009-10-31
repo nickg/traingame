@@ -15,24 +15,24 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GAME_SCREENS_HPP
-#define INC_GAME_SCREENS_HPP
+#include "gui2/Theme.hpp"
 
-#include "IScreen.hpp"
-#include "IMap.hpp"
-#include "IWindow.hpp"
+#include <string>
 
-// Create the various screens
-// These may be called multiple times
-IScreenPtr makeEditorScreen(IMapPtr aMap);
-IScreenPtr makeEditorScreen(const string& aMapName);
-IScreenPtr makeGameScreen(IMapPtr aMap);
-IScreenPtr make_ui_demo();
+using namespace gui;
 
-// Access to the window the game is running in
-IWindowPtr getGameWindow();
+Theme::Theme()
+{
+   normal_font_ = ft::load_font("data/fonts/Vera.ttf",
+      18, ft::FONT_NORMAL);
+}
+      
+Colour Theme::background() const
+{
+   return make_colour(0.0f, 0.0f, 0.3f, 0.5f);
+}
 
-// Add editor GUI controls
-void addEditorGUI();
-
-#endif
+Colour Theme::border() const
+{
+   return make_colour(0.0f, 0.0f, 1.0f, 1.0f);
+}

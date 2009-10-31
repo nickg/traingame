@@ -15,24 +15,29 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GAME_SCREENS_HPP
-#define INC_GAME_SCREENS_HPP
+#ifndef INC_GUI_RENDERBUFFER_HPP
+#define INC_GUI_RENDERBUFFER_HPP
 
-#include "IScreen.hpp"
-#include "IMap.hpp"
-#include "IWindow.hpp"
+// Internal header: do not include this file directly
 
-// Create the various screens
-// These may be called multiple times
-IScreenPtr makeEditorScreen(IMapPtr aMap);
-IScreenPtr makeEditorScreen(const string& aMapName);
-IScreenPtr makeGameScreen(IMapPtr aMap);
-IScreenPtr make_ui_demo();
+#include "Platform.hpp"
 
-// Access to the window the game is running in
-IWindowPtr getGameWindow();
+#include <string>
 
-// Add editor GUI controls
-void addEditorGUI();
+namespace gui {
+
+   class Window : public ContainerWidget {
+   public:
+      Window(const AttributeSet& attrs);
+
+      const string& title() const { return title_; }
+      void title(const string& t) { title_ = t; }
+
+      void render() const;
+   private:
+      string title_;
+   };
+   
+}
 
 #endif

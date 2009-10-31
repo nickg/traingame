@@ -15,24 +15,38 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GAME_SCREENS_HPP
-#define INC_GAME_SCREENS_HPP
+#ifndef INC_GUI_ILAYOUT_HPP
+#define INC_GUI_ILAYOUT_HPP
 
-#include "IScreen.hpp"
-#include "IMap.hpp"
-#include "IWindow.hpp"
+#include "Platform.hpp"
+#include "gui2/Widget.hpp"
 
-// Create the various screens
-// These may be called multiple times
-IScreenPtr makeEditorScreen(IMapPtr aMap);
-IScreenPtr makeEditorScreen(const string& aMapName);
-IScreenPtr makeGameScreen(IMapPtr aMap);
-IScreenPtr make_ui_demo();
+#include <string>
 
-// Access to the window the game is running in
-IWindowPtr getGameWindow();
+#include <boost/any.hpp>
 
-// Add editor GUI controls
-void addEditorGUI();
+namespace gui {
+   
+   // A complete set of UI elements
+   struct ILayout {
+      virtual ~ILayout() {}
+
+      template <class T>
+      T& get_cast(const string& path) const
+      {
+         return dynamic_cast<T&>(get(path));
+      }
+
+      virtual Widget& get(const string& path) const = 0;
+      virtual void render() const = 0;
+
+      virtual void click(int x, int y) = 0;
+   };
+
+   typedef shared_ptr<ILayout> ILayoutPtr;
+
+   ILayoutPtr make_layout(const string& file_name);
+
+}
 
 #endif

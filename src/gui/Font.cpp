@@ -21,6 +21,7 @@
 #include <vector>
 #include <stdexcept>
 #include <cstdarg>
+#include <map>
 
 #include <GL/gl.h>
 #include "ft2build.h"
@@ -38,10 +39,10 @@ public:
    ~Font();
 
    void print(int x, int y, const char* fmt, ...) const;
-   int stringWidth(const char* fmt, ...) const;
-   void setColour(float r, float g, float b, float a);
-   void getColour(float& r, float& g, float& b, float& a) const;
-   int maxHeight() const { return myHeight; }
+   int string_width(const char* fmt, ...) const;
+   void set_colour(float r, float g, float b, float a);
+   void get_colour(float& r, float& g, float& b, float& a) const;
+   int max_height() const { return myHeight; }
 private:
    int nextPowerOf2(int a);
    void makeDisplayList(FT_Face face, char ch, GLuint listBase,
@@ -95,7 +96,7 @@ Font::Font(const string& aFile, int aHeight, bool shadow)
       throw runtime_error("FT_New_Face failed, file name: " + aFile);
 
    // FreeType measures font sizes in 1/64ths of a pixel...
-   FT_Set_Char_Size(face, aHeight<<6, aHeight<<6, 96, 96);
+   FT_Set_Char_Size(face, aHeight<<6, aHeight<<6, 0, 0);
 
    listBase = glGenLists(128);
    glGenTextures(128, textures);
@@ -122,7 +123,7 @@ Font::~Font()
       FT_Done_FreeType(library);
 }
 
-void Font::getColour(float& r, float& g, float& b, float& a) const
+void Font::get_colour(float& r, float& g, float& b, float& a) const
 {
    r = myR;
    g = myG;
@@ -130,7 +131,7 @@ void Font::getColour(float& r, float& g, float& b, float& a) const
    a = myA;
 }
 
-void Font::setColour(float r, float g, float b, float a)
+void Font::set_colour(float r, float g, float b, float a)
 {
    myR = r;
    myG = g;
@@ -161,7 +162,7 @@ void Font::makeDisplayList(FT_Face face, char ch, GLuint listBase,
       throw runtime_error("FT_Get_Glyph failed");
 
    // Convert the glyph to a bitmap
-   FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1);
+   FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, 0, 1);
    FT_BitmapGlyph bitmapGlyph = (FT_BitmapGlyph)glyph;
 
    // Get a reference to the bitmap
@@ -195,7 +196,7 @@ void Font::makeDisplayList(FT_Face face, char ch, GLuint listBase,
 
    // Free expanded data
    delete[] expandedData;
-
+   
    // Create the display list
    glNewList(listBase+ch, GL_COMPILE);
    glBindTexture(GL_TEXTURE_2D, texBase[(int)ch]);
@@ -310,7 +311,7 @@ void Font::print(int x, int y, const char* fmt, ...) const
    glPopAttrib();
 }
 
-int Font::stringWidth(const char* fmt, ...) const
+int Font::string_width(const char* fmt, ...) const
 {
    va_list ap;
    vector<string> lines;
@@ -333,7 +334,19 @@ int Font::stringWidth(const char* fmt, ...) const
    return maxlen;
 }
 
-IFontPtr gui::loadFont(const string& aFile, int aHeight, bool shadow)
+IFontPtr gui::load_font(const string& aFile, int aHeight, bool shadow)
 {
-   return IFontPtr(new Font(aFile, aHeight, shadow));
+   typedef tuple<string, int, bool> FontToken;
+   static map<FontToken, IFontPtr> cache;
+
+   FontToken t = make_tuple(aFile, aHeight, shadow);
+   map<FontToken, IFontPtr>::iterator it = cache.find(t);
+
+   if (it != cache.end())
+      return (*it).second;
+   else {
+      IFontPtr p(new Font(aFile, aHeight, shadow));
+      cache[t] = p;
+      return p;
+   }
 }

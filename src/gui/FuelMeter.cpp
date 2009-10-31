@@ -60,7 +60,7 @@ FuelMeter::FuelMeter(IFontPtr aFont, const string& aCaption,
                      const Colour& aColour)
    : myValue(0), myFont(aFont), myCaption(aCaption + ": "),
      myColour(aColour),
-     myTextWidth(myFont->stringWidth(myCaption.c_str())),
+     myTextWidth(myFont->string_width(myCaption.c_str())),
      myMin(0), myMax(10)
 {
    
@@ -68,7 +68,7 @@ FuelMeter::FuelMeter(IFontPtr aFont, const string& aCaption,
 
 int FuelMeter::height() const
 {
-   return max(myFont->maxHeight(), METER_HEIGHT);
+   return max(myFont->max_height(), METER_HEIGHT);
 }
 
 int FuelMeter::width() const

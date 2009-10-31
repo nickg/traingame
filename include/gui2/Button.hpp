@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2006-2009  Nick Gasson
+//  Copyright (C) 2009  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,18 +15,30 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GUI_COLOUR_HPP
-#define INC_GUI_COLOUR_HPP
+#ifndef INC_GUI_BUTTON_HPP
+#define INC_GUI_BUTTON_HPP
+
+// Internal header: do not include this file directly
 
 #include "Platform.hpp"
+#include "gui2/Widget.hpp"
+
+#include <string>
 
 namespace gui {
-   typedef tuple<float, float, float> Colour;
 
-   inline Colour makeColour(float r, float g, float b)
-   {
-      return make_tuple(r, g, b);
-   }
+   class Button : public Widget {
+   public:
+      Button(const AttributeSet& attrs);
+
+      const string& label() const { return label_; }
+      void label(const string& t) { label_ = t; }
+
+      void render(RenderContext& rc) const;
+   private:
+      string label_;
+   };
+   
 }
 
 #endif

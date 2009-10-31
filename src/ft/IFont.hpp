@@ -15,24 +15,34 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GAME_SCREENS_HPP
-#define INC_GAME_SCREENS_HPP
+#ifndef INC_FT_IFONT_HPP
+#define INC_FT_IFONT_HPP
 
-#include "IScreen.hpp"
-#include "IMap.hpp"
-#include "IWindow.hpp"
+#include "Platform.hpp"
+#include "gui2/Colour.hpp"
 
-// Create the various screens
-// These may be called multiple times
-IScreenPtr makeEditorScreen(IMapPtr aMap);
-IScreenPtr makeEditorScreen(const string& aMapName);
-IScreenPtr makeGameScreen(IMapPtr aMap);
-IScreenPtr make_ui_demo();
+namespace ft {
+   using namespace gui;
 
-// Access to the window the game is running in
-IWindowPtr getGameWindow();
+   struct IFont {
+      virtual ~IFont() {}
 
-// Add editor GUI controls
-void addEditorGUI();
+      virtual void print(int x, int y, Colour c,
+         const string& s) const = 0;
+
+      virtual int height() const = 0;
+      virtual int text_width(const string& s) const = 0;
+   };
+
+   typedef shared_ptr<IFont> IFontPtr;
+
+   enum FontType {
+      FONT_NORMAL, FONT_MONO
+   };
+   
+   IFontPtr load_font(const string& file, int h,
+      FontType type=FONT_NORMAL);
+   
+}
 
 #endif

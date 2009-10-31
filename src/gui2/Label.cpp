@@ -15,24 +15,42 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GAME_SCREENS_HPP
-#define INC_GAME_SCREENS_HPP
+#include "gui2/Label.hpp"
+#include "ILogger.hpp"
 
-#include "IScreen.hpp"
-#include "IMap.hpp"
-#include "IWindow.hpp"
+#include <cstdarg>
+#include <cstdio>
 
-// Create the various screens
-// These may be called multiple times
-IScreenPtr makeEditorScreen(IMapPtr aMap);
-IScreenPtr makeEditorScreen(const string& aMapName);
-IScreenPtr makeGameScreen(IMapPtr aMap);
-IScreenPtr make_ui_demo();
+using namespace gui;
 
-// Access to the window the game is running in
-IWindowPtr getGameWindow();
+Label::Label(const AttributeSet& attrs)
+   : Widget(attrs),
+     text_(attrs.get<string>("text"))
+{
+   
+}
 
-// Add editor GUI controls
-void addEditorGUI();
+void Label::render(RenderContext& rc) const
+{
+   rc.print(rc.theme().normal_font(), x(), y(), text_);
+}
 
-#endif
+void Label::adjust_for_theme(Theme& theme)
+{
+   width(theme.normal_font()->text_width(text_));
+   height(theme.normal_font()->height());
+}
+
+void Label::format(const char* fmt, ...)
+{
+   va_list ap;
+   va_start(ap, fmt);
+
+   char* buf;
+   vasprintf(&buf, fmt, ap);
+   text(buf);
+   
+   free(buf);
+   va_end(ap);
+}
+

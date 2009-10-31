@@ -72,16 +72,16 @@ int main(int argc, char** argv)
          if (resourceExists(mapFile, "maps"))
             screen = makeEditorScreen(loadMap(mapFile));
          else {
-            //IMapPtr map = runNewMapDialog(mapFile);
-            //if (!map)
-            //   goto finish;
-                 
-            screen = makeEditorScreen(mapFile);
+           screen = makeEditorScreen(mapFile);
          }
       }
       else if (cmd == "play") {
          theWindow = makeSDLWindow();
          screen = makeGameScreen(loadMap(mapFile));
+      }
+      else if (cmd == "uidemo") {
+         theWindow = makeSDLWindow();
+         screen = make_ui_demo();
       }
       else
          throw runtime_error("Unrecognised command: " + cmd);
@@ -98,7 +98,6 @@ int main(int argc, char** argv)
 #endif
    }
 
- finish:
    log() << "Finished";   
    return 0;
 }

@@ -15,24 +15,28 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GAME_SCREENS_HPP
-#define INC_GAME_SCREENS_HPP
+#include "gui2/Button.hpp"
 
-#include "IScreen.hpp"
-#include "IMap.hpp"
-#include "IWindow.hpp"
+using namespace gui;
 
-// Create the various screens
-// These may be called multiple times
-IScreenPtr makeEditorScreen(IMapPtr aMap);
-IScreenPtr makeEditorScreen(const string& aMapName);
-IScreenPtr makeGameScreen(IMapPtr aMap);
-IScreenPtr make_ui_demo();
+Button::Button(const AttributeSet& attrs)
+   : Widget(attrs),
+     label_(attrs.get<string>("label"))
+{
+   
+}
 
-// Access to the window the game is running in
-IWindowPtr getGameWindow();
+void Button::render(RenderContext& rc) const
+{
+   rc.rectangle(x(), y(), width(), height(),
+      rc.theme().background());
 
-// Add editor GUI controls
-void addEditorGUI();
+   IFontPtr f = rc.theme().normal_font();
 
-#endif
+   int center = (height() - f->height()) / 2;
+   
+   rc.print(f, x() + 5, y() + center, label_);
+
+   rc.border(x(), y(), width(), height(),
+      rc.theme().border());
+}
