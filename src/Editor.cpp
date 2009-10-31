@@ -62,7 +62,7 @@ public:
    };
    void setTool(Tool aTool) { myTool = aTool; }
 
-   IMapPtr map() { return myMap; }
+   IMapPtr get_map() { return map; }
    void setMap(IMapPtr aMap);
    
 private:
@@ -76,9 +76,9 @@ private:
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
    void deleteObjects();
       
-   IMapPtr myMap;
+   IMapPtr map;
    
-   ILightPtr mySun;
+   ILightPtr sun;
    Vector<float> myPosition;
 
    Tool myTool;
@@ -170,7 +170,7 @@ namespace {
    {
       if (aResult == OK)
          anEditor->setMap(aMap);
-      else if (!anEditor->map())
+      else if (!anEditor->get_map())
          throw runtime_error("No map to edit!");
    }
    
@@ -185,7 +185,7 @@ namespace {
 
    void onSaveClick(Fl_Widget* aWidget)
    {
-      theEditor->map()->save();
+      theEditor->get_map()->save();
    }
 
    void onNewClick(Fl_Widget* aWidget)
@@ -241,15 +241,15 @@ void addEditorGUI()
 }
 
 Editor::Editor(IMapPtr aMap) 
-   : myMap(aMap), myPosition(4.5, -17.5, -21.5),
+   : map(aMap), myPosition(4.5, -17.5, -21.5),
      myTool(TRACK_TOOL), amScrolling(false), amDragging(false)
 {
-   mySun = makeSunLight();
+   sun = make_sun_light();
 
    theEditor = this;
 
-   if (myMap) {
-      myMap->setGrid(true);
+   if (map) {
+      map->setGrid(true);
 
       log() << "Editing " << aMap->name();
    }
@@ -262,8 +262,8 @@ Editor::~Editor()
 
 void Editor::setMap(IMapPtr aMap)
 {
-   myMap = aMap;
-   myMap->setGrid(true);
+   map = aMap;
+   map->setGrid(true);
 }
 
 // Calculate the bounds of the drag box accounting for the different
@@ -280,14 +280,14 @@ void Editor::dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const
 // Render the next frame
 void Editor::display(IGraphicsPtr aContext) const
 {
-   if (!myMap)
+   if (!map)
       return;
    
    aContext->setCamera(myPosition, makeVector(45.0f, 45.0f, 0.0f));
  
-   mySun->apply();
+   sun->apply();
    
-   myMap->render(aContext);
+   map->render(aContext);
 
    // Draw the highlight if we are dragging track
    if (amDragging) {
@@ -296,7 +296,7 @@ void Editor::display(IGraphicsPtr aContext) const
       
       for (int x = xmin; x <= xmax; x++) {
          for (int y = ymin; y <= ymax; y++)
-            myMap->highlightTile(aContext, makePoint(x, y),
+            map->highlightTile(aContext, makePoint(x, y),
                                  make_tuple(1.0f, 1.0f, 1.0f));
       }         
    }
@@ -319,10 +319,10 @@ void Editor::update(IPickBufferPtr aPickBuffer, int aDelta)
 bool Editor::canConnect(const Point<int>& aFirstPoint,
                         const Point<int>& aSecondPoint) const
 {
-   if (!myMap->isValidTrack(aFirstPoint))
+   if (!map->isValidTrack(aFirstPoint))
       return false;
 
-   ITrackSegmentPtr track = myMap->trackAt(aFirstPoint);
+   ITrackSegmentPtr track = map->trackAt(aFirstPoint);
    
    Vector<int> dir = makeVector
       (aFirstPoint.x - aSecondPoint.x, 0,
@@ -336,10 +336,10 @@ bool Editor::canConnect(const Point<int>& aFirstPoint,
 // Returns `false' if track cannot be placed here
 bool Editor::drawTrackTile(const Point<int>& aPoint, const track::Direction& anAxis)
 {
-   if (myMap->isValidTrack(aPoint)) {
-      ITrackSegmentPtr merged = myMap->trackAt(aPoint)->mergeExit(aPoint, anAxis);
+   if (map->isValidTrack(aPoint)) {
+      ITrackSegmentPtr merged = map->trackAt(aPoint)->mergeExit(aPoint, anAxis);
       if (merged) {
-         myMap->setTrackAt(aPoint, merged);
+         map->setTrackAt(aPoint, merged);
          return true;
       }
       else {
@@ -348,7 +348,7 @@ bool Editor::drawTrackTile(const Point<int>& aPoint, const track::Direction& anA
       }
    }
    else {
-      myMap->setTrackAt(aPoint, makeStraightTrack(anAxis));
+      map->setTrackAt(aPoint, makeStraightTrack(anAxis));
       return true;
    }
 }
@@ -383,18 +383,18 @@ void Editor::drawDraggedTrack()
    const track::Direction mergeAxis =
       xlen > ylen ? (myDragBegin.x < myDragEnd.x ? -axis::X : axis::X)
       : (myDragBegin.y < myDragEnd.y ? -axis::Y : axis::Y);
-   if (myMap->isValidTrack(myDragEnd)) {
+   if (map->isValidTrack(myDragEnd)) {
       ITrackSegmentPtr merged =
-         myMap->trackAt(myDragEnd)->mergeExit(myDragBegin, mergeAxis);
+         map->trackAt(myDragEnd)->mergeExit(myDragBegin, mergeAxis);
 
       if (merged) {
          // Erase all the tiles covered
          for (int x = xmin; x <= xmax; x++) {
             for (int y = ymin; y <= ymax; y++)
-               myMap->eraseTile(x, y);
+               map->eraseTile(x, y);
          }
          
-         myMap->setTrackAt(myDragEnd, merged);
+         map->setTrackAt(myDragEnd, merged);
          return;
       }
    }
@@ -542,7 +542,7 @@ void Editor::drawDraggedTrack()
       bool ok = true;
       for (list<Point<int> >::iterator it = exits.begin();
            it != exits.end(); ++it) {
-         if (myMap->isValidTrack(*it)) {
+         if (map->isValidTrack(*it)) {
             warn() << "Cannot place curve here";
             ok = false;
             break;
@@ -550,7 +550,7 @@ void Editor::drawDraggedTrack()
       }
 
       if (ok)
-         myMap->setTrackAt(where, track);
+         map->setTrackAt(where, track);
    }
 }
 
@@ -562,7 +562,7 @@ void Editor::deleteObjects()
 
    for (int x = xmin; x <= xmax; x++) {
       for (int y = ymin; y <= ymax; y++)
-         myMap->eraseTile(x, y);
+         map->eraseTile(x, y);
    }
 }
 
@@ -571,14 +571,14 @@ void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
 {
    if (amDragging) {
       // Extend the selection rectangle
-      myMap->setPickMode(true);
+      map->setPickMode(true);
       IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
       display(pickContext);
       int id = aPickBuffer->endPick();
-      myMap->setPickMode(false);
+      map->setPickMode(false);
 
       if (id > 0)
-         myDragEnd = myMap->pickPosition(id);
+         myDragEnd = map->pickPosition(id);
    }
    else if (amScrolling) {
       const float speed = 0.05f;
@@ -590,7 +590,7 @@ void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
       myPosition.z -= yrel * speed;      
    }
 
-   getGameWindow()->redrawHint();
+   get_game_window()->redrawHint();
 }
 
 void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
@@ -602,15 +602,15 @@ void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
    }
    else if (aButton == MOUSE_LEFT) {
       // See if the user clicked on something in the map
-      myMap->setPickMode(true);
+      map->setPickMode(true);
       IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
       display(pickContext);
       int id = aPickBuffer->endPick();
-      myMap->setPickMode(false);
+      map->setPickMode(false);
 
       if (id > 0) {
          // Begin dragging a selection rectangle
-         Point<int> where = myMap->pickPosition(id);
+         Point<int> where = map->pickPosition(id);
          
          myDragBegin = myDragEnd = where;
          amDragging = true;
@@ -623,7 +623,7 @@ void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
       myPosition.y += 0.5;
    }
 
-   getGameWindow()->redrawHint();
+   get_game_window()->redrawHint();
 }
 
 void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
@@ -636,25 +636,25 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
          drawDraggedTrack();
          break;
       case RAISE_TOOL:
-         myMap->raiseArea(myDragBegin, myDragEnd);
+         map->raiseArea(myDragBegin, myDragEnd);
          break;
       case LOWER_TOOL:
-         myMap->lowerArea(myDragBegin, myDragEnd);
+         map->lowerArea(myDragBegin, myDragEnd);
          break;
       case LEVEL_TOOL:
-         myMap->levelArea(myDragBegin, myDragEnd);
+         map->levelArea(myDragBegin, myDragEnd);
          break;
       case DELETE_TOOL:
          deleteObjects();
          break;
       case START_TOOL:
-         myMap->setStart(myDragBegin.x, myDragBegin.y);
+         map->setStart(myDragBegin.x, myDragBegin.y);
          break;
       case STATION_TOOL:
-         myMap->extendStation(myDragBegin, myDragEnd);
+         map->extendStation(myDragBegin, myDragEnd);
          break;
       case BUILDING_TOOL:
-         myMap->placeBuilding(myDragBegin, theBuildingPicker->active(),
+         map->placeBuilding(myDragBegin, theBuildingPicker->active(),
             theModelViewer->angle());
          break;
       }
@@ -665,7 +665,7 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
       amScrolling = false;
    }
 
-   getGameWindow()->redrawHint();
+   get_game_window()->redrawHint();
 }
 
 void Editor::onKeyUp(SDLKey aKey)
@@ -678,7 +678,7 @@ void Editor::onKeyDown(SDLKey aKey)
    switch (aKey) {
    case SDLK_g:
       // Toggle grid
-      myMap->setGrid(true);
+      map->setGrid(true);
       break;
    default:
       break;
