@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout>
+  <!-- Status window -->
+  <window x="10" y="10" width="200" height="100"
+          name="status_wnd">
+    <label text="Speed"
+           name="speed_label"
+           x="5" y="5" />
+  </window>
+</layout>
