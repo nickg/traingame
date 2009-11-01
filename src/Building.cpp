@@ -27,20 +27,20 @@ public:
    Building(IResourcePtr aRes);
 
    // IBuildingInterface
-   IModelPtr model() const { return myModel; }
-   const string& name() const { return myName; }
-   string resId() const { return myResource->name(); }
+   IModelPtr model() const { return model_; }
+   const string& name() const { return name_; }
+   string resId() const { return resource->name(); }
 
    // IXMLCallback interface
    void text(const string& localName, const string& aString);
 private:
-   IModelPtr myModel;
-   string myName;
-   IResourcePtr myResource;
+   IModelPtr model_;
+   string name_;
+   IResourcePtr resource;
 };
 
 Building::Building(IResourcePtr aRes)
-   : myName("???"), myResource(aRes)
+   : name_("???"), resource(aRes)
 {
    static IXMLParserPtr parser = makeXMLParser("schemas/building.xsd");
 
@@ -50,9 +50,9 @@ Building::Building(IResourcePtr aRes)
 void Building::text(const string& localName, const string& aString)
 {
    if (localName == "name")
-      myName = aString;
+      name_ = aString;
    else if (localName == "model")
-      myModel = loadModel(myResource, aString);
+      model_ = loadModel(resource, aString);
 }
 
 namespace {

@@ -58,7 +58,7 @@ public:
 
    // The start location consists of both a position and
    // a direction vector
-   virtual track::Connection startLocation() const = 0;
+   virtual track::Connection start() const = 0;
    
    virtual void render(IGraphicsPtr aContext) const = 0;
 

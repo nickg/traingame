@@ -96,7 +96,7 @@ Train::Train(IMapPtr aMap)
 {
    parts.push_front(Part(loadEngine("pclass"), true));
    
-   enterSegment(engine(), aMap->startLocation());
+   enterSegment(engine(), aMap->start());
 
    // Bit of a hack to put the engine in the right place
    move(0.275);
@@ -110,7 +110,7 @@ Train::Train(IMapPtr aMap)
 void Train::addPart(IRollingStockPtr aVehicle)
 {
    Part part(aVehicle);
-   enterSegment(part, map->startLocation());
+   enterSegment(part, map->start());
    
    // Push the rest of the train along some
    move(part.vehicle->length() + SEPARATION);

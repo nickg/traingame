@@ -86,7 +86,7 @@ public:
    void setGrid(bool onOff);
    void setPickMode(bool onOff) { inPickMode = onOff; }
    
-   track::Connection startLocation() const;
+   track::Connection start() const;
    ITrackSegmentPtr trackAt(const Point<int>& aPoint) const;
    IStationPtr stationAt(Point<int> aPoint) const;
    void setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack);
@@ -136,7 +136,7 @@ private:
    static const float TILE_HEIGHT;	   // Standard height increment
 
    // Meshes for each terrain sector
-   vector<IMeshPtr> myTerrainMeshes;
+   vector<IMeshPtr> terrainMeshes;
    
    inline int index(int x, int y) const
    {
@@ -196,8 +196,8 @@ private:
    bool raiseWillCoverTrack(int x, int y) const;
    
    int myWidth, myDepth;
-   Point<int> myStartLocation;
-   track::Direction myStartDirection;
+   Point<int> startLocation;
+   track::Direction startDirection;
    IQuadTreePtr quadTree;
    IFogPtr fog;
    bool shouldDrawGridLines, inPickMode;
@@ -209,8 +209,8 @@ const float Map::TILE_HEIGHT(0.2f);
 
 Map::Map(IResourcePtr aRes)
    : tiles(NULL), heightMap(NULL), myWidth(0), myDepth(0),
-     myStartLocation(makePoint(1, 1)),
-     myStartDirection(axis::X),
+     startLocation(makePoint(1, 1)),
+     startDirection(axis::X),
      shouldDrawGridLines(false), inPickMode(false),
      resource(aRes)
 {
@@ -291,9 +291,9 @@ bool Map::isValidTrack(const Point<int>& aPoint) const
 }
 
 // Return a location where the train may start
-track::Connection Map::startLocation() const
+track::Connection Map::start() const
 {
-   return make_pair(myStartLocation, myStartDirection);
+   return make_pair(startLocation, startDirection);
 }
 
 // Try to place the train on this tile
@@ -325,8 +325,8 @@ void Map::setStart(int x, int y)
       return;
    }
 
-   myStartLocation = makePoint(x, y);
-   myStartDirection = possDirs[nextDir];
+   startLocation = makePoint(x, y);
+   startDirection = possDirs[nextDir];
 
    nextDir = (nextDir + 1) % 4;
 }
@@ -334,8 +334,8 @@ void Map::setStart(int x, int y)
 // Force the train to start on this tile
 void Map::setStart(int x, int y, int dirX, int dirY)
 {
-   myStartLocation = makePoint(x, y);
-   myStartDirection = makeVector(dirX, 0, dirY);
+   startLocation = makePoint(x, y);
+   startDirection = makeVector(dirX, 0, dirY);
 }
 
 void Map::setGrid(bool onOff)
@@ -459,22 +459,22 @@ void Map::drawStartLocation() const
    glDisable(GL_TEXTURE_2D);
 
    int indexes[4];
-   tileVertices(myStartLocation.x, myStartLocation.y, indexes);
+   tileVertices(startLocation.x, startLocation.y, indexes);
 
    float avgHeight = 0.0f;
    for (int i = 0; i < 4; i++)
       avgHeight += heightMap[indexes[i]].pos.y;
    avgHeight /= 4.0f;
 
-   glTranslatef(static_cast<float>(myStartLocation.x), 
+   glTranslatef(static_cast<float>(startLocation.x), 
                 avgHeight + 0.1f, 
-                static_cast<float>(myStartLocation.y));
+                static_cast<float>(startLocation.y));
 
-   if (myStartDirection == axis::X)
+   if (startDirection == axis::X)
       glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-   else if (myStartDirection == -axis::Y)
+   else if (startDirection == -axis::Y)
       glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
-   else if (myStartDirection == -axis::X)
+   else if (startDirection == -axis::X)
       glRotatef(270.0f, 0.0f, 1.0f, 0.0f);
 
    glColor4f(0.0f, 0.9f, 0.0f, 0.8f);
@@ -494,14 +494,14 @@ void Map::drawStartLocation() const
 // array is large enough to hold it
 bool Map::haveMesh(int id, Point<int> botLeft, Point<int> topRight)
 {
-   if (id >= static_cast<int>(myTerrainMeshes.size())) {
-      myTerrainMeshes.resize(id + 1);
+   if (id >= static_cast<int>(terrainMeshes.size())) {
+      terrainMeshes.resize(id + 1);
       return false;
    }
    else if (dirtyTiles.empty())
-      return myTerrainMeshes[id];
+      return terrainMeshes[id];
    else {
-      bool ok = myTerrainMeshes[id];
+      bool ok = terrainMeshes[id];
       for (list<Point<int> >::iterator it = dirtyTiles.begin();
            it != dirtyTiles.end(); ++it) {
          if ((*it).x >= botLeft.x && (*it).x <= topRight.x
@@ -650,7 +650,7 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
       }
    }
 
-   myTerrainMeshes[id] = makeMesh(buf);
+   terrainMeshes[id] = makeMesh(buf);
 }
 
 // A special rendering mode when selecting tiles
@@ -691,7 +691,7 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
    if (!haveMesh(id, botLeft, topRight))
       buildMesh(id, botLeft, topRight);
 
-   myTerrainMeshes[id]->render();
+   terrainMeshes[id]->render();
 
    // Draw the overlays
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
@@ -742,7 +742,7 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
                           tile.station->highlightColour());
 
          // Draw the start location if it's on this tile
-         if (myStartLocation.x == x && myStartLocation.y == y
+         if (startLocation.x == x && startLocation.y == y
              && shouldDrawGridLines)
             drawStartLocation();
 
@@ -1146,10 +1146,10 @@ void Map::save()
    
    root.addChild
       (xml::element("start")
-       .addAttribute("x", myStartLocation.x)
-       .addAttribute("y", myStartLocation.y)
-       .addAttribute("dirX", myStartDirection.x)
-       .addAttribute("dirY", myStartDirection.z));
+       .addAttribute("x", startLocation.x)
+       .addAttribute("y", startLocation.y)
+       .addAttribute("dirX", startDirection.x)
+       .addAttribute("dirY", startDirection.z));
 
    // Write out all the stations
    set<IStationPtr> seenStations;

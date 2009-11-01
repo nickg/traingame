@@ -37,13 +37,13 @@ public:
    void render() const;
    IControllerPtr controller();
    double speed() const { return 0.0; }
-   double length() const { return myModel->dimensions().x; }
+   double length() const { return model->dimensions().x; }
 
    // IXMLCallback interface
    void text(const string& localName, const string& aString);
 private:
-   IModelPtr myModel;
-   IResourcePtr myResource;
+   IModelPtr model;
+   IResourcePtr resource;
 
    static const float MODEL_SCALE;
 };
@@ -51,18 +51,18 @@ private:
 const float Waggon::MODEL_SCALE(0.4f);
 
 Waggon::Waggon(IResourcePtr aRes)
-   : myResource(aRes)
+   : resource(aRes)
 {
    static IXMLParserPtr parser = makeXMLParser("schemas/waggon.xsd");
 
-   parser->parse(myResource->xmlFileName(), *this);
+   parser->parse(resource->xmlFileName(), *this);
 }
 
 // Load information from the XML file
 void Waggon::text(const string& localName, const string& aString)
 {
    if (localName == "model")
-      myModel = loadModel(myResource, aString, MODEL_SCALE);
+      model = loadModel(resource, aString, MODEL_SCALE);
 }
 
 void Waggon::update(int aDelta)
@@ -72,7 +72,7 @@ void Waggon::update(int aDelta)
 
 void Waggon::render() const
 {
-   myModel->render();
+   model->render();
 }
 
 IControllerPtr Waggon::controller()
