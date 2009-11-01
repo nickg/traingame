@@ -256,7 +256,7 @@ void Font::print(int x, int y, Colour c, const string& s) const
    
    glPushMatrix();
 
-   glColor4f(get<0>(c), get<1>(c), get<2>(c), get<3>(c));
+   glColor4f(c.r, c.g, c.b, c.a);
    glTranslatef(x, y + (face->size->metrics.ascender>>6), 0.0f);
 
    for (string::const_iterator it = s.begin();

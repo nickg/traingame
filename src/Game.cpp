@@ -112,11 +112,11 @@ Game::Game(IMapPtr aMap)
    myStatsPanel->addChild(myThrottleMeter);
 
    myCoalMeter = makeFuelMeter(stdFont, "Coal",
-                               make_colour(0.1f, 0.1f, 0.1f));
+                               makeColour(0.1f, 0.1f, 0.1f));
    //myStatsPanel->addChild(myCoalMeter);
    
    myWaterMeter = makeFuelMeter(stdFont, "Water",
-                                make_colour(0.1f, 0.1f, 0.8f));
+                                makeColour(0.1f, 0.1f, 0.8f));
    //myStatsPanel->addChild(myWaterMeter);
 
    myTempLabel = makeLabel(stdFont, "Temp");

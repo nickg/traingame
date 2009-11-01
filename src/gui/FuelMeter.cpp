@@ -17,6 +17,7 @@
 
 #include "gui/IControl.hpp"
 #include "gui/Internal.hpp"
+#include "OpenGLHelper.hpp"
 
 #include <stdexcept>
 
@@ -107,7 +108,7 @@ void FuelMeter::render(int x, int y) const
 
    const float unit = METER_WIDTH / static_cast<float>(myMax + 1);
 
-   glColor3f(get<0>(myColour), get<1>(myColour), get<2>(myColour));
+   gl::colour(myColour);
    glBegin(GL_QUADS);
    glVertex2i(0, 0);
    glVertex2i(0, METER_HEIGHT);

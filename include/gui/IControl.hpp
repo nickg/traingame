@@ -20,7 +20,7 @@
 
 #include "Platform.hpp"
 #include "IFont.hpp"
-#include "gui2/Colour.hpp"
+#include "Colour.hpp"
 
 #include <string>
 

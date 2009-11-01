@@ -22,6 +22,9 @@
 #include "IWindow.hpp"
 #include "IGraphics.hpp"
 #include "IPickBuffer.hpp"
+#include "Colour.hpp"
+
+#include <GL/gl.h>
 
 // Helper functions used by the different IWindow implementations
 void initGL();
@@ -32,5 +35,24 @@ void printGLVersion();
 // Wrappers for OpenGL picking features
 void beginPick(IWindowPtr aWindow, unsigned* aBuffer, int x, int y);
 unsigned endPick(unsigned* aBuffer);
+
+// Helper functions for using our Vector and Colour objects
+// as OpenGL types
+namespace gl {
+
+   inline void colour(const Colour& c)
+   {
+      glColor4f(c.r, c.g, c.b, c.a);
+   }
+
+   template <class T>
+   inline void translate(const Vector<T>& v);
+
+   template <>
+   inline void translate(const Vector<float>& v)
+   {
+      glTranslatef(v.x, v.y, v.z);
+   }
+}
 
 #endif

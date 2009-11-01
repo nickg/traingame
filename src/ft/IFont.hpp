@@ -19,11 +19,10 @@
 #define INC_FT_IFONT_HPP
 
 #include "Platform.hpp"
-#include "gui2/Colour.hpp"
+#include "Colour.hpp"
 
 namespace ft {
-   using namespace gui;
-
+   
    struct IFont {
       virtual ~IFont() {}
 

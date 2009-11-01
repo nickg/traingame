@@ -15,13 +15,14 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include <GL/glew.h>  // Must be included before other GL headers
+
 #include "OpenGLHelper.hpp"
 #include "ILogger.hpp"
 #include "IConfig.hpp"
 
 #include <stdexcept>
 
-#include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 

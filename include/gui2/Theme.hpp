@@ -21,7 +21,7 @@
 // Internal header: do not include this file directly
 
 #include "Platform.hpp"
-#include "gui2/Colour.hpp"
+#include "Colour.hpp"
 #include "ft/IFont.hpp"
 
 namespace gui {

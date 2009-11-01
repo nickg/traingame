@@ -20,13 +20,14 @@
 
 #include "Platform.hpp"
 
-namespace gui {
-   typedef tuple<float, float, float, float> Colour;
+struct Colour {
+   float r, g, b, a;
+};
 
-   inline Colour make_colour(float r, float g, float b, float a=1.0f)
-   {
-      return make_tuple(r, g, b, a);
-   }
+inline Colour makeColour(float r, float g, float b, float a=1.0f)
+{
+   Colour c = { r, g, b, a };
+   return c;
 }
 
 #endif

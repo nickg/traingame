@@ -31,15 +31,13 @@
 
 namespace {
    typedef tuple<const char*, IConfig::Option> Default;
-   const Default END("", 0);
    
    // All valid options   
-   Default theDefaults[] = {
+   const Default defaults[] = {
       Default("XRes", 800),
       Default("YRes", 600),
       Default("NearClip", 0.1f),
       Default("FarClip", 70.0f),
-      END
    };
 }
 
@@ -68,9 +66,9 @@ private:
    void bindNextOption(const AttributeSet& attrs);
    
    typedef map<string, IConfig::Option> ConfigMap;
-   ConfigMap myConfigMap;
+   ConfigMap configMap;
 
-   string myConfigFile;
+   string configFile;
    bool amDirty;
 
    // Used by the XML parser
@@ -81,22 +79,22 @@ private:
 Config::Config()
    : amDirty(false)
 {
-   for (Default* d = theDefaults; *::get<0>(*d) != '\0'; d++)
-      myConfigMap[::get<0>(*d)] = ::get<1>(*d);
+   for (size_t i = 0; i < sizeof(::defaults)/sizeof(Default); i++)
+      configMap[::get<0>(::defaults[i])] = ::get<1>(::defaults[i]);
 
-   myConfigFile = configFileName();
+   configFile = configFileName();
 
-   if (boost::filesystem::exists(myConfigFile)) {
-      log() << "Reading config from " << myConfigFile;
+   if (boost::filesystem::exists(configFile)) {
+      log() << "Reading config from " << configFile;
 
       IXMLParserPtr parser = makeXMLParser("schemas/config.xsd");
-      parser->parse(myConfigFile, *this);
+      parser->parse(configFile, *this);
 
       // Ignore all the set() calls made by the XML parser
       amDirty = false;
    }
    else {
-      warn() << "Config file not present: " << myConfigFile;
+      warn() << "Config file not present: " << configFile;
 
       // Write a default config file when we exit
       amDirty = true;
@@ -162,7 +160,7 @@ void Config::text(const string& localName, const string& aString)
 template <class T>
 void Config::setFromString(const string& aKey, const string& aString)
 {
-   myConfigMap[aKey] = boost::lexical_cast<T>(aString);
+   configMap[aKey] = boost::lexical_cast<T>(aString);
 }
 
 // Write the config file back to disk
@@ -174,17 +172,17 @@ void Config::flush()
    if (!amDirty)
       return;
    
-   log() << "Saving config to " << myConfigFile;
+   log() << "Saving config to " << configFile;
 
-   create_directories(path(myConfigFile).remove_filename());
+   create_directories(path(configFile).remove_filename());
 
-   ofstream ofs(myConfigFile.c_str());
+   ofstream ofs(configFile.c_str());
    if (!ofs.good())
       throw runtime_error("Failed to write to config file");
 
    xml::element root("config");
-   for (ConfigMap::const_iterator it = myConfigMap.begin();
-        it != myConfigMap.end(); ++it) {
+   for (ConfigMap::const_iterator it = configMap.begin();
+        it != configMap.end(); ++it) {
 
       // We can only serialize some types
       const any& a = (*it).second;
@@ -229,8 +227,8 @@ void Config::flush()
 // Read a single option
 const IConfig::Option& Config::get(const string& aKey) const
 {
-   ConfigMap::const_iterator it = myConfigMap.find(aKey);
-   if (it != myConfigMap.end())
+   ConfigMap::const_iterator it = configMap.find(aKey);
+   if (it != configMap.end())
       return (*it).second;
    else
       throw runtime_error("Bad config key " + aKey);
@@ -238,7 +236,7 @@ const IConfig::Option& Config::get(const string& aKey) const
 
 void Config::set(const string& aKey, const IConfig::Option& aValue)
 {
-   myConfigMap[aKey] = aValue;
+   configMap[aKey] = aValue;
    amDirty = true;
 }
 

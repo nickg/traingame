@@ -29,10 +29,10 @@ Theme::Theme()
       
 Colour Theme::background() const
 {
-   return make_colour(0.0f, 0.0f, 0.3f, 0.5f);
+   return makeColour(0.0f, 0.0f, 0.3f, 0.5f);
 }
 
 Colour Theme::border() const
 {
-   return make_colour(0.0f, 0.0f, 1.0f, 1.0f);
+   return makeColour(0.0f, 0.0f, 1.0f, 1.0f);
 }

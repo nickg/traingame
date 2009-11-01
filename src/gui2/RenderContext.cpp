@@ -19,19 +19,13 @@
 #include "gui2/Widget.hpp"
 #include "ILogger.hpp"
 #include "IWindow.hpp"
+#include "OpenGLHelper.hpp"
 
 #include <GL/gl.h>
 
 using namespace gui;
 
 IWindowPtr getGameWindow();
-
-namespace {
-   inline void set_colour(Colour c)
-   {
-      glColor4f(get<0>(c), get<1>(c), get<2>(c), get<3>(c));
-   }
-}
 
 RenderContext::RenderContext()
    : origin_x(0), origin_y(0)
@@ -68,7 +62,7 @@ void RenderContext::offset(int& x, int& y) const
 void RenderContext::rectangle(int x, int y, int w, int h, Colour c)
 {
    offset(x, y);
-   set_colour(c);
+   gl::colour(c);
    
    glBegin(GL_QUADS);
    glVertex2i(x, y);
@@ -81,7 +75,7 @@ void RenderContext::rectangle(int x, int y, int w, int h, Colour c)
 void RenderContext::border(int x, int y, int w, int h, Colour c)
 {
    offset(x, y);
-   set_colour(c);
+   gl::colour(c);
 
    x += 1;
    y += 1;
@@ -108,7 +102,7 @@ void RenderContext::border(int x, int y, int w, int h, Colour c)
 void RenderContext::print(IFontPtr font, int x, int y, const string& s)
 {
    offset(x, y);
-   font->print(x, y, make_colour(1.0f, 1.0f, 1.0f), s);
+   font->print(x, y, makeColour(1.0f, 1.0f, 1.0f), s);
 }
 
 void RenderContext::scissor(Widget* w)

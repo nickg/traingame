@@ -40,8 +40,8 @@ public:
    track::Direction direction() const;
    track::Position tile() const { return engine().travelToken.position; }
    
-   double speed() const { return myParts.front().vehicle->speed(); }
-   IControllerPtr controller() { return myParts.front().vehicle->controller(); }
+   double speed() const { return parts.front().vehicle->speed(); }
+   IControllerPtr controller() { return parts.front().vehicle->controller(); }
 private:
    // The different parts of the train are on different track segments
    struct Part {
@@ -67,7 +67,7 @@ private:
       // True if this is driving the train
       bool isDriving;
    };
-   list<Part> myParts;
+   list<Part> parts;
 
    const Part& engine() const;
    Part& engine();
@@ -77,10 +77,10 @@ private:
    void updateSmokePosition(int aDelta);
    void makeFollow(track::Choice aChoice);
    
-   IMapPtr myMap;
-   ISmokeTrailPtr mySmokeTrail;
+   IMapPtr map;
+   ISmokeTrailPtr smokeTrail;
    
-   Vector<float> myVelocityVector;
+   Vector<float> velocityVector;
 
    // Move part of the train across a connection
    void enterSegment(Part& aPart, const track::Connection& aConnection);
@@ -92,9 +92,9 @@ private:
 const double Train::SEPARATION(0.1);
 
 Train::Train(IMapPtr aMap)
-   : myMap(aMap), myVelocityVector(makeVector(0.0f, 0.0f, 0.0f))
+   : map(aMap), velocityVector(makeVector(0.0f, 0.0f, 0.0f))
 {
-   myParts.push_front(Part(loadEngine("pclass"), true));
+   parts.push_front(Part(loadEngine("pclass"), true));
    
    enterSegment(engine(), aMap->startLocation());
 
@@ -104,45 +104,45 @@ Train::Train(IMapPtr aMap)
    for (int i = 1; i <= 5; i++)
       addPart(loadWaggon("coal_truck"));
 
-   mySmokeTrail = makeSmokeTrail();
+   smokeTrail = makeSmokeTrail();
 }
 
 void Train::addPart(IRollingStockPtr aVehicle)
 {
    Part part(aVehicle);
-   enterSegment(part, myMap->startLocation());
+   enterSegment(part, map->startLocation());
    
    // Push the rest of the train along some
    move(part.vehicle->length() + SEPARATION);
    
-   myParts.push_back(part);
+   parts.push_back(part);
 }
 
 // Make everything that's not the engine follow its choice
 void Train::makeFollow(track::Choice aChoice)
 {
-   for (list<Part>::iterator it = ++(myParts.begin());
-        it != myParts.end(); ++it)
+   for (list<Part>::iterator it = ++(parts.begin());
+        it != parts.end(); ++it)
       (*it).followQueue.push(aChoice);
 }
 
 Train::Part& Train::engine()
 {
-   assert(myParts.size() > 0);
-   return myParts.front();
+   assert(parts.size() > 0);
+   return parts.front();
 }
 
 const Train::Part& Train::engine() const
 {
-   assert(myParts.size() > 0);
-   return myParts.front();
+   assert(parts.size() > 0);
+   return parts.front();
 }
 
 // Move the train along the line a bit
 void Train::move(double aDistance)
 {
-   for (list<Part>::iterator it = myParts.begin();
-        it != myParts.end(); ++it) {
+   for (list<Part>::iterator it = parts.begin();
+        it != parts.end(); ++it) {
 
       // Never move in units greater than 1.0
       double d = aDistance;
@@ -181,24 +181,24 @@ void Train::updateSmokePosition(int aDelta)
 
    glPopMatrix();
 
-   mySmokeTrail->setPosition(matrix[12], matrix[13], matrix[14]);
-   mySmokeTrail->setVelocity(myVelocityVector.x,
-                             myVelocityVector.y,
-                             myVelocityVector.z);
-   mySmokeTrail->update(aDelta);
+   smokeTrail->setPosition(matrix[12], matrix[13], matrix[14]);
+   smokeTrail->setVelocity(velocityVector.x,
+                             velocityVector.y,
+                             velocityVector.z);
+   smokeTrail->update(aDelta);
 
    // Make the rate at which new particles are created proportional
    // to the throttle of the controller
    const int throttle = e.vehicle->controller()->throttle();
    const int baseDelay = 200;
 
-   mySmokeTrail->setDelay(baseDelay - (throttle * 15));
+   smokeTrail->setDelay(baseDelay - (throttle * 15));
 }
 
 void Train::update(int aDelta)
 {
-   for (list<Part>::iterator it = myParts.begin();
-        it != myParts.end(); ++it)
+   for (list<Part>::iterator it = parts.begin();
+        it != parts.end(); ++it)
       (*it).vehicle->update(aDelta);
 
    updateSmokePosition(aDelta);
@@ -211,7 +211,7 @@ void Train::update(int aDelta)
    const double deltaSeconds = static_cast<float>(aDelta) / 1000.0f;
    move(engine().vehicle->speed() * deltaSeconds / M_PER_UNIT);
 
-   myVelocityVector = partPosition(engine()) - oldPos;
+   velocityVector = partPosition(engine()) - oldPos;
 }
 
 // Called when the train enters a new segment
@@ -224,11 +224,11 @@ void Train::enterSegment(Part& aPart, const track::Connection& aConnection)
    //debug() << "Train part entered segment at " << pos
    //        << " moving " << aPart.direction;
 
-   if (!myMap->isValidTrack(pos))
+   if (!map->isValidTrack(pos))
       throw runtime_error("Train fell off end of track!");
 
    aPart.segmentDelta = 0.0;
-   aPart.segment = myMap->trackAt(pos);
+   aPart.segment = map->trackAt(pos);
    aPart.travelToken = aPart.segment->getTravelToken(pos, aPart.direction);
 
    if (aPart.travelToken.choices.size() > 1) {
@@ -253,8 +253,8 @@ void Train::enterSegment(Part& aPart, const track::Connection& aConnection)
 
 void Train::render() const
 {
-   for (list<Part>::const_iterator it = myParts.begin();
-        it != myParts.end(); ++it) {
+   for (list<Part>::const_iterator it = parts.begin();
+        it != parts.end(); ++it) {
       glPushMatrix();
       
       (*it).travelToken.transform((*it).segmentDelta);
@@ -264,7 +264,7 @@ void Train::render() const
       glPopMatrix();
    }
 
-   mySmokeTrail->render();
+   smokeTrail->render();
 }
 
 ITrackSegmentPtr Train::trackSegment() const

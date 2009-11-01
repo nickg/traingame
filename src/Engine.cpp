@@ -68,7 +68,7 @@ public:
    
    double speed() const { return mySpeed; }
    IControllerPtr controller() { return shared_from_this(); }
-   double length() const { return myModel->dimensions().x; }
+   double length() const { return model->dimensions().x; }
 
    // IController interface
    void actOn(Action anAction);
@@ -85,19 +85,19 @@ private:
    double resistance() const;
    double brakeForce() const;
    
-   IModelPtr myModel;
+   IModelPtr model;
 
    double mySpeed, myMass, myBoilerPressure, myFireTemp;
-   double myStatTractiveEffort;
+   double statTractiveEffort;
    bool isBrakeOn;
    int myThrottle;     // Ratio measured in tenths
 
-   track::Choice myNextChoice;
+   track::Choice nextChoice;
 
    // Boiler pressure lags behind temperature
    MovingAverage<double, 1000> myBoilerDelay;
 
-   IResourcePtr myResource;
+   IResourcePtr resource;
    
    static const float MODEL_SCALE;
    static const double TRACTIVE_EFFORT_KNEE;
@@ -114,35 +114,35 @@ Engine::Engine(IResourcePtr aRes)
    : mySpeed(0.0), myMass(29.0),
      myBoilerPressure(INIT_PRESSURE),
      myFireTemp(INIT_TEMP),
-     myStatTractiveEffort(34.7),
+     statTractiveEffort(34.7),
      isBrakeOn(true), myThrottle(0),
-     myResource(aRes)
+     resource(aRes)
 {
    static IXMLParserPtr parser = makeXMLParser("schemas/engine.xsd");
 
-   parser->parse(myResource->xmlFileName(), *this);
+   parser->parse(resource->xmlFileName(), *this);
 }
 
 // Callback for loading elements from the XML file
 void Engine::text(const string& localName, const string& aString)
 {
    if (localName == "model")
-      myModel = loadModel(myResource, aString, MODEL_SCALE);
+      model = loadModel(resource, aString, MODEL_SCALE);
 }
 
 // Draw the engine model
 void Engine::render() const
 {        
-   myModel->render();
+   model->render();
 }
 
 // Calculate the current tractive effort
 double Engine::tractiveEffort() const
 {
    if (mySpeed < TRACTIVE_EFFORT_KNEE)
-      return myStatTractiveEffort;
+      return statTractiveEffort;
    else
-      return (myStatTractiveEffort * TRACTIVE_EFFORT_KNEE) / mySpeed;
+      return (statTractiveEffort * TRACTIVE_EFFORT_KNEE) / mySpeed;
 }
 
 // Calculate the magnitude of the resistance on the train
@@ -190,8 +190,8 @@ void Engine::update(int aDelta)
 
 track::Choice Engine::consumeChoice()
 {
-   track::Choice c = myNextChoice;
-   myNextChoice = track::CHOOSE_STRAIGHT_ON;
+   track::Choice c = nextChoice;
+   nextChoice = track::CHOOSE_STRAIGHT_ON;
    return c;
 }
 
@@ -212,13 +212,13 @@ void Engine::actOn(Action anAction)
       myThrottle = max(myThrottle - 1, 0);
       break;
    case GO_STRAIGHT_ON:
-      myNextChoice = track::CHOOSE_STRAIGHT_ON;
+      nextChoice = track::CHOOSE_STRAIGHT_ON;
       break;
    case GO_LEFT:
-      myNextChoice = track::CHOOSE_GO_LEFT;
+      nextChoice = track::CHOOSE_GO_LEFT;
       break;
    case GO_RIGHT:
-      myNextChoice = track::CHOOSE_GO_RIGHT;
+      nextChoice = track::CHOOSE_GO_RIGHT;
       break;
    default:
       break;

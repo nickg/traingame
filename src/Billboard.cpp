@@ -16,13 +16,15 @@
 //
 
 #include "IBillboard.hpp"
+#include "Colour.hpp"
+#include "OpenGLHelper.hpp"
 
 #include <GL/gl.h>
 
 using namespace std;
 
 namespace {
-   Vector<float> theCameraPosition;
+   Vector<float> cameraPosition;
 }
 
 // Common functions used by billboards
@@ -30,8 +32,9 @@ class BillboardCommon : public IBillboard {
 public:
    BillboardCommon(ITexturePtr aTexture)
       : texture(aTexture),
-        x_(0.0f), y_(0.0f), z_(0.0f), scale(1.0f),
-        r_(1.0f), g_(1.0f), b_(1.0f), a_(1.0f) {}
+        position(makeVector(0.0f, 0.0f, 0.0f)),
+        scale(1.0f),
+        colour(makeColour(1.0f, 1.0f, 1.0f)) {}
    virtual ~BillboardCommon() {}
 
    // IBillboard interface
@@ -46,24 +49,19 @@ protected:
    void drawTextureQuad() const;
    void translate() const;
    
-   float x_, y_, z_;
+   Vector<float> position;
    float scale;
-   float r_, g_, b_, a_;
+   Colour colour;
 };
 
 void BillboardCommon::setPosition(float x, float y, float z)
 {
-   x_ = x;
-   y_ = y;
-   z_ = z;
+   position = makeVector(x, y, z);
 }
 
 void BillboardCommon::setColour(float r, float g, float b, float a)
 {
-   r_ = r;
-   g_ = g;
-   b_ = b;
-   a_ = a;
+   colour = makeColour(r, g, b, a);
 }
 
 void BillboardCommon::setScale(float aScale)
@@ -73,7 +71,7 @@ void BillboardCommon::setScale(float aScale)
 
 void BillboardCommon::translate() const
 {
-   glTranslatef(x_, y_, z_);
+   gl::translate(position);
 }
       
 // Draw the actual quad containing the texture
@@ -85,7 +83,7 @@ void BillboardCommon::drawTextureQuad() const
    glEnable(GL_TEXTURE_2D);
    glDisable(GL_LIGHTING);
 
-   glColor4f(r_, g_, b_, a_);
+   gl::colour(colour);
    
    texture->bind();
 
@@ -174,9 +172,9 @@ void SphericalBillboard::render() const
    
    // objToCamProj is the vector in world coordinates from the 
    // local origin to the camera projected in the XZ plane
-   objToCamProj = makeVector(theCameraPosition.x - x_,
+   objToCamProj = makeVector(cameraPosition.x - position.x,
                              0.0f,
-                             theCameraPosition.z - z_);
+                             cameraPosition.z - position.z);
 
    // This is the original lookAt vector for the object 
    // in world coordinates
@@ -207,9 +205,7 @@ void SphericalBillboard::render() const
 
    // objToCam is the vector in world coordinates from 
    // the local origin to the camera
-   objToCam = makeVector(theCameraPosition.x - x_,
-                         theCameraPosition.y - y_,
-                         theCameraPosition.z - z_);
+   objToCam = cameraPosition - position;
 
    // Normalize to get the cosine afterwards
    objToCam.normalise();
@@ -249,10 +245,10 @@ IBillboardPtr makeSphericalBillboard(ITexturePtr aTexture)
 
 void setBillboardCameraOrigin(Vector<float> aPosition)
 {
-   theCameraPosition = aPosition;
+   cameraPosition = aPosition;
 }
 
 float distanceToCamera(Vector<float> aPosition)
 {
-   return (theCameraPosition - aPosition).length();
+   return (cameraPosition - aPosition).length();
 }

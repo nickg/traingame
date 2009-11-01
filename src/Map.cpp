@@ -48,20 +48,21 @@
 class TrackNode {
 public:
    TrackNode(ITrackSegmentPtr aTrack, int x, int y)
-      : myTrack(aTrack), amMarked(false), myX(x), myY(y) {}
+      : track(aTrack), amMarked(false),
+        origin(makePoint(x, y)) {}
 
    inline void setMark() { amMarked = true; }
    inline void resetMark() { amMarked = false; }
    inline bool marked() const { return amMarked; }
 
-   inline ITrackSegmentPtr get() { return myTrack; }
+   inline ITrackSegmentPtr get() { return track; }
 
-   inline int originX() const { return myX; }
-   inline int originY() const { return myY; }
+   inline int originX() const { return origin.x; }
+   inline int originY() const { return origin.y; }
 private:
-   ITrackSegmentPtr myTrack;
+   ITrackSegmentPtr track;
    bool amMarked;
-   int myX, myY;   // Position of origin
+   Point<int> origin;
 };
 
 typedef shared_ptr<TrackNode> TrackNodePtr;
@@ -78,7 +79,7 @@ public:
    int depth() const { return myDepth; }
    double heightAt() const { return 0.0; }
 
-   string name() const { return myResource->name(); }
+   string name() const { return resource->name(); }
 
    void setStart(int x, int y);
    void setStart(int x, int y, int dirX, int dirY);
@@ -123,12 +124,12 @@ private:
       IStationPtr station;   // Station on this tile, if any
       IBuildingPtr building; // Building on this tile, if any
       float buildingAngle;   // Orientation of building
-   } *myTiles;
+   } *tiles;
 
    // Vertices on the terrain
    struct Vertex {
       Vector<float> pos, normal;
-   } *myHeightMap;
+   } *heightMap;
 
    static const unsigned TILE_NAME_BASE	= 1000;	  // Base of tile naming
    static const unsigned NULL_OBJECT		= 0;		  // Non-existant object
@@ -150,13 +151,13 @@ private:
 
    inline Tile& tileAt(int x, int z) const
    {
-      return myTiles[index(x, z)];
+      return tiles[index(x, z)];
    }
 
    inline Vertex& heightAt(int i) const
    {
       assert(i >= 0 && i < (myWidth + 1) * (myDepth + 1));
-      return myHeightMap[i];
+      return heightMap[i];
    }
    
    bool isValidTileName(unsigned aName) const
@@ -197,29 +198,29 @@ private:
    int myWidth, myDepth;
    Point<int> myStartLocation;
    track::Direction myStartDirection;
-   IQuadTreePtr myQuadTree;
-   IFogPtr myFog;
+   IQuadTreePtr quadTree;
+   IFogPtr fog;
    bool shouldDrawGridLines, inPickMode;
-   list<Point<int> > myDirtyTiles;
-   IResourcePtr myResource;
+   list<Point<int> > dirtyTiles;
+   IResourcePtr resource;
 };
 
 const float Map::TILE_HEIGHT(0.2f);
 
 Map::Map(IResourcePtr aRes)
-   : myTiles(NULL), myHeightMap(NULL), myWidth(0), myDepth(0),
+   : tiles(NULL), heightMap(NULL), myWidth(0), myDepth(0),
      myStartLocation(makePoint(1, 1)),
      myStartDirection(axis::X),
      shouldDrawGridLines(false), inPickMode(false),
-     myResource(aRes)
+     resource(aRes)
 {
-   myFog = makeFog(0.005f,            // Density
+   fog = makeFog(0.005f,            // Density
                    50.0f, 70.0f);     // Start and end distance
 }
 
 Map::~Map()
 {
-   delete myTiles;
+   delete tiles;
 }
 
 ITrackSegmentPtr Map::trackAt(const Point<int>& aPoint) const
@@ -351,18 +352,18 @@ void Map::resetMap(int aWidth, int aDepth)
    myDepth = aDepth;
    
    // Allocate memory
-   if (myTiles)
-      delete[] myTiles;
-   myTiles = new Tile[aWidth * aDepth];
+   if (tiles)
+      delete[] tiles;
+   tiles = new Tile[aWidth * aDepth];
 
-   if (myHeightMap)
-      delete[] myHeightMap;
-   myHeightMap = new Vertex[(aWidth + 1) * (aDepth + 1)];
+   if (heightMap)
+      delete[] heightMap;
+   heightMap = new Vertex[(aWidth + 1) * (aDepth + 1)];
    
    // Make a flat map
    for (int x = 0; x <= aWidth; x++) {
       for (int y = 0; y <= aDepth; y++) {
-         Vertex& v = myHeightMap[x + y*(aWidth+1)];
+         Vertex& v = heightMap[x + y*(aWidth+1)];
 
          const float xf = static_cast<float>(x) - 0.5f;
          const float yf = static_cast<float>(y) - 0.5f;
@@ -373,7 +374,7 @@ void Map::resetMap(int aWidth, int aDepth)
    }
    
    // Create quad tree
-   myQuadTree = makeQuadTree(shared_from_this(), myWidth);
+   quadTree = makeQuadTree(shared_from_this(), myWidth);
 }
 
 void Map::resetMarks() const
@@ -393,7 +394,7 @@ void Map::render(IGraphicsPtr aContext) const
 {
    resetMarks();
    
-   myFog->apply();
+   fog->apply();
    
    glPushAttrib(GL_ALL_ATTRIB_BITS);
 
@@ -408,7 +409,7 @@ void Map::render(IGraphicsPtr aContext) const
    glEnable(GL_CULL_FACE);
    
    glPushMatrix();
-   myQuadTree->render(aContext);
+   quadTree->render(aContext);
    glPopMatrix();
    
    glPopAttrib();
@@ -435,7 +436,7 @@ void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint,
    tileVertices(aPoint.x, aPoint.y, indexes);
    
    for (int i = 0; i < 4; i++) {
-      Vertex& v = myHeightMap[indexes[i]];
+      Vertex& v = heightMap[indexes[i]];
       glNormal3f(v.normal.x, v.normal.y, v.normal.z);
       glVertex3f(v.pos.x, v.pos.y + 0.1f, v.pos.z);
    }
@@ -462,7 +463,7 @@ void Map::drawStartLocation() const
 
    float avgHeight = 0.0f;
    for (int i = 0; i < 4; i++)
-      avgHeight += myHeightMap[indexes[i]].pos.y;
+      avgHeight += heightMap[indexes[i]].pos.y;
    avgHeight /= 4.0f;
 
    glTranslatef(static_cast<float>(myStartLocation.x), 
@@ -497,16 +498,16 @@ bool Map::haveMesh(int id, Point<int> botLeft, Point<int> topRight)
       myTerrainMeshes.resize(id + 1);
       return false;
    }
-   else if (myDirtyTiles.empty())
+   else if (dirtyTiles.empty())
       return myTerrainMeshes[id];
    else {
       bool ok = myTerrainMeshes[id];
-      for (list<Point<int> >::iterator it = myDirtyTiles.begin();
-           it != myDirtyTiles.end(); ++it) {
+      for (list<Point<int> >::iterator it = dirtyTiles.begin();
+           it != dirtyTiles.end(); ++it) {
          if ((*it).x >= botLeft.x && (*it).x <= topRight.x
              && (*it).y >= botLeft.y && (*it).y <= topRight.y) {
             ok = false;
-            it = myDirtyTiles.erase(it);
+            it = dirtyTiles.erase(it);
          }
       }
       return ok;
@@ -516,14 +517,14 @@ bool Map::haveMesh(int id, Point<int> botLeft, Point<int> topRight)
 // Record that the mesh containing a tile needs rebuilding
 void Map::dirtyTile(int x, int y)
 {
-   myDirtyTiles.push_back(makePoint(x, y));
+   dirtyTiles.push_back(makePoint(x, y));
 
    // Push its neighbours as well since the vertices of a tile sit
    // on mesh boundaries
-   myDirtyTiles.push_back(makePoint(x, y + 1));
-   myDirtyTiles.push_back(makePoint(x, y - 1));
-   myDirtyTiles.push_back(makePoint(x + 1, y));
-   myDirtyTiles.push_back(makePoint(x - 1, y));
+   dirtyTiles.push_back(makePoint(x, y + 1));
+   dirtyTiles.push_back(makePoint(x, y - 1));
+   dirtyTiles.push_back(makePoint(x + 1, y));
+   dirtyTiles.push_back(makePoint(x - 1, y));
 }
 
 // Generate a terrain mesh for a particular sector
@@ -554,7 +555,7 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
          };
          
          for (int i = 0; i < 6; i++) {
-            const Vertex& v = myHeightMap[order[i]];
+            const Vertex& v = heightMap[order[i]];
             
             const float h = v.pos.y;
             tuple<float, float, float, float> hcol;
@@ -667,7 +668,7 @@ void Map::renderPickSector(Point<int> botLeft, Point<int> topRight)
 
          glBegin(GL_QUADS);
          for (int i = 0; i < 4; i++) {
-            const Vertex& v = myHeightMap[indexes[i]];
+            const Vertex& v = heightMap[indexes[i]];
             glNormal3f(v.normal.x, v.normal.y, v.normal.z);
             glVertex3f(v.pos.x, v.pos.y, v.pos.z);
          }
@@ -696,7 +697,7 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
       for (int y = botLeft.y; y < topRight.y; y++) {
          //for (int i = 0; i < 4; i++) {
-         //   const Vertex& v = myHeightMap[indexes[i]];
+         //   const Vertex& v = heightMap[indexes[i]];
          //   drawNormal(v.pos, v.normal);
          //}
          
@@ -708,7 +709,7 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
             int indexes[4];
             tileVertices(x, y, indexes);
             for (int i = 0; i < 4; i++) {
-               const Vertex& v = myHeightMap[indexes[i]];
+               const Vertex& v = heightMap[indexes[i]];
                glVertex3f(v.pos.x, v.pos.y, v.pos.z);
             }
             
@@ -795,7 +796,7 @@ void Map::fixNormals(int x, int y)
 
    for (int n = 0; n < 4; n++) {
       const int i = indexes[n];
-      Vertex& v = myHeightMap[i];
+      Vertex& v = heightMap[i];
 
       Vector<float> west, north, east, south;
       bool haveWest = true, haveNorth = true,
@@ -887,7 +888,7 @@ void Map::raiseTile(int x, int y, float deltaHeight)
    tileVertices(x, y, indexes);
 
    for (int i = 0; i < 4; i++)
-      myHeightMap[indexes[i]].pos.y += deltaHeight;
+      heightMap[indexes[i]].pos.y += deltaHeight;
 
    fixNormals(x, y);
    dirtyTile(x, y);
@@ -903,12 +904,12 @@ void Map::setTileHeight(int x, int y, float h)
 
    for (int i = 0; i < 4; i++) {
       if (trackAffected
-          && abs(myHeightMap[indexes[i]].pos.y - h) > 0.01f) {
+          && abs(heightMap[indexes[i]].pos.y - h) > 0.01f) {
          warn() << "Cannot level terrain under track";
          return;
       }        
       else
-         myHeightMap[indexes[i]].pos.y = h;
+         heightMap[indexes[i]].pos.y = h;
    }
    
    fixNormals(x, y);
@@ -929,7 +930,7 @@ float Map::heightAt(float x, float y) const
 
    float avg = 0.0f;
    for (int i = 0; i < 4; i++)
-      avg += myHeightMap[indexes[i]].pos.y;
+      avg += heightMap[indexes[i]].pos.y;
    
    return avg / 4.0f;
 }
@@ -963,7 +964,7 @@ void Map::levelArea(Point<int> aStartPos, Point<int> aFinishPos)
 
    float avgHeight = 0.0f;
    for (int i = 0; i < 4; i++)
-      avgHeight += myHeightMap[indexes[i]].pos.y;
+      avgHeight += heightMap[indexes[i]].pos.y;
    avgHeight /= 4.0f;
    
    for (int x = xmin; x <= xmax; x++) {
@@ -1079,7 +1080,7 @@ void Map::writeHeightMap() const
 {
    using namespace boost;
 
-   IResource::Handle h = myResource->writeFile(myResource->name() + ".bin");
+   IResource::Handle h = resource->writeFile(resource->name() + ".bin");
 
    log() << "Writing terrain height map to " << h.fileName();
 
@@ -1091,7 +1092,7 @@ void Map::writeHeightMap() const
    of.write(reinterpret_cast<const char*>(&dl), sizeof(int32_t));
 
    for (int i = 0; i < (myWidth + 1) * (myDepth + 1); i++)
-      of.write(reinterpret_cast<const char*>(&myHeightMap[i].pos.y),
+      of.write(reinterpret_cast<const char*>(&heightMap[i].pos.y),
                sizeof(float));
 }
 
@@ -1117,7 +1118,7 @@ void Map::readHeightMap(IResource::Handle aHandle)
    }
 
    for (int i = 0; i < (myWidth + 1) * (myDepth + 1); i++)
-      is.read(reinterpret_cast<char*>(&myHeightMap[i].pos.y),
+      is.read(reinterpret_cast<char*>(&heightMap[i].pos.y),
               sizeof(float));
 
    for (int x = 0; x < myWidth; x++) {
@@ -1131,7 +1132,7 @@ void Map::save()
 {
    using namespace boost::filesystem;
 
-   IResource::Handle h = myResource->writeFile(myResource->name() + ".xml");
+   IResource::Handle h = resource->writeFile(resource->name() + ".xml");
    
    log() << "Saving map to " << h.fileName();
 
@@ -1174,7 +1175,7 @@ void Map::save()
 
    root.addChild
       (xml::element("heightmap")
-       .addText(myResource->name() + ".bin"));
+       .addText(resource->name() + ".bin"));
 
    xml::element tileset("tileset");
    
@@ -1236,7 +1237,7 @@ class MapLoader : public IXMLCallback {
 public:
    MapLoader(shared_ptr<Map> aMap, IResourcePtr aRes)
       : myMap(aMap), myXPtr(0), myYPtr(0),
-        myResource(aRes) {}
+        resource(aRes) {}
 
    void startElement(const std::string& localName,
                      const AttributeSet& attrs)
@@ -1272,7 +1273,7 @@ public:
    void text(const string& localName, const string& aString)
    {
       if (localName == "heightmap")
-         myMap->readHeightMap(myResource->openFile(aString));
+         myMap->readHeightMap(resource->openFile(aString));
       else if (myActiveStation) {
          if (localName == "name")
             myActiveStation->setName(aString);
@@ -1391,7 +1392,7 @@ private:
    IStationPtr myActiveStation;
    int myXPtr, myYPtr;
 
-   IResourcePtr myResource;
+   IResourcePtr resource;
 }; 
 
 IMapPtr loadMap(const string& aResId)
