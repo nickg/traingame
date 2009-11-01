@@ -46,34 +46,35 @@ public:
    void update(IPickBufferPtr aPickBuffer, int aDelta);
    void onKeyDown(SDLKey aKey);
    void onKeyUp(SDLKey aKey);
-   void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y, int xrel, int yrel);
+   void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y, int xrel,
+      int yrel);
    void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
                      MouseButton aButton);
    void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
                        MouseButton aButton) {}
 private:
    void lookAhead();
-   void setStatus(const string& aString) { myStatusMsg = aString; }
-   void nearStation(IStationPtr aStation);
+   void setStatus(const string& s) { statusMsg = s; }
+   void nearStation(IStationPtr s);
    void leftStation();
    Vector<float> cameraPosition(float aRadius) const;
    
-   IMapPtr myMap;
-   ITrainPtr myTrain;
-   ILightPtr mySun;
+   IMapPtr map;
+   ITrainPtr train;
+   ILightPtr sun;
 
    // Station the train is either approaching or stopped at
-   IStationPtr myActiveStation;
+   IStationPtr activeStation;
 
    // Camera position
-   float myHorizAngle, myVertAngle, myViewRadius;
+   float horizAngle, vertAngle, viewRadius;
 
    // Camera adjustment
-   float myCameraHTarget, myCameraVTarget;
-   float myCameraSpeed;
+   float cameraHTarget, cameraVTarget;
+   float cameraSpeed;
 
    enum CameraMode { CAMERA_FLOATING, CAMERA_FIXED, CAMERA_BIRD };
-   CameraMode myCameraMode;
+   CameraMode cameraMode;
    
    // GUI elements
    IContainerPtr myStatsPanel;
@@ -83,26 +84,26 @@ private:
    IMeterControlPtr myCoalMeter, myWaterMeter;
    ILayoutPtr layout;
    
-   string myStatusMsg;
-   gui::IFontPtr myStatusFont;
+   string statusMsg;
+   gui::IFontPtr statusFont;
 };
 
 Game::Game(IMapPtr aMap)
-   : myMap(aMap),
-     myHorizAngle(2.5f), myVertAngle(1.0f), myViewRadius(10.0f),
-     myCameraHTarget(2.5f), myCameraVTarget(1.0f),
-     myCameraSpeed(1.0f), myCameraMode(CAMERA_FLOATING)
+   : map(aMap),
+     horizAngle(2.5f), vertAngle(1.0f), viewRadius(10.0f),
+     cameraHTarget(2.5f), cameraVTarget(1.0f),
+     cameraSpeed(1.0f), cameraMode(CAMERA_FLOATING)
 {
-   myTrain = makeTrain(myMap);
-   mySun = makeSunLight();
+   train = makeTrain(map);
+   sun = makeSunLight();
 
-   myMap->setGrid(false);
+   map->setGrid(false);
 
    // Build the GUI
    myStatsPanel = makeFlowBox(FLOW_BOX_VERT);
 
    gui::IFontPtr stdFont = gui::load_font("data/fonts/Vera.ttf", 14);
-   myStatusFont = gui::load_font("data/fonts/Vera.ttf", 18);
+   statusFont = gui::load_font("data/fonts/Vera.ttf", 18);
    
    mySpeedLabel = makeLabel(stdFont);
    myStatsPanel->addChild(mySpeedLabel);
@@ -130,7 +131,7 @@ Game::Game(IMapPtr aMap)
 
    myStatsPanel->setOrigin(5, 10);
 
-   layout = gui::make_layout("layouts/game.xml");
+   //layout = gui::makeLayout("layouts/game.xml");
 }
 
 Game::~Game()
@@ -143,59 +144,59 @@ Vector<float> Game::cameraPosition(float aRadius) const
    // Two angles give unique position on surface of a sphere
    // Look up ``spherical coordinates''
    const float yCentre = 0.9f;
-   Vector<float> position = myTrain->front();
-   position.x += aRadius * cosf(myHorizAngle) * sinf(myVertAngle);
-   position.z += aRadius * sinf(myHorizAngle) * sinf(myVertAngle);
-   position.y = aRadius * cosf(myVertAngle) + yCentre;
+   Vector<float> position = train->front();
+   position.x += aRadius * cosf(horizAngle) * sinf(vertAngle);
+   position.z += aRadius * sinf(horizAngle) * sinf(vertAngle);
+   position.y = aRadius * cosf(vertAngle) + yCentre;
 
    return position;
 }
 
 void Game::display(IGraphicsPtr aContext) const
 {
-   Vector<float> trainPos = myTrain->front();
+   Vector<float> trainPos = train->front();
 
-   Vector<float> position = cameraPosition(myViewRadius);
+   Vector<float> position = cameraPosition(viewRadius);
    
    aContext->lookAt(position, trainPos);
    setBillboardCameraOrigin(position);
    
-   mySun->apply();
+   sun->apply();
    
-   myMap->render(aContext);
-   myTrain->render();
+   map->render(aContext);
+   train->render();
 }
 
 void Game::overlay() const
 {
    //myStatsPanel->render();
 
-   layout->render();
+   //layout->render();
 
    const int screenH = getGameWindow()->height();
    const int screenW = getGameWindow()->width();
-   const int len = myStatusFont->string_width("%s", myStatusMsg.c_str());
-   myStatusFont->print((screenW - len)/2, screenH - 50,
-                       "%s", myStatusMsg.c_str());
+   const int len = statusFont->string_width("%s", statusMsg.c_str());
+   statusFont->print((screenW - len)/2, screenH - 50,
+      "%s", statusMsg.c_str());
 }
 
 void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
 {
-   myTrain->update(aDelta);
+   train->update(aDelta);
 
    // Update the GUI elements
    const double msToMPH = 2.237;
-   mySpeedLabel->setText("Speed: %.1lfmph\n", myTrain->speed() * msToMPH);
-   myThrottleMeter->setValue(myTrain->controller()->throttle());
-   myBrakeLabel->setVisible(myTrain->controller()->brakeOn());
+   mySpeedLabel->setText("Speed: %.1lfmph\n", train->speed() * msToMPH);
+   myThrottleMeter->setValue(train->controller()->throttle());
+   myBrakeLabel->setVisible(train->controller()->brakeOn());
 
-   layout->get_cast<gui::Label>("/status_wnd/speed_label").format(
-      "Speed: %.1lfmph", myTrain->speed() * msToMPH);
+   //layout->cast<gui::Label>("/status_wnd/speed_label").format(
+   //   "Speed: %.1lfmph", train->speed() * msToMPH);
    
-   const double pressure = myTrain->controller()->pressure();
+   const double pressure = train->controller()->pressure();
    myPressureLabel->setText("Pressure: %.lfpsi", pressure);
 
-   const double temp = myTrain->controller()->temp();
+   const double temp = train->controller()->temp();
    myTempLabel->setText("Temp: %.lfdeg", temp);
 
    myWaterMeter->setValue(8);
@@ -206,39 +207,39 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
 
    // Calculate the location of the near clip plane
    const float nearClip = getConfig()->get<float>("NearClip");
-   Vector<float> clipPosition = cameraPosition(myViewRadius - nearClip);
+   Vector<float> clipPosition = cameraPosition(viewRadius - nearClip);
 
    // A hack because we don't calculate the height properly
    const float MIN_HEIGHT = 0.25f;
-   float h = myMap->heightAt(clipPosition.x, clipPosition.z);
+   float h = map->heightAt(clipPosition.x, clipPosition.z);
 
    if (h + MIN_HEIGHT > clipPosition.y) {    
-      myCameraVTarget -= 0.001f * static_cast<float>(aDelta);
-      myCameraSpeed = 200.0f;
+      cameraVTarget -= 0.001f * static_cast<float>(aDelta);
+      cameraSpeed = 200.0f;
    }
    
    // Bounce the camera if we need to
-   myVertAngle -= (myVertAngle - myCameraVTarget) / myCameraSpeed;
-   myHorizAngle -= (myHorizAngle - myCameraHTarget) / myCameraSpeed;
+   vertAngle -= (vertAngle - cameraVTarget) / cameraSpeed;
+   horizAngle -= (horizAngle - cameraHTarget) / cameraSpeed;
 }
 
 // Signal that we are approaching a station
-void Game::nearStation(IStationPtr aStation)
+void Game::nearStation(IStationPtr s)
 {
    leftStation();  // Clear any previous station
 
-   if (aStation != myActiveStation) {
-      myActiveStation = aStation;
-      aStation->setHighlightVisible(true);
+   if (s != activeStation) {
+      activeStation = s;
+      s->setHighlightVisible(true);
    }
 }
 
 // Signal that we are no longer at or approaching a station
 void Game::leftStation()
 { 
-   if (myActiveStation) {
-      myActiveStation->setHighlightVisible(false);
-      myActiveStation.reset();
+   if (activeStation) {
+      activeStation->setHighlightVisible(false);
+      activeStation.reset();
    }
 }
 
@@ -246,8 +247,8 @@ void Game::leftStation()
 // that they are approaching
 void Game::lookAhead()
 {
-   TrackIterator it = iterateTrack(myMap, myTrain->tile(),
-                                   myTrain->direction());
+   TrackIterator it = iterateTrack(map, train->tile(),
+                                   train->direction());
 
    // Are we sitting on a station?
    if (it.status == TRACK_STATION) {
@@ -296,48 +297,48 @@ void Game::onKeyDown(SDLKey aKey)
 {   
    switch (aKey) {
    case SDLK_PAGEUP:
-      myViewRadius = max(myViewRadius - 0.2f, 0.1f);
+      viewRadius = max(viewRadius - 0.2f, 0.1f);
       break;
    case SDLK_PAGEDOWN:
-      myViewRadius += 0.2f;
+      viewRadius += 0.2f;
       break;
    case SDLK_b:
-      myTrain->controller()->actOn(BRAKE_TOGGLE);
+      train->controller()->actOn(BRAKE_TOGGLE);
       break;
    case SDLK_LCTRL:
-      myTrain->controller()->actOn(SHOVEL_COAL);
+      train->controller()->actOn(SHOVEL_COAL);
       break;
    case SDLK_a:
-      myTrain->controller()->actOn(THROTTLE_DOWN);
+      train->controller()->actOn(THROTTLE_DOWN);
       break;
    case SDLK_s:
-      myTrain->controller()->actOn(THROTTLE_UP);
+      train->controller()->actOn(THROTTLE_UP);
       break;
    case SDLK_PRINT:
       getGameWindow()->takeScreenShot();
       break;
    case SDLK_LEFT:
-      myTrain->controller()->actOn(GO_LEFT);
+      train->controller()->actOn(GO_LEFT);
       break;
    case SDLK_RIGHT:
-      myTrain->controller()->actOn(GO_RIGHT);
+      train->controller()->actOn(GO_RIGHT);
       break;
    case SDLK_UP:
-      myTrain->controller()->actOn(GO_STRAIGHT_ON);
+      train->controller()->actOn(GO_STRAIGHT_ON);
       break;
    case SDLK_TAB:
-      if (myCameraMode == CAMERA_FLOATING)
-         myCameraMode = CAMERA_FIXED;
-      else if (myCameraMode == CAMERA_FIXED) {
-         myCameraMode = CAMERA_BIRD;
+      if (cameraMode == CAMERA_FLOATING)
+         cameraMode = CAMERA_FIXED;
+      else if (cameraMode == CAMERA_FIXED) {
+         cameraMode = CAMERA_BIRD;
 
-         myCameraHTarget = M_PI/4.0f;
-         myCameraVTarget = M_PI/4.0f;
+         cameraHTarget = M_PI/4.0f;
+         cameraVTarget = M_PI/4.0f;
 
-         myCameraSpeed = 100.0f;
+         cameraSpeed = 100.0f;
       }
       else
-         myCameraMode = CAMERA_FLOATING;
+         cameraMode = CAMERA_FLOATING;
       break;
    default:
       break;
@@ -354,10 +355,10 @@ void Game::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
 {
    switch (aButton) {
    case MOUSE_WHEEL_UP:
-      myViewRadius = max(myViewRadius - 1.0f, 0.1f);
+      viewRadius = max(viewRadius - 1.0f, 0.1f);
       break;
    case MOUSE_WHEEL_DOWN:
-      myViewRadius += 1.0f;
+      viewRadius += 1.0f;
       break;
    default:
       break;
@@ -367,21 +368,21 @@ void Game::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
 void Game::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
                        int xrel, int yrel)
 {
-   if (myCameraMode == CAMERA_FLOATING) {
-      myCameraHTarget -= xrel / 100.0f;
-      myCameraVTarget += yrel / 100.0f;
+   if (cameraMode == CAMERA_FLOATING) {
+      cameraHTarget -= xrel / 100.0f;
+      cameraVTarget += yrel / 100.0f;
       
       // Don't allow the camera to go under the ground
       const float ground = (M_PI / 2.0f) - 0.01f;
-      if (myCameraVTarget > ground)
-         myCameraVTarget = ground;
+      if (cameraVTarget > ground)
+         cameraVTarget = ground;
       
       // Don't let the camera flip over the top
       const float top = 0.01f;
-      if (myCameraVTarget < top)
-         myCameraVTarget = top;
+      if (cameraVTarget < top)
+         cameraVTarget = top;
 
-      myCameraSpeed = 2.0f;
+      cameraSpeed = 2.0f;
    }
 }
 

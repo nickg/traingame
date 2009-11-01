@@ -27,7 +27,7 @@
 IScreenPtr makeEditorScreen(IMapPtr aMap);
 IScreenPtr makeEditorScreen(const string& aMapName);
 IScreenPtr makeGameScreen(IMapPtr aMap);
-IScreenPtr make_ui_demo();
+IScreenPtr makeUIDemo();
 
 // Access to the window the game is running in
 IWindowPtr getGameWindow();

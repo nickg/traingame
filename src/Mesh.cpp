@@ -27,8 +27,6 @@
 #include <boost/cast.hpp>
 #include <boost/static_assert.hpp>
 
-using namespace std;
-using namespace std::tr1;
 using namespace boost;
 
 // Concrete implementation of mesh buffers
@@ -374,7 +372,7 @@ public:
    void render() const;
 private:
 
-   Material myMaterial;
+   Material material;
    bool hasMaterial, hasTexture;
    int myVertexCount;
    VertexData* myVertexData;
@@ -386,7 +384,7 @@ VertexArrayMesh::VertexArrayMesh(IMeshBufferPtr aBuffer)
 {
    const MeshBuffer* buf = MeshBuffer::get(aBuffer);
 
-   myMaterial = buf->material;
+   material = buf->material;
    hasMaterial = buf->hasMaterial;
    hasTexture = buf->hasTexture;
  
@@ -415,7 +413,7 @@ void VertexArrayMesh::render() const
    glDisable(GL_BLEND);
    
    if (hasMaterial)
-      myMaterial.apply();
+      material.apply();
    else {
       glEnable(GL_COLOR_MATERIAL);
 
@@ -451,8 +449,8 @@ public:
 
    void render() const;
 private:
-   GLuint myVBOBuf, myIndexBuf;
-   Material myMaterial;
+   GLuint vboBuf, indexBuf;
+   Material material;
    bool hasTexture, hasMaterial;
    size_t myIndexCount;
 };
@@ -462,7 +460,7 @@ VBOMesh::VBOMesh(IMeshBufferPtr aBuffer)
    // Get the data out of the buffer;
    const MeshBuffer* buf = MeshBuffer::get(aBuffer);
 
-   myMaterial = buf->material;
+   material = buf->material;
    hasMaterial = buf->hasMaterial;
    hasTexture = buf->hasTexture;
  
@@ -472,8 +470,8 @@ VBOMesh::VBOMesh(IMeshBufferPtr aBuffer)
    copyVertexData(buf, pVertexData);
 
    // Generate the VBO   
-   glGenBuffersARB(1, &myVBOBuf);
-   glBindBufferARB(GL_ARRAY_BUFFER, myVBOBuf);
+   glGenBuffersARB(1, &vboBuf);
+   glBindBufferARB(GL_ARRAY_BUFFER, vboBuf);
    glBufferDataARB(GL_ARRAY_BUFFER, vertexCount * sizeof(VertexData),
                    NULL, GL_STATIC_DRAW);
 
@@ -488,8 +486,8 @@ VBOMesh::VBOMesh(IMeshBufferPtr aBuffer)
    copy(buf->indices.begin(), buf->indices.end(), pIndices);
    
    // Build the index buffer
-   glGenBuffersARB(1, &myIndexBuf);
-   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, myIndexBuf);
+   glGenBuffersARB(1, &indexBuf);
+   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, indexBuf);
    glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER, myIndexCount * sizeof(GLushort),
                    NULL, GL_STATIC_DRAW);
    glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER, 0,
@@ -504,8 +502,8 @@ VBOMesh::VBOMesh(IMeshBufferPtr aBuffer)
 
 VBOMesh::~VBOMesh()
 {
-   glDeleteBuffersARB(1, &myVBOBuf);
-   glDeleteBuffersARB(1, &myIndexBuf);
+   glDeleteBuffersARB(1, &vboBuf);
+   glDeleteBuffersARB(1, &indexBuf);
 }
 
 void VBOMesh::render() const
@@ -513,8 +511,8 @@ void VBOMesh::render() const
    glPushAttrib(GL_ENABLE_BIT);
    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
       
-   glBindBufferARB(GL_ARRAY_BUFFER, myVBOBuf);
-   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, myIndexBuf);
+   glBindBufferARB(GL_ARRAY_BUFFER, vboBuf);
+   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, indexBuf);
    
    glDisable(GL_BLEND);
    
@@ -524,13 +522,13 @@ void VBOMesh::render() const
       glDisable(GL_TEXTURE_2D);
 
    if (hasMaterial)
-      myMaterial.apply();
+      material.apply();
    else {
       glEnable(GL_COLOR_MATERIAL);
 
       glEnableClientState(GL_COLOR_ARRAY);
       glColorPointer(3, GL_FLOAT, sizeof(VertexData),
-                     reinterpret_cast<GLvoid*>(offsetof(VertexData, r)));
+         reinterpret_cast<GLvoid*>(offsetof(VertexData, r)));
    }
 
    glEnableClientState(GL_VERTEX_ARRAY);

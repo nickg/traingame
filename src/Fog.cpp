@@ -27,25 +27,25 @@ class Fog : public IFog {
 public:
    Fog(float r, float g, float b,
        float density, float start, float end)
-      : myR(r), myG(g), myB(b),
-        myDensity(density), myStart(start), myEnd(end) {}
+      : r(r), g(g), b(b),
+        density(density), start(start), end(end) {}
    
    void apply() const;
 
 private:
-   float myR, myG, myB;
-   float myDensity, myStart, myEnd;
+   float r, g, b;
+   float density, start, end;
 };
 
 void Fog::apply() const
 {
-   GLfloat fogColor[4] = { myR, myG, myB, 1.0f };
+   GLfloat fogColor[4] = { r, g, b, 1.0f };
    glFogi(GL_FOG_MODE, GL_LINEAR);
    glFogfv(GL_FOG_COLOR, fogColor);
-   glFogf(GL_FOG_DENSITY, myDensity);
+   glFogf(GL_FOG_DENSITY, density);
    glHint(GL_FOG_HINT, GL_DONT_CARE);
-   glFogf(GL_FOG_START, myStart);
-   glFogf(GL_FOG_END, myEnd);
+   glFogf(GL_FOG_START, start);
+   glFogf(GL_FOG_END, end);
    glEnable(GL_FOG);
 }
 

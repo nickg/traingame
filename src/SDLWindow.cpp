@@ -46,8 +46,8 @@ public:
    void switchScreen(IScreenPtr aScreen);
    void quit();
    void takeScreenShot();
-   int width() const { return myWidth; }
-   int height() const { return myHeight; }
+   int width() const { return width_; }
+   int height() const { return height_; }
    void redrawHint() {}
 
    // IGraphics interface
@@ -69,11 +69,11 @@ private:
    void captureFrame() const;
    
    bool amRunning;
-   int myWidth, myHeight;
-   IScreenPtr myScreen;
+   int width_, height_;
+   IScreenPtr screen;
    bool willSkipNextFrame;
    bool willTakeScreenShot;
-   Frustum myViewFrustum;
+   Frustum viewFrustum;
 
    // Picking data
    static const int SELECT_BUFFER_SZ = 128;
@@ -146,11 +146,11 @@ SDLWindow::SDLWindow()
    atexit(SDL_Quit);
 
    // Set the video mode
-   cfg->get("XRes", myWidth);
-   cfg->get("YRes", myHeight);
+   cfg->get("XRes", width_);
+   cfg->get("YRes", height_);
 
    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-   if (SDL_SetVideoMode(myWidth, myHeight, 0, SDL_OPENGL) == NULL) {
+   if (SDL_SetVideoMode(width_, height_, 0, SDL_OPENGL) == NULL) {
       ostringstream ss;
       ss << "Unable to create OpenGL screen: " << SDL_GetError();
       throw runtime_error(ss.str());
@@ -166,7 +166,7 @@ SDLWindow::SDLWindow()
    printGLVersion();
    initGL();
    
-   log() << "Created " << myWidth << "x" << myHeight << " window";
+   log() << "Created " << width_ << "x" << height_ << " window";
 }
 
 // Destroy the game window
@@ -186,7 +186,7 @@ void SDLWindow::switchScreen(IScreenPtr aScreen)
 {
    assert(amRunning);
 
-   myScreen = aScreen;
+   screen = aScreen;
    willSkipNextFrame = true;
 }
 
@@ -195,7 +195,7 @@ void SDLWindow::run(IScreenPtr aScreen)
 {
    assert(!amRunning);
    
-   myScreen = aScreen;
+   screen = aScreen;
 
    FrameTimerThread fpsTimer;
 
@@ -211,10 +211,10 @@ void SDLWindow::run(IScreenPtr aScreen)
 
       try {
          processInput();
-         myScreen->update(shared_from_this(), delta);
+         screen->update(shared_from_this(), delta);
          
          if (!willSkipNextFrame) {
-            drawGLScene(shared_from_this(), shared_from_this(), myScreen);
+            drawGLScene(shared_from_this(), shared_from_this(), screen);
             SDL_GL_SwapBuffers();
          }
          else
@@ -238,7 +238,7 @@ void SDLWindow::run(IScreenPtr aScreen)
       lastTick = tickStart;
    } while (amRunning);
    
-   myScreen.reset();
+   screen.reset();
 }
 
 // Stop the game cleanly
@@ -278,16 +278,16 @@ void SDLWindow::processInput()
          break;
          
       case SDL_KEYDOWN:
-         myScreen->onKeyDown(e.key.keysym.sym);
+         screen->onKeyDown(e.key.keysym.sym);
          break;
 
       case SDL_KEYUP:
-         myScreen->onKeyUp(e.key.keysym.sym);
+         screen->onKeyUp(e.key.keysym.sym);
          break;
 
       case SDL_MOUSEMOTION:
          if (!haveSentMouseMotion) {
-            myScreen->onMouseMove(shared_from_this(),
+            screen->onMouseMove(shared_from_this(),
                                   e.motion.x, e.motion.y,
                                   e.motion.xrel, e.motion.yrel);
             haveSentMouseMotion = true;
@@ -295,20 +295,20 @@ void SDLWindow::processInput()
          break;
          
       case SDL_MOUSEBUTTONDOWN:
-         myScreen->onMouseClick(shared_from_this(),
+         screen->onMouseClick(shared_from_this(),
                                 e.button.x, e.button.y,
                                 fromSDLButton(e.button.button));
          break;
 
       case SDL_MOUSEBUTTONUP:
-         myScreen->onMouseRelease(shared_from_this(),
+         screen->onMouseRelease(shared_from_this(),
                                   e.button.x, e.button.y,
                                   fromSDLButton(e.button.button));
          break;
 
       case SDL_VIDEORESIZE:
-         myWidth = e.resize.w;
-         myHeight = e.resize.h;
+         width_ = e.resize.w;
+         height_ = e.resize.h;
          
          resizeGLScene(shared_from_this());
          break;
@@ -340,7 +340,7 @@ void SDLWindow::setCamera(const Vector<float>& aPos,
    glRotatef(aRotation.z, 0.0f, 0.0f, 1.0f);
    glTranslatef(aPos.x, aPos.y, aPos.z);
 
-   myViewFrustum = getViewFrustum();
+   viewFrustum = getViewFrustum();
 }
 
 // A wrapper around gluLookAt
@@ -351,26 +351,26 @@ void SDLWindow::lookAt(const Vector<float> anEyePoint,
              aTargetPoint.x, aTargetPoint.y, aTargetPoint.z,
              0, 1, 0);
 
-   myViewFrustum = getViewFrustum();
+   viewFrustum = getViewFrustum();
 }
 
 // Intersect a cuboid with the current view frustum
 bool SDLWindow::cuboidInViewFrustum(float x, float y, float z,
                                     float sizeX, float sizeY, float sizeZ)
 {
-   return myViewFrustum.cuboidInFrustum(x, y, z, sizeX, sizeY, sizeZ);
+   return viewFrustum.cuboidInFrustum(x, y, z, sizeX, sizeY, sizeZ);
 }
 
 // Intersect a cube with the current view frustum
 bool SDLWindow::cubeInViewFrustum(float x, float y, float z, float size)
 {
-   return myViewFrustum.cubeInFrustum(x, y, z, size);
+   return viewFrustum.cubeInFrustum(x, y, z, size);
 }
 
 // True if the point is contained within the view frustum
 bool SDLWindow::pointInViewFrustum(float x, float y, float z)
 {
-   return myViewFrustum.pointInFrustum(x, y, z);
+   return viewFrustum.pointInFrustum(x, y, z);
 }
 
 // Capture the OpenGL pixels and save them to a file
@@ -382,7 +382,7 @@ void SDLWindow::captureFrame() const
       ("screenshot" + lexical_cast<string>(fileNumber++) + ".bmp");
 
    SDL_Surface* temp = SDL_CreateRGBSurface
-      (SDL_SWSURFACE, myWidth, myHeight, 24,
+      (SDL_SWSURFACE, width_, height_, 24,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
        0x000000FF, 0x0000FF00, 0x00FF0000, 0
 #else
@@ -391,8 +391,8 @@ void SDLWindow::captureFrame() const
        );
    assert(temp);
 
-   const int w = myWidth;
-   const int h = myHeight;
+   const int w = width_;
+   const int h = height_;
    unsigned char* pixels = new unsigned char[3 * w * h];
 
    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixels);

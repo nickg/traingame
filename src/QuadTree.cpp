@@ -48,17 +48,17 @@ private:
    int buildNode(int anId, int aParent, int x1, int y1, int x2, int y2);
    void visibleSectors(IGraphicsPtr aContext, list<Sector*>& aList, int aSector);
    
-   int mySize, myNumSectors, myUsedSectors;
-   ISectorRenderablePtr myRenderer;
+   int size, numSectors, usedSectors;
+   ISectorRenderablePtr renderer;
 
-   int myKillCount;
+   int killCount;
 
    static const int QT_LEAF_SIZE = 8; 	// Number of tiles in a QuadTree leaf
 };
 
 QuadTree::QuadTree(ISectorRenderablePtr aRenderable)
-   : mySectors(NULL), mySize(0), myNumSectors(0), myUsedSectors(0),
-     myRenderer(aRenderable), myKillCount(0)
+   : mySectors(NULL), size(0), numSectors(0), usedSectors(0),
+     renderer(aRenderable), killCount(0)
 {
    
 }
@@ -72,37 +72,38 @@ QuadTree::~QuadTree()
 void QuadTree::render(IGraphicsPtr aContext)
 {
    list<Sector*> visible;
-   myKillCount = 0;
+   killCount = 0;
    visibleSectors(aContext, visible, 0);
 
    list<Sector*>::const_iterator it;
    
    for (it = visible.begin(); it != visible.end(); ++it)
-      myRenderer->renderSector(aContext, (*it)->id, (*it)->botLeft, (*it)->topRight);
+      renderer->renderSector(aContext, (*it)->id,
+         (*it)->botLeft, (*it)->topRight);
 
    for (it = visible.begin(); it != visible.end(); ++it)
-      myRenderer->postRenderSector(aContext, (*it)->id,
-                                   (*it)->botLeft, (*it)->topRight);
+      renderer->postRenderSector(aContext, (*it)->id,
+         (*it)->botLeft, (*it)->topRight);
 }
 
 // Creates a blank QuadTree
 void QuadTree::buildTree(int aDim)
 {
-   mySize = aDim;
+   size = aDim;
 
    // Error checking
    if (aDim % QT_LEAF_SIZE != 0)
       throw runtime_error("Invalid QuadTree dimensions!");
    
    // Allocate memory
-   myNumSectors = calcNumSectors(aDim);
-   myUsedSectors = 0;
+   numSectors = calcNumSectors(aDim);
+   usedSectors = 0;
    if (mySectors)
       delete[] mySectors;
-   mySectors = new Sector[myNumSectors];
+   mySectors = new Sector[numSectors];
    
    // Build the tree
-   buildNode(0, 0, 0, 0, mySize, mySize);
+   buildNode(0, 0, 0, 0, size, size);
 }
 
 // Builds a node in the tree
@@ -126,10 +127,10 @@ int QuadTree::buildNode(int anId, int aParent, int x1, int y1, int x2, int y2)
       
       // Build children
       unsigned int* c = mySectors[anId].children;
-      c[0] = buildNode(++myUsedSectors, anId, x1,		  y1,     x1+w/2, y1+h/2);
-      c[1] = buildNode(++myUsedSectors, anId, x1,		  y1+h/2, x1+w/2, y2		);
-      c[3] = buildNode(++myUsedSectors, anId, x1+w/2, y1+h/2, x2,		  y2	  );
-      c[2] = buildNode(++myUsedSectors, anId, x1+w/2, y1,		  x2,     y1+h/2);
+      c[0] = buildNode(++usedSectors, anId, x1,		  y1,     x1+w/2, y1+h/2);
+      c[1] = buildNode(++usedSectors, anId, x1,		  y1+h/2, x1+w/2, y2		);
+      c[3] = buildNode(++usedSectors, anId, x1+w/2, y1+h/2, x2,		  y2	  );
+      c[2] = buildNode(++usedSectors, anId, x1+w/2, y1,		  x2,     y1+h/2);
    }
 
    return anId;
@@ -153,7 +154,7 @@ int QuadTree::calcNumSectors(int aWidth)
 void QuadTree::visibleSectors(IGraphicsPtr aContext, list<Sector*>& aList,
                               int aSector)
 {
-   if (aSector >= myNumSectors) {
+   if (aSector >= numSectors) {
       ostringstream ss;
       ss << "displaySector(" << aSector << ") out of range";
       throw runtime_error(ss.str());
@@ -177,7 +178,7 @@ void QuadTree::visibleSectors(IGraphicsPtr aContext, list<Sector*>& aList,
          if (aContext->cubeInViewFrustum((float)x, 0.0f, (float)y, (float)w/2))
             visibleSectors(aContext, aList, childID);
          else
-            myKillCount++;
+            killCount++;
       }
    }
 }

@@ -32,14 +32,14 @@ public:
 private:
    void loadSkyTexture(int anIndex, const string& aSuffix);
    
-   ITexturePtr myTextures[6];
-   const string myBaseName;
+   ITexturePtr textures[6];
+   const string baseName;
 };
 
 // The base name is used to generate the file names of all six
 // textures
 SkyBox::SkyBox(const string& aBaseName)
-   : myBaseName(aBaseName)
+   : baseName(aBaseName)
 {
    loadSkyTexture(0, "bottom");
    loadSkyTexture(1, "top");
@@ -51,8 +51,8 @@ SkyBox::SkyBox(const string& aBaseName)
 
 void SkyBox::loadSkyTexture(int anIndex, const string& aSuffix)
 {
-   myTextures[anIndex] =
-      loadTexture("data/images/" + myBaseName + "_" + aSuffix + ".png");
+   textures[anIndex] =
+      loadTexture("data/images/" + baseName + "_" + aSuffix + ".png");
 }
 
 void SkyBox::apply(float anAngle) const
@@ -73,7 +73,7 @@ void SkyBox::apply(float anAngle) const
    glRotatef(radToDeg<float>(anAngle), 0.0f, 1.0f, 0.0f);
    
    // Bottom
-   myTextures[0]->bind();
+   textures[0]->bind();
    glBegin(GL_QUADS);
    glTexCoord2f(0.0f, 1.0f); glVertex3f(-r, -r, -r);
    glTexCoord2f(0.0f, 0.0f); glVertex3f(-r, -r, r);
@@ -82,7 +82,7 @@ void SkyBox::apply(float anAngle) const
    glEnd();
 
    // Top
-   myTextures[1]->bind();
+   textures[1]->bind();
    glBegin(GL_QUADS);
    glTexCoord2f(0.0f, 1.0f); glVertex3f(-r, r, -r);
    glTexCoord2f(0.0f, 0.0f); glVertex3f(-r, r, r);
@@ -91,7 +91,7 @@ void SkyBox::apply(float anAngle) const
    glEnd();
    
    // Front
-   myTextures[2]->bind();
+   textures[2]->bind();
    glBegin(GL_QUADS);
    glTexCoord2f(0.0f, 1.0f); glVertex3f(-r, -r, -r);
    glTexCoord2f(0.0f, 0.0f); glVertex3f(-r, r, -r);
@@ -100,7 +100,7 @@ void SkyBox::apply(float anAngle) const
    glEnd();
 
    // Back
-   myTextures[3]->bind();
+   textures[3]->bind();
    glBegin(GL_QUADS);
    glTexCoord2f(0.0f, 1.0f); glVertex3f(-r, -r, r);
    glTexCoord2f(0.0f, 0.0f); glVertex3f(-r, r, r);
@@ -109,7 +109,7 @@ void SkyBox::apply(float anAngle) const
    glEnd();
 
    // Left
-   myTextures[4]->bind();
+   textures[4]->bind();
    glBegin(GL_QUADS);
    glTexCoord2f(0.0f, 1.0f); glVertex3f(-r, -r, -r);
    glTexCoord2f(0.0f, 0.0f); glVertex3f(-r, r, -r);
@@ -118,7 +118,7 @@ void SkyBox::apply(float anAngle) const
    glEnd();
    
    // Right
-   myTextures[5]->bind();
+   textures[5]->bind();
    glBegin(GL_QUADS);
    glTexCoord2f(0.0f, 1.0f); glVertex3f(r, -r, -r);
    glTexCoord2f(0.0f, 0.0f); glVertex3f(r, r, -r);
