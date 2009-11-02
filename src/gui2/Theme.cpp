@@ -16,15 +16,20 @@
 //
 
 #include "gui2/Theme.hpp"
+#include "ILogger.hpp"
 
 #include <string>
+#include <stdexcept>
 
 using namespace gui;
 
 Theme::Theme()
 {
-   normal_font_ = ft::load_font("data/fonts/Vera.ttf",
+   normal_font_ = ft::loadFont("data/fonts/Vera.ttf",
       18, ft::FONT_NORMAL);
+
+   dropShadowFont = ft::loadFont("data/fonts/Vera.ttf",
+      20, ft::FONT_NORMAL, true);
 }
       
 Colour Theme::background() const
@@ -36,3 +41,15 @@ Colour Theme::border() const
 {
    return makeColour(0.0f, 0.0f, 1.0f, 1.0f);
 }
+
+IFontPtr Theme::font(const string& fontName) const
+{
+   // TODO: Layouts should have a method for specifying fonts!
+   if (fontName == "")
+      return normal_font_;
+   else if (fontName == "status-font")
+      return dropShadowFont;
+   else
+      throw runtime_error("Unknown font: " + fontName); 
+}
+

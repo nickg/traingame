@@ -35,7 +35,7 @@ using namespace ft;
 
 class Glyph {
 public:
-   Glyph(FT_Face& face, FT_ULong uch, FontType type);
+   Glyph(FT_Face& face, FT_ULong uch, FontType type, bool dropShadow);
    ~Glyph();
 
    void render() const;
@@ -47,15 +47,19 @@ public:
    float advance_y() const { return advance_y_; }
 private:
    static int next_power_of_2(int a);
+
+   void renderGlyph() const;
    
    GLuint tex;
    float width_, height_;
    float tex_xmax, tex_ymax;
    float top, left;
    float advance_x_, advance_y_;
+   bool dropShadow;
 };
 
-Glyph::Glyph(FT_Face& face, FT_ULong uch, FontType type)
+Glyph::Glyph(FT_Face& face, FT_ULong uch, FontType type, bool dropShadow)
+   : dropShadow(dropShadow)
 {
    int index = FT_Get_Char_Index(face, uch);
 
@@ -149,10 +153,8 @@ Glyph::~Glyph()
    glDeleteTextures(1, &tex);
 }
 
-void Glyph::render() const
+void Glyph::renderGlyph() const
 {
-   glBindTexture(GL_TEXTURE_2D, tex);
-   
    glBegin(GL_QUADS);
    
    glTexCoord2f(0, tex_ymax);
@@ -168,6 +170,25 @@ void Glyph::render() const
    glVertex2f(left + width_, height_ - top);
 
    glEnd();
+}   
+
+void Glyph::render() const
+{
+   glBindTexture(GL_TEXTURE_2D, tex);
+   
+   if (dropShadow) {
+      glPushMatrix();
+      glPushAttrib(GL_CURRENT_BIT);
+      
+      glTranslatef(1.5f, 1.5f, 0.0f);
+      glColor3f(0.0f, 0.0f, 0.0f);
+      renderGlyph();
+
+      glPopAttrib();
+      glPopMatrix();
+   }
+
+   renderGlyph();
 
    glTranslatef(advance_x_, advance_y_, 0.0f);
 }
@@ -185,7 +206,7 @@ namespace {// REMOVE
 
 class Font : public IFont {
 public:
-   Font(const string& file, int h, FontType type);
+   Font(const string& file, int h, FontType type, bool dropShadow);
    ~Font();
    
    void print(int x, int y, Colour c, const string& s) const;
@@ -205,7 +226,7 @@ private:
 FT_Library Font::library;
 int Font::library_ref_count = 0;
 
-Font::Font(const string& file, int h, FontType type)
+   Font::Font(const string& file, int h, FontType type, bool dropShadow)
 {
    if (++library_ref_count == 1) {
       if (FT_Init_FreeType(&library))
@@ -224,7 +245,7 @@ Font::Font(const string& file, int h, FontType type)
       0, 0);  // Default DPI
 
    for (char ch = 0; ch < 127; ch++)
-      glyphs.push_back(new Glyph(face, ch, type));
+      glyphs.push_back(new Glyph(face, ch, type, dropShadow));
    
    int ascent  = static_cast<int>(face->size->metrics.ascender / 64.0);
    int descent  = static_cast<int>(face->size->metrics.descender / 64.0);
@@ -278,18 +299,19 @@ int Font::text_width(const string& s) const
 }
 
 }
-IFontPtr ft::load_font(const string& file, int h, FontType type)
+IFontPtr ft::loadFont(const string& file, int h, FontType type,
+   bool dropShadow)
 {
-   typedef tuple<string, int> FontToken;
+   typedef tuple<string, int, bool> FontToken;
    static map<FontToken, IFontPtr> cache;
 
-   FontToken t = make_tuple(file, h);
+   FontToken t = make_tuple(file, h, dropShadow);
    map<FontToken, IFontPtr>::iterator it = cache.find(t);
 
    if (it != cache.end())
       return (*it).second;
    else {
-      IFontPtr p(new Font(file, h, type));
+      IFontPtr p(new Font(file, h, type, dropShadow));
       cache[t] = p;
       return p;
    }

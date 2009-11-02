@@ -29,15 +29,15 @@ namespace gui {
    public:
       Label(const AttributeSet& attrs);
 
-      const string& text() const { return _text; }
-      void text(const string& t) { _text = t; }
+      const string& text() const { return text_; }
+      void text(const string& t) { text_ = t; }
 
       void format(const char* fmt, ...);
 
       void render(RenderContext& rc) const;
       void adjustForTheme(Theme& theme);
    private:
-      string _text;
+      string text_, fontName;
    };
 }
 

@@ -39,8 +39,8 @@ namespace ft {
       FONT_NORMAL, FONT_MONO
    };
    
-   IFontPtr load_font(const string& file, int h,
-      FontType type=FONT_NORMAL);
+   IFontPtr loadFont(const string& file, int h,
+      FontType type=FONT_NORMAL, bool dropShadow=false);
    
 }
 

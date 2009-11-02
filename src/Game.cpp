@@ -190,7 +190,7 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    myThrottleMeter->setValue(train->controller()->throttle());
    myBrakeLabel->setVisible(train->controller()->brakeOn());
 
-   layout->cast<gui::Label>("/status_wnd/speed_label").format(
+   layout->cast<gui::Label>("/speed_label").format(
       "Speed: %.1lfmph", train->speed() * msToMPH);
    
    const double pressure = train->controller()->pressure();

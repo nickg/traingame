@@ -38,9 +38,11 @@ namespace gui {
 
       // Fonts
       IFontPtr normal_font() const { return normal_font_; }
+      IFontPtr font(const string& fontName) const;
       
    private:
-      IFontPtr normal_font_; 
+      IFontPtr normal_font_;
+      IFontPtr dropShadowFont;
    };
    
 }
