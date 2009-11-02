@@ -79,26 +79,12 @@ void RenderContext::border(int x, int y, int w, int h, Colour c)
 {
    offset(x, y);
    gl::colour(c);
-
-   x += 1;
-   y += 1;
-   w -= 1;
-   h -= 1;
-
-   glBegin(GL_LINES);
-
-   glVertex2i(x, y);
-   glVertex2i(x + w, y);
    
-   glVertex2i(x + w, y);
-   glVertex2i(x + w, y + h);
-   
-   glVertex2i(x + w, y + h);
-   glVertex2i(x, y + h);
-   
-   glVertex2i(x, y + h);
-   glVertex2i(x, y - 1);
-   
+   glBegin(GL_LINE_LOOP);
+   glVertex2f(x + 0.1f, y + 0.1f);
+   glVertex2f(x + w - 0.1f, y + 0.1f);
+   glVertex2f(x + w - 0.1f, y + h - 0.1f);
+   glVertex2f(x + 0.1f, y + h - 0.1f);
    glEnd();
 }
 
