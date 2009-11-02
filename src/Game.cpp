@@ -131,7 +131,7 @@ Game::Game(IMapPtr aMap)
 
    myStatsPanel->setOrigin(5, 10);
 
-   //layout = gui::makeLayout("layouts/game.xml");
+   layout = gui::makeLayout("layouts/game.xml");
 }
 
 Game::~Game()
@@ -171,7 +171,7 @@ void Game::overlay() const
 {
    //myStatsPanel->render();
 
-   //layout->render();
+   layout->render();
 
    const int screenH = getGameWindow()->height();
    const int screenW = getGameWindow()->width();
@@ -190,8 +190,8 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    myThrottleMeter->setValue(train->controller()->throttle());
    myBrakeLabel->setVisible(train->controller()->brakeOn());
 
-   //layout->cast<gui::Label>("/status_wnd/speed_label").format(
-   //   "Speed: %.1lfmph", train->speed() * msToMPH);
+   layout->cast<gui::Label>("/status_wnd/speed_label").format(
+      "Speed: %.1lfmph", train->speed() * msToMPH);
    
    const double pressure = train->controller()->pressure();
    myPressureLabel->setText("Pressure: %.lfpsi", pressure);
