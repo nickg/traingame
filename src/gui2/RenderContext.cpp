@@ -37,6 +37,9 @@ RenderContext::RenderContext()
 RenderContext::~RenderContext()
 {
    glPopAttrib();
+
+   IWindowPtr wnd = getGameWindow();
+   glScissor(0, 0, wnd->width(), wnd->height());
 }
 
 void RenderContext::push_origin(const Widget* w)
