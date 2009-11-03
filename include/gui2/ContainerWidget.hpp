@@ -31,7 +31,7 @@ namespace gui {
       ContainerWidget(const AttributeSet& attrs);
 
       virtual void render(RenderContext& rc) const;
-      virtual void adjustForTheme(Theme& theme);
+      virtual void adjustForTheme(const Theme& theme);
 
       void addChild(Widget* w);
       

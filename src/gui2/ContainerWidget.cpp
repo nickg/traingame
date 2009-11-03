@@ -41,7 +41,7 @@ void ContainerWidget::addChild(Widget* w)
    childAdded(w);
 }
 
-void ContainerWidget::adjustForTheme(Theme& theme)
+void ContainerWidget::adjustForTheme(const Theme& theme)
 {
    for (ChildList::const_iterator it = constBegin();
         it != constEnd(); ++it)

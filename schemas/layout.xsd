@@ -2,8 +2,21 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:element name="layout">
     <xs:complexType>
-      <xs:group ref="widgetGroup"
-                minOccurs="0" maxOccurs="unbounded"/>
+      <xs:sequence>
+
+        <!-- Font declarations -->
+        <xs:element name="font" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:attribute name="name" type="xs:string"/>
+            <xs:attribute name="file" type="xs:string"/>
+            <xs:attribute name="dropShadow" type="xs:boolean"/>
+            <xs:attribute name="size" type="xs:positiveInteger"/>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:group ref="widgetGroup"
+                  minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
   

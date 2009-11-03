@@ -27,8 +27,8 @@ using namespace gui;
 
 IWindowPtr getGameWindow();
 
-RenderContext::RenderContext()
-   : origin_x(0), origin_y(0)
+RenderContext::RenderContext(const Theme& theme)
+   : theme_(theme), origin_x(0), origin_y(0)
 {
    glPushAttrib(GL_ENABLE_BIT);
    glEnable(GL_SCISSOR_TEST);

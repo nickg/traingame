@@ -24,6 +24,8 @@
 #include "Colour.hpp"
 #include "ft/IFont.hpp"
 
+#include <map>
+
 namespace gui {
 
    using namespace ft;
@@ -37,12 +39,16 @@ namespace gui {
       Colour border() const;
 
       // Fonts
-      IFontPtr normal_font() const { return normal_font_; }
+      IFontPtr normalFont() const { return normal_font_; }
       IFontPtr font(const string& fontName) const;
+
+      void addFont(const string& name, IFontPtr f);
       
    private:
       IFontPtr normal_font_;
-      IFontPtr dropShadowFont;
+
+      typedef map<string, IFontPtr> FontMap;
+      FontMap fonts;
    };
    
 }

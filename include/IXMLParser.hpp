@@ -22,10 +22,10 @@
 
 #include <string>
 #include <stdexcept>
+#include <sstream>
 
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/util/XMLString.hpp>
-#include <boost/lexical_cast.hpp>
 
 // Container for attributes
 class AttributeSet {
@@ -52,15 +52,26 @@ public:
       xercesc::XMLString::release(&xmlName);
       
       if (index != -1) {
-         char* ascii = xercesc::XMLString::transcode(myAttrs.getValue(index));
-         T result = boost::lexical_cast<T>(ascii);
+         char* ascii = xercesc::XMLString::transcode(
+            myAttrs.getValue(index));
+
+         istringstream ss(ascii);
+         T result;
+
+         ss >> boolalpha >> result;  // Is boolalpha affected by locale?
+         
+         if (ss.fail())
+            throw runtime_error(
+               "Cannot parse attribute '" + aName
+               + "' with value '" + ascii + "'");
+         
          xercesc::XMLString::release(&ascii);
          return result;
       }
       else
          throw std::runtime_error("No attribute: " + aName);
    }
-   
+
    template <class T>
    void get(const std::string& aName, T& aT) const
    {

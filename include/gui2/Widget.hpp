@@ -51,7 +51,7 @@ namespace gui {
       void connect(Signal sig, SignalHandler handler);
 
       virtual void render(RenderContext& rc) const = 0;
-      virtual void adjustForTheme(Theme& theme) {}
+      virtual void adjustForTheme(const Theme& theme) {}
       
       virtual void handleClick(int x, int y);
       

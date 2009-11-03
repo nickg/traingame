@@ -36,7 +36,7 @@ void Label::render(RenderContext& rc) const
    rc.print(rc.theme().font(fontName), x(), y(), text_);
 }
 
-void Label::adjustForTheme(Theme& theme)
+void Label::adjustForTheme(const Theme& theme)
 {
    IFontPtr font = theme.font(fontName);
    

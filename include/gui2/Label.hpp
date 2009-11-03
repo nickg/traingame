@@ -35,7 +35,7 @@ namespace gui {
       void format(const char* fmt, ...);
 
       void render(RenderContext& rc) const;
-      void adjustForTheme(Theme& theme);
+      void adjustForTheme(const Theme& theme);
    private:
       string text_, fontName;
    };

@@ -33,7 +33,7 @@ namespace gui {
 
    class RenderContext {
    public:
-      RenderContext();
+      RenderContext(const Theme& theme);
       ~RenderContext();
 
       void push_origin(const Widget* w);
@@ -49,8 +49,8 @@ namespace gui {
       const Theme& theme() const { return theme_; }
    private:
       void offset(int& x, int& y) const;
-      
-      Theme theme_;
+
+      const Theme& theme_;
       int origin_x, origin_y;
 
       stack<const Widget*> origin_stack;

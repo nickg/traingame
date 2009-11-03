@@ -27,11 +27,13 @@ Theme::Theme()
 {
    normal_font_ = ft::loadFont("data/fonts/Vera.ttf",
       18, ft::FONT_NORMAL);
-
-   dropShadowFont = ft::loadFont("data/fonts/Vera.ttf",
-      20, ft::FONT_NORMAL, true);
 }
-      
+
+void Theme::addFont(const string& name, IFontPtr f)
+{
+   fonts[name] = f;
+}
+
 Colour Theme::background() const
 {
    return makeColour(0.0f, 0.0f, 0.3f, 0.5f);
@@ -44,12 +46,14 @@ Colour Theme::border() const
 
 IFontPtr Theme::font(const string& fontName) const
 {
-   // TODO: Layouts should have a method for specifying fonts!
    if (fontName == "")
-      return normal_font_;
-   else if (fontName == "status-font")
-      return dropShadowFont;
-   else
-      throw runtime_error("Unknown font: " + fontName); 
+      return normalFont();
+   else {
+      FontMap::const_iterator it = fonts.find(fontName);
+      if (it != fonts.end())
+         return (*it).second;
+      else 
+         throw runtime_error("Unknown font: " + fontName);
+   }
 }
 

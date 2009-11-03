@@ -43,8 +43,8 @@ public:
    void click(int x, int y);
 
    // IXMLCallback interface
-   void startElement(const string& local_name, const AttributeSet &attrs);
-   void endElement(const string& local_name);
+   void startElement(const string& localName, const AttributeSet &attrs);
+   void endElement(const string& localName);
 private:
 
    // Manages paths during parsing
@@ -71,6 +71,8 @@ private:
    
    typedef map<string, Widget*> WidgetMap;
    WidgetMap widgets;
+
+   Theme theme;
 };
 
 Layout::Layout(const string& file_name)
@@ -88,24 +90,35 @@ Layout::~Layout()
       delete (*it).second;
 }
 
-void Layout::startElement(const string& local_name,
+void Layout::startElement(const string& localName,
    const AttributeSet &attrs)
 {
    Widget* w = NULL;
 
-   if (local_name == "layout") {
+   if (localName == "layout") {
       root = new RootWidget(attrs);
       parse_path.push(root);
       return;
    }
-   else if (local_name == "window")
+   else if (localName == "font") {
+      const string name = attrs.get<string>("name");
+      const string file = attrs.get<string>("file");     
+      const bool dropShadow = attrs.get<bool>("dropShadow", false);
+      const int size = attrs.get<int>("size", 14);
+
+      theme.addFont(name,
+         ft::loadFont(file, size, FONT_NORMAL, dropShadow));
+
+      return;
+   }
+   else if (localName == "window")
       w = new Window(attrs);
-   else if (local_name == "button")
+   else if (localName == "button")
       w = new Button(attrs);
-   else if (local_name == "label")
+   else if (localName == "label")
       w = new Label(attrs);
    else
-      throw runtime_error("Unexpected " + local_name);
+      throw runtime_error("Unexpected " + localName);
 
    Widget* parent = parse_path.top();
    if (ContainerWidget* c = dynamic_cast<ContainerWidget*>(parent)) {
@@ -121,21 +134,21 @@ void Layout::startElement(const string& local_name,
    widgets[parse_path.str()] = w;
    
    debug() << "Add widget " << parse_path.str()
-           << " (" << local_name << ")";
+           << " (" << localName << ")";
 }
 
-void Layout::endElement(const string& local_name)
-{   
-   parse_path.pop();
+void Layout::endElement(const string& localName)
+{
+   if (localName != "font")
+      parse_path.pop();
 }
 
 void Layout::render() const
 {
    assert(root);
-   Theme dummy;
-   root->adjustForTheme(dummy);
+   root->adjustForTheme(theme);
    
-   RenderContext rc;
+   RenderContext rc(theme);
    root->render(rc);
 }
 
