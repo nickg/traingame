@@ -26,6 +26,8 @@
 #include "IMesh.hpp"
 #include "IStation.hpp"
 #include "IResource.hpp"
+#include "IScenery.hpp"
+#include "Random.hpp"  // TODO: remove
 
 #include <stdexcept>
 #include <sstream>
@@ -110,6 +112,7 @@ public:
    void placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding,
       float anAngle);
    float heightAt(float x, float y) const;
+   void addScenery(Point<int> where, ISceneryPtr s);
    
    // ISectorRenderable interface
    void renderSector(IGraphicsPtr aContext, int id,
@@ -124,6 +127,7 @@ private:
       IStationPtr station;   // Station on this tile, if any
       IBuildingPtr building; // Building on this tile, if any
       float buildingAngle;   // Orientation of building
+      ISceneryPtr scenery;   // Static scenery, if any
    } *tiles;
 
    // Vertices on the terrain
@@ -754,6 +758,10 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
             tile.building->model()->render();
             glPopMatrix();
          }
+
+         // Draw any scenery
+         if (tile.scenery)
+            tile.scenery->render();
       }			
    }
 }
@@ -993,6 +1001,18 @@ void Map::placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding, float anAngle
       Tile& t = tileAt(aPoint.x, aPoint.y);
       t.building = aBuilding;
       t.buildingAngle = anAngle;
+   }
+}
+
+void Map::addScenery(Point<int> where, ISceneryPtr s)
+{
+   if (tileAt(where.x, where.y).track)
+      warn() << "Cannot place scenery on track";
+   else {
+      tileAt(where.x, where.y).scenery = s;
+      s->setPosition(static_cast<float>(where.x),
+         heightAt(where.x, where.y),
+         static_cast<float>(where.y));
    }
 }
 
@@ -1407,6 +1427,11 @@ IMapPtr loadMap(const string& aResId)
 
    MapLoader loader(map, res);
    xmlParser->parse(res->xmlFileName(), loader);
+
+   // DEBUG: add random trees
+   UniformInt rnd(0, map->width() - 1);
+   for (int i = 0; i < 250; i++)
+      map->addScenery(makePoint(rnd(), rnd()), makeTree());
       
    return IMapPtr(map);
 }

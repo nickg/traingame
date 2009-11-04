@@ -33,7 +33,6 @@ class IMap {
 public:
    virtual int width() const = 0;
    virtual int depth() const = 0;
-   virtual double heightAt() const = 0;
 
    // Return the track segment at the given position
    // It is invalid to call this with a position that doesn't

@@ -46,4 +46,7 @@ void setBillboardCameraOrigin(Vector<float> aPosition);
 // This calculates the distance of a point to the camera
 float distanceToCamera(Vector<float> aPosition);
 
+// Draw all billboards saved during this frame
+void renderBillboards();
+
 #endif

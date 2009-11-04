@@ -165,6 +165,8 @@ void Game::display(IGraphicsPtr aContext) const
    
    map->render(aContext);
    train->render();
+
+   renderBillboards();
 }
 
 void Game::overlay() const

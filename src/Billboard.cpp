@@ -18,6 +18,10 @@
 #include "IBillboard.hpp"
 #include "Colour.hpp"
 #include "OpenGLHelper.hpp"
+#include "ILogger.hpp"
+
+#include <vector>
+#include <algorithm>
 
 #include <GL/gl.h>
 
@@ -41,6 +45,9 @@ public:
    void setPosition(float x, float y, float z);
    void setScale(float aScale);
    void setColour(float r, float g, float b, float a);
+   void render() const;
+
+   static void renderSaved();
    
 private:
    const ITexturePtr texture;
@@ -48,11 +55,54 @@ private:
 protected:
    void drawTextureQuad() const;
    void translate() const;
+
+   void saveMe() const;
+
+   virtual void realRender() const = 0;
    
    Vector<float> position;
    float scale;
    Colour colour;
+
+   struct CmpDistanceToCam {
+      bool operator()(const BillboardCommon* lhs,
+         const BillboardCommon* rhs)
+      {
+         return distanceToCamera(lhs->position)
+            > distanceToCamera(rhs->position);
+      }
+   };
+   
+   // List of billboards to draw at end of this frame
+   static vector<const BillboardCommon*> toDraw;
 };
+
+vector<const BillboardCommon*> BillboardCommon::toDraw;
+
+void BillboardCommon::renderSaved()
+{
+   using namespace placeholders;
+   
+   // Depth sort the saved billboards and render them
+
+   sort(toDraw.begin(), toDraw.end(), CmpDistanceToCam());
+
+   for_each(toDraw.begin(), toDraw.end(),
+      bind(&BillboardCommon::realRender, placeholders::_1));
+   
+   toDraw.clear();
+}
+
+void BillboardCommon::saveMe() const
+{
+   // Remember to draw this billboard at the end of the frame
+   toDraw.push_back(this);
+}
+
+void BillboardCommon::render() const
+{
+   saveMe();
+}      
 
 void BillboardCommon::setPosition(float x, float y, float z)
 {
@@ -90,13 +140,13 @@ void BillboardCommon::drawTextureQuad() const
    const float w = scale / 2.0f;
 
    glBegin(GL_QUADS);
-   glTexCoord2f(1.0f, 1.0f);
-   glVertex2f(w, w);
-   glTexCoord2f(0.0f, 1.0f);
-   glVertex2f(-w, w);
-   glTexCoord2f(0.0f, 0.0f);
-   glVertex2f(-w, -w);
    glTexCoord2f(1.0f, 0.0f);
+   glVertex2f(w, w);
+   glTexCoord2f(0.0f, 0.0f);
+   glVertex2f(-w, w);
+   glTexCoord2f(0.0f, 1.0f);
+   glVertex2f(-w, -w);
+   glTexCoord2f(1.0f, 1.0f);
    glVertex2f(w, -w);
    glEnd();
    
@@ -110,11 +160,10 @@ public:
    CylindricalBillboard(ITexturePtr aTexture)
       : BillboardCommon(aTexture) {}
 
-   // IBillboard inteface
-   void render() const;
+   void realRender() const;
 };
 
-void CylindricalBillboard::render() const
+void CylindricalBillboard::realRender() const
 {
    // Based on code from
    // http://www.lighthouse3d.com/opengl/billboarding/index.php?billCheat1
@@ -152,12 +201,11 @@ public:
    SphericalBillboard(ITexturePtr aTexture)
       : BillboardCommon(aTexture) {}
 
-   // IBillboard inteface
-   void render() const;   
+   void realRender() const;   
 };
 
-void SphericalBillboard::render() const
-{  
+void SphericalBillboard::realRender() const
+{ 
    // Based on code from
    // http://www.lighthouse3d.com/opengl/billboarding/index.php?billSphe
    Vector<float> lookAt, objToCamProj, upAux, objToCam;
@@ -251,4 +299,9 @@ void setBillboardCameraOrigin(Vector<float> aPosition)
 float distanceToCamera(Vector<float> aPosition)
 {
    return (cameraPosition - aPosition).length();
+}
+
+void renderBillboards()
+{
+   BillboardCommon::renderSaved();
 }

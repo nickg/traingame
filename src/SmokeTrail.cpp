@@ -17,12 +17,9 @@
 
 #include "ISmokeTrail.hpp"
 #include "IBillboard.hpp"
+#include "Random.hpp"
 
 #include <list>
-#include <cstdlib>
-#include <ctime>
-
-#include <boost/random.hpp>
 
 // Concrete implementation of smoke trails
 class SmokeTrail : public ISmokeTrail {
@@ -44,15 +41,18 @@ public:
       float scale;
       float r, g, b, a;
       bool appearing;
+
+      IBillboardPtr billboard;
    };
    
 private:
    void newParticle();
    bool moveParticle(Particle& aParticle, int aDelta);
    
-   mutable list<Particle> myParticles; // Need to sort particles in render() 
+   list<Particle> particles;
    float myX, myY, myZ;
-   IBillboardPtr myBillboard;
+
+   ITexturePtr particleTex;
 
    // New particles are created every `mySpawnDelay`
    int mySpawnDelay, mySpawnCounter;
@@ -66,12 +66,11 @@ SmokeTrail::SmokeTrail()
      mySpawnDelay(500), mySpawnCounter(0),
      myXSpeed(0.0f), myYSpeed(0.0f), myZSpeed(0.0f)
 {
-   ITexturePtr particle(loadTexture("data/images/smoke_particle.png"));
-   myBillboard = makeSphericalBillboard(particle);
+   particleTex = loadTexture("data/images/smoke_particle.png");
 }
 
 // Returns true if the particle is dead
-bool SmokeTrail::moveParticle(Particle& aParticle, int aDelta)
+bool SmokeTrail::moveParticle(Particle& p, int aDelta)
 {
    const float ySpeed = 0.4f;
    const float growth = 0.3f;
@@ -83,37 +82,41 @@ bool SmokeTrail::moveParticle(Particle& aParticle, int aDelta)
    
    const float time = static_cast<float>(aDelta) / 1000.0f;
    
-   aParticle.x += aParticle.xv + (xWind * time);
-   aParticle.y += aParticle.yv + (ySpeed * time);
-   aParticle.z += aParticle.zv + (zWind * time);
+   p.x += p.xv + (xWind * time);
+   p.y += p.yv + (ySpeed * time);
+   p.z += p.zv + (zWind * time);
 
-   aParticle.xv = max(aParticle.xv - (slowdown * time), 0.0f);
-   aParticle.yv = max(aParticle.yv - (slowdown * time), 0.0f);
-   aParticle.zv = max(aParticle.zv - (slowdown * time), 0.0f);   
+   p.xv = max(p.xv - (slowdown * time), 0.0f);
+   p.yv = max(p.yv - (slowdown * time), 0.0f);
+   p.zv = max(p.zv - (slowdown * time), 0.0f);   
    
-   aParticle.scale += growth * time;
+   p.scale += growth * time;
 
+   p.billboard->setPosition(p.x, p.y, p.z);
+   p.billboard->setColour(p.r, p.g, p.b, p.a);
+   p.billboard->setScale(p.scale);
+   
    const float maxA = 0.8f;
-   if (aParticle.appearing) {
-      if ((aParticle.a += appear * time) >= maxA) {
-         aParticle.a = maxA;
-         aParticle.appearing = false;
+   if (p.appearing) {
+      if ((p.a += appear * time) >= maxA) {
+         p.a = maxA;
+         p.appearing = false;
       }
       return false;
    }
    else {
       // Kill the particle if it becomes invisible
-      return (aParticle.a -= decay * time) <= 0.0f;
+      return (p.a -= decay * time) <= 0.0f;
    }
 }
 
 void SmokeTrail::update(int aDelta)
 {
    // Move the existing particles
-   list<Particle>::iterator it = myParticles.begin();
-   while (it != myParticles.end()) {
+   list<Particle>::iterator it = particles.begin();
+   while (it != particles.end()) {
       if (moveParticle(*it, aDelta))
-         it = myParticles.erase(it);
+         it = particles.erase(it);
       else
          ++it;
    }
@@ -130,17 +133,11 @@ void SmokeTrail::update(int aDelta)
 
 void SmokeTrail::newParticle()
 {
-   using namespace boost;
-
    // Random number generator for colour variance
-   static variate_generator<mt19937, normal_distribution<float> >
-      colourRand(mt19937(static_cast<uint32_t>(time(NULL))), 
-                 normal_distribution<float>(0.0f, 0.06f));
+   NormalFloat colourRand(0.0f, 0.06f);
 
    // Random number generator for position variance
-   static variate_generator<mt19937, normal_distribution<float> >
-      posRand(mt19937(static_cast<uint32_t>(time(NULL))), 
-              normal_distribution<float>(0.0f, 0.07f));
+   NormalFloat posRand(0.0f, 0.07f);
 
    const float col = 0.7f + colourRand();
 
@@ -154,31 +151,18 @@ void SmokeTrail::newParticle()
       col, col, col,                // Colour
       0.0f,                         // Alpha
       true,                         // Appearing
+
+      makeSphericalBillboard(particleTex)
    };
    
-   myParticles.push_back(p);
+   particles.push_back(p);
 }
-
-struct CmpDistanceToCam {
-   bool operator()(const SmokeTrail::Particle& lhs,
-                   const SmokeTrail::Particle& rhs)
-   {
-      return distanceToCamera(makeVector(lhs.x, lhs.y, lhs.z))
-         > distanceToCamera(makeVector(rhs.x, rhs.y, rhs.z));
-   }
-};
 
 void SmokeTrail::render() const
 {   
-   myParticles.sort(CmpDistanceToCam());
- 
-   for (list<Particle>::const_iterator it = myParticles.begin();
-        it != myParticles.end(); ++it) {
-      myBillboard->setPosition((*it).x, (*it).y, (*it).z);
-      myBillboard->setColour((*it).r, (*it).g, (*it).b, (*it).a);
-      myBillboard->setScale((*it).scale);
-      myBillboard->render();
-   }
+   for (list<Particle>::const_iterator it = particles.begin();
+        it != particles.end(); ++it)
+      (*it).billboard->render();
 }
 
 void SmokeTrail::setPosition(float x, float y, float z)
