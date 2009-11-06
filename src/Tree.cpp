@@ -38,10 +38,11 @@ Tree::Tree()
 {
    const char* trees[] = {
       "data/images/a-tree.png",
-      "data/images/a-nother-tree.png"
+      "data/images/a-nother-tree.png",
+      "data/images/cloud-tree.png"
    };
 
-   static UniformInt rnd(0, 1);
+   static UniformInt rnd(0, 2);
 
    billboard = makeCylindricalBillboard(
       loadTexture(trees[rnd()]));
