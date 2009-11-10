@@ -29,7 +29,8 @@ Widget::Widget(const AttributeSet& attrs)
      x_(attrs.get<int>("x", 0)),
      y_(attrs.get<int>("y", 0)),
      width_(attrs.get<int>("width", 0)),
-     height_(attrs.get<int>("height", 0))
+     height_(attrs.get<int>("height", 0)),
+     visible_(attrs.get<bool>("visible", true))
 {
    
 }

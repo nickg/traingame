@@ -26,14 +26,15 @@ using namespace gui;
 Label::Label(const AttributeSet& attrs)
    : Widget(attrs),
      text_(attrs.get<string>("text")),
-     fontName(attrs.get<string>("font", ""))
+     fontName(attrs.get<string>("font", "")),
+     colour_(attrs.get<Colour>("colour", colour::WHITE))
 {
-   text_ = "foo";
+   
 }
 
 void Label::render(RenderContext& rc) const
 {
-   rc.print(rc.theme().font(fontName), x(), y(), text_);
+   rc.print(rc.theme().font(fontName), x(), y(), text_, colour_);
 }
 
 void Label::adjustForTheme(const Theme& theme)

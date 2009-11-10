@@ -44,12 +44,14 @@ namespace gui {
       void rectangle(int x, int y, int w, int h, Colour c);
       void border(int x, int y, int w, int h, Colour c);
 
-      void print(IFontPtr font, int x, int y, const string& s);
+      void print(IFontPtr font, int x, int y, const string& s,
+         Colour col = colour::WHITE);
 
       const Theme& theme() const { return theme_; }
-   private:
+      
       void offset(int& x, int& y) const;
 
+   private:
       const Theme& theme_;
       int origin_x, origin_y;
 

@@ -30,8 +30,10 @@ void ContainerWidget::render(RenderContext& rc) const
 {
    for (ChildList::const_iterator it = constBegin();
         it != constEnd(); ++it) {
-      rc.scissor(*it);
-      (*it)->render(rc);
+      if ((*it)->visible()) {
+         rc.scissor(*it);
+         (*it)->render(rc);
+      }
    }
 }
 

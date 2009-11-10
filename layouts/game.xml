@@ -10,4 +10,9 @@
          name="speed_label"
          font="status-font"
          x="10" y="10" />
+  <label text="Brake on"
+         name="brake_label"
+         font="status-font"
+         x="10" y="35"
+         colour="255 0 0"/>
 </layout>

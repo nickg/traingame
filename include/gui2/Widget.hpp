@@ -38,9 +38,11 @@ namespace gui {
       int y() const { return y_; }
       int width() const { return width_; }
       int height() const { return height_; }
+      bool visible() const { return visible_; }
       
       void width(int w) { width_ = w; }
       void height(int h) { height_ = h; }
+      void visible(bool v) { visible_ = v; }
 
       enum Signal {
          SIG_CLICK
@@ -63,6 +65,7 @@ namespace gui {
       
       string name_;
       int x_, y_, width_, height_;
+      bool visible_;
 
       map<Signal, SignalHandler> handlers;
             

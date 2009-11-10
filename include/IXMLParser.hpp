@@ -19,13 +19,61 @@
 #define INC_IXMLPARSER_HPP
 
 #include "Platform.hpp"
+#include "Colour.hpp"
 
 #include <string>
 #include <stdexcept>
 #include <sstream>
 
+#include <boost/lexical_cast.hpp>
+
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/util/XMLString.hpp>
+
+namespace {
+
+   template <class T>
+   T xmlAttrCast(const string& str);
+
+   template <>
+   bool xmlAttrCast(const string& str)
+   {
+      istringstream ss(str);
+      bool result;
+
+      ss >> boolalpha >> result;  // Is boolalpha affected by locale?
+      
+      if (ss.fail())
+         throw runtime_error(
+            "Cannot parse Boolean attribute with value '"
+            + str + "'");
+
+      return result;
+   }
+
+   template <>
+   Colour xmlAttrCast(const string& str)
+   {
+      istringstream ss(str);
+      int r, g, b;
+
+      ss >> r >> g >> b;
+
+      if (ss.fail())
+         throw runtime_error(
+            "Cannot parse colour attribute with value '"
+            + str + "'");
+
+      return makeColour(r / 255.0f, g / 255.0f, b / 255.0f);
+   }
+
+   template <class T>
+   T xmlAttrCast(const string& str)
+   {
+      return boost::lexical_cast<T>(str);
+   }
+   
+}
 
 // Container for attributes
 class AttributeSet {
@@ -55,16 +103,8 @@ public:
          char* ascii = xercesc::XMLString::transcode(
             myAttrs.getValue(index));
 
-         istringstream ss(ascii);
-         T result;
+         T result = xmlAttrCast<T>(ascii);
 
-         ss >> boolalpha >> result;  // Is boolalpha affected by locale?
-         
-         if (ss.fail())
-            throw runtime_error(
-               "Cannot parse attribute '" + aName
-               + "' with value '" + ascii + "'");
-         
          xercesc::XMLString::release(&ascii);
          return result;
       }

@@ -194,6 +194,8 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
 
    layout->cast<gui::Label>("/speed_label").format(
       "Speed: %.1lfmph", train->speed() * msToMPH);
+
+   layout->get("/brake_label").visible(train->controller()->brakeOn());
    
    const double pressure = train->controller()->pressure();
    myPressureLabel->setText("Pressure: %.lfpsi", pressure);

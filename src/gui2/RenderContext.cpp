@@ -88,10 +88,11 @@ void RenderContext::border(int x, int y, int w, int h, Colour c)
    glEnd();
 }
 
-void RenderContext::print(IFontPtr font, int x, int y, const string& s)
+void RenderContext::print(IFontPtr font, int x, int y,
+   const string& s, Colour col)
 {
    offset(x, y);
-   font->print(x, y, makeColour(1.0f, 1.0f, 1.0f), s);
+   font->print(x, y, col, s);
 }
 
 void RenderContext::scissor(Widget* w)

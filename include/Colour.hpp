@@ -30,4 +30,8 @@ inline Colour makeColour(float r, float g, float b, float a=1.0f)
    return c;
 }
 
+namespace colour {
+   const Colour WHITE = makeColour(1.0f, 1.0f, 1.0f);
+}
+
 #endif
