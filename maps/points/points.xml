@@ -120,7 +120,7 @@
 </tile>
 
 <tile x="8" y="13">
-<points align="-x" reflect="1"/>
+<points align="-x" reflect="true"/>
 </tile>
 
 <tile x="9" y="13">
@@ -132,7 +132,7 @@
 </tile>
 
 <tile x="11" y="13">
-<points align="x" reflect="1"/>
+<points align="x" reflect="true"/>
 </tile>
 
 <tile x="14" y="12">
@@ -164,7 +164,7 @@
 </tile>
 
 <tile x="17" y="13">
-<points align="x" reflect="0"/>
+<points align="x" reflect="false"/>
 </tile>
 
 <tile x="18" y="12">
@@ -224,7 +224,7 @@
 </tile>
 
 <tile x="26" y="13">
-<points align="-x" reflect="0"/>
+<points align="-x" reflect="false"/>
 </tile>
 
 <tile x="27" y="13">
@@ -328,7 +328,7 @@
 </tile>
 
 <tile x="32" y="21">
-<points align="-y" reflect="0"/>
+<points align="-y" reflect="false"/>
 </tile>
 
 <tile x="32" y="22">
@@ -340,7 +340,7 @@
 </tile>
 
 <tile x="32" y="26">
-<points align="-y" reflect="1"/>
+<points align="-y" reflect="true"/>
 </tile>
 
 <tile x="32" y="27">
@@ -356,7 +356,7 @@
 </tile>
 
 <tile x="32" y="30">
-<points align="y" reflect="0"/>
+<points align="y" reflect="false"/>
 </tile>
 
 <tile x="32" y="33">
@@ -372,7 +372,7 @@
 </tile>
 
 <tile x="32" y="36">
-<points align="y" reflect="1"/>
+<points align="y" reflect="true"/>
 </tile>
 
 <tile x="32" y="39">

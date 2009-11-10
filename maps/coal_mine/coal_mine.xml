@@ -316,7 +316,7 @@
 </tile>
 
 <tile x="23" y="34">
-<points align="x" reflect="0"/>
+<points align="x" reflect="false"/>
 </tile>
 
 <tile x="24" y="42">
@@ -368,7 +368,7 @@
 </tile>
 
 <tile x="31" y="14">
-<points align="x" reflect="0"/>
+<points align="x" reflect="false"/>
 </tile>
 
 <tile x="31" y="34">
@@ -432,7 +432,7 @@
 </tile>
 
 <tile x="33" y="41">
-<points align="y" reflect="1"/>
+<points align="y" reflect="true"/>
 </tile>
 
 <tile x="33" y="44">
@@ -498,7 +498,7 @@
 </tile>
 
 <tile x="33" y="57">
-<points align="-y" reflect="0"/>
+<points align="-y" reflect="false"/>
 </tile>
 
 <tile x="33" y="58">
