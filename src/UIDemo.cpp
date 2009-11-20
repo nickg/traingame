@@ -16,8 +16,8 @@
 //
 
 #include "IScreen.hpp"
-#include "gui2/ILayout.hpp"
-#include "gui2/Label.hpp"
+#include "gui/ILayout.hpp"
+#include "gui/Label.hpp"
 #include "ILogger.hpp"
 
 #include <boost/lexical_cast.hpp>

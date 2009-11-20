@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gui2/ContainerWidget.hpp"
+#include "gui/ContainerWidget.hpp"
 #include "ILogger.hpp"
 
 using namespace gui;

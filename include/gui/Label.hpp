@@ -15,28 +15,34 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gui2/Button.hpp"
+#ifndef INC_GUI_LABEL_HPP
+#define INC_GUI_LABEL_HPP
 
-using namespace gui;
+#include "Platform.hpp"
+#include "gui/Widget.hpp"
 
-Button::Button(const AttributeSet& attrs)
-   : Widget(attrs),
-     label_(attrs.get<string>("label"))
-{
-   
+#include <string>
+
+namespace gui {
+
+   class Label : public Widget {
+   public:
+      Label(const AttributeSet& attrs);
+
+      const string& text() const { return text_; }
+      void text(const string& t) { text_ = t; }
+
+      Colour colour() const { return colour_; }
+      void colour(Colour c) { colour_ = c; }
+
+      void format(const char* fmt, ...);
+
+      void render(RenderContext& rc) const;
+      void adjustForTheme(const Theme& theme);
+   private:
+      string text_, fontName;
+      Colour colour_;
+   };
 }
 
-void Button::render(RenderContext& rc) const
-{
-   rc.rectangle(x(), y(), width(), height(),
-      rc.theme().background());
-
-   IFontPtr f = rc.theme().normalFont();
-
-   int center = (height() - f->height()) / 2;
-   
-   rc.print(f, x() + 5, y() + center, label_);
-
-   rc.border(x(), y(), width(), height(),
-      rc.theme().border());
-}
+#endif

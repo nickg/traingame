@@ -21,7 +21,7 @@
 // Internal header: do not include this file directly
 
 #include "Platform.hpp"
-#include "gui2/RenderContext.hpp"
+#include "gui/RenderContext.hpp"
 #include "IXMLParser.hpp"
 
 #include <string>

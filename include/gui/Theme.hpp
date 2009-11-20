@@ -15,28 +15,38 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GUI_BUTTON_HPP
-#define INC_GUI_BUTTON_HPP
+#ifndef INC_GUI_THEME_HPP
+#define INC_GUI_THEME_HPP
 
 // Internal header: do not include this file directly
 
 #include "Platform.hpp"
-#include "gui2/Widget.hpp"
+#include "Colour.hpp"
+#include "IFont.hpp"
 
-#include <string>
+#include <map>
 
 namespace gui {
-
-   class Button : public Widget {
+   
+   class Theme {
    public:
-      Button(const AttributeSet& attrs);
+      Theme();
 
-      const string& label() const { return label_; }
-      void label(const string& t) { label_ = t; }
+      // Colours
+      Colour background() const;
+      Colour border() const;
 
-      void render(RenderContext& rc) const;
+      // Fonts
+      IFontPtr normalFont() const { return normal_font_; }
+      IFontPtr font(const string& fontName) const;
+
+      void addFont(const string& name, IFontPtr f);
+      
    private:
-      string label_;
+      IFontPtr normal_font_;
+
+      typedef map<string, IFontPtr> FontMap;
+      FontMap fonts;
    };
    
 }

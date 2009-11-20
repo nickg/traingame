@@ -15,16 +15,16 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gui2/ILayout.hpp"
+#include "gui/ILayout.hpp"
 #include "IXMLParser.hpp"
 #include "ILogger.hpp"
 
-#include "gui2/Widget.hpp"
-#include "gui2/ContainerWidget.hpp"
-#include "gui2/Window.hpp"
-#include "gui2/Button.hpp"
-#include "gui2/Label.hpp"
-#include "gui2/ThrottleMeter.hpp"
+#include "gui/Widget.hpp"
+#include "gui/ContainerWidget.hpp"
+#include "gui/Window.hpp"
+#include "gui/Button.hpp"
+#include "gui/Label.hpp"
+#include "gui/ThrottleMeter.hpp"
 
 #include <vector>
 #include <sstream>

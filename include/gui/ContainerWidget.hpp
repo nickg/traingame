@@ -19,7 +19,7 @@
 #define INC_CONTAINER_WIDGET_HPP
 
 #include "Platform.hpp"
-#include "gui2/Widget.hpp"
+#include "gui/Widget.hpp"
 
 #include <vector>
 

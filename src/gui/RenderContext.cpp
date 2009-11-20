@@ -15,8 +15,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gui2/RenderContext.hpp"
-#include "gui2/Widget.hpp"
+#include "gui/RenderContext.hpp"
+#include "gui/Widget.hpp"
 #include "ILogger.hpp"
 #include "IWindow.hpp"
 #include "OpenGLHelper.hpp"

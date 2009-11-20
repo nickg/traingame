@@ -15,40 +15,38 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GUI_THEME_HPP
-#define INC_GUI_THEME_HPP
-
-// Internal header: do not include this file directly
+#ifndef INC_GUI_ILAYOUT_HPP
+#define INC_GUI_ILAYOUT_HPP
 
 #include "Platform.hpp"
-#include "Colour.hpp"
-#include "ft/IFont.hpp"
+#include "gui/Widget.hpp"
 
-#include <map>
+#include <string>
+
+#include <boost/any.hpp>
 
 namespace gui {
    
-   class Theme {
-   public:
-      Theme();
+   // A complete set of UI elements
+   struct ILayout {
+      virtual ~ILayout() {}
 
-      // Colours
-      Colour background() const;
-      Colour border() const;
+      template <class T>
+      T& cast(const string& path) const
+      {
+         return dynamic_cast<T&>(get(path));
+      }
 
-      // Fonts
-      IFontPtr normalFont() const { return normal_font_; }
-      IFontPtr font(const string& fontName) const;
+      virtual Widget& get(const string& path) const = 0;
+      virtual void render() const = 0;
 
-      void addFont(const string& name, IFontPtr f);
-      
-   private:
-      IFontPtr normal_font_;
-
-      typedef map<string, IFontPtr> FontMap;
-      FontMap fonts;
+      virtual void click(int x, int y) = 0;
    };
-   
+
+   typedef shared_ptr<ILayout> ILayoutPtr;
+
+   ILayoutPtr makeLayout(const string& file_name);
+
 }
 
 #endif

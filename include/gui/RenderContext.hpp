@@ -22,7 +22,7 @@
 
 #include "Platform.hpp"
 #include "Colour.hpp"
-#include "gui2/Theme.hpp"
+#include "gui/Theme.hpp"
 
 #include <string>
 #include <stack>

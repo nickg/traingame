@@ -15,45 +15,46 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gui2/Theme.hpp"
+#include "gui/Label.hpp"
 #include "ILogger.hpp"
 
-#include <string>
-#include <stdexcept>
+#include <cstdarg>
+#include <cstdio>
 
 using namespace gui;
 
-Theme::Theme()
+Label::Label(const AttributeSet& attrs)
+   : Widget(attrs),
+     text_(attrs.get<string>("text")),
+     fontName(attrs.get<string>("font", "")),
+     colour_(attrs.get<Colour>("colour", colour::WHITE))
 {
-   normal_font_ = gui::loadFont("data/fonts/Vera.ttf",
-      18, gui::FONT_NORMAL);
+   
 }
 
-void Theme::addFont(const string& name, IFontPtr f)
+void Label::render(RenderContext& rc) const
 {
-   fonts[name] = f;
+   rc.print(rc.theme().font(fontName), x(), y(), text_, colour_);
 }
 
-Colour Theme::background() const
+void Label::adjustForTheme(const Theme& theme)
 {
-   return makeColour(0.0f, 0.0f, 0.3f, 0.5f);
+   IFontPtr font = theme.font(fontName);
+   
+   width(font->text_width(text_));
+   height(font->height());
 }
 
-Colour Theme::border() const
+void Label::format(const char* fmt, ...)
 {
-   return makeColour(0.0f, 0.0f, 1.0f, 1.0f);
-}
+   va_list ap;
+   va_start(ap, fmt);
 
-IFontPtr Theme::font(const string& fontName) const
-{
-   if (fontName == "")
-      return normalFont();
-   else {
-      FontMap::const_iterator it = fonts.find(fontName);
-      if (it != fonts.end())
-         return (*it).second;
-      else 
-         throw runtime_error("Unknown font: " + fontName);
-   }
+   char* buf;
+   vasprintf(&buf, fmt, ap);
+   text(buf);
+   
+   free(buf);
+   va_end(ap);
 }
 

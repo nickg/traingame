@@ -27,10 +27,10 @@
 #include "IterateTrack.hpp"
 #include "IConfig.hpp"
 
-#include "gui2/ILayout.hpp"
-#include "gui2/Label.hpp"
-#include "gui2/ThrottleMeter.hpp"
-#include "ft/IFont.hpp"
+#include "gui/ILayout.hpp"
+#include "gui/Label.hpp"
+#include "gui/ThrottleMeter.hpp"
+#include "gui/IFont.hpp"
 
 #include <GL/gl.h>
 

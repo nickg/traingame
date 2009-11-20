@@ -15,29 +15,30 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gui2/Window.hpp"
-#include "ILogger.hpp"
+#ifndef INC_GUI_BUTTON_HPP
+#define INC_GUI_BUTTON_HPP
 
-using namespace gui;
+// Internal header: do not include this file directly
 
-Window::Window(const AttributeSet& attrs)
-   : ContainerWidget(attrs),
-     title_(attrs.get<string>("title", ""))
-{
+#include "Platform.hpp"
+#include "gui/Widget.hpp"
+
+#include <string>
+
+namespace gui {
+
+   class Button : public Widget {
+   public:
+      Button(const AttributeSet& attrs);
+
+      const string& label() const { return label_; }
+      void label(const string& t) { label_ = t; }
+
+      void render(RenderContext& rc) const;
+   private:
+      string label_;
+   };
    
 }
 
-void Window::render(RenderContext& rc) const
-{   
-   rc.rectangle(x(), y(), width(), height(),
-      rc.theme().background());
-   rc.border(x(), y(), width(), height(),
-      rc.theme().border());
-
-   rc.push_origin(this);
-
-   ContainerWidget::render(rc);
-   
-   rc.pop_origin();
-}
-
+#endif

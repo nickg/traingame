@@ -15,38 +15,31 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GUI_ILAYOUT_HPP
-#define INC_GUI_ILAYOUT_HPP
+#ifndef INC_GUI_WINDOW_HPP
+#define INC_GUI_WINDOW_HPP
+
+// Internal header: do not include this file directly
 
 #include "Platform.hpp"
-#include "gui2/Widget.hpp"
+#include "gui/Widget.hpp"
+#include "gui/ContainerWidget.hpp"
 
 #include <string>
 
-#include <boost/any.hpp>
-
 namespace gui {
-   
-   // A complete set of UI elements
-   struct ILayout {
-      virtual ~ILayout() {}
 
-      template <class T>
-      T& cast(const string& path) const
-      {
-         return dynamic_cast<T&>(get(path));
-      }
+   class Window : public ContainerWidget {
+   public:
+      Window(const AttributeSet& attrs);
 
-      virtual Widget& get(const string& path) const = 0;
-      virtual void render() const = 0;
+      const string& title() const { return title_; }
+      void title(const string& t) { title_ = t; }
 
-      virtual void click(int x, int y) = 0;
+      void render(RenderContext& rc) const;
+   private:
+      string title_;
    };
-
-   typedef shared_ptr<ILayout> ILayoutPtr;
-
-   ILayoutPtr makeLayout(const string& file_name);
-
+   
 }
 
 #endif

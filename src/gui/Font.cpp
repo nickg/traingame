@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "ft/IFont.hpp"
+#include "gui/IFont.hpp"
 #include "ILogger.hpp"
 
 #include <map>

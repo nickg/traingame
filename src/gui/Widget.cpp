@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gui2/Widget.hpp"
+#include "gui/Widget.hpp"
 #include "ILogger.hpp"
 
 #include <boost/lexical_cast.hpp>

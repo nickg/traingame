@@ -15,31 +15,29 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GUI_WINDOW_HPP
-#define INC_GUI_WINDOW_HPP
+#include "gui/Window.hpp"
+#include "ILogger.hpp"
 
-// Internal header: do not include this file directly
+using namespace gui;
 
-#include "Platform.hpp"
-#include "gui2/Widget.hpp"
-#include "gui2/ContainerWidget.hpp"
-
-#include <string>
-
-namespace gui {
-
-   class Window : public ContainerWidget {
-   public:
-      Window(const AttributeSet& attrs);
-
-      const string& title() const { return title_; }
-      void title(const string& t) { title_ = t; }
-
-      void render(RenderContext& rc) const;
-   private:
-      string title_;
-   };
+Window::Window(const AttributeSet& attrs)
+   : ContainerWidget(attrs),
+     title_(attrs.get<string>("title", ""))
+{
    
 }
 
-#endif
+void Window::render(RenderContext& rc) const
+{   
+   rc.rectangle(x(), y(), width(), height(),
+      rc.theme().background());
+   rc.border(x(), y(), width(), height(),
+      rc.theme().border());
+
+   rc.push_origin(this);
+
+   ContainerWidget::render(rc);
+   
+   rc.pop_origin();
+}
+
