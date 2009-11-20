@@ -26,6 +26,7 @@
       <xs:element name="window" type="windowType"/>
       <xs:element name="button" type="buttonType"/>
       <xs:element name="label" type="labelType"/>
+      <xs:element name="throttleMeter" type="throttleMeterType"/>
     </xs:choice>
   </xs:group>
 
@@ -65,6 +66,15 @@
     <xs:complexContent>
       <xs:extension base="widgetType">
         <xs:attribute name="label" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- The throttle meter -->
+  <xs:complexType name="throttleMeterType">
+    <xs:complexContent>
+      <xs:extension base="widgetType">
+        <xs:attribute name="font" type="xs:string"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

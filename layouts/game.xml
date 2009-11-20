@@ -10,9 +10,12 @@
          name="speed_label"
          font="status-font"
          x="10" y="10" />
+  <throttleMeter font="status-font"
+                 name="throttle_meter"
+                 x="10" y="35"/>
   <label text="Brake on"
          name="brake_label"
          font="status-font"
-         x="10" y="35"
+         x="10" y="60"
          colour="255 0 0"/>
 </layout>

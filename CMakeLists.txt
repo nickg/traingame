@@ -17,7 +17,6 @@ set (CMAKE_BUILD_TYPE RelWithDebInfo)
 file (GLOB folder_source 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ft/*.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/gui2/*.cpp)
 source_group (${PROJECT_NAME} FILES ${folder_source})
 

@@ -25,8 +25,8 @@ using namespace gui;
 
 Theme::Theme()
 {
-   normal_font_ = ft::loadFont("data/fonts/Vera.ttf",
-      18, ft::FONT_NORMAL);
+   normal_font_ = gui::loadFont("data/fonts/Vera.ttf",
+      18, gui::FONT_NORMAL);
 }
 
 void Theme::addFont(const string& name, IFontPtr f)

@@ -21,7 +21,7 @@
 #include "Platform.hpp"
 #include "Colour.hpp"
 
-namespace ft {
+namespace gui {
    
    struct IFont {
       virtual ~IFont() {}

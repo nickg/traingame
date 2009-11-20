@@ -22,7 +22,6 @@
 #include "ITrain.hpp"
 #include "ILogger.hpp"
 #include "ILight.hpp"
-#include "gui/IContainer.hpp"
 #include "GameScreens.hpp"
 #include "IBillboard.hpp"
 #include "IterateTrack.hpp"
@@ -30,10 +29,10 @@
 
 #include "gui2/ILayout.hpp"
 #include "gui2/Label.hpp"
+#include "gui2/ThrottleMeter.hpp"
+#include "ft/IFont.hpp"
 
 #include <GL/gl.h>
-
-using namespace gui;
 
 // Implementation of the main play screen
 class Game : public IScreen {
@@ -76,13 +75,7 @@ private:
    enum CameraMode { CAMERA_FLOATING, CAMERA_FIXED, CAMERA_BIRD };
    CameraMode cameraMode;
    
-   // GUI elements
-   IContainerPtr myStatsPanel;
-   ITextControlPtr mySpeedLabel, myBrakeLabel;
-   ITextControlPtr myTempLabel, myPressureLabel;
-   IMeterControlPtr myThrottleMeter;
-   IMeterControlPtr myCoalMeter, myWaterMeter;
-   ILayoutPtr layout;
+   gui::ILayoutPtr layout;
    
    string statusMsg;
    gui::IFontPtr statusFont;
@@ -100,38 +93,9 @@ Game::Game(IMapPtr aMap)
    map->setGrid(false);
 
    // Build the GUI
-   myStatsPanel = makeFlowBox(FLOW_BOX_VERT);
-
-   gui::IFontPtr stdFont = gui::load_font("data/fonts/Vera.ttf", 14);
-   statusFont = gui::load_font("data/fonts/Vera.ttf", 18);
-   
-   mySpeedLabel = makeLabel(stdFont);
-   myStatsPanel->addChild(mySpeedLabel);
-
-   myThrottleMeter = makeThrottleMeter(stdFont);
-   myStatsPanel->addChild(myThrottleMeter);
-
-   myCoalMeter = makeFuelMeter(stdFont, "Coal",
-                               makeColour(0.1f, 0.1f, 0.1f));
-   //myStatsPanel->addChild(myCoalMeter);
-   
-   myWaterMeter = makeFuelMeter(stdFont, "Water",
-                                makeColour(0.1f, 0.1f, 0.8f));
-   //myStatsPanel->addChild(myWaterMeter);
-
-   myTempLabel = makeLabel(stdFont, "Temp");
-   //myStatsPanel->addChild(myTempLabel);
-
-   myPressureLabel = makeLabel(stdFont, "Pressure");
-   //myStatsPanel->addChild(myPressureLabel);
-
-   myBrakeLabel = makeLabel(stdFont, "Brake on");
-   myBrakeLabel->setColour(1.0f, 0.0f, 0.0f);
-   myStatsPanel->addChild(myBrakeLabel);
-
-   myStatsPanel->setOrigin(5, 10);
-
    layout = gui::makeLayout("layouts/game.xml");
+
+   statusFont = gui::loadFont("data/fonts/Vera.ttf", 18);
 }
 
 Game::~Game()
@@ -177,9 +141,9 @@ void Game::overlay() const
 
    const int screenH = getGameWindow()->height();
    const int screenW = getGameWindow()->width();
-   const int len = statusFont->string_width("%s", statusMsg.c_str());
+   const int len = statusFont->text_width(statusMsg);
    statusFont->print((screenW - len)/2, screenH - 50,
-      "%s", statusMsg.c_str());
+      colour::WHITE, statusMsg);
 }
 
 void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
@@ -187,24 +151,15 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    train->update(aDelta);
 
    // Update the GUI elements
+   layout->cast<gui::ThrottleMeter>("/throttle_meter").value(
+      train->controller()->throttle());
+   
    const double msToMPH = 2.237;
-   mySpeedLabel->setText("Speed: %.1lfmph\n", train->speed() * msToMPH);
-   myThrottleMeter->setValue(train->controller()->throttle());
-   myBrakeLabel->setVisible(train->controller()->brakeOn());
-
    layout->cast<gui::Label>("/speed_label").format(
       "Speed: %.1lfmph", train->speed() * msToMPH);
 
    layout->get("/brake_label").visible(train->controller()->brakeOn());
    
-   const double pressure = train->controller()->pressure();
-   myPressureLabel->setText("Pressure: %.lfpsi", pressure);
-
-   const double temp = train->controller()->temp();
-   myTempLabel->setText("Temp: %.lfdeg", temp);
-
-   myWaterMeter->setValue(8);
-
    lookAhead();
 
    // Move the camera vertically if it's currently underground

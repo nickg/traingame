@@ -27,8 +27,6 @@
 #include <map>
 
 namespace gui {
-
-   using namespace ft;
    
    class Theme {
    public:

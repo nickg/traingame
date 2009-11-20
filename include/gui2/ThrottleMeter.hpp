@@ -15,30 +15,38 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_IFONT_HPP
-#define INC_IFONT_HPP
+#ifndef INC_GUI_THROTTLE_METER_HPP
+#define INC_GUI_THROTTLE_METER_HPP
 
 #include "Platform.hpp"
+#include "gui2/Widget.hpp"
 
 #include <string>
 
 namespace gui {
 
-   // Wrapper for FreeType fonts
-   struct IFont {
-      virtual ~IFont() {}
+   class ThrottleMeter : public Widget {
+   public:
+      ThrottleMeter(const AttributeSet& attrs);
 
-      virtual void set_colour(float r, float g, float b, float a=1.0f) = 0;
-      virtual void get_colour(float& r, float& g, float& b, float& a) const = 0;
-      virtual void print(int x, int y, const char* fmt, ...) const = 0;
-      virtual int string_width(const char* fmt, ...) const = 0;
-      virtual int max_height() const = 0;
+      void value(int v) { value_ = v; }
+      int value() const { return value_; }
+
+      void range(int low, int high);
+      
+      void render(RenderContext& rc) const;
+      void adjustForTheme(const Theme& theme);
+
+   private:
+      int value_, minValue, maxValue;
+      string fontName;
+      
+      static const int THROTTLE_MAX = 10;
+      static const int THROTTLE_MIN = 0;
+      
+      static const int METER_HEIGHT, METER_WIDTH;
    };
-
-   typedef shared_ptr<IFont> IFontPtr;
-
-   IFontPtr load_font(const std::string& aFile, int aHeight,
-      bool shadow=true);
+   
 }
 
 #endif

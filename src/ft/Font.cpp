@@ -31,7 +31,7 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
-using namespace ft;
+using namespace gui;
 
 class Glyph {
 public:
@@ -299,7 +299,7 @@ int Font::text_width(const string& s) const
 }
 
 }
-IFontPtr ft::loadFont(const string& file, int h, FontType type,
+IFontPtr gui::loadFont(const string& file, int h, FontType type,
    bool dropShadow)
 {
    typedef tuple<string, int, bool> FontToken;

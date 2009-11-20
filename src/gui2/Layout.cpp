@@ -24,6 +24,7 @@
 #include "gui2/Window.hpp"
 #include "gui2/Button.hpp"
 #include "gui2/Label.hpp"
+#include "gui2/ThrottleMeter.hpp"
 
 #include <vector>
 #include <sstream>
@@ -107,7 +108,7 @@ void Layout::startElement(const string& localName,
       const int size = attrs.get<int>("size", 14);
 
       theme.addFont(name,
-         ft::loadFont(file, size, FONT_NORMAL, dropShadow));
+         gui::loadFont(file, size, FONT_NORMAL, dropShadow));
 
       return;
    }
@@ -117,6 +118,8 @@ void Layout::startElement(const string& localName,
       w = new Button(attrs);
    else if (localName == "label")
       w = new Label(attrs);
+   else if (localName == "throttleMeter")
+      w = new ThrottleMeter(attrs);
    else
       throw runtime_error("Unexpected " + localName);
 
