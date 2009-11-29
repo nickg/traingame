@@ -166,9 +166,9 @@ public:
 void CylindricalBillboard::realRender() const
 {
    // Based on code from
-   // http://www.lighthouse3d.com/opengl/billboarding/index.php?billCheat1
-   
-   float modelview[16];
+   // http://www.lighthouse3d.com/opengl/billboarding/index.php?billCyl
+   Vector<float> lookAt, objToCamProj, upAux, objToCam;
+   float angleCosine;  
 
    glPushAttrib(GL_DEPTH_BUFFER_BIT);
    glDepthMask(GL_FALSE);
@@ -177,17 +177,34 @@ void CylindricalBillboard::realRender() const
 
    translate();
    
-	 glGetFloatv(GL_MODELVIEW_MATRIX , modelview);
+	 // objToCamProj is the vector in world coordinates from the 
+   // local origin to the camera projected in the XZ plane
+   objToCamProj = makeVector(
+      cameraPosition.x - position.x,
+      0.0f,
+      cameraPosition.z - position.z);
 
-   for (int i = 0; i < 3; i += 2) 
-	    for (int j = 0; j < 3; j++) {
-         if (i == j)
-            modelview[i*4+j] = 1.0;
-         else
-            modelview[i*4+j] = 0.0;
-	    }
+   // This is the original lookAt vector for the object 
+   // in world coordinates
+   lookAt = makeVector(0.0f, 0.0f, 1.0f);
 
-   glLoadMatrixf(modelview);
+   // normalize both vectors to get the cosine directly afterwards
+   objToCamProj.normalise();
+
+   // easy fix to determine wether the angle is negative or positive
+   // for positive angles upAux will be a vector pointing in the 
+   // positive y direction, otherwise upAux will point downwards
+   // effectively reversing the rotation.
+   upAux = lookAt * objToCamProj;
+
+   // compute the angle
+   angleCosine = lookAt.dot(objToCamProj);
+
+   // perform the rotation. The if statement is used for stability reasons
+   // if the lookAt and objToCamProj vectors are too close together then 
+   // |angleCosine| could be bigger than 1 due to lack of precision
+   if ((angleCosine < 0.99990) && (angleCosine > -0.9999))
+      glRotatef(acos(angleCosine)*180/3.14, upAux.x, upAux.y, upAux.z);	
 
    drawTextureQuad();
 
