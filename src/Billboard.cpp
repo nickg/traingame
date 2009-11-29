@@ -203,8 +203,8 @@ void CylindricalBillboard::realRender() const
    // perform the rotation. The if statement is used for stability reasons
    // if the lookAt and objToCamProj vectors are too close together then 
    // |angleCosine| could be bigger than 1 due to lack of precision
-   if ((angleCosine < 0.99990) && (angleCosine > -0.9999))
-      glRotatef(acos(angleCosine)*180/3.14, upAux.x, upAux.y, upAux.z);	
+   //if ((angleCosine < 0.999999f) && (angleCosine > -0.999999f))
+   glRotatef(acos(angleCosine)*180.0f/M_PI, upAux.x, upAux.y, upAux.z);	
 
    drawTextureQuad();
 
@@ -261,8 +261,7 @@ void SphericalBillboard::realRender() const
    // perform the rotation. The if statement is used for stability reasons
    // if the lookAt and objToCamProj vectors are too close together then 
    // |angleCosine| could be bigger than 1 due to lack of precision
-   if ((angleCosine < 0.99990) && (angleCosine > -0.9999))
-      glRotatef(acos(angleCosine)*180/3.14, upAux.x, upAux.y, upAux.z);	
+   glRotatef(acos(angleCosine)*180.0f/M_PI, upAux.x, upAux.y, upAux.z);	
       
    // so far it is just like the cylindrical billboard. The code for the 
    // second rotation comes now
@@ -279,7 +278,6 @@ void SphericalBillboard::realRender() const
    //i.e. compute the required angle for the lookup vector
 
    angleCosine = objToCamProj.dot(objToCam);
-
 
    // Tilt the object. The test is done to prevent instability 
    // when objToCam and objToCamProj have a very small
