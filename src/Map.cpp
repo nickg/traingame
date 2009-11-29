@@ -27,7 +27,6 @@
 #include "IStation.hpp"
 #include "IResource.hpp"
 #include "IScenery.hpp"
-#include "Random.hpp"  // TODO: remove
 
 #include <stdexcept>
 #include <sstream>
@@ -1427,11 +1426,6 @@ IMapPtr loadMap(const string& aResId)
 
    MapLoader loader(map, res);
    xmlParser->parse(res->xmlFileName(), loader);
-
-   // DEBUG: add random trees
-   UniformInt rnd(0, map->width() - 1);
-   for (int i = 0; i < 250; i++)
-      map->addScenery(makePoint(rnd(), rnd()), makeTree());
       
    return IMapPtr(map);
 }
