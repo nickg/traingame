@@ -40,3 +40,19 @@ bool ToggleButton::handleClick(int x, int y)
    on();
    return Widget::handleClick(x, y);
 }
+
+void ToggleButton::on()
+{
+   if (enabled == false) {
+      enabled = true;
+      raise(SIG_ENTER);
+   }
+}
+
+void ToggleButton::off()
+{
+   if (enabled == true) {
+      enabled = false;
+      raise(SIG_LEAVE);
+   }
+}

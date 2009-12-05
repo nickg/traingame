@@ -26,7 +26,7 @@
 struct IBuildingPicker {
    virtual ~IBuildingPicker() {}
 
-   virtual IBuildingPtr get() const = 0;
+   virtual tuple<IBuildingPtr, float> get() const = 0;
 };
 
 typedef shared_ptr<IBuildingPicker> IBuildingPickerPtr;

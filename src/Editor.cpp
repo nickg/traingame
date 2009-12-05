@@ -526,8 +526,12 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
          map->extendStation(dragBegin, dragEnd);
          break;
       case BUILDING_TOOL:
-         //map->placeBuilding(dragBegin, theBuildingPicker->active(),
-         //   theModelViewer->angle());
+         {
+            float angle;
+            IBuildingPtr building;
+            tie(building, angle) = buildingPicker->get();
+            map->placeBuilding(dragBegin, building, angle);
+         }
          break;
       }
          

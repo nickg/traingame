@@ -32,8 +32,8 @@ namespace gui {
       void render(RenderContext& rc) const;
       bool handleClick(int x, int y);
 
-      void on() { enabled = true; }
-      void off() { enabled = false; }
+      void on();
+      void off();
    private:
       ITexturePtr texture;
       bool enabled;

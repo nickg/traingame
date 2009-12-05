@@ -44,10 +44,11 @@ namespace gui {
       void y(int y) { y_ = y; }
       void width(int w) { width_ = w; }
       void height(int h) { height_ = h; }
-      void visible(bool v) { visible_ = v; }
+      void visible(bool v);
 
       enum Signal {
-         SIG_CLICK, SIG_RENDER
+         SIG_CLICK, SIG_RENDER, SIG_SHOW, SIG_HIDE,
+         SIG_ENTER, SIG_LEAVE
       };
 
       typedef function<void (Widget&)> SignalHandler;

@@ -23,79 +23,117 @@
 
 class BuildingPicker : public IBuildingPicker {
 public:
-   BuildingPicker(gui::ILayoutPtr l)
-      : layout(l)
-   {
-      using namespace placeholders;
-      
-      enumResources("buildings", buildingList);
-      
-      if (buildingList.empty())
-         warn() << "No buildings found";
-      else {
-         buildingIt = buildingList.begin();
-         changeActive(loadBuilding((*buildingIt)->name()));
-      }
-      
-      layout->get("/building_wnd/preview").connect(gui::Widget::SIG_RENDER,
-         bind(&::BuildingPicker::renderBuildingPreview, this, _1));
-      layout->get("/building_wnd/next").connect(gui::Widget::SIG_CLICK,
-         bind(&::BuildingPicker::next, this));
-      layout->get("/building_wnd/prev").connect(gui::Widget::SIG_CLICK,
-         bind(&::BuildingPicker::prev, this));
-   }
-      
-   void next()
-   {
-      if (++buildingIt == buildingList.end())
-         buildingIt = buildingList.begin();
-      
-      changeActive(loadBuilding((*buildingIt)->name()));      
-   }
-   
-   void prev()
-   {
-      if (buildingIt == buildingList.begin())
-         buildingIt = buildingList.end();
-      buildingIt--;
-      
-      changeActive(loadBuilding((*buildingIt)->name()));
-   }
-   
-   IBuildingPtr get() const
-   {
-      return activeBuilding;
-   }
-   
-   void renderBuildingPreview(gui::Widget& canvas)
-   {
-      static ILightPtr sun = makeSunLight();
-      
-      sun->apply();
+   BuildingPicker(gui::ILayoutPtr l);
+     
+private: 
+   void next();   
+   void prev();
+   void rotate();
+   tuple<IBuildingPtr, float> get() const;
+   void renderBuildingPreview(gui::Widget& canvas);
+   void show();
+   void hide();
 
-      glRotatef(45.0f, 1.0f, 0.0f, 0.0f);
-      glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
-      glTranslatef(1.5f, -2.6f, -1.5f);
-      glColor3f(1.0f, 1.0f, 1.0f);
-      glRotatef(35.0f, 0.0f, 1.0f, 0.0f);
-      
-      activeBuilding->model()->render();
-   }
-
-private:
    void changeActive(IBuildingPtr b);
    
    ResourceList buildingList;
    ResourceList::const_iterator buildingIt;
    IBuildingPtr activeBuilding;
    gui::ILayoutPtr layout;
+   float rotation;
 };
+
+BuildingPicker::BuildingPicker(gui::ILayoutPtr l)
+   : layout(l),
+     rotation(0.0f)
+{
+   using namespace placeholders;
+   
+   enumResources("buildings", buildingList);
+   
+   if (buildingList.empty())
+      warn() << "No buildings found";
+   else {
+      buildingIt = buildingList.begin();
+      changeActive(loadBuilding((*buildingIt)->name()));
+   }
+   
+   layout->get("/building_wnd/preview").connect(gui::Widget::SIG_RENDER,
+      bind(&BuildingPicker::renderBuildingPreview, this, _1));
+   layout->get("/building_wnd/next").connect(gui::Widget::SIG_CLICK,
+      bind(&BuildingPicker::next, this));
+   layout->get("/building_wnd/prev").connect(gui::Widget::SIG_CLICK,
+      bind(&BuildingPicker::prev, this));
+   layout->get("/building_wnd/rotate").connect(gui::Widget::SIG_CLICK,
+      bind(&BuildingPicker::rotate, this));
+
+   layout->get("/tool_wnd/tools/building").connect(gui::Widget::SIG_ENTER,
+      bind(&BuildingPicker::show, this));
+   layout->get("/tool_wnd/tools/building").connect(gui::Widget::SIG_LEAVE,
+      bind(&BuildingPicker::hide, this));
+
+   hide();
+}
+    
+void BuildingPicker::next()
+{
+   if (++buildingIt == buildingList.end())
+      buildingIt = buildingList.begin();
+   
+   changeActive(loadBuilding((*buildingIt)->name()));      
+}
+   
+void BuildingPicker::prev()
+{
+   if (buildingIt == buildingList.begin())
+      buildingIt = buildingList.end();
+   buildingIt--;
+   
+   changeActive(loadBuilding((*buildingIt)->name()));
+}
+
+void BuildingPicker::show()
+{
+   layout->get("/building_wnd").visible(true);
+}
+
+void BuildingPicker::hide()
+{
+   layout->get("/building_wnd").visible(false);
+}
+   
+tuple<IBuildingPtr, float> BuildingPicker::get() const
+{
+   return make_tuple(activeBuilding, rotation);
+}
+
+void BuildingPicker::renderBuildingPreview(gui::Widget& canvas)
+{
+   static ILightPtr sun = makeSunLight();
+      
+   glRotatef(45.0f, 1.0f, 0.0f, 0.0f);
+   glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
+   glTranslatef(1.5f, -2.6f, -1.5f);
+   glColor3f(1.0f, 1.0f, 1.0f);
+   glRotatef(rotation, 0.0f, 1.0f, 0.0f);
+   
+   sun->apply();
+   
+   activeBuilding->model()->render();
+}
 
 void BuildingPicker::changeActive(IBuildingPtr b)
 {
    activeBuilding = b;
 
    layout->cast<gui::Label&>("/building_wnd/bld_name").text(b->name());
+}
+
+void BuildingPicker::rotate()
+{
+   rotation += 90.0f;
+   if (rotation >= 350.0f)
+      rotation = 0.0f;
 }
 
 IBuildingPickerPtr makeBuildingPicker(gui::ILayoutPtr layout)

@@ -64,3 +64,17 @@ void Widget::dumpLocation() const
            << " y=" << y() << " width=" << width()
            << " height=" << height();
 }
+
+void Widget::visible(bool v)
+{
+   bool event = visible_ != v;
+   
+   visible_ = v;
+
+   if (event) {
+      if (visible_)
+         raise(SIG_SHOW);
+      else
+         raise(SIG_HIDE);
+   }
+}
