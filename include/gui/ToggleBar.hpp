@@ -15,26 +15,25 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GUI_BUTTON_HPP
-#define INC_GUI_BUTTON_HPP
+#ifndef INC_TOGGLEBAR_HPP
+#define INC_TOGGLEBAR_HPP
 
 #include "Platform.hpp"
-#include "gui/Widget.hpp"
-
-#include <string>
+#include "gui/ContainerWidget.hpp"
 
 namespace gui {
 
-   class Button : public Widget {
+   // Like a toolbar but one item is always shown selected
+   class ToggleBar : public ContainerWidget {
    public:
-      Button(const AttributeSet& attrs);
-
-      const string& label() const { return label_; }
-      void label(const string& t) { label_ = t; }
+      ToggleBar(const AttributeSet& attrs);
 
       void render(RenderContext& rc) const;
    private:
-      string label_;
+      void childAdded(Widget* w);
+
+      int nextX;
+      int buttonWidth, buttonHeight;
    };
    
 }

@@ -42,17 +42,17 @@ RenderContext::~RenderContext()
    glScissor(0, 0, wnd->width(), wnd->height());
 }
 
-void RenderContext::push_origin(const Widget* w)
+void RenderContext::pushOrigin(const Widget* w)
 {
-   origin_x = w->x();
-   origin_y = w->y();
+   origin_x += w->x();
+   origin_y += w->y();
    origin_stack.push(w);
 }
 
-void RenderContext::pop_origin()
+void RenderContext::popOrigin()
 {
-   origin_x = origin_stack.top()->x();
-   origin_y = origin_stack.top()->y();
+   origin_x -= origin_stack.top()->x();
+   origin_y -= origin_stack.top()->y();
    origin_stack.pop();
 }
 
@@ -73,6 +73,8 @@ void RenderContext::rectangle(int x, int y, int w, int h, Colour c)
    glVertex2i(x + w, y + h);
    glVertex2i(x, y + h);
    glEnd();
+
+   assert(glGetError() == GL_NO_ERROR);
 }
 
 void RenderContext::border(int x, int y, int w, int h, Colour c)
@@ -116,6 +118,15 @@ void RenderContext::scissor(Widget* w)
    
    int width = min(w->width() + 1, max_w);
    int height = min(w->height(), max_h);
-   
-   glScissor(x, y, width, height);
+
+   if (x < 0 || y < 0 || width <= 0 || height <= 0) {
+      static bool haveWarned = false;
+
+      if (!haveWarned) {
+         warn() << "Widget " << w->name() << " is out of bounds";
+         haveWarned = true;
+      }
+   }
+   else
+      glScissor(x, y, width, height);
 }

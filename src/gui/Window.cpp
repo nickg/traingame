@@ -34,10 +34,10 @@ void Window::render(RenderContext& rc) const
    rc.border(x(), y(), width(), height(),
       rc.theme().border());
 
-   rc.push_origin(this);
+   rc.pushOrigin(this);
 
    ContainerWidget::render(rc);
    
-   rc.pop_origin();
+   rc.popOrigin();
 }
 

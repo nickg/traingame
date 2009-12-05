@@ -15,28 +15,37 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GUI_BUTTON_HPP
-#define INC_GUI_BUTTON_HPP
+#include "gui/ToggleBar.hpp"
+#include "ILogger.hpp"
 
-#include "Platform.hpp"
-#include "gui/Widget.hpp"
+using namespace gui;
 
-#include <string>
-
-namespace gui {
-
-   class Button : public Widget {
-   public:
-      Button(const AttributeSet& attrs);
-
-      const string& label() const { return label_; }
-      void label(const string& t) { label_ = t; }
-
-      void render(RenderContext& rc) const;
-   private:
-      string label_;
-   };
-   
+ToggleBar::ToggleBar(const AttributeSet& attrs)
+   : ContainerWidget(attrs),
+     nextX(0),
+     buttonWidth(32), buttonHeight(32)
+{
+   width(0);
+   height(buttonHeight);
 }
 
-#endif
+void ToggleBar::render(RenderContext& rc) const
+{
+   rc.pushOrigin(this);
+   ContainerWidget::render(rc);
+   rc.popOrigin();
+}
+
+void ToggleBar::childAdded(Widget* w)
+{
+   debug() << "Added " << w->name() << " to toggle bar";
+
+   w->x(nextX);
+   w->y(0);
+   w->width(buttonWidth);
+   w->height(buttonHeight);
+
+   nextX += buttonWidth;
+
+   width(width() + buttonWidth);
+}

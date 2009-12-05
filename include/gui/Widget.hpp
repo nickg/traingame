@@ -39,7 +39,9 @@ namespace gui {
       int width() const { return width_; }
       int height() const { return height_; }
       bool visible() const { return visible_; }
-      
+
+      void x(int x) { x_ = x; }
+      void y(int y) { y_ = y; }
       void width(int w) { width_ = w; }
       void height(int h) { height_ = h; }
       void visible(bool v) { visible_ = v; }
@@ -56,6 +58,8 @@ namespace gui {
       virtual void adjustForTheme(const Theme& theme) {}
       
       virtual void handleClick(int x, int y);
+
+      void dumpLocation() const;
       
    protected:
       void raise(Signal sig);

@@ -57,3 +57,9 @@ void Widget::handleClick(int x, int y)
    raise(SIG_CLICK);
 }
 
+void Widget::dumpLocation() const
+{
+   debug() << name() << ": x=" << x()
+           << " y=" << y() << " width=" << width()
+           << " height=" << height();
+}

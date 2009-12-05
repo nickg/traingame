@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout>
+  <window x="100" y="100" width="300" height="50"
+          name="tool_wnd">
+    <label text="Tools"
+           name="tool_label"
+           x="5" y="5"/>
+    <toggleBar name="tool_list"
+               x="65" y="5">
+      <toggleButton name="track"/>
+    </toggleBar>
+  </window>
+
+</layout>

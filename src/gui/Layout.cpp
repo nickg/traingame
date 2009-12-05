@@ -25,6 +25,8 @@
 #include "gui/Button.hpp"
 #include "gui/Label.hpp"
 #include "gui/ThrottleMeter.hpp"
+#include "gui/ToggleBar.hpp"
+#include "gui/ToggleButton.hpp"
 
 #include <vector>
 #include <sstream>
@@ -120,6 +122,10 @@ void Layout::startElement(const string& localName,
       w = new Label(attrs);
    else if (localName == "throttleMeter")
       w = new ThrottleMeter(attrs);
+   else if (localName == "toggleBar")
+      w = new ToggleBar(attrs);
+   else if (localName == "toggleButton")
+      w = new ToggleButton(attrs);
    else
       throw runtime_error("Unexpected " + localName);
 

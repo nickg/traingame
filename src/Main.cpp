@@ -68,7 +68,8 @@ int main(int argc, char** argv)
       
       IScreenPtr screen;
       if (cmd == "edit") {
-         ::window = makeFLTKWindow("Train Game Editor", addEditorGUI);
+         // ::window = makeFLTKWindow("Train Game Editor", addEditorGUI);
+         ::window = makeSDLWindow();
          if (resourceExists(mapFile, "maps"))
             screen = makeEditorScreen(loadMap(mapFile));
          else {

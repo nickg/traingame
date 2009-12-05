@@ -15,28 +15,21 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GUI_BUTTON_HPP
-#define INC_GUI_BUTTON_HPP
+#ifndef INC_TOGGLE_BUTTON_HPP
+#define INC_TOGGLE_BUTTON_HPP
 
 #include "Platform.hpp"
 #include "gui/Widget.hpp"
 
-#include <string>
-
 namespace gui {
 
-   class Button : public Widget {
+   // A special sort of button that only appears in toggle bars
+   class ToggleButton : public Widget {
    public:
-      Button(const AttributeSet& attrs);
-
-      const string& label() const { return label_; }
-      void label(const string& t) { label_ = t; }
+      ToggleButton(const AttributeSet& attrs);
 
       void render(RenderContext& rc) const;
-   private:
-      string label_;
    };
-   
 }
 
 #endif

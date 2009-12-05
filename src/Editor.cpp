@@ -24,6 +24,7 @@
 #include "ModelViewer.hpp"
 #include "IBuilding.hpp"
 #include "NewMapDialog.hpp"
+#include "gui/ILayout.hpp"
 
 #include <algorithm>
 #include <stdexcept>
@@ -58,7 +59,7 @@ public:
    // Different tools the user can be using
    enum Tool {
       TRACK_TOOL, RAISE_TOOL, LOWER_TOOL, DELETE_TOOL,
-      LEVEL_TOOL, START_TOOL, STATION_TOOL, BUILDING_TOOL
+      LEVEL_TOOL, START_TOOL, STATION_TOOL, BUILDING_TOOL,
    };
    void setTool(Tool aTool) { myTool = aTool; }
 
@@ -87,6 +88,9 @@ private:
    // Variables for dragging track segments
    Point<int> dragBegin, dragEnd;
    bool amDragging;
+
+   // GUI elements
+   gui::ILayoutPtr layout;
 };
 
 // The FLTK toolbox
@@ -248,6 +252,8 @@ Editor::Editor(IMapPtr aMap)
 
    theEditor = this;
 
+   layout = gui::makeLayout("layouts/editor.xml");
+
    if (map) {
       map->setGrid(true);
 
@@ -305,7 +311,7 @@ void Editor::display(IGraphicsPtr aContext) const
 // Render the overlay
 void Editor::overlay() const
 {
-   
+   layout->render();
 }
 
 // Prepare the next frame
@@ -674,7 +680,7 @@ void Editor::onKeyUp(SDLKey aKey)
 }
 
 void Editor::onKeyDown(SDLKey aKey)
-{   
+{
    switch (aKey) {
    case SDLK_g:
       // Toggle grid
