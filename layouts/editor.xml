@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <layout>
-  <window x="100" y="100" width="300" height="50"
+  <window x="10" y="10" width="320" height="40"
           name="tool_wnd">
     <label text="Tools"
            name="tool_label"
            x="5" y="5"/>
-    <toggleBar name="tool_list"
-               x="65" y="5">
-      <toggleButton name="track"
-                    image="images/track_icon.png"/>
+
+    <toggleBar name="tool_list" x="65" y="5">
+      <toggleButton name="track" image="images/track_icon.png"/>
+      <toggleButton name="raise" image="images/raise_icon.png"/>
+      <toggleButton name="lower" image="images/lower_icon.png"/>
+      <toggleButton name="level" image="images/level_icon.png"/>
+      <toggleButton name="delete" image="images/delete_icon.png"/>
+      <toggleButton name="start" image="images/start_icon.png"/>
+      <toggleButton name="station" image="images/station_icon.png"/>
+      <toggleButton name="building" image="images/buildings_icon.png"/>
     </toggleBar>
   </window>
 
