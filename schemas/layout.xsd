@@ -28,6 +28,8 @@
       <xs:element name="label" type="labelType"/>
       <xs:element name="throttleMeter" type="throttleMeterType"/>
       <xs:element name="toggleBar" type="toggleBarType"/>
+      <xs:element name="canvas3d" type="canvas3dType"/>
+      <xs:element name="imageButton" type="imageButtonType"/>
     </xs:choice>
   </xs:group>
 
@@ -97,11 +99,29 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <!-- Buttons with an image instead of text -->
+  <xs:complexType name="imageButtonType">
+    <xs:complexContent>
+      <xs:extension base="widgetType">
+        <xs:attribute name="image" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
   <!-- The throttle meter -->
   <xs:complexType name="throttleMeterType">
     <xs:complexContent>
       <xs:extension base="widgetType">
         <xs:attribute name="font" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- 3D canvas -->
+  <xs:complexType name="canvas3dType">
+    <xs:complexContent>
+      <xs:extension base="widgetType">
+        <xs:attribute name="clear" type="xs:boolean"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

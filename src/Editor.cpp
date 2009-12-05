@@ -76,6 +76,7 @@ private:
                    const Point<int>& aSecondPoint) const;
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
    void deleteObjects();
+   void renderBuildingPreview(gui::Widget& canvas);
       
    IMapPtr map;
    
@@ -268,6 +269,8 @@ Editor::~Editor()
 
 void Editor::buildGUI()
 {
+   using namespace placeholders;
+   
    layout = gui::makeLayout("layouts/editor.xml");
    
    layout->get("/tool_wnd/tools/track").connect(gui::Widget::SIG_CLICK,
@@ -285,8 +288,10 @@ void Editor::buildGUI()
    layout->get("/tool_wnd/tools/station").connect(gui::Widget::SIG_CLICK,
       bind(&Editor::setTool, this, STATION_TOOL));
    layout->get("/tool_wnd/tools/building").connect(gui::Widget::SIG_CLICK,
-      bind(&Editor::setTool, this, BUILDING_TOOL));   
-   
+      bind(&Editor::setTool, this, BUILDING_TOOL));
+
+   layout->get("/building_wnd/preview").connect(gui::Widget::SIG_RENDER,
+      bind(&Editor::renderBuildingPreview, this, _1));
 }
 
 void Editor::setMap(IMapPtr aMap)
@@ -305,7 +310,21 @@ void Editor::dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const
    yMin = min(dragBegin.y, dragEnd.y);
    yMax = max(dragBegin.y, dragEnd.y); 
 }
+
+void Editor::renderBuildingPreview(gui::Widget& canvas)
+{
+   static ILightPtr sun = makeSunLight();
+   static IBuildingPtr bld = loadBuilding("platform_end");
+
+   sun->apply();
    
+   glTranslatef(-4.5f, 2.5f, -13.7f);
+   glColor3f(1.0f, 1.0f, 1.0f);
+   glRotatef(45.0f, 1.0f, 1.0f, 0.0f);
+   glRotatef(/*myRotation*/ 35.0f, 0.0f, 1.0f, 0.0f);
+   bld->model()->render();
+}
+
 // Render the next frame
 void Editor::display(IGraphicsPtr aContext) const
 {

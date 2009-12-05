@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <layout>
-  <window x="10" y="10" width="325" height="40"
+  <window x="10" y="10" width="320" height="40"
           name="tool_wnd">
     <label text="Tools"
            name="tool_label"
            x="5" y="5"/>
 
-    <toggleBar name="tools" x="65" y="5">
+    <toggleBar name="tools" x="60" y="5">
       <toggleButton name="track" image="images/track_icon.png"/>
       <toggleButton name="raise" image="images/raise_icon.png"/>
       <toggleButton name="lower" image="images/lower_icon.png"/>
@@ -18,4 +18,18 @@
     </toggleBar>
   </window>
 
+  <window x="10" y="60" width="200" height="200"
+          name="building_wnd">
+    <imageButton name="next" x="5" y="5" width="32" height="32"
+                 image="images/icons/prev.png"/>
+    <imageButton name="next" x="37" y="5" width="32" height="32"
+                 image="images/icons/next.png"/>
+    <imageButton name="next" x="69" y="5" width="32" height="32"
+                 image="images/icons/rotate.png"/>
+    
+    <canvas3d name="preview" x="10" y="40" width="120" height="120"
+              clear="true"/>
+
+    <label name="bld_name" x="5" y="165" text="title"/>
+  </window>
 </layout>

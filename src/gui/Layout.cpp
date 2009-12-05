@@ -27,6 +27,8 @@
 #include "gui/ThrottleMeter.hpp"
 #include "gui/ToggleBar.hpp"
 #include "gui/ToggleButton.hpp"
+#include "gui/Canvas3D.hpp"
+#include "gui/ImageButton.hpp"
 
 #include <vector>
 #include <sstream>
@@ -126,6 +128,10 @@ void Layout::startElement(const string& localName,
       w = new ToggleBar(attrs);
    else if (localName == "toggleButton")
       w = new ToggleButton(attrs);
+   else if (localName == "canvas3d")
+      w = new Canvas3D(attrs);
+   else if (localName == "imageButton")
+      w = new ImageButton(attrs);
    else
       throw runtime_error("Unexpected " + localName);
 

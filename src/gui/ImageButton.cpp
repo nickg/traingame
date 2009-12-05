@@ -15,45 +15,17 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gui/Theme.hpp"
-#include "ILogger.hpp"
-
-#include <string>
-#include <stdexcept>
+#include "gui/ImageButton.hpp"
 
 using namespace gui;
 
-Theme::Theme()
+ImageButton::ImageButton(const AttributeSet& attrs)
+   : Widget(attrs)
 {
-   normal_font_ = gui::loadFont("fonts/DejaVuSans.ttf",
-      17, gui::FONT_NORMAL);
+   texture = loadTexture(attrs.get<string>("image"));
 }
 
-void Theme::addFont(const string& name, IFontPtr f)
+void ImageButton::render(RenderContext& rc) const
 {
-   fonts[name] = f;
+   rc.image(x(), y(), width(), height(), texture);
 }
-
-Colour Theme::background() const
-{
-   return makeColour(0.0f, 0.0f, 0.3f, 0.5f);
-}
-
-Colour Theme::border() const
-{
-   return makeColour(0.0f, 0.0f, 1.0f, 1.0f);
-}
-
-IFontPtr Theme::font(const string& fontName) const
-{
-   if (fontName == "")
-      return normalFont();
-   else {
-      FontMap::const_iterator it = fonts.find(fontName);
-      if (it != fonts.end())
-         return (*it).second;
-      else 
-         throw runtime_error("Unknown font: " + fontName);
-   }
-}
-

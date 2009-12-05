@@ -47,7 +47,7 @@ namespace gui {
       void visible(bool v) { visible_ = v; }
 
       enum Signal {
-         SIG_CLICK
+         SIG_CLICK, SIG_RENDER
       };
 
       typedef function<void (Widget&)> SignalHandler;
