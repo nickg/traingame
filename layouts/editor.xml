@@ -7,7 +7,8 @@
            x="5" y="5"/>
     <toggleBar name="tool_list"
                x="65" y="5">
-      <toggleButton name="track"/>
+      <toggleButton name="track"
+                    image="data/images/track_icon.png"/>
     </toggleBar>
   </window>
 

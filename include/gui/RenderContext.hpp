@@ -22,6 +22,7 @@
 
 #include "Platform.hpp"
 #include "Colour.hpp"
+#include "ITexture.hpp"
 #include "gui/Theme.hpp"
 
 #include <string>
@@ -43,6 +44,7 @@ namespace gui {
       
       void rectangle(int x, int y, int w, int h, Colour c);
       void border(int x, int y, int w, int h, Colour c);
+      void image(int x, int y, int w, int h, ITexturePtr tex);
 
       void print(IFontPtr font, int x, int y, const string& s,
          Colour col = colour::WHITE);

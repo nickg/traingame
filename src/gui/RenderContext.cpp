@@ -90,6 +90,30 @@ void RenderContext::border(int x, int y, int w, int h, Colour c)
    glEnd();
 }
 
+void RenderContext::image(int x, int y, int w, int h, ITexturePtr tex)
+{
+   glPushAttrib(GL_ENABLE_BIT);
+   glEnable(GL_TEXTURE_2D);
+
+   offset(x, y);
+
+   tex->bind();   
+   glColor3f(1.0f, 1.0f, 1.0f);
+
+   glBegin(GL_QUADS);
+   glTexCoord2i(0, 0);
+   glVertex2i(x, y);
+   glTexCoord2i(1, 0);
+   glVertex2i(x + w, y);
+   glTexCoord2i(1, 1);
+   glVertex2i(x + w, y + h);
+   glTexCoord2i(0, 1);
+   glVertex2i(x, y + h);
+   glEnd();
+   
+   glPopAttrib();
+}
+
 void RenderContext::print(IFontPtr font, int x, int y,
    const string& s, Colour col)
 {

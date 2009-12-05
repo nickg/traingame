@@ -19,6 +19,7 @@
 #define INC_TOGGLE_BUTTON_HPP
 
 #include "Platform.hpp"
+#include "ITexture.hpp"
 #include "gui/Widget.hpp"
 
 namespace gui {
@@ -29,6 +30,9 @@ namespace gui {
       ToggleButton(const AttributeSet& attrs);
 
       void render(RenderContext& rc) const;
+      
+   private:
+      ITexturePtr texture;
    };
 }
 
