@@ -52,7 +52,7 @@ SkyBox::SkyBox(const string& aBaseName)
 void SkyBox::loadSkyTexture(int anIndex, const string& aSuffix)
 {
    textures[anIndex] =
-      loadTexture("data/images/" + baseName + "_" + aSuffix + ".png");
+      loadTexture("images/" + baseName + "_" + aSuffix + ".png");
 }
 
 void SkyBox::apply(float anAngle) const

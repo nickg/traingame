@@ -95,7 +95,7 @@ Game::Game(IMapPtr aMap)
    // Build the GUI
    layout = gui::makeLayout("layouts/game.xml");
 
-   statusFont = gui::loadFont("data/fonts/Vera.ttf", 18);
+   statusFont = gui::loadFont("fonts/Vera.ttf", 18);
 }
 
 Game::~Game()

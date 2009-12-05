@@ -37,10 +37,10 @@ private:
 Tree::Tree()
 {
    const char* trees[] = {
-      "data/images/a-tree.png",
-      "data/images/a-nother-tree.png",
-      "data/images/cloud-tree.png",
-      "data/images/real_tree.png",
+      "images/a-tree.png",
+      "images/a-nother-tree.png",
+      "images/cloud-tree.png",
+      "images/real_tree.png",
    };
 
    static UniformInt rnd(0, sizeof(trees)/sizeof(char*) - 1);

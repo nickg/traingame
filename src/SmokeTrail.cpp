@@ -66,7 +66,7 @@ SmokeTrail::SmokeTrail()
      mySpawnDelay(500), mySpawnCounter(0),
      myXSpeed(0.0f), myYSpeed(0.0f), myZSpeed(0.0f)
 {
-   particleTex = loadTexture("data/images/smoke_particle.png");
+   particleTex = loadTexture("images/smoke_particle.png");
 }
 
 // Returns true if the particle is dead
