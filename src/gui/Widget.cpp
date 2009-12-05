@@ -52,9 +52,10 @@ void Widget::connect(Signal sig, SignalHandler handler)
    handlers[sig] = handler;
 }
 
-void Widget::handleClick(int x, int y)
+bool Widget::handleClick(int x, int y)
 {
    raise(SIG_CLICK);
+   return true;
 }
 
 void Widget::dumpLocation() const

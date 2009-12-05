@@ -252,7 +252,7 @@ Editor::Editor(IMapPtr aMap)
 
    theEditor = this;
 
-   layout = gui::makeLayout("layouts/editor.xml");
+   buildGUI();
 
    if (map) {
       map->setGrid(true);
@@ -263,6 +263,29 @@ Editor::Editor(IMapPtr aMap)
 
 Editor::~Editor()
 {
+   
+}
+
+void Editor::buildGUI()
+{
+   layout = gui::makeLayout("layouts/editor.xml");
+   
+   layout->get("/tool_wnd/tools/track").connect(gui::Widget::SIG_CLICK,
+      bind(&Editor::setTool, this, TRACK_TOOL));
+   layout->get("/tool_wnd/tools/raise").connect(gui::Widget::SIG_CLICK,
+      bind(&Editor::setTool, this, RAISE_TOOL));
+   layout->get("/tool_wnd/tools/lower").connect(gui::Widget::SIG_CLICK,
+      bind(&Editor::setTool, this, LOWER_TOOL));
+   layout->get("/tool_wnd/tools/level").connect(gui::Widget::SIG_CLICK,
+      bind(&Editor::setTool, this, LEVEL_TOOL));
+   layout->get("/tool_wnd/tools/delete").connect(gui::Widget::SIG_CLICK,
+      bind(&Editor::setTool, this, DELETE_TOOL));
+   layout->get("/tool_wnd/tools/start").connect(gui::Widget::SIG_CLICK,
+      bind(&Editor::setTool, this, START_TOOL));
+   layout->get("/tool_wnd/tools/station").connect(gui::Widget::SIG_CLICK,
+      bind(&Editor::setTool, this, STATION_TOOL));
+   layout->get("/tool_wnd/tools/building").connect(gui::Widget::SIG_CLICK,
+      bind(&Editor::setTool, this, BUILDING_TOOL));   
    
 }
 
@@ -607,19 +630,23 @@ void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
       amScrolling = true;
    }
    else if (aButton == MOUSE_LEFT) {
-      // See if the user clicked on something in the map
-      map->setPickMode(true);
-      IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
-      display(pickContext);
-      int id = aPickBuffer->endPick();
-      map->setPickMode(false);
+      bool clickedOnGUI = layout->click(x, y);
 
-      if (id > 0) {
-         // Begin dragging a selection rectangle
-         Point<int> where = map->pickPosition(id);
+      if (!clickedOnGUI) {
+         // See if the user clicked on something in the map
+         map->setPickMode(true);
+         IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
+         display(pickContext);
+         int id = aPickBuffer->endPick();
+         map->setPickMode(false);
          
-         dragBegin = dragEnd = where;
-         amDragging = true;
+         if (id > 0) {
+            // Begin dragging a selection rectangle
+            Point<int> where = map->pickPosition(id);
+         
+            dragBegin = dragEnd = where;
+            amDragging = true;
+         }
       }
    }
    else if (aButton == MOUSE_WHEEL_UP) {

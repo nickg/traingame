@@ -30,9 +30,13 @@ namespace gui {
       ToggleButton(const AttributeSet& attrs);
 
       void render(RenderContext& rc) const;
-      
+      bool handleClick(int x, int y);
+
+      void on() { enabled = true; }
+      void off() { enabled = false; }
    private:
       ITexturePtr texture;
+      bool enabled;
    };
 }
 

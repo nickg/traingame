@@ -40,7 +40,7 @@ namespace gui {
       virtual Widget& get(const string& path) const = 0;
       virtual void render() const = 0;
 
-      virtual void click(int x, int y) = 0;
+      virtual bool click(int x, int y) = 0;
    };
 
    typedef shared_ptr<ILayout> ILayoutPtr;

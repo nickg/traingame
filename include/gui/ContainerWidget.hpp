@@ -35,10 +35,11 @@ namespace gui {
 
       void addChild(Widget* w);
       
-      virtual void handleClick(int x, int y);
+      virtual bool handleClick(int x, int y);
       
    protected:
       virtual void childAdded(Widget* w) {};
+      int countChildren();
 
       typedef vector<Widget*> ChildList;
       

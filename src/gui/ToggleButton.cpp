@@ -21,13 +21,22 @@
 using namespace gui;
 
 ToggleButton::ToggleButton(const AttributeSet& attrs)
-   : Widget(attrs)
+   : Widget(attrs),
+     enabled(false)
 {
    texture = loadTexture(attrs.get<string>("image"));
 }
 
 void ToggleButton::render(RenderContext& rc) const
 {
-   //   rc.rectangle(x(), y(), width(), height(), colour::WHITE);
    rc.image(x(), y(), width(), height(), texture);
+
+   if (enabled)
+      rc.border(x(), y(), width(), height(), colour::WHITE);
+}
+
+bool ToggleButton::handleClick(int x, int y)
+{
+   on();
+   return Widget::handleClick(x, y);
 }

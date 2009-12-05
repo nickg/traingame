@@ -43,7 +43,7 @@ public:
    Widget& get(const string& path) const;
    void render() const;
 
-   void click(int x, int y);
+   bool click(int x, int y);
 
    // IXMLCallback interface
    void startElement(const string& localName, const AttributeSet &attrs);
@@ -170,9 +170,9 @@ Widget& Layout::get(const string& path) const
       throw runtime_error("Widget " + path + " does not exist");
 }
 
-void Layout::click(int x, int y)
+bool Layout::click(int x, int y)
 {
-   root->handleClick(x, y);
+   return root->handleClick(x, y);
 }
 
 string Layout::PathStack::str() const

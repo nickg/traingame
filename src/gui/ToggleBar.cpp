@@ -16,7 +16,10 @@
 //
 
 #include "gui/ToggleBar.hpp"
+#include "gui/ToggleButton.hpp"
 #include "ILogger.hpp"
+
+#include <boost/cast.hpp>
 
 using namespace gui;
 
@@ -25,7 +28,7 @@ ToggleBar::ToggleBar(const AttributeSet& attrs)
      nextX(0),
      buttonWidth(32), buttonHeight(32)
 {
-   width(0);
+   width(1);
    height(buttonHeight);
 }
 
@@ -48,4 +51,16 @@ void ToggleBar::childAdded(Widget* w)
    nextX += buttonWidth;
 
    width(width() + buttonWidth);
+
+   if (countChildren() == 1)
+      boost::polymorphic_cast<ToggleButton*>(w)->on();
+}
+
+bool ToggleBar::handleClick(int x, int y)
+{
+   ChildList::iterator it;
+   for (it = begin(); it != end(); ++it)
+      boost::polymorphic_cast<ToggleButton*>(*it)->off();
+   
+   return ContainerWidget::handleClick(x, y);
 }

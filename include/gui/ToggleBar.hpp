@@ -29,6 +29,7 @@ namespace gui {
       ToggleBar(const AttributeSet& attrs);
 
       void render(RenderContext& rc) const;
+      bool handleClick(int x, int y);
    private:
       void childAdded(Widget* w);
 

@@ -57,7 +57,7 @@ namespace gui {
       virtual void render(RenderContext& rc) const = 0;
       virtual void adjustForTheme(const Theme& theme) {}
       
-      virtual void handleClick(int x, int y);
+      virtual bool handleClick(int x, int y);
 
       void dumpLocation() const;
       

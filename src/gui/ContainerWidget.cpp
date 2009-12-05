@@ -50,14 +50,28 @@ void ContainerWidget::adjustForTheme(const Theme& theme)
       (*it)->adjustForTheme(theme);
 }
 
-void ContainerWidget::handleClick(int x, int y)
+bool ContainerWidget::handleClick(int x, int y)
 {
+   bool accepted = false;
+   
    for (ChildList::const_iterator it = constBegin();
         it != constEnd(); ++it) {
       Widget& w = **it;
 
       if (w.x() <= x && x < w.x() + w.width()
          && w.y() <= y && y < w.y() + w.height())
-         w.handleClick(x - w.x(), y - w.y());
+         accepted |= w.handleClick(x - w.x(), y - w.y());
    }
+
+   bool inContainer = this->x() <= x && x < this->x() + this->width()
+      && this->y() <= y && y < this->y() + this->height();
+   accepted |= inContainer;
+
+   return accepted;
 }
+
+int ContainerWidget::countChildren()
+{
+   return children.size();
+}
+
