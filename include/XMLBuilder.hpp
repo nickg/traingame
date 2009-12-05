@@ -41,9 +41,15 @@ namespace xml {
       element& addAttribute(const string& name, T t)
       {
          if (hasChildren)
-            throw runtime_error("Cannot add XML attributes after children");
-         else
-            str += " " + name + "=\"" + lexical_cast<string>(t) + "\"";
+            throw runtime_error(
+               "Cannot add XML attributes after children");
+         else {
+            ostringstream ss;
+            ss << boolalpha;
+            ss << " " << name << "=\"" << t << "\"";
+            
+            str += ss.str();
+         }
 
          return *this;
       }

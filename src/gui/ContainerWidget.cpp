@@ -52,8 +52,11 @@ void ContainerWidget::adjustForTheme(const Theme& theme)
 
 bool ContainerWidget::handleClick(int x, int y)
 {
+   if (!visible())
+      return false;
+ 
    bool accepted = false;
-   
+  
    for (ChildList::const_iterator it = constBegin();
         it != constEnd(); ++it) {
       Widget& w = **it;
