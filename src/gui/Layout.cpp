@@ -29,6 +29,7 @@
 #include "gui/ToggleButton.hpp"
 #include "gui/Canvas3D.hpp"
 #include "gui/ImageButton.hpp"
+#include "gui/FromBottom.hpp"
 
 #include <vector>
 #include <sstream>
@@ -132,6 +133,8 @@ void Layout::startElement(const string& localName,
       w = new Canvas3D(attrs);
    else if (localName == "imageButton")
       w = new ImageButton(attrs);
+   else if (localName == "fromBottom")
+      w = new FromBottom(attrs);
    else
       throw runtime_error("Unexpected " + localName);
 
@@ -207,4 +210,10 @@ Widget* Layout::PathStack::top() const
 ILayoutPtr gui::makeLayout(const string& file_name)
 {
    return ILayoutPtr(new Layout(file_name));
+}
+
+string gui::parentPath(const string& path)
+{
+   size_t lastSlash = path.find_last_of("/");
+   return path.substr(lastSlash + 1);
 }

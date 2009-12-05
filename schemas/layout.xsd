@@ -30,6 +30,7 @@
       <xs:element name="toggleBar" type="toggleBarType"/>
       <xs:element name="canvas3d" type="canvas3dType"/>
       <xs:element name="imageButton" type="imageButtonType"/>
+      <xs:element name="fromBottom" type="fromBottomType"/>
     </xs:choice>
   </xs:group>
 
@@ -49,6 +50,17 @@
         <xs:group ref="widgetGroup"
                   minOccurs="0" maxOccurs="unbounded"/>
         <xs:attribute name="title" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Alignment container relative to bottom of parent -->
+  <xs:complexType name="fromBottomType">
+    <xs:complexContent>
+      <xs:extension base="widgetType">
+        <xs:group ref="widgetGroup"
+                  minOccurs="0" maxOccurs="unbounded"/>
+        <xs:attribute name="offset" type="xs:integer"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

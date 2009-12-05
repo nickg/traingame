@@ -15,23 +15,24 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GAME_SCREENS_HPP
-#define INC_GAME_SCREENS_HPP
+#ifndef INC_FROM_BOTTOM_HPP
+#define INC_FROM_BOTTOM_HPP
 
-#include "IScreen.hpp"
-#include "IMap.hpp"
-#include "IWindow.hpp"
+#include "Platform.hpp"
+#include "gui/ContainerWidget.hpp"
 
-// Create the various screens
-// These may be called multiple times
-IScreenPtr makeEditorScreen(IMapPtr aMap);
-IScreenPtr makeGameScreen(IMapPtr aMap);
-IScreenPtr makeUIDemo();
+namespace gui {
 
-// Access to the window the game is running in
-IWindowPtr getGameWindow();
+   // A special container widget which positions its children
+   // relative to the lower edge of its parent
+   class FromBottom : public ContainerWidget {
+   public:
+      FromBottom(const AttributeSet& attrs);
 
-// Add editor GUI controls
-void addEditorGUI();
+      void render(RenderContext& rc) const;
+   private:
+      int offset;
+   };
+}
 
 #endif

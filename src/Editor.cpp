@@ -68,6 +68,7 @@ private:
                    const Point<int>& aSecondPoint) const;
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
    void deleteObjects();
+   void save();
       
    IMapPtr map;
    
@@ -94,11 +95,9 @@ Editor::Editor(IMapPtr aMap)
 
    buildGUI();
 
-   if (map) {
-      map->setGrid(true);
-
-      log() << "Editing " << aMap->name();
-   }
+   map->setGrid(true);
+   
+   log() << "Editing " << aMap->name();
 }
 
 Editor::~Editor()
@@ -129,6 +128,9 @@ void Editor::buildGUI()
    layout->get("/tool_wnd/tools/building").connect(gui::Widget::SIG_CLICK,
       bind(&Editor::setTool, this, BUILDING_TOOL));
 
+   layout->get("/lower/action_wnd/save").connect(gui::Widget::SIG_CLICK,
+      bind(&Editor::save, this));
+   
    buildingPicker = makeBuildingPicker(layout);
 }
 
@@ -136,6 +138,11 @@ void Editor::setMap(IMapPtr aMap)
 {
    map = aMap;
    map->setGrid(true);
+}
+
+void Editor::save()
+{
+   map->save();
 }
 
 // Calculate the bounds of the drag box accounting for the different
@@ -563,15 +570,4 @@ void Editor::onKeyDown(SDLKey aKey)
 IScreenPtr makeEditorScreen(IMapPtr aMap)
 {
    return IScreenPtr(new Editor(aMap));
-}
-
-IScreenPtr makeEditorScreen(const string& aMapName)
-{
-   using namespace placeholders;
-   
-   //Editor* editor = new Editor(IMapPtr());
-   
-   //showNewMapDialog(bind(&newMapDialogCallback, editor, _1, _2));
-   
-   return IScreenPtr();
 }

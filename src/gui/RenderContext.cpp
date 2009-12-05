@@ -139,11 +139,14 @@ void RenderContext::scissor(Widget* w)
    offset(x, y);
 
    y = wh - y - w->height() - 1;
+
+   x = max(x, 0);
+   y = max(y, 0);
    
    int width = min(w->width() + 1, max_w);
    int height = min(w->height(), max_h);
 
-   if (x < 0 || y < 0 || width <= 0 || height <= 0) {
+   if (width <= 0 || height <= 0) {
       static bool haveWarned = false;
 
       if (!haveWarned) {

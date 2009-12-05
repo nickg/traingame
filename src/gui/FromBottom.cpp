@@ -15,23 +15,31 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_GAME_SCREENS_HPP
-#define INC_GAME_SCREENS_HPP
+#include "gui/FromBottom.hpp"
+#include "GameScreens.hpp"
 
-#include "IScreen.hpp"
-#include "IMap.hpp"
-#include "IWindow.hpp"
+using namespace gui;
 
-// Create the various screens
-// These may be called multiple times
-IScreenPtr makeEditorScreen(IMapPtr aMap);
-IScreenPtr makeGameScreen(IMapPtr aMap);
-IScreenPtr makeUIDemo();
+FromBottom::FromBottom(const AttributeSet& attrs)
+   : ContainerWidget(attrs),
+     offset(attrs.get<int>("offset"))
+{
+   // It would be nice if this worked inside other widgets
+   int sh = getGameWindow()->height();
+   int sw = getGameWindow()->width();
 
-// Access to the window the game is running in
-IWindowPtr getGameWindow();
+   x(0);
+   width(sw);
+   height(offset);
+   y(sh - offset);
 
-// Add editor GUI controls
-void addEditorGUI();
+   dumpLocation();
+}
 
-#endif
+void FromBottom::render(RenderContext& rc) const
+{
+   rc.pushOrigin(this);
+   ContainerWidget::render(rc);
+   rc.popOrigin();
+}
+
