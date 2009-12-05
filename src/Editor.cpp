@@ -21,9 +21,7 @@
 #include "IMap.hpp"
 #include "Maths.hpp"
 #include "ILight.hpp"
-#include "ModelViewer.hpp"
 #include "IBuilding.hpp"
-#include "NewMapDialog.hpp"
 #include "gui/ILayout.hpp"
 #include "IBuildingPicker.hpp"
 
@@ -32,13 +30,6 @@
 
 #include <GL/gl.h>
 
-#include <FL/Fl.H>
-#include <FL/Fl_Window.H>
-#include <FL/Fl_Menu_Button.H>
-#include <FL/Fl_Button.H>
-#include <FL/Fl_Menu_Item.H>
-#include <FL/Fl_Input.H>
-      
 // Concrete editor class
 class Editor : public IScreen {
 public:
@@ -95,164 +86,11 @@ private:
    IBuildingPickerPtr buildingPicker;
 };
 
-// The FLTK toolbox
-namespace {
-   void changeTool(Fl_Widget* aWidget, Editor::Tool aTool);
-      
-   Fl_Menu_Item theTools[] = {
-      { "Track", 0, (Fl_Callback*)changeTool, (void*)Editor::TRACK_TOOL },
-      { "Raise", 0, (Fl_Callback*)changeTool, (void*)Editor::RAISE_TOOL },
-      { "Lower", 0, (Fl_Callback*)changeTool, (void*)Editor::LOWER_TOOL },
-      { "Level", 0, (Fl_Callback*)changeTool, (void*)Editor::LEVEL_TOOL },
-      { "Delete", 0, (Fl_Callback*)changeTool, (void*)Editor::DELETE_TOOL },
-      { "Start", 0, (Fl_Callback*)changeTool, (void*)Editor::START_TOOL },
-      { "Station", 0, (Fl_Callback*)changeTool, (void*)Editor::STATION_TOOL },
-      { "Building", 0, (Fl_Callback*)changeTool, (void*)Editor::BUILDING_TOOL },
-      { 0 }
-   };
-   
-   Fl_Menu_Button* theToolMenu;
-   Fl_Button* theSaveButton;
-   Fl_Button* theNewButton;
-   Fl_Button* theBldNextButton;
-   Fl_Button* theBldPrevButton;
-   Fl_Button* theBldRotateButton;
-   ModelViewer* theModelViewer;
-   
-   Editor* theEditor = NULL;
-
-   // Data related to the building picking dialog
-   class BuildingPicker {
-   public:
-      BuildingPicker()
-      {
-         enumResources("buildings", myBuildingList);
-
-         if (myBuildingList.empty())
-            warn() << "No buildings found";
-         else {
-            myBuildingIt = myBuildingList.begin();
-            myActiveBuilding = loadBuilding((*myBuildingIt)->name());
-         }
-      }
-
-      void switchTo()
-      {
-         theModelViewer->setModel(myActiveBuilding->model());
-      }
-
-      void next()
-      {
-         if (++myBuildingIt == myBuildingList.end())
-            myBuildingIt = myBuildingList.begin();
-
-         myActiveBuilding = loadBuilding((*myBuildingIt)->name());
-         switchTo();
-      }
-
-      void prev()
-      {
-         if (myBuildingIt == myBuildingList.begin())
-            myBuildingIt = myBuildingList.end();
-         myBuildingIt--;
-
-         myActiveBuilding = loadBuilding((*myBuildingIt)->name());
-         switchTo();
-      }
-
-      IBuildingPtr active()
-      {
-         return myActiveBuilding;
-      }
-
-   private:
-      ResourceList myBuildingList;
-      ResourceList::const_iterator myBuildingIt;
-      IBuildingPtr myActiveBuilding;
-   } *theBuildingPicker;
-
-   void newMapDialogCallback(Editor* anEditor, IMapPtr aMap,
-      NewMapDlgResult aResult)
-   {
-      if (aResult == OK)
-         anEditor->setMap(aMap);
-      else if (!anEditor->getMap())
-         throw runtime_error("No map to edit!");
-   }
-   
-   void changeTool(Fl_Widget* aWidget, Editor::Tool aTool)
-   {
-      theToolMenu->label(theToolMenu->text());
-      theEditor->setTool(aTool);
-
-      if (aTool == Editor::BUILDING_TOOL)
-         theBuildingPicker->switchTo();
-   }
-
-   void onSaveClick(Fl_Widget* aWidget)
-   {
-      theEditor->getMap()->save();
-   }
-
-   void onNewClick(Fl_Widget* aWidget)
-   {
-      using namespace placeholders;
-      
-      showNewMapDialog(bind(&newMapDialogCallback, theEditor, _1, _2));
-   }
-   
-   void onBldRotateClick(Fl_Widget* aWidget)
-   {
-      theModelViewer->rotate(90.0f);
-   }
-
-   void onBldNextClick(Fl_Widget* aWidget)
-   {
-      theBuildingPicker->next();
-   }
-   
-   void onBldPrevClick(Fl_Widget* aWidget)
-   {
-      theBuildingPicker->prev();
-   }
-}
-
-// Add the editor panel to the FLTK window
-void addEditorGUI()
-{
-   const int panelW = 180;
-   
-   theToolMenu = new Fl_Menu_Button(0, 0, panelW, 32);
-   theToolMenu->copy(theTools);
-   theToolMenu->label("Track");
-   
-   theModelViewer = new ModelViewer(0, 40, panelW, 200);
-
-   theBldPrevButton = new Fl_Button(0, 240, 60, 25, "Prev");
-   theBldPrevButton->callback(onBldPrevClick);
-   
-   theBldNextButton = new Fl_Button(60, 240, 60, 25, "Next");
-   theBldNextButton->callback(onBldNextClick);
-   
-   theBldRotateButton = new Fl_Button(120, 240, 60, 25, "Rotate");
-   theBldRotateButton->callback(onBldRotateClick);
-
-   //theBuildingPicker = new BuildingPicker;
-   
-   theSaveButton = new Fl_Button(0, 273, panelW, 25, "Save");
-   theSaveButton->callback(onSaveClick);
-
-   theNewButton = new Fl_Button(0, 300, panelW, 25, "New");
-   theNewButton->callback(onNewClick);
-}
-
 Editor::Editor(IMapPtr aMap) 
    : map(aMap), myPosition(4.5, -17.5, -21.5),
      myTool(TRACK_TOOL), amScrolling(false), amDragging(false)
 {
    mySun = makeSunLight();
-
-   theEditor = this;
 
    buildGUI();
 
@@ -623,8 +461,6 @@ void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
       myPosition.x += yrel * speed;
       myPosition.z -= yrel * speed;      
    }
-
-   getGameWindow()->redrawHint();
 }
 
 void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
@@ -660,8 +496,6 @@ void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
    else if (aButton == MOUSE_WHEEL_DOWN) {
       myPosition.y += 0.5;
    }
-
-   getGameWindow()->redrawHint();
 }
 
 void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
@@ -692,8 +526,8 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
          map->extendStation(dragBegin, dragEnd);
          break;
       case BUILDING_TOOL:
-         map->placeBuilding(dragBegin, theBuildingPicker->active(),
-            theModelViewer->angle());
+         //map->placeBuilding(dragBegin, theBuildingPicker->active(),
+         //   theModelViewer->angle());
          break;
       }
          
@@ -702,8 +536,6 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
    else if (amScrolling) {
       amScrolling = false;
    }
-
-   getGameWindow()->redrawHint();
 }
 
 void Editor::onKeyUp(SDLKey aKey)
@@ -733,9 +565,9 @@ IScreenPtr makeEditorScreen(const string& aMapName)
 {
    using namespace placeholders;
    
-   Editor* editor = new Editor(IMapPtr());
+   //Editor* editor = new Editor(IMapPtr());
    
-   showNewMapDialog(bind(&newMapDialogCallback, editor, _1, _2));
+   //showNewMapDialog(bind(&newMapDialogCallback, editor, _1, _2));
    
    return IScreenPtr();
 }

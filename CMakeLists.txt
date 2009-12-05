@@ -32,7 +32,6 @@ endif (NOT WIN32)
 
 find_package (FreeType REQUIRED)
 find_package (Xerces REQUIRED)
-find_package (FLTK REQUIRED)
 
 include_directories (${CMAKE_SOURCE_DIR}/include)
 include_directories (${CMAKE_SOURCE_DIR}/src)
