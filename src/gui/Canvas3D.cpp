@@ -17,6 +17,7 @@
 
 #include "gui/Canvas3D.hpp"
 #include "ILogger.hpp"
+#include "GameScreens.hpp"
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -38,10 +39,15 @@ void Canvas3D::render(RenderContext& rc) const
    glPushAttrib(GL_ALL_ATTRIB_BITS);
    glPushMatrix();
 
+   int xo = x(), yo = y();
+   rc.offset(xo, yo);
+   glViewport(xo, getGameWindow()->height() - yo - height(),
+      width(), height());
+   
    glMatrixMode(GL_PROJECTION);
    glPushMatrix();
    glLoadIdentity();
-
+   
    const GLfloat wf = static_cast<GLfloat>(width());
    const GLfloat hf = static_cast<GLfloat>(height());
    gluPerspective(45.0f, wf/hf, 0.1f, 50.0f);

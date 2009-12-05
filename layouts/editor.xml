@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <layout>
+  <font name="small-font"
+        file="fonts/Vera.ttf"
+        dropShadow="true"
+        size="14" />
+
   <window x="10" y="10" width="320" height="40"
           name="tool_wnd">
     <label text="Tools"
@@ -18,18 +23,19 @@
     </toggleBar>
   </window>
 
-  <window x="10" y="60" width="200" height="200"
+  <window x="10" y="60" width="190" height="190"
           name="building_wnd">
-    <imageButton name="next" x="5" y="5" width="32" height="32"
+    <imageButton name="prev" x="5" y="5" width="32" height="32"
                  image="images/icons/prev.png"/>
     <imageButton name="next" x="37" y="5" width="32" height="32"
                  image="images/icons/next.png"/>
-    <imageButton name="next" x="69" y="5" width="32" height="32"
+    <imageButton name="rotate" x="69" y="5" width="32" height="32"
                  image="images/icons/rotate.png"/>
     
-    <canvas3d name="preview" x="10" y="40" width="120" height="120"
-              clear="true"/>
+    <canvas3d name="preview" x="10" y="40" width="170" height="120"
+              clear="false"/>
 
-    <label name="bld_name" x="5" y="165" text="title"/>
+    <label name="bld_name" x="5" y="165" text="title"
+           font="small-font"/>
   </window>
 </layout>

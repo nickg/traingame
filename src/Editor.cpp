@@ -25,6 +25,7 @@
 #include "IBuilding.hpp"
 #include "NewMapDialog.hpp"
 #include "gui/ILayout.hpp"
+#include "IBuildingPicker.hpp"
 
 #include <algorithm>
 #include <stdexcept>
@@ -37,7 +38,7 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Menu_Item.H>
 #include <FL/Fl_Input.H>
-
+      
 // Concrete editor class
 class Editor : public IScreen {
 public:
@@ -76,7 +77,6 @@ private:
                    const Point<int>& aSecondPoint) const;
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
    void deleteObjects();
-   void renderBuildingPreview(gui::Widget& canvas);
       
    IMapPtr map;
    
@@ -92,6 +92,7 @@ private:
 
    // GUI elements
    gui::ILayoutPtr layout;
+   IBuildingPickerPtr buildingPicker;
 };
 
 // The FLTK toolbox
@@ -236,7 +237,7 @@ void addEditorGUI()
    theBldRotateButton = new Fl_Button(120, 240, 60, 25, "Rotate");
    theBldRotateButton->callback(onBldRotateClick);
 
-   theBuildingPicker = new BuildingPicker;
+   //theBuildingPicker = new BuildingPicker;
    
    theSaveButton = new Fl_Button(0, 273, panelW, 25, "Save");
    theSaveButton->callback(onSaveClick);
@@ -290,8 +291,7 @@ void Editor::buildGUI()
    layout->get("/tool_wnd/tools/building").connect(gui::Widget::SIG_CLICK,
       bind(&Editor::setTool, this, BUILDING_TOOL));
 
-   layout->get("/building_wnd/preview").connect(gui::Widget::SIG_RENDER,
-      bind(&Editor::renderBuildingPreview, this, _1));
+   buildingPicker = makeBuildingPicker(layout);
 }
 
 void Editor::setMap(IMapPtr aMap)
@@ -309,20 +309,6 @@ void Editor::dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const
 
    yMin = min(dragBegin.y, dragEnd.y);
    yMax = max(dragBegin.y, dragEnd.y); 
-}
-
-void Editor::renderBuildingPreview(gui::Widget& canvas)
-{
-   static ILightPtr sun = makeSunLight();
-   static IBuildingPtr bld = loadBuilding("platform_end");
-
-   sun->apply();
-   
-   glTranslatef(-4.5f, 2.5f, -13.7f);
-   glColor3f(1.0f, 1.0f, 1.0f);
-   glRotatef(45.0f, 1.0f, 1.0f, 0.0f);
-   glRotatef(/*myRotation*/ 35.0f, 0.0f, 1.0f, 0.0f);
-   bld->model()->render();
 }
 
 // Render the next frame

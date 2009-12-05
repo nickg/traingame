@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <layout>
   <font name="status-font"
-        file="data/fonts/Vera.ttf"
+        file="fonts/Vera.ttf"
         dropShadow="true"
         size="20" />
 
