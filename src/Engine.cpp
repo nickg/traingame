@@ -91,6 +91,8 @@ private:
    double statTractiveEffort;
    bool isBrakeOn;
    int myThrottle;     // Ratio measured in tenths
+   bool reverse;
+   bool haveStopped;
 
    track::Choice nextChoice;
 
@@ -103,12 +105,15 @@ private:
    static const double TRACTIVE_EFFORT_KNEE;
 
    static const double INIT_PRESSURE, INIT_TEMP;
+
+   static const double STOP_SPEED;
 };
 
 const float Engine::MODEL_SCALE(0.4f);
 const double Engine::TRACTIVE_EFFORT_KNEE(10.0);
 const double Engine::INIT_PRESSURE(0.2);
 const double Engine::INIT_TEMP(50.0);
+const double Engine::STOP_SPEED(0.01);
 
 Engine::Engine(IResourcePtr aRes)
    : mySpeed(0.0), myMass(29.0),
@@ -116,6 +121,8 @@ Engine::Engine(IResourcePtr aRes)
      myFireTemp(INIT_TEMP),
      statTractiveEffort(34.7),
      isBrakeOn(true), myThrottle(0),
+     reverse(false),
+     haveStopped(true),
      resource(aRes)
 {
    static IXMLParserPtr parser = makeXMLParser("schemas/engine.xsd");
@@ -148,9 +155,9 @@ double Engine::tractiveEffort() const
 // Calculate the magnitude of the resistance on the train
 double Engine::resistance() const
 {
-   const double a = 4.0;
-   const double b = 0.05;
-   const double c = 0.006;
+   const double a = 0.0;
+   const double b = 0.09;
+   const double c = 0.02;
    return a + b*mySpeed + c*mySpeed*mySpeed;
 }
 
@@ -159,7 +166,17 @@ double Engine::brakeForce() const
 {
    const double beta = 0.09;
    const double g = 9.78;
-   return myMass * g * beta;
+
+   // Brake always acts against direction of motion
+   double dir;
+   if (abs(mySpeed) < STOP_SPEED)
+      dir = 0.0;
+   else if (mySpeed < 0.0)
+      dir = -1.0;
+   else
+      dir = 1.0;
+   
+   return myMass * g * beta * dir;
 }
 
 // Compute the next state of the engine
@@ -180,12 +197,18 @@ void Engine::update(int aDelta)
    const double deltaSeconds = aDelta / 1000.0f;
    const double a = ((netP - Q - B) / myMass) * deltaSeconds;
 
-   mySpeed = max(mySpeed + a, 0.0);
+   //   mySpeed = max(mySpeed + a, 0.0);
+   mySpeed += a;
+
+   if (abs(mySpeed) < STOP_SPEED) {
+      mySpeed = 0.0;
+      haveStopped = true;
+   }
    
-   /*debug() << "P=" << netP << ", Q=" << Q
+   debug() << "P=" << netP << ", Q=" << Q
            << ", B=" << B
            << ", a=" << a << ", v=" << mySpeed
-           << " (delta=" << aDelta << ")";*/
+           << " (delta=" << aDelta << ")";
 }
 
 track::Choice Engine::consumeChoice()
@@ -210,6 +233,9 @@ void Engine::actOn(Action anAction)
       break;
    case THROTTLE_DOWN:
       myThrottle = max(myThrottle - 1, 0);
+      break;
+   case TOGGLE_REVERSE:
+      reverse = !reverse;
       break;
    case GO_STRAIGHT_ON:
       nextChoice = track::CHOOSE_STRAIGHT_ON;

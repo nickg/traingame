@@ -264,6 +264,9 @@ void Game::onKeyDown(SDLKey aKey)
    case SDLK_b:
       train->controller()->actOn(BRAKE_TOGGLE);
       break;
+   case SDLK_r:
+      train->controller()->actOn(TOGGLE_REVERSE);
+      break;
    case SDLK_LCTRL:
       train->controller()->actOn(SHOVEL_COAL);
       break;

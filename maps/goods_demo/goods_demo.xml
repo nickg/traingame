@@ -319,6 +319,10 @@
 <curvedTrack startAngle="270" finishAngle="360" radius="3"/>
 </tile>
 
+<tile x="13" y="14">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="13" y="20">
 <curvedTrack startAngle="180" finishAngle="270" radius="3"/>
 </tile>
