@@ -146,10 +146,14 @@ void Engine::render() const
 // Calculate the current tractive effort
 double Engine::tractiveEffort() const
 {
-   if (mySpeed < TRACTIVE_EFFORT_KNEE)
-      return statTractiveEffort;
+   const double dir = reverse ? -1.0 : 1.0;
+   
+   if (abs(mySpeed) < TRACTIVE_EFFORT_KNEE)
+      return statTractiveEffort * dir;
    else
-      return (statTractiveEffort * TRACTIVE_EFFORT_KNEE) / mySpeed;
+      return (statTractiveEffort * TRACTIVE_EFFORT_KNEE)
+         / abs(mySpeed)
+         * dir;
 }
 
 // Calculate the magnitude of the resistance on the train
