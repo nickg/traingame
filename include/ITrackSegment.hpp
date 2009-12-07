@@ -44,7 +44,7 @@ namespace track {
    typedef int Angle;
 
    struct TravelToken;
-   typedef std::tr1::function<void (const TravelToken&, double)> TransformFunc;
+   typedef function<void (const TravelToken&, double)> TransformFunc;
 
    // Choices that the player may make for a track segment
    enum Choice {

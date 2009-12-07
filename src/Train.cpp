@@ -46,7 +46,8 @@ private:
    // The different parts of the train are on different track segments
    struct Part {
       explicit Part(IRollingStockPtr aVehicle, bool amDriving = false)
-         : vehicle(aVehicle), segmentDelta(0.0), isDriving(amDriving)
+         : vehicle(aVehicle), segmentDelta(0.0), isDriving(amDriving),
+           movementSign(1.0)
       {}
       
       IRollingStockPtr vehicle;
@@ -66,6 +67,9 @@ private:
 
       // True if this is driving the train
       bool isDriving;
+
+      // Handles reversal mid-segment
+      double movementSign;
    };
    list<Part> parts;
 
@@ -76,6 +80,9 @@ private:
    Vector<float> partPosition(const Part& aPart) const;
    void updateSmokePosition(int aDelta);
    void makeFollow(track::Choice aChoice);
+
+   static track::Connection reverseToken(const track::TravelToken& token);
+   static void transformToPart(const Part& p);
    
    IMapPtr map;
    ISmokeTrailPtr smokeTrail;
@@ -141,14 +148,20 @@ const Train::Part& Train::engine() const
 // Move the train along the line a bit
 void Train::move(double aDistance)
 {
+
    for (list<Part>::iterator it = parts.begin();
         it != parts.end(); ++it) {
 
       // Never move in units greater than 1.0
-      double d = aDistance;
+      double d = abs(aDistance);
+      double sign = (aDistance >= 0.0 ? 1.0 : -1.0) * (*it).movementSign;
       const double step = 0.25;
+
+      //debug() << "move d=" << aDistance << " s=" << sign
+      //        << " ms=" << (*it).movementSign;
+
       do {
-         (*it).segmentDelta += min(step, d);
+         (*it).segmentDelta += min(step, d) * sign;
          
          const double segmentLength =
             (*it).segment->segmentLength((*it).travelToken);
@@ -157,6 +170,12 @@ void Train::move(double aDistance)
             const double over = (*it).segmentDelta - segmentLength;
             enterSegment(*it, (*it).segment->nextPosition((*it).travelToken));
             (*it).segmentDelta = over;
+         }
+         else if ((*it).segmentDelta < 0.0) {
+            track::Connection prev = reverseToken((*it).travelToken);
+            enterSegment(*it, prev);
+            (*it).segmentDelta *= -1.0;
+            (*it).movementSign *= -1.0;
          }
 
          d -= step;
@@ -170,7 +189,7 @@ void Train::updateSmokePosition(int aDelta)
    glPushMatrix();
    glLoadIdentity();
 
-   e.travelToken.transform(e.segmentDelta);
+   transformToPart(e);
 
    const float smokeOffX = 0.63f;
    const float smokeOffY = 1.04f;
@@ -182,9 +201,10 @@ void Train::updateSmokePosition(int aDelta)
    glPopMatrix();
 
    smokeTrail->setPosition(matrix[12], matrix[13], matrix[14]);
-   smokeTrail->setVelocity(velocityVector.x,
-                             velocityVector.y,
-                             velocityVector.z);
+   smokeTrail->setVelocity(
+      velocityVector.x,
+      velocityVector.y,
+      velocityVector.z);
    smokeTrail->update(aDelta);
 
    // Make the rate at which new particles are created proportional
@@ -251,14 +271,24 @@ void Train::enterSegment(Part& aPart, const track::Connection& aConnection)
    }
 }
 
+void Train::transformToPart(const Part& p)
+{
+   p.travelToken.transform(p.segmentDelta);
+   
+   // If we're going backwards, flip the train around
+   if (p.movementSign < 0.0)
+      glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+}
+
 void Train::render() const
 {
    for (list<Part>::const_iterator it = parts.begin();
         it != parts.end(); ++it) {
       glPushMatrix();
       
-      (*it).travelToken.transform((*it).segmentDelta);
+      transformToPart(*it);
       glTranslatef(0.0f, track::RAIL_HEIGHT, 0.0f);
+      
       (*it).vehicle->render();
       
       glPopMatrix();
@@ -299,10 +329,21 @@ Vector<float> Train::partPosition(const Part& aPart) const
    return makeVector(matrix[12], matrix[13], matrix[14]);
 }
 
+// Compute a connection object that reverses the train's
+// direction of travel
+track::Connection Train::reverseToken(const track::TravelToken& token)
+{
+   track::Position pos = makePoint(
+      token.position.x - token.direction.x,
+      token.position.y - token.direction.z);
+
+   track::Direction dir = -token.direction;
+
+   return make_pair(pos, dir);      
+}
+
 // Make an empty train
 ITrainPtr makeTrain(IMapPtr aMap)
 {
    return ITrainPtr(new Train(aMap));
 }
-
-

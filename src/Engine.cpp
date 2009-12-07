@@ -209,10 +209,10 @@ void Engine::update(int aDelta)
       haveStopped = true;
    }
    
-   debug() << "P=" << netP << ", Q=" << Q
-           << ", B=" << B
-           << ", a=" << a << ", v=" << mySpeed
-           << " (delta=" << aDelta << ")";
+   //   debug() << "P=" << netP << ", Q=" << Q
+   //       << ", B=" << B
+   //         << ", a=" << a << ", v=" << mySpeed
+   //      << " (delta=" << aDelta << ")";
 }
 
 track::Choice Engine::consumeChoice()
