@@ -26,6 +26,7 @@
 #include <queue>
 
 #include <GL/gl.h>
+#include <boost/operators.hpp>
 
 // Concrete implementation of trains
 class Train : public ITrain {
@@ -44,9 +45,9 @@ public:
    IControllerPtr controller() { return parts.front().vehicle->controller(); }
 private:
    // The different parts of the train are on different track segments
-   struct Part {
+   struct Part : boost::equality_comparable<Part> {
       explicit Part(IRollingStockPtr aVehicle, bool amDriving = false)
-         : vehicle(aVehicle), segmentDelta(0.0), isDriving(amDriving),
+         : vehicle(aVehicle), segmentDelta(0.0), isLeading(amDriving),
            movementSign(1.0)
       {}
       
@@ -66,23 +67,31 @@ private:
       queue<track::Choice> followQueue;
 
       // True if this is driving the train
-      bool isDriving;
+      bool isLeading;
 
       // Handles reversal mid-segment
       double movementSign;
+
+      bool operator==(const Part& other) const
+      {
+         return this == &other;
+      }
    };
    list<Part> parts;
 
    const Part& engine() const;
+   const Part& leading() const;
    Part& engine();
    void move(double aDistance);
    void addPart(IRollingStockPtr aVehicle);
    Vector<float> partPosition(const Part& aPart) const;
    void updateSmokePosition(int aDelta);
    void makeFollow(track::Choice aChoice);
+   void flipLeader();
 
    static track::Connection reverseToken(const track::TravelToken& token);
    static void transformToPart(const Part& p);
+   
    
    IMapPtr map;
    ISmokeTrailPtr smokeTrail;
@@ -91,7 +100,7 @@ private:
 
    // Move part of the train across a connection
    void enterSegment(Part& aPart, const track::Connection& aConnection);
-
+   
    // Seperation between waggons
    static const double SEPARATION;
 };
@@ -125,12 +134,35 @@ void Train::addPart(IRollingStockPtr aVehicle)
    parts.push_back(part);
 }
 
+// Return the part that is leading the train - i.e. the
+// first to encounter points, etc.
+const Train::Part& Train::leading() const
+{
+   Part const* p = NULL;
+
+   for (list<Part>::const_iterator it = parts.begin();
+        it != parts.end(); ++it) {
+      if ((*it).isLeading) {
+         if (p)
+            assert(false && "> 1 leading part!");
+         else
+            p = &(*it);
+      }
+   }
+
+   assert(p);
+   return *p;
+}
+
 // Make everything that's not the engine follow its choice
 void Train::makeFollow(track::Choice aChoice)
 {
-   for (list<Part>::iterator it = ++(parts.begin());
-        it != parts.end(); ++it)
-      (*it).followQueue.push(aChoice);
+   const Part& leader = leading();
+   for (list<Part>::iterator it = parts.begin();
+        it != parts.end(); ++it) {
+      if (*it != leader)
+         (*it).followQueue.push(aChoice);
+   }
 }
 
 Train::Part& Train::engine()
@@ -143,6 +175,22 @@ const Train::Part& Train::engine() const
 {
    assert(parts.size() > 0);
    return parts.front();
+}
+
+// Change the leader part from the front to the back or vice
+// versa
+void Train::flipLeader()
+{
+   if (leading() == engine()) {
+      // Make the last waggon the leader
+      engine().isLeading = false;
+      parts.back().isLeading = true;
+   }
+   else {
+      // Make the engine the leader
+      parts.back().isLeading = false;
+      engine().isLeading = true;
+   }
 }
 
 // Move the train along the line a bit
@@ -176,6 +224,9 @@ void Train::move(double aDistance)
             enterSegment(*it, prev);
             (*it).segmentDelta *= -1.0;
             (*it).movementSign *= -1.0;
+
+            if ((*it).isLeading)
+               flipLeader();
          }
 
          d -= step;
@@ -253,8 +304,8 @@ void Train::enterSegment(Part& aPart, const track::Connection& aConnection)
 
    if (aPart.travelToken.choices.size() > 1) {
       track::Choice choice;
-         
-      if (aPart.isDriving) {
+      
+      if (aPart == leading()) {
          // Need to make a choice: see what the controller has pre-set
          choice = engine().vehicle->controller()->consumeChoice();
          makeFollow(choice);
