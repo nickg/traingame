@@ -204,15 +204,15 @@ void Engine::update(int aDelta)
    //   mySpeed = max(mySpeed + a, 0.0);
    mySpeed += a;
 
-   if (abs(mySpeed) < STOP_SPEED) {
+   if (abs(mySpeed) < STOP_SPEED * deltaSeconds) {
       mySpeed = 0.0;
       haveStopped = true;
    }
    
-   //   debug() << "P=" << netP << ", Q=" << Q
-   //       << ", B=" << B
-   //         << ", a=" << a << ", v=" << mySpeed
-   //      << " (delta=" << aDelta << ")";
+   //debug() << "P=" << netP << ", Q=" << Q
+   //        << ", B=" << B
+   //        << ", a=" << a << ", v=" << mySpeed
+   //        << " (delta=" << aDelta << ")";
 }
 
 track::Choice Engine::consumeChoice()
