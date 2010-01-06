@@ -77,6 +77,7 @@ public:
    double pressure() const { return myBoilerPressure; }
    double temp() const { return myFireTemp; }
    track::Choice consumeChoice();
+   bool stopped() const { return haveStopped; }
 
    // IXMLCallback interface
    void text(const string& localName, const string& aString);

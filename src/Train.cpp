@@ -53,9 +53,9 @@ private:
       
       IRollingStockPtr vehicle;
 
-      // The length of a track segment can be found by calling segmentLength()
-      // This delta value ranges from 0 to that length and indicates how far
-      // along the segment the train is
+      // The length of a track segment can be found by calling
+      // segmentLength() This delta value ranges from 0 to that length and
+      // indicates how far along the segment the train is
       ITrackSegmentPtr segment;
       double segmentDelta;
       track::TravelToken travelToken;

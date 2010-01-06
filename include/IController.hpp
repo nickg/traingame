@@ -48,6 +48,8 @@ struct IController {
    virtual bool brakeOn() const = 0;
    virtual double pressure() const = 0;
    virtual double temp() const = 0;
+
+   virtual bool stopped() const = 0;
 };
 
 typedef shared_ptr<IController> IControllerPtr;
