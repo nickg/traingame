@@ -57,6 +57,7 @@ private:
    void nearStation(IStationPtr s);
    void leftStation();
    Vector<float> cameraPosition(float aRadius) const;
+   void switchToBirdCamera();
    
    IMapPtr map;
    ITrainPtr train;
@@ -83,9 +84,9 @@ private:
 
 Game::Game(IMapPtr aMap)
    : map(aMap),
-     horizAngle(2.5f), vertAngle(1.0f), viewRadius(10.0f),
-     cameraHTarget(2.5f), cameraVTarget(1.0f),
-     cameraSpeed(1.0f), cameraMode(CAMERA_FLOATING)
+     horizAngle(M_PI/4.0f),
+     vertAngle(M_PI/4.0f),
+     viewRadius(20.0f)
 {
    train = makeTrain(map);
    sun = makeSunLight();
@@ -96,6 +97,8 @@ Game::Game(IMapPtr aMap)
    layout = gui::makeLayout("layouts/game.xml");
 
    statusFont = gui::loadFont("fonts/Vera.ttf", 18);
+
+   switchToBirdCamera();
 }
 
 Game::~Game()
@@ -114,6 +117,16 @@ Vector<float> Game::cameraPosition(float aRadius) const
    position.y = aRadius * cosf(vertAngle) + yCentre;
 
    return position;
+}
+
+void Game::switchToBirdCamera()
+{
+   cameraMode = CAMERA_BIRD;
+
+   cameraHTarget = M_PI/4.0f;
+   cameraVTarget = M_PI/4.0f;
+
+   cameraSpeed = 100.0f;
 }
 
 void Game::display(IGraphicsPtr aContext) const
@@ -207,7 +220,7 @@ void Game::leftStation()
 void Game::lookAhead()
 {
    TrackIterator it = iterateTrack(map, train->tile(),
-                                   train->direction());
+      train->direction());
 
    // Are we sitting on a station?
    if (it.status == TRACK_STATION) {
@@ -291,14 +304,8 @@ void Game::onKeyDown(SDLKey aKey)
    case SDLK_TAB:
       if (cameraMode == CAMERA_FLOATING)
          cameraMode = CAMERA_FIXED;
-      else if (cameraMode == CAMERA_FIXED) {
-         cameraMode = CAMERA_BIRD;
-
-         cameraHTarget = M_PI/4.0f;
-         cameraVTarget = M_PI/4.0f;
-
-         cameraSpeed = 100.0f;
-      }
+      else if (cameraMode == CAMERA_FIXED)
+         switchToBirdCamera();
       else
          cameraMode = CAMERA_FLOATING;
       break;
