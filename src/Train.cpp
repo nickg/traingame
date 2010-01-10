@@ -24,6 +24,7 @@
 #include <stdexcept>
 #include <cassert>
 #include <queue>
+#include <sstream>
 
 #include <GL/gl.h>
 #include <boost/operators.hpp>
@@ -88,6 +89,7 @@ private:
    void updateSmokePosition(int aDelta);
    void makeFollow(track::Choice aChoice);
    void flipLeader();
+   void dumpFollowQueue() const;
 
    static track::Connection reverseToken(const track::TravelToken& token);
    static void transformToPart(const Part& p);
@@ -165,6 +167,30 @@ void Train::makeFollow(track::Choice aChoice)
    }
 }
 
+void Train::dumpFollowQueue() const
+{
+   ostringstream ss;
+
+   const Part& leader = leading();
+      
+   for (list<Part>::const_iterator it = parts.begin();
+        it != parts.end(); ++it) {
+      
+      if (*it == leader)
+         ss << ">";
+            
+      if ((*it).followQueue.empty())
+         ss << "-";
+      else {
+         ss << (*it).followQueue.front();
+      }
+
+      ss << " ";
+   }
+
+   debug() << ss.str();
+}
+
 Train::Part& Train::engine()
 {
    assert(parts.size() > 0);
@@ -196,7 +222,6 @@ void Train::flipLeader()
 // Move the train along the line a bit
 void Train::move(double aDistance)
 {
-
    for (list<Part>::iterator it = parts.begin();
         it != parts.end(); ++it) {
 
@@ -205,9 +230,9 @@ void Train::move(double aDistance)
       double sign = (aDistance >= 0.0 ? 1.0 : -1.0) * (*it).movementSign;
       const double step = 0.25;
 
-      //debug() << "move d=" << aDistance << " s=" << sign
-      //        << " ms=" << (*it).movementSign;
-
+      debug() << "move d=" << aDistance << " s=" << sign
+              << " ms=" << (*it).movementSign;
+      
       do {
          (*it).segmentDelta += min(step, d) * sign;
          
@@ -283,6 +308,8 @@ void Train::update(int aDelta)
    move(engine().vehicle->speed() * deltaSeconds / M_PER_UNIT);
 
    velocityVector = partPosition(engine()) - oldPos;
+
+   dumpFollowQueue();
 }
 
 // Called when the train enters a new segment
