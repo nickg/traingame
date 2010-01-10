@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -25,11 +25,27 @@
 #include <iostream>
 
 #include <boost/filesystem.hpp>
+#include <signal.h>
 
 using namespace boost::filesystem;
 
 namespace {
    IWindowPtr window;
+
+   void SIGINT_handler(int unused)
+   {
+      log() << "Caught SIGINT";
+      ::window->quit();
+   }
+   
+   void setupSignalHandlers()
+   {
+      struct sigaction sa;
+      sa.sa_handler = SIGINT_handler;
+      sa.sa_flags = 0;
+
+      sigaction(SIGINT, &sa, NULL);
+   }
 }
 
 IWindowPtr getGameWindow()
@@ -40,7 +56,7 @@ IWindowPtr getGameWindow()
 int main(int argc, char** argv)
 {
    cout << PACKAGE << " " << VERSION << "." << PATCH << endl << endl
-        << "Copyright (C) 2009  Nick Gasson" << endl
+        << "Copyright (C) 2009-2010  Nick Gasson" << endl
         << "This program comes with ABSOLUTELY NO WARRANTY. "
         << "This is free software, and" << endl
         << "you are welcome to redistribute it under certain conditions. "
@@ -49,11 +65,12 @@ int main(int argc, char** argv)
    
    log() << "Program started";
 
+   setupSignalHandlers();
+   
    try {
 #ifndef WIN32
       if (argc != 2 && argc != 3)
          throw runtime_error("Usage: TrainGame (edit|play) [map]");
-
       initResources();
       
       const string mapFile(argc == 3 ? argv[2] : "");
