@@ -58,6 +58,7 @@ private:
    void leftStation();
    Vector<float> cameraPosition(float aRadius) const;
    void switchToBirdCamera();
+   void stoppedAtStation();
    
    IMapPtr map;
    ITrainPtr train;
@@ -159,6 +160,11 @@ void Game::overlay() const
       colour::WHITE, statusMsg);
 }
 
+void Game::stoppedAtStation()
+{
+   debug() << "Stopped at " << activeStation->name();
+}
+
 void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
 {
    train->update(aDelta);
@@ -224,8 +230,13 @@ void Game::lookAhead()
 
    // Are we sitting on a station?
    if (it.status == TRACK_STATION) {
-      setStatus("Stop here for station " + it.station->name());
       nearStation(it.station);
+
+      if (train->controller()->stopped())
+         stoppedAtStation();
+      else
+         setStatus("Stop here for station " + it.station->name());
+      
       return;
    }
 

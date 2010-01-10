@@ -205,10 +205,12 @@ void Engine::update(int aDelta)
    //   mySpeed = max(mySpeed + a, 0.0);
    mySpeed += a;
 
-   if (abs(mySpeed) < STOP_SPEED * deltaSeconds) {
+   if (abs(mySpeed) < STOP_SPEED && myThrottle == 0) {
       mySpeed = 0.0;
       haveStopped = true;
    }
+   else
+      haveStopped = false;
    
    //debug() << "P=" << netP << ", Q=" << Q
    //        << ", B=" << B
