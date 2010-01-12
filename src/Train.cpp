@@ -90,6 +90,8 @@ private:
    void makeFollow(track::Choice aChoice);
    void flipLeader();
    void dumpFollowQueue() const;
+   void eachPart(function<void (Part&)> callback);
+   void movePart(Part& part, double distance);
 
    static track::Connection reverseToken(const track::TravelToken& token);
    static void transformToPart(const Part& p);
@@ -171,12 +173,10 @@ void Train::dumpFollowQueue() const
 {
    ostringstream ss;
 
-   const Part& leader = leading();
-      
    for (list<Part>::const_iterator it = parts.begin();
         it != parts.end(); ++it) {
       
-      if (*it == leader)
+      if ((*it).isLeading)
          ss << ">";
             
       if ((*it).followQueue.empty())
@@ -217,46 +217,68 @@ void Train::flipLeader()
       parts.back().isLeading = false;
       engine().isLeading = true;
    }
+
+   for (list<Part>::iterator it = parts.begin();
+        it != parts.end(); ++it) {
+      while (!(*it).followQueue.empty())
+         (*it).followQueue.pop();
+   }
+}
+
+// Iterate through the parts in order from the front of the
+// train to the back
+void Train::eachPart(function<void (Part&)> callback)
+{
+   if (parts.front().isLeading) {
+      for (list<Part>::iterator it = parts.begin();
+           it != parts.end(); ++it)
+         callback(*it);
+   }
+   else {
+      for (list<Part>::reverse_iterator it = parts.rbegin();
+           it != parts.rend(); ++it)
+         callback(*it);
+   }                                   
+}
+
+void Train::movePart(Part& part, double distance)
+{
+   // Never move in units greater than 1.0
+   double d = abs(distance);
+   double sign = (distance >= 0.0 ? 1.0 : -1.0) * part.movementSign;
+   const double step = 0.25;
+   
+   //debug() << "move d=" << distance << " s=" << sign
+   //        << " ms=" << part.movementSign;
+   
+   do {
+      part.segmentDelta += min(step, d) * sign;
+      
+      const double segmentLength =
+         part.segment->segmentLength(part.travelToken);
+      if (part.segmentDelta >= segmentLength) {
+         // Moved onto a new piece of track
+         const double over = part.segmentDelta - segmentLength;
+         enterSegment(part, part.segment->nextPosition(part.travelToken));
+         part.segmentDelta = over;
+      }
+      else if (part.segmentDelta < 0.0) {
+         track::Connection prev = reverseToken(part.travelToken);
+         enterSegment(part, prev);
+         part.segmentDelta *= -1.0;
+         part.movementSign *= -1.0;
+      }
+      
+      d -= step;
+   } while (d > 0.0);
 }
 
 // Move the train along the line a bit
 void Train::move(double aDistance)
 {
-   for (list<Part>::iterator it = parts.begin();
-        it != parts.end(); ++it) {
+   using namespace placeholders;
 
-      // Never move in units greater than 1.0
-      double d = abs(aDistance);
-      double sign = (aDistance >= 0.0 ? 1.0 : -1.0) * (*it).movementSign;
-      const double step = 0.25;
-
-      debug() << "move d=" << aDistance << " s=" << sign
-              << " ms=" << (*it).movementSign;
-      
-      do {
-         (*it).segmentDelta += min(step, d) * sign;
-         
-         const double segmentLength =
-            (*it).segment->segmentLength((*it).travelToken);
-         if ((*it).segmentDelta >= segmentLength) {
-            // Moved onto a new piece of track
-            const double over = (*it).segmentDelta - segmentLength;
-            enterSegment(*it, (*it).segment->nextPosition((*it).travelToken));
-            (*it).segmentDelta = over;
-         }
-         else if ((*it).segmentDelta < 0.0) {
-            track::Connection prev = reverseToken((*it).travelToken);
-            enterSegment(*it, prev);
-            (*it).segmentDelta *= -1.0;
-            (*it).movementSign *= -1.0;
-
-            if ((*it).isLeading)
-               flipLeader();
-         }
-
-         d -= step;
-      } while (d > 0.0);
-   }
+   eachPart(bind(&Train::movePart, this, _1, aDistance));
 }
 
 void Train::updateSmokePosition(int aDelta)
@@ -293,10 +315,17 @@ void Train::updateSmokePosition(int aDelta)
 
 void Train::update(int aDelta)
 {
+   int oldSpeedSign = engine().vehicle->speed() >= 0.0 ? 1 : 0;
+   
    for (list<Part>::iterator it = parts.begin();
         it != parts.end(); ++it)
       (*it).vehicle->update(aDelta);
 
+   int newSpeedSign = engine().vehicle->speed() >= 0.0 ? 1 : 0;
+
+   if (oldSpeedSign != newSpeedSign)
+      flipLeader();
+   
    updateSmokePosition(aDelta);
    
    // How many metres does a tile correspond to?

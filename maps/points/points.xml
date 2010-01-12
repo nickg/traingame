@@ -119,20 +119,172 @@
 <curvedTrack startAngle="180" finishAngle="270" radius="2"/>
 </tile>
 
+<tile x="5" y="28">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="5" y="29">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="5" y="30">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="5" y="31">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="5" y="32">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="5" y="33">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="5" y="34">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="5" y="35">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="5" y="36">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="5" y="37">
+<curvedTrack startAngle="270" finishAngle="360" radius="4"/>
+</tile>
+
+<tile x="6" y="22">
+<curvedTrack startAngle="270" finishAngle="360" radius="4"/>
+</tile>
+
+<tile x="6" y="26">
+<curvedTrack startAngle="180" finishAngle="270" radius="2"/>
+</tile>
+
+<tile x="7" y="26">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="8" y="13">
 <points align="-x" reflect="true"/>
+</tile>
+
+<tile x="8" y="19">
+<curvedTrack startAngle="180" finishAngle="270" radius="3"/>
+</tile>
+
+<tile x="8" y="26">
+<straightTrack align="x"/>
 </tile>
 
 <tile x="9" y="13">
 <straightTrack align="x"/>
 </tile>
 
+<tile x="9" y="26">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="9" y="40">
+<curvedTrack startAngle="0" finishAngle="90" radius="3"/>
+</tile>
+
 <tile x="10" y="13">
 <straightTrack align="x"/>
 </tile>
 
+<tile x="10" y="25">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="10" y="26">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="10" y="30">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="10" y="31">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="10" y="32">
+<straightTrack align="y"/>
+</tile>
+
 <tile x="11" y="13">
 <points align="x" reflect="true"/>
+</tile>
+
+<tile x="11" y="21">
+<curvedTrack startAngle="90" finishAngle="180" radius="3"/>
+</tile>
+
+<tile x="11" y="22">
+<curvedTrack startAngle="270" finishAngle="360" radius="3"/>
+</tile>
+
+<tile x="11" y="25">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="11" y="26">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="11" y="31">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="11" y="32">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="11" y="35">
+<points align="-y" reflect="true"/>
+</tile>
+
+<tile x="11" y="36">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="11" y="37">
+<straightTrack align="y"/>
+</tile>
+
+<tile x="12" y="25">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="12" y="26">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="12" y="27">
+<curvedTrack startAngle="180" finishAngle="270" radius="3"/>
+</tile>
+
+<tile x="13" y="25">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="13" y="26">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="13" y="27">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="13" y="28">
+<curvedTrack startAngle="180" finishAngle="270" radius="3"/>
 </tile>
 
 <tile x="14" y="12">
@@ -140,6 +292,18 @@
 </tile>
 
 <tile x="14" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="14" y="24">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="14" y="25">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="14" y="26">
 <straightTrack align="x"/>
 </tile>
 
@@ -151,12 +315,40 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="15" y="24">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="15" y="25">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="15" y="26">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="16" y="12">
 <straightTrack align="x"/>
 </tile>
 
 <tile x="16" y="13">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="16" y="24">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="16" y="25">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="16" y="26">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="16" y="27">
+<points align="-x" reflect="true"/>
 </tile>
 
 <tile x="17" y="12">
@@ -167,12 +359,40 @@
 <points align="x" reflect="false"/>
 </tile>
 
+<tile x="17" y="24">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="17" y="25">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="18" y="12">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="18" y="24">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="18" y="25">
 <straightTrack align="x"/>
 </tile>
 
 <tile x="19" y="12">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="19" y="24">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="19" y="25">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="19" y="26">
+<points align="-x" reflect="true"/>
 </tile>
 
 <tile x="20" y="12">
@@ -184,6 +404,10 @@
 </tile>
 
 <tile x="20" y="14">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="20" y="24">
 <straightTrack align="x"/>
 </tile>
 
@@ -199,12 +423,24 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="21" y="24">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="22" y="12">
 <straightTrack align="x"/>
 </tile>
 
 <tile x="22" y="13">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="22" y="24">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="22" y="25">
+<points align="-x" reflect="true"/>
 </tile>
 
 <tile x="23" y="12">
@@ -223,15 +459,31 @@
 <curvedTrack startAngle="270" finishAngle="360" radius="3"/>
 </tile>
 
+<tile x="25" y="24">
+<points align="-x" reflect="true"/>
+</tile>
+
 <tile x="26" y="13">
 <points align="-x" reflect="false"/>
+</tile>
+
+<tile x="26" y="24">
+<straightTrack align="x"/>
 </tile>
 
 <tile x="27" y="13">
 <straightTrack align="x"/>
 </tile>
 
+<tile x="27" y="24">
+<straightTrack align="x"/>
+</tile>
+
 <tile x="28" y="13">
+<straightTrack align="x"/>
+</tile>
+
+<tile x="28" y="24">
 <straightTrack align="x"/>
 </tile>
 
@@ -241,6 +493,10 @@
 
 <tile x="31" y="23">
 <curvedTrack startAngle="90" finishAngle="180" radius="4"/>
+</tile>
+
+<tile x="31" y="26">
+<curvedTrack startAngle="90" finishAngle="180" radius="3"/>
 </tile>
 
 <tile x="31" y="33">
@@ -343,16 +599,8 @@
 <points align="-y" reflect="true"/>
 </tile>
 
-<tile x="32" y="27">
-<straightTrack align="y"/>
-</tile>
-
-<tile x="32" y="28">
-<straightTrack align="y"/>
-</tile>
-
 <tile x="32" y="29">
-<straightTrack align="y"/>
+<points align="-y" reflect="true"/>
 </tile>
 
 <tile x="32" y="30">
