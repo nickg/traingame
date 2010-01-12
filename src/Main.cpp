@@ -43,6 +43,7 @@ namespace {
       struct sigaction sa;
       sa.sa_handler = SIGINT_handler;
       sa.sa_flags = 0;
+      sigemptyset(&sa.sa_mask);
 
       sigaction(SIGINT, &sa, NULL);
    }
