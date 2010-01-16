@@ -27,6 +27,7 @@
 IScreenPtr makeEditorScreen(IMapPtr aMap);
 IScreenPtr makeGameScreen(IMapPtr aMap);
 IScreenPtr makeUIDemo();
+IScreenPtr makeLTreeDemo();
 
 // Access to the window the game is running in
 IWindowPtr getGameWindow();

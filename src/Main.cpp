@@ -100,6 +100,9 @@ int main(int argc, char** argv)
       else if (cmd == "uidemo") {
          screen = makeUIDemo();
       }
+      else if (cmd == "ltree") {
+         screen = makeLTreeDemo();
+      }
       else
          throw runtime_error("Unrecognised command: " + cmd);
          
