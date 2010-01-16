@@ -17,13 +17,14 @@
 
 #include "IScreen.hpp"
 #include "ILogger.hpp"
+#include "IScenery.hpp"
 
 class LTreeDemo : public IScreen {
 public:
    LTreeDemo();
 
    // IScreen interface
-   void display(IGraphicsPtr aContext) const {}
+   void display(IGraphicsPtr context) const;
    void overlay() const;
    void update(IPickBufferPtr aPickBuffer, int aDelta) {}
    void onKeyDown(SDLKey aKey) {}
@@ -40,7 +41,12 @@ private:
 
 LTreeDemo::LTreeDemo()
 {
-   
+   makeLTree();
+}
+
+void LTreeDemo::display(IGraphicsPtr context) const
+{
+
 }
 
 void LTreeDemo::overlay() const
