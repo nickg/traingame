@@ -19,6 +19,8 @@
 #include "ILogger.hpp"
 #include "IScenery.hpp"
 
+#include <GL/gl.h>
+
 class LTreeDemo : public IScreen {
 public:
    LTreeDemo();
@@ -37,16 +39,22 @@ public:
       MouseButton button) {}
    
 private:
+   ISceneryPtr ltree;
 };
 
 LTreeDemo::LTreeDemo()
 {
-   makeLTree();
+   ltree = makeLTree();
 }
 
 void LTreeDemo::display(IGraphicsPtr context) const
 {
+   glDisable(GL_LIGHTING);
+   glDisable(GL_TEXTURE_2D);
+   
+   glTranslatef(0.0f, 0.0f, -5.0f);
 
+   ltree->render();
 }
 
 void LTreeDemo::overlay() const
