@@ -29,7 +29,7 @@ public:
    void display(IGraphicsPtr context) const;
    void overlay() const;
    void update(IPickBufferPtr aPickBuffer, int aDelta) {}
-   void onKeyDown(SDLKey aKey) {}
+   void onKeyDown(SDLKey aKey);
    void onKeyUp(SDLKey aKey) {}
    void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
       int xrel, int yrel) {}
@@ -52,7 +52,7 @@ void LTreeDemo::display(IGraphicsPtr context) const
    glDisable(GL_LIGHTING);
    glDisable(GL_TEXTURE_2D);
    
-   glTranslatef(0.0f, 0.0f, -5.0f);
+   glTranslatef(0.0f, -1.0f, -5.0f);
 
    ltree->render();
 }
@@ -66,6 +66,17 @@ void LTreeDemo::onMouseClick(IPickBufferPtr pick_buffer, int x, int y,
    MouseButton button)
 {
    
+}
+
+void LTreeDemo::onKeyDown(SDLKey aKey)
+{
+   switch (aKey) {
+   case SDLK_r:
+      ltree = makeLTree();
+      break;
+   default:
+      break;
+   }
 }
 
 IScreenPtr makeLTreeDemo()
