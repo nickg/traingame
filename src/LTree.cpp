@@ -18,6 +18,7 @@
 #include "IScenery.hpp"
 #include "ILogger.hpp"
 #include "Random.hpp"
+#include "OpenGLHelper.hpp"
 
 #include <list>
 #include <vector>
@@ -141,6 +142,7 @@ private:
    void interpret(Token t, RenderState& rs) const;
 
    LSystem ls;
+    Vector<float> position;
    
    static const Rule rules[];
 };
@@ -187,7 +189,7 @@ void LTree::interpret(Token t, RenderState& rs) const
       glVertex3f(LEAF_LEN, 0.0f, 0.0f);
       glVertex3f(0.0f, -LEAF_LEN, LEAF_LEN);
       glEnd();
-      glPopAttrib();         */
+      glPopAttrib();*/
       break;
    case '-':
       glRotatef(25.0, 0.0f, 0.0f, 1.0f);
@@ -218,16 +220,24 @@ void LTree::render() const
 {
    using namespace placeholders;
 
+   glPushMatrix();
+
+   gl::translate(position);
+   
    glColor3f(0.0f, 0.0f, 0.0f);
    
    RenderState rs;
    for_each(ls.state.begin(), ls.state.end(),
       bind(&LTree::interpret, this, _1, rs));
+
+   glPopMatrix();
 }
 
 void LTree::setPosition(float x, float y, float z)
 {
-
+    position.x = x;
+    position.y = y;
+    position.z = z;
 }
 
 ISceneryPtr makeLTree()

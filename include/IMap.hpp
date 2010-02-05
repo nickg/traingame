@@ -23,6 +23,7 @@
 #include "IStation.hpp"
 #include "IResource.hpp"
 #include "IBuilding.hpp"
+#include "IScenery.hpp"
 
 #include <memory>
 #include <string>
@@ -111,6 +112,9 @@ public:
 
    // Get the height above ground at a particular point
    virtual float heightAt(float x, float y) const = 0;
+
+    // Place a tree, etc. at a location
+    virtual void addScenery(Point<int> where, ISceneryPtr s) = 0;
    
 };
 

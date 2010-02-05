@@ -5,7 +5,7 @@
         dropShadow="true"
         size="14" />
 
-  <window x="10" y="10" width="320" height="40"
+  <window x="10" y="10" width="353" height="40"
           name="tool_wnd">
     <label text="Tools"
            name="tool_label"
@@ -20,6 +20,7 @@
       <toggleButton name="start" image="images/start_icon2.png"/>
       <toggleButton name="station" image="images/station_icon.png"/>
       <toggleButton name="building" image="images/buildings_icon.png"/>
+      <toggleButton name="tree" image="images/icons/tree.png"/>
     </toggleBar>
   </window>
 

@@ -52,6 +52,7 @@ public:
    enum Tool {
       TRACK_TOOL, RAISE_TOOL, LOWER_TOOL, DELETE_TOOL,
       LEVEL_TOOL, START_TOOL, STATION_TOOL, BUILDING_TOOL,
+      TREE_TOOL
    };
    void setTool(Tool aTool) { myTool = aTool; }
 
@@ -68,6 +69,7 @@ private:
                    const Point<int>& aSecondPoint) const;
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
    void deleteObjects();
+    void plantTrees();
    void save();
       
    IMapPtr map;
@@ -88,16 +90,16 @@ private:
 };
 
 Editor::Editor(IMapPtr aMap) 
-   : map(aMap), myPosition(4.5, -17.5, -21.5),
-     myTool(TRACK_TOOL), amScrolling(false), amDragging(false)
+		: map(aMap), myPosition(4.5, -17.5, -21.5),
+			myTool(TRACK_TOOL), amScrolling(false), amDragging(false)
 {
-   mySun = makeSunLight();
-
-   buildGUI();
-
-   map->setGrid(true);
-   
-   log() << "Editing " << aMap->name();
+		mySun = makeSunLight();
+		
+		buildGUI();
+		
+		map->setGrid(true);
+		
+		log() << "Editing " << aMap->name();
 }
 
 Editor::~Editor()
@@ -107,31 +109,33 @@ Editor::~Editor()
 
 void Editor::buildGUI()
 {
-   using namespace placeholders;
-   
-   layout = gui::makeLayout("layouts/editor.xml");
-   
-   layout->get("/tool_wnd/tools/track").connect(gui::Widget::SIG_CLICK,
-      bind(&Editor::setTool, this, TRACK_TOOL));
-   layout->get("/tool_wnd/tools/raise").connect(gui::Widget::SIG_CLICK,
-      bind(&Editor::setTool, this, RAISE_TOOL));
-   layout->get("/tool_wnd/tools/lower").connect(gui::Widget::SIG_CLICK,
-      bind(&Editor::setTool, this, LOWER_TOOL));
-   layout->get("/tool_wnd/tools/level").connect(gui::Widget::SIG_CLICK,
-      bind(&Editor::setTool, this, LEVEL_TOOL));
-   layout->get("/tool_wnd/tools/delete").connect(gui::Widget::SIG_CLICK,
-      bind(&Editor::setTool, this, DELETE_TOOL));
-   layout->get("/tool_wnd/tools/start").connect(gui::Widget::SIG_CLICK,
-      bind(&Editor::setTool, this, START_TOOL));
-   layout->get("/tool_wnd/tools/station").connect(gui::Widget::SIG_CLICK,
-      bind(&Editor::setTool, this, STATION_TOOL));
-   layout->get("/tool_wnd/tools/building").connect(gui::Widget::SIG_CLICK,
-      bind(&Editor::setTool, this, BUILDING_TOOL));
-
-   layout->get("/lower/action_wnd/save").connect(gui::Widget::SIG_CLICK,
-      bind(&Editor::save, this));
-   
-   buildingPicker = makeBuildingPicker(layout);
+    using namespace placeholders;
+    
+    layout = gui::makeLayout("layouts/editor.xml");
+    
+    layout->get("/tool_wnd/tools/track").connect(gui::Widget::SIG_CLICK,
+	bind(&Editor::setTool, this, TRACK_TOOL));
+    layout->get("/tool_wnd/tools/raise").connect(gui::Widget::SIG_CLICK,
+	bind(&Editor::setTool, this, RAISE_TOOL));
+    layout->get("/tool_wnd/tools/lower").connect(gui::Widget::SIG_CLICK,
+	bind(&Editor::setTool, this, LOWER_TOOL));
+    layout->get("/tool_wnd/tools/level").connect(gui::Widget::SIG_CLICK,
+	bind(&Editor::setTool, this, LEVEL_TOOL));
+    layout->get("/tool_wnd/tools/delete").connect(gui::Widget::SIG_CLICK,
+	bind(&Editor::setTool, this, DELETE_TOOL));
+    layout->get("/tool_wnd/tools/start").connect(gui::Widget::SIG_CLICK,
+	bind(&Editor::setTool, this, START_TOOL));
+    layout->get("/tool_wnd/tools/station").connect(gui::Widget::SIG_CLICK,
+	bind(&Editor::setTool, this, STATION_TOOL));
+    layout->get("/tool_wnd/tools/building").connect(gui::Widget::SIG_CLICK,
+	bind(&Editor::setTool, this, BUILDING_TOOL));
+    layout->get("/tool_wnd/tools/tree").connect(gui::Widget::SIG_CLICK,
+	bind(&Editor::setTool, this, TREE_TOOL));
+    
+    layout->get("/lower/action_wnd/save").connect(gui::Widget::SIG_CLICK,
+	bind(&Editor::save, this));
+    
+    buildingPicker = makeBuildingPicker(layout);
 }
 
 void Editor::setMap(IMapPtr aMap)
@@ -445,6 +449,17 @@ void Editor::deleteObjects()
    }
 }
 
+void Editor::plantTrees()
+{
+    int xmin, xmax, ymin, ymax;
+    dragBoxBounds(xmin, xmax, ymin, ymax);
+    
+    for (int x = xmin; x <= xmax; x++) {
+	for (int y = ymin; y <= ymax; y++)
+	    map->addScenery(makePoint(x, y), makeLTree());
+    }
+}
+
 void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
                          int xrel, int yrel)
 {
@@ -540,6 +555,9 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
             map->placeBuilding(dragBegin, building, angle);
          }
          break;
+      case TREE_TOOL:
+	  plantTrees();
+	  break;
       }
          
       amDragging = false;
