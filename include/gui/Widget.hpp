@@ -29,53 +29,53 @@
 
 namespace gui {
 
-   class Widget {
-   public:
-      Widget(const AttributeSet& attrs);
+    class Widget {
+    public:
+	Widget(const AttributeSet& attrs);
 
-      const string& name() const { return name_; }
-      int x() const { return x_; }
-      int y() const { return y_; }
-      int width() const { return width_; }
-      int height() const { return height_; }
-      bool visible() const { return visible_; }
+	const string& name() const { return name_; }
+	int x() const { return x_; }
+	int y() const { return y_; }
+	int width() const { return width_; }
+	int height() const { return height_; }
+	bool visible() const { return visible_; }
 
-      void x(int x) { x_ = x; }
-      void y(int y) { y_ = y; }
-      void width(int w) { width_ = w; }
-      void height(int h) { height_ = h; }
-      void visible(bool v);
+	void x(int x) { x_ = x; }
+	void y(int y) { y_ = y; }
+	void width(int w) { width_ = w; }
+	void height(int h) { height_ = h; }
+	void visible(bool v);
 
-      enum Signal {
-         SIG_CLICK, SIG_RENDER, SIG_SHOW, SIG_HIDE,
-         SIG_ENTER, SIG_LEAVE
-      };
+	enum Signal {
+	    SIG_CLICK, SIG_RENDER, SIG_SHOW, SIG_HIDE,
+	    SIG_ENTER, SIG_LEAVE
+	};
 
-      typedef function<void (Widget&)> SignalHandler;
+	typedef function<void (Widget&)> SignalHandler;
 
-      void connect(Signal sig, SignalHandler handler);
+	void connect(Signal sig, SignalHandler handler);
 
-      virtual void render(RenderContext& rc) const = 0;
-      virtual void adjustForTheme(const Theme& theme) {}
+	virtual void render(RenderContext& rc) const = 0;
+	virtual void adjustForTheme(const Theme& theme) {}
       
-      virtual bool handleClick(int x, int y);
+	virtual bool handleClick(int x, int y);
 
-      void dumpLocation() const;
+	void dumpLocation() const;
       
-   protected:
-      void raise(Signal sig);
+    protected:
+	void raise(Signal sig);
 
-   private:
-      static string uniqueName();
+    private:
+	static string uniqueName();
       
-      string name_;
-      int x_, y_, width_, height_;
-      bool visible_;
+	string name_;
+	int x_, y_, width_, height_;
+	bool visible_;
 
-      map<Signal, SignalHandler> handlers;
+	map<Signal, SignalHandler> handlers;
             
-      static int ourUniqueId;
-   };
+	static int ourUniqueId;
+    };
  
 }
 

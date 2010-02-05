@@ -25,24 +25,24 @@
 
 namespace gui {
 
-   class Label : public Widget {
-   public:
-      Label(const AttributeSet& attrs);
+    class Label : public Widget {
+    public:
+	Label(const AttributeSet& attrs);
 
-      const string& text() const { return text_; }
-      void text(const string& t) { text_ = t; }
+	const string& text() const { return text_; }
+	void text(const string& t) { text_ = t; }
 
-      Colour colour() const { return colour_; }
-      void colour(Colour c) { colour_ = c; }
+	Colour colour() const { return colour_; }
+	void colour(Colour c) { colour_ = c; }
 
-      void format(const char* fmt, ...);
+	void format(const char* fmt, ...);
 
-      void render(RenderContext& rc) const;
-      void adjustForTheme(const Theme& theme);
-   private:
-      string text_, fontName;
-      Colour colour_;
-   };
+	void render(RenderContext& rc) const;
+	void adjustForTheme(const Theme& theme);
+    private:
+	string text_, fontName;
+	Colour colour_;
+    };
 }
 
 #endif

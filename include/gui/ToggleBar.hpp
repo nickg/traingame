@@ -23,19 +23,19 @@
 
 namespace gui {
 
-   // Like a toolbar but one item is always shown selected
-   class ToggleBar : public ContainerWidget {
-   public:
-      ToggleBar(const AttributeSet& attrs);
+    // Like a toolbar but one item is always shown selected
+    class ToggleBar : public ContainerWidget {
+    public:
+	ToggleBar(const AttributeSet& attrs);
 
-      void render(RenderContext& rc) const;
-      bool handleClick(int x, int y);
-   private:
-      void childAdded(Widget* w);
+	void render(RenderContext& rc) const;
+	bool handleClick(int x, int y);
+    private:
+	void childAdded(Widget* w);
 
-      int nextX;
-      int buttonWidth, buttonHeight;
-   };
+	int nextX;
+	int buttonWidth, buttonHeight;
+    };
    
 }
 

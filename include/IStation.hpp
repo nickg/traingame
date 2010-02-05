@@ -25,7 +25,7 @@
 
 // The different types of cargo that may be carried
 enum Cargo {
-   COAL
+    COAL
 };
 
 // A station occupies one of more track segments and supplies and
@@ -33,28 +33,28 @@ enum Cargo {
 // The information about which track segments it actually occupies
 // are stored in the map
 struct IStation {
-   virtual ~IStation() {}
+    virtual ~IStation() {}
 
-   // Return or set the name of the station
-   // This is only used for the user's benefit and does not identify
-   // the station in any way
-   virtual const string& name() const = 0;
-   virtual void setName(const string& aName) = 0;
+    // Return or set the name of the station
+    // This is only used for the user's benefit and does not identify
+    // the station in any way
+    virtual const string& name() const = 0;
+    virtual void setName(const string& aName) = 0;
 
-   // A station has an ID that uniquely identifies it
-   // Setting is allowed to support the map loader
-   virtual int id() const = 0;
-   virtual void setId(int anId) = 0;
+    // A station has an ID that uniquely identifies it
+    // Setting is allowed to support the map loader
+    virtual int id() const = 0;
+    virtual void setId(int anId) = 0;
 
-   // A station has a random colour that is used to identify it when
-   // the highlight is drawn
-   typedef tuple<float, float, float> HighlightColour;
-   virtual HighlightColour highlightColour() const = 0;
-   virtual bool highlightVisible() const = 0;
-   virtual void setHighlightVisible(bool onOff) = 0;
+    // A station has a random colour that is used to identify it when
+    // the highlight is drawn
+    typedef tuple<float, float, float> HighlightColour;
+    virtual HighlightColour highlightColour() const = 0;
+    virtual bool highlightVisible() const = 0;
+    virtual void setHighlightVisible(bool onOff) = 0;
 };
 
-typedef std::tr1::shared_ptr<IStation> IStationPtr;
+typedef shared_ptr<IStation> IStationPtr;
 
 IStationPtr makeStation();
 

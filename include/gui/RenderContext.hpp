@@ -30,35 +30,35 @@
 
 namespace gui {
 
-   class Widget;
+    class Widget;
 
-   class RenderContext {
-   public:
-      RenderContext(const Theme& theme);
-      ~RenderContext();
+    class RenderContext {
+    public:
+	RenderContext(const Theme& theme);
+	~RenderContext();
 
-      void pushOrigin(const Widget* w);
-      void popOrigin();
+	void pushOrigin(const Widget* w);
+	void popOrigin();
 
-      void scissor(Widget* w);
+	void scissor(Widget* w);
       
-      void rectangle(int x, int y, int w, int h, Colour c);
-      void border(int x, int y, int w, int h, Colour c);
-      void image(int x, int y, int w, int h, ITexturePtr tex);
+	void rectangle(int x, int y, int w, int h, Colour c);
+	void border(int x, int y, int w, int h, Colour c);
+	void image(int x, int y, int w, int h, ITexturePtr tex);
 
-      void print(IFontPtr font, int x, int y, const string& s,
-         Colour col = colour::WHITE);
+	void print(IFontPtr font, int x, int y, const string& s,
+	    Colour col = colour::WHITE);
 
-      const Theme& theme() const { return theme_; }
+	const Theme& theme() const { return theme_; }
       
-      void offset(int& x, int& y) const;
+	void offset(int& x, int& y) const;
 
-   private:
-      const Theme& theme_;
-      int origin_x, origin_y;
+    private:
+	const Theme& theme_;
+	int origin_x, origin_y;
 
-      stack<const Widget*> origin_stack;
-   };
+	stack<const Widget*> origin_stack;
+    };
    
 }
 

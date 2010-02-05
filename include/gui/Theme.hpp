@@ -28,26 +28,26 @@
 
 namespace gui {
    
-   class Theme {
-   public:
-      Theme();
+    class Theme {
+    public:
+	Theme();
 
-      // Colours
-      Colour background() const;
-      Colour border() const;
+	// Colours
+	Colour background() const;
+	Colour border() const;
 
-      // Fonts
-      IFontPtr normalFont() const { return normal_font_; }
-      IFontPtr font(const string& fontName) const;
+	// Fonts
+	IFontPtr normalFont() const { return normal_font_; }
+	IFontPtr font(const string& fontName) const;
 
-      void addFont(const string& name, IFontPtr f);
+	void addFont(const string& name, IFontPtr f);
       
-   private:
-      IFontPtr normal_font_;
+    private:
+	IFontPtr normal_font_;
 
-      typedef map<string, IFontPtr> FontMap;
-      FontMap fonts;
-   };
+	typedef map<string, IFontPtr> FontMap;
+	FontMap fonts;
+    };
    
 }
 

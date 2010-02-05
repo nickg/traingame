@@ -28,17 +28,17 @@
 
 namespace gui {
 
-   class Window : public ContainerWidget {
-   public:
-      Window(const AttributeSet& attrs);
+    class Window : public ContainerWidget {
+    public:
+	Window(const AttributeSet& attrs);
 
-      const string& title() const { return title_; }
-      void title(const string& t) { title_ = t; }
+	const string& title() const { return title_; }
+	void title(const string& t) { title_ = t; }
 
-      void render(RenderContext& rc) const;
-   private:
-      string title_;
-   };
+	void render(RenderContext& rc) const;
+    private:
+	string title_;
+    };
    
 }
 

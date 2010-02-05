@@ -23,44 +23,44 @@
 
 class Tree : public IScenery {
 public:
-   Tree();
+    Tree();
 
-   // IScenery interface
-   void render() const;
-   void setPosition(float x, float y, float z);
+    // IScenery interface
+    void render() const;
+    void setPosition(float x, float y, float z);
    
 private:
-   IBillboardPtr billboard;
-   int texHeight;
+    IBillboardPtr billboard;
+    int texHeight;
 };
 
 Tree::Tree()
 {
-   const char* trees[] = {
-      "images/a-tree.png",
-      "images/a-nother-tree.png",
-      "images/cloud-tree.png",
-      "images/real_tree.png",
-   };
+    const char* trees[] = {
+	"images/a-tree.png",
+	"images/a-nother-tree.png",
+	"images/cloud-tree.png",
+	"images/real_tree.png",
+    };
 
-   static UniformInt rnd(0, sizeof(trees)/sizeof(char*) - 1);
+    static UniformInt rnd(0, sizeof(trees)/sizeof(char*) - 1);
 
-   billboard = makeCylindricalBillboard(
-      loadTexture(trees[rnd()]));
-   billboard->setScale(1.2f);
+    billboard = makeCylindricalBillboard(
+	loadTexture(trees[rnd()]));
+    billboard->setScale(1.2f);
 }
 
 void Tree::render() const
 {
-   billboard->render();
+    billboard->render();
 }
 
 void Tree::setPosition(float x, float y, float z)
 {
-   billboard->setPosition(x, y + 0.6f, z);
+    billboard->setPosition(x, y + 0.6f, z);
 }
 
 ISceneryPtr makeTree()
 {
-   return ISceneryPtr(new Tree);
+    return ISceneryPtr(new Tree);
 }

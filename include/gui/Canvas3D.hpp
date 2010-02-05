@@ -23,15 +23,15 @@
 
 namespace gui {
 
-   // A canvas which arbitrary 3D scenes can be rendered on
-   class Canvas3D : public Widget {
-   public:
-      Canvas3D(const AttributeSet& attrs);
+    // A canvas which arbitrary 3D scenes can be rendered on
+    class Canvas3D : public Widget {
+    public:
+	Canvas3D(const AttributeSet& attrs);
 
-      void render(RenderContext& rc) const;
-   private:
-      bool clear;
-   };
+	void render(RenderContext& rc) const;
+    private:
+	bool clear;
+    };
 }
 
 #endif

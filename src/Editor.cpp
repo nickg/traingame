@@ -33,73 +33,73 @@
 // Concrete editor class
 class Editor : public IScreen {
 public:
-   Editor(IMapPtr aMap);
-   Editor(const string& aMapName);
-   ~Editor();
+    Editor(IMapPtr aMap);
+    Editor(const string& aMapName);
+    ~Editor();
    
-   void display(IGraphicsPtr aContext) const;
-   void overlay() const;
-   void update(IPickBufferPtr aPickBuffer, int aDelta);
-   void onKeyDown(SDLKey aKey);
-   void onKeyUp(SDLKey aKey);
-   void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y, int xrel, int yrel);
-   void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
-                     MouseButton aButton);
-   void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
-                       MouseButton aButton);
+    void display(IGraphicsPtr aContext) const;
+    void overlay() const;
+    void update(IPickBufferPtr aPickBuffer, int aDelta);
+    void onKeyDown(SDLKey aKey);
+    void onKeyUp(SDLKey aKey);
+    void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y, int xrel, int yrel);
+    void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
+	MouseButton aButton);
+    void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
+	MouseButton aButton);
    
-   // Different tools the user can be using
-   enum Tool {
-      TRACK_TOOL, RAISE_TOOL, LOWER_TOOL, DELETE_TOOL,
-      LEVEL_TOOL, START_TOOL, STATION_TOOL, BUILDING_TOOL,
-      TREE_TOOL
-   };
-   void setTool(Tool aTool) { myTool = aTool; }
+    // Different tools the user can be using
+    enum Tool {
+	TRACK_TOOL, RAISE_TOOL, LOWER_TOOL, DELETE_TOOL,
+	LEVEL_TOOL, START_TOOL, STATION_TOOL, BUILDING_TOOL,
+	TREE_TOOL
+    };
+    void setTool(Tool aTool) { myTool = aTool; }
 
-   IMapPtr getMap() { return map; }
-   void setMap(IMapPtr aMap);
+    IMapPtr getMap() { return map; }
+    void setMap(IMapPtr aMap);
    
 private:
-   void buildGUI();
-   void drawDraggedTrack();
-   bool drawTrackTile(const Point<int>& aPoint, const track::Direction& anAxis);
-   void drawDraggedStraight(const track::Direction& anAxis, int aLength);
-   void drawDraggedCurve(int xLength, int yLength);
-   bool canConnect(const Point<int>& aFirstPoint,
-                   const Point<int>& aSecondPoint) const;
-   void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
-   void deleteObjects();
+    void buildGUI();
+    void drawDraggedTrack();
+    bool drawTrackTile(const Point<int>& aPoint, const track::Direction& anAxis);
+    void drawDraggedStraight(const track::Direction& anAxis, int aLength);
+    void drawDraggedCurve(int xLength, int yLength);
+    bool canConnect(const Point<int>& aFirstPoint,
+	const Point<int>& aSecondPoint) const;
+    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
+    void deleteObjects();
     void plantTrees();
-   void save();
+    void save();
       
-   IMapPtr map;
+    IMapPtr map;
    
-   ILightPtr mySun;
-   Vector<float> myPosition;
+    ILightPtr mySun;
+    Vector<float> myPosition;
 
-   Tool myTool;
-   bool amScrolling;
+    Tool myTool;
+    bool amScrolling;
 
-   // Variables for dragging track segments
-   Point<int> dragBegin, dragEnd;
-   bool amDragging;
+    // Variables for dragging track segments
+    Point<int> dragBegin, dragEnd;
+    bool amDragging;
 
-   // GUI elements
-   gui::ILayoutPtr layout;
-   IBuildingPickerPtr buildingPicker;
+    // GUI elements
+    gui::ILayoutPtr layout;
+    IBuildingPickerPtr buildingPicker;
 };
 
 Editor::Editor(IMapPtr aMap) 
-		: map(aMap), myPosition(4.5, -17.5, -21.5),
-			myTool(TRACK_TOOL), amScrolling(false), amDragging(false)
+    : map(aMap), myPosition(4.5, -17.5, -21.5),
+      myTool(TRACK_TOOL), amScrolling(false), amDragging(false)
 {
-		mySun = makeSunLight();
+    mySun = makeSunLight();
 		
-		buildGUI();
+    buildGUI();
 		
-		map->setGrid(true);
+    map->setGrid(true);
 		
-		log() << "Editing " << aMap->name();
+    log() << "Editing " << aMap->name();
 }
 
 Editor::~Editor()
@@ -140,13 +140,13 @@ void Editor::buildGUI()
 
 void Editor::setMap(IMapPtr aMap)
 {
-   map = aMap;
-   map->setGrid(true);
+    map = aMap;
+    map->setGrid(true);
 }
 
 void Editor::save()
 {
-   map->save();
+    map->save();
 }
 
 // Calculate the bounds of the drag box accounting for the different

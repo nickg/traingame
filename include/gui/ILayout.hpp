@@ -27,26 +27,26 @@
 
 namespace gui {
    
-   // A complete set of UI elements
-   struct ILayout {
-      virtual ~ILayout() {}
+    // A complete set of UI elements
+    struct ILayout {
+	virtual ~ILayout() {}
 
-      template <class T>
-      T& cast(const string& path) const
-      {
-         return dynamic_cast<T&>(get(path));
-      }
+	template <class T>
+	T& cast(const string& path) const
+	{
+	    return dynamic_cast<T&>(get(path));
+	}
 
-      virtual Widget& get(const string& path) const = 0;
-      virtual void render() const = 0;
+	virtual Widget& get(const string& path) const = 0;
+	virtual void render() const = 0;
 
-      virtual bool click(int x, int y) = 0;
-   };
+	virtual bool click(int x, int y) = 0;
+    };
 
-   typedef shared_ptr<ILayout> ILayoutPtr;
+    typedef shared_ptr<ILayout> ILayoutPtr;
 
-   ILayoutPtr makeLayout(const string& file_name);
-   string parentPath(const string& path);
+    ILayoutPtr makeLayout(const string& file_name);
+    string parentPath(const string& path);
    
 }
 
