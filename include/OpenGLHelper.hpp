@@ -40,19 +40,19 @@ unsigned endPick(unsigned* aBuffer);
 // as OpenGL types
 namespace gl {
 
-   inline void colour(const Colour& c)
-   {
-      glColor4f(c.r, c.g, c.b, c.a);
-   }
+    inline void colour(const Colour& c)
+    {
+	glColor4f(c.r, c.g, c.b, c.a);
+    }
 
-   template <class T>
-   inline void translate(const Vector<T>& v);
+    template <class T>
+    inline void translate(const Vector<T>& v);
 
-   template <>
-   inline void translate(const Vector<float>& v)
-   {
-      glTranslatef(v.x, v.y, v.z);
-   }
+    template <>
+    inline void translate(const Vector<float>& v)
+    {
+	glTranslatef(v.x, v.y, v.z);
+    }
 }
 
 #endif

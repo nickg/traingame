@@ -32,86 +32,85 @@
 // It also contains the track layout and any scenery items
 class IMap {
 public:
-   virtual int width() const = 0;
-   virtual int depth() const = 0;
+    virtual int width() const = 0;
+    virtual int depth() const = 0;
 
-   // Return the track segment at the given position
-   // It is invalid to call this with a position that doesn't
-   // contain the *origin* of a track segment -- call isValidTrack
-   // first
-   virtual ITrackSegmentPtr trackAt(const Point<int>& aPoint) const = 0;
+    // Return the track segment at the given position
+    // It is invalid to call this with a position that doesn't
+    // contain the *origin* of a track segment -- call isValidTrack
+    // first
+    virtual ITrackSegmentPtr trackAt(const Point<int>& aPoint) const = 0;
 
-   // True if the given position is the origin of a track segment
-   virtual bool isValidTrack(const Point<int>& aPoint) const = 0;
+    // True if the given position is the origin of a track segment
+    virtual bool isValidTrack(const Point<int>& aPoint) const = 0;
 
-   // Change the track segment at the given position
-   // Set rebuild to true to update the display lists used to render
-   // the map
-   virtual void setTrackAt(const Point<int>& aPoint,
-                           ITrackSegmentPtr aTrack) = 0;
+    // Change the track segment at the given position
+    // Set rebuild to true to update the display lists used to render
+    // the map
+    virtual void setTrackAt(const Point<int>& aPoint,
+	ITrackSegmentPtr aTrack) = 0;
 
-   // Return the station at this track location or a null pointer
-   virtual IStationPtr stationAt(Point<int> aPoint) const = 0;
+    // Return the station at this track location or a null pointer
+    virtual IStationPtr stationAt(Point<int> aPoint) const = 0;
 
-   // Delete the contents of a tile
-   virtual void eraseTile(int x, int y) = 0;
+    // Delete the contents of a tile
+    virtual void eraseTile(int x, int y) = 0;
 
-   // The start location consists of both a position and
-   // a direction vector
-   virtual track::Connection start() const = 0;
+    // The start location consists of both a position and
+    // a direction vector
+    virtual track::Connection start() const = 0;
    
-   virtual void render(IGraphicsPtr aContext) const = 0;
+    virtual void render(IGraphicsPtr aContext) const = 0;
 
-   // Draw a white border around the given tile
-   typedef tuple<float, float, float> HighlightColour;
-   virtual void highlightTile(IGraphicsPtr aContext,
-                              const Point<int>& aPoint,
-                              HighlightColour aColour) const = 0;
+    // Draw a white border around the given tile
+    typedef tuple<float, float, float> HighlightColour;
+    virtual void highlightTile(IGraphicsPtr aContext,
+	const Point<int>& aPoint, HighlightColour aColour) const = 0;
    
-   // Given a pick name return the (x, y) co-ordinate
-   virtual Point<int> pickPosition(unsigned aName) const = 0;
+    // Given a pick name return the (x, y) co-ordinate
+    virtual Point<int> pickPosition(unsigned aName) const = 0;
 
-   // True if this names a valid tile
-   virtual bool isValidTileName(unsigned aName) const = 0;
+    // True if this names a valid tile
+    virtual bool isValidTileName(unsigned aName) const = 0;
 
-   // Save the map to its resource
-   virtual void save() = 0;
+    // Save the map to its resource
+    virtual void save() = 0;
 
-   // Return the name of the map resource
-   virtual string name() const = 0;
+    // Return the name of the map resource
+    virtual string name() const = 0;
 
-   // Change the start location
-   // The second variant allows setting the direction as well
-   virtual void setStart(int x, int y) = 0;
-   virtual void setStart(int x, int y, int dirX, int dirY) = 0;
+    // Change the start location
+    // The second variant allows setting the direction as well
+    virtual void setStart(int x, int y) = 0;
+    virtual void setStart(int x, int y, int dirX, int dirY) = 0;
 
-   // Toggle display of grid lines
-   virtual void setGrid(bool onOff) = 0;
+    // Toggle display of grid lines
+    virtual void setGrid(bool onOff) = 0;
 
-   // Toggle pick mode on and off
-   // This turns of display of everything but the terrain
-   // and things that can be clicked on
-   virtual void setPickMode(bool onOff) = 0;
+    // Toggle pick mode on and off
+    // This turns of display of everything but the terrain
+    // and things that can be clicked on
+    virtual void setPickMode(bool onOff) = 0;
 
-   // Make a hill or valley in the given area
-   virtual void raiseArea(const Point<int>& aStartPos,
-                          const Point<int>& aFinishPos) = 0;
-   virtual void lowerArea(const Point<int>& aStartPos,
-                          const Point<int>& aFinishPos) = 0;
+    // Make a hill or valley in the given area
+    virtual void raiseArea(const Point<int>& aStartPos,
+	const Point<int>& aFinishPos) = 0;
+    virtual void lowerArea(const Point<int>& aStartPos,
+	const Point<int>& aFinishPos) = 0;
 
-   // Make all tiles in the area the same height
-   virtual void levelArea(Point<int> aStartPos, Point<int> aFinishPos) = 0;
+    // Make all tiles in the area the same height
+    virtual void levelArea(Point<int> aStartPos, Point<int> aFinishPos) = 0;
 
-   // Create a new station covering this area or extend an existing station
-   virtual IStationPtr extendStation(Point<int> aStartPos,
-                                     Point<int> aFinishPos) = 0;
+    // Create a new station covering this area or extend an existing station
+    virtual IStationPtr extendStation(Point<int> aStartPos,
+	Point<int> aFinishPos) = 0;
 
-   // Place a building at this location
-   virtual void placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding,
-      float anAngle) = 0;
+    // Place a building at this location
+    virtual void placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding,
+	float anAngle) = 0;
 
-   // Get the height above ground at a particular point
-   virtual float heightAt(float x, float y) const = 0;
+    // Get the height above ground at a particular point
+    virtual float heightAt(float x, float y) const = 0;
 
     // Place a tree, etc. at a location
     virtual void addScenery(Point<int> where, ISceneryPtr s) = 0;
