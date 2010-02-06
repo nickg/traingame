@@ -54,10 +54,13 @@ private:
 
     Point<int> displacedEndpoint() const;
     Point<int> straightEndpoint() const;
+
+    enum State { TAKEN, NOT_TAKEN };
    
     int myX, myY;
     track::Direction myAxis;
-    bool amReflected;
+    bool reflected;
+    State state;
 
     static const BezierCurve<float> myCurve, myReflectedCurve;
 };
@@ -76,7 +79,8 @@ const BezierCurve<float> Points::myReflectedCurve = makeBezierCurve
       
 Points::Points(track::Direction aDirection, bool reflect)
     : myX(0), myY(0),
-      myAxis(aDirection), amReflected(reflect)
+      myAxis(aDirection), reflected(reflect),
+      state(NOT_TAKEN)
 {
    
 }
@@ -86,7 +90,10 @@ void Points::renderArrow() const
     glPushMatrix();
     glPushAttrib(GL_ENABLE_BIT);
 
-    glTranslatef(0.0f, 0.1f, 0.0f);
+    glTranslatef(0.0f, 0.2f, 0.0f);
+
+    if (state == TAKEN)
+	glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
 
     //glDisable(GL_CULL_FACE);
 
@@ -117,7 +124,7 @@ void Points::render() const
     else if (myAxis == axis::Y)
 	glRotatef(270.0f, 0.0f, 1.0f, 0.0f);
 
-    renderRailMesh(amReflected ? reflectMesh : railMesh);
+    renderRailMesh(reflected ? reflectMesh : railMesh);
 
     glPushMatrix();
     glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
@@ -133,12 +140,12 @@ void Points::render() const
     for (float i = 0.2f; i < 1.0f; i += 0.08f) {
 	glPushMatrix();
       
-	Vector<float> v = (amReflected ? myReflectedCurve : myCurve)(i);
+	Vector<float> v = (reflected ? myReflectedCurve : myCurve)(i);
 
 	glTranslatef(v.x - 0.4f, 0.0f, v.y);
       
 	const Vector<float> deriv =
-	    (amReflected ? myReflectedCurve : myCurve).deriv(i);
+	    (reflected ? myReflectedCurve : myCurve).deriv(i);
 	const float angle =
 	    radToDeg<float>(atanf(deriv.y / deriv.x));
 
@@ -198,8 +205,7 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
     assert(aDelta < len);
 
     if (myX == aToken.position.x && myY == aToken.position.y
-	//	&& aToken.activeChoice == track::CHOOSE_STRAIGHT_ON
-    ) {
+	&& state == NOT_TAKEN) {
 
 	if (aToken.direction == myAxis
 	    && (myAxis == -axis::X || myAxis == -axis::Y))
@@ -244,9 +250,7 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       
 	glTranslated(-0.5, 0.0, 0.0);
     }
-    else if (aToken.position == displacedEndpoint()
-	//	|| aToken.activeChoice != track::CHOOSE_STRAIGHT_ON
-    ) {
+    else if (aToken.position == displacedEndpoint() || state == TAKEN) {
 	// Curving onto the straight section
 	float xTrans, yTrans, rotate;
 
@@ -268,23 +272,23 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
 
 	if (myAxis == -axis::X) {
 	    xTrans = 1.0f - curveValue.x;
-	    yTrans = amReflected ? curveValue.y : -curveValue.y;
-	    rotate = amReflected ? angle : -angle;
+	    yTrans = reflected ? curveValue.y : -curveValue.y;
+	    rotate = reflected ? angle : -angle;
 	}
 	else if (myAxis == axis::X) {
 	    xTrans = curveValue.x;
-	    yTrans = amReflected ? -curveValue.y : curveValue.y;
-	    rotate = amReflected ? angle : -angle;
+	    yTrans = reflected ? -curveValue.y : curveValue.y;
+	    rotate = reflected ? angle : -angle;
 	}
 	else if (myAxis == -axis::Y) {
-	    xTrans = amReflected ? -curveValue.y : curveValue.y;
+	    xTrans = reflected ? -curveValue.y : curveValue.y;
 	    yTrans = 1.0f - curveValue.x;
-	    rotate = amReflected ? angle : -angle;
+	    rotate = reflected ? angle : -angle;
 	}
 	else if (myAxis == axis::Y) {
-	    xTrans = amReflected ? curveValue.y : -curveValue.y;
+	    xTrans = reflected ? curveValue.y : -curveValue.y;
 	    yTrans = curveValue.x;
-	    rotate = amReflected ? angle : -angle;
+	    rotate = reflected ? angle : -angle;
 	}
 	else
 	    assert(false);
@@ -325,7 +329,7 @@ bool Points::isValidDirection(const track::Direction& aDirection) const
 
 track::Connection Points::nextPosition(const track::TravelToken& aToken) const
 {
-    bool branching = false; //aToken.activeChoice != track::CHOOSE_STRAIGHT_ON;
+    const bool branching = state == TAKEN;
          
     if (myAxis == axis::X) {
 	if (aToken.direction == -axis::X) {
@@ -335,7 +339,7 @@ track::Connection Points::nextPosition(const track::TravelToken& aToken) const
 	else {
 	    // Two possible exits
 	    if (branching) {
-		if (amReflected)
+		if (reflected)
 		    return make_pair(makePoint(myX + 3, myY - 1), axis::X);
 		else
 		    return make_pair(makePoint(myX + 3, myY + 1), axis::X);
@@ -348,7 +352,7 @@ track::Connection Points::nextPosition(const track::TravelToken& aToken) const
 	if (aToken.direction == -axis::X) {
 	    // Two possible exits
 	    if (branching) {
-		if (amReflected)
+		if (reflected)
 		    return make_pair(makePoint(myX - 3, myY + 1), -axis::X);
 		else
 		    return make_pair(makePoint(myX - 3, myY - 1), -axis::X);
@@ -369,7 +373,7 @@ track::Connection Points::nextPosition(const track::TravelToken& aToken) const
 	else {
 	    // Two possible exits
 	    if (branching) {
-		if (amReflected)
+		if (reflected)
 		    return make_pair(makePoint(myX + 1, myY + 3), axis::Y);
 		else
 		    return make_pair(makePoint(myX - 1, myY + 3), axis::Y);
@@ -382,7 +386,7 @@ track::Connection Points::nextPosition(const track::TravelToken& aToken) const
 	if (aToken.direction == -axis::Y) {
 	    // Two possible exits
 	    if (branching) {
-		if (amReflected)
+		if (reflected)
 		    return make_pair(makePoint(myX - 1, myY - 3), -axis::Y);
 		else
 		    return make_pair(makePoint(myX + 1, myY - 3), -axis::Y);
@@ -402,7 +406,7 @@ track::Connection Points::nextPosition(const track::TravelToken& aToken) const
 // Get the endpoint that follows the curve
 Point<int> Points::displacedEndpoint() const
 {
-    const int reflect = amReflected ? -1 : 1;
+    const int reflect = reflected ? -1 : 1;
 
     if (myAxis == axis::X)
 	return makePoint(myX + 2, myY + 1*reflect);
@@ -453,17 +457,39 @@ xml::element Points::toXml() const
 	    : (myAxis == -axis::X ? "-x"
 		: (myAxis == axis::Y ? "y"
 		    : (myAxis == -axis::Y ? "-y" : "?"))))
-	.addAttribute("reflect", amReflected);
+	.addAttribute("reflect", reflected);
 }
 
 void Points::nextState()
 {
+    debug() << "nextState r=" << reflected << " state=" << state;
+        
+    switch (state) {
+    case 0:
+	state = reflected ? NOT_TAKEN : NOT_TAKEN;
+	break;
+    case 1:
+	state = reflected ? NOT_TAKEN : TAKEN;
+	break;
+    }
 
+    debug() << "now=" << state;
 }
 
 void Points::prevState()
 {
+    debug() << "prevState r=" << reflected << " state=" << state;
+    
+    switch (state) {
+    case 0:
+	state = reflected ? TAKEN : TAKEN;
+	break;
+    case 1:
+	state = reflected ? TAKEN : NOT_TAKEN;
+	break;
+    }
 
+    debug() << "now="<<state;
 }
 
 ITrackSegmentPtr makePoints(track::Direction aDirection, bool reflect)

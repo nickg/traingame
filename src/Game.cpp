@@ -59,7 +59,10 @@ private:
     Vector<float> cameraPosition(float aRadius) const;
     void switchToBirdCamera();
     void stoppedAtStation();
-   
+
+    enum TrackStateReq { NEXT, PREV };
+    void alterTrackState(TrackStateReq req);
+    
     IMapPtr map;
     ITrainPtr train;
     ILightPtr sun;
@@ -276,6 +279,35 @@ void Game::lookAhead()
     setStatus("");
 }
 
+void Game::alterTrackState(TrackStateReq req)
+{
+    // Change the state of the nearest points, etc.
+    TrackIterator it = iterateTrack(map, train->tile(),
+	train->direction());
+
+    const int maxAlterLook = 10;
+
+    for (int i = 0; i < maxAlterLook; i++) {
+    
+	if (it.status == TRACK_CHOICE) {
+	    switch (req) {
+	    case NEXT:
+		it.track->nextState();
+		break;
+	    case PREV:
+		it.track->prevState();
+		break;
+	    }
+		
+	    return;
+	}
+
+	it = it.next();
+    }
+
+    warn() << "No nearby track state to change";
+}
+
 void Game::onKeyDown(SDLKey aKey)
 {   
     switch (aKey) {
@@ -304,13 +336,12 @@ void Game::onKeyDown(SDLKey aKey)
 	getGameWindow()->takeScreenShot();
 	break;
     case SDLK_LEFT:
-	//	train->controller()->actOn(GO_LEFT);
+	alterTrackState(PREV);
 	break;
     case SDLK_RIGHT:
-	//train->controller()->actOn(GO_RIGHT);
+	alterTrackState(NEXT);
 	break;
     case SDLK_UP:
-	//train->controller()->actOn(GO_STRAIGHT_ON);
 	break;
     case SDLK_TAB:
 	if (cameraMode == CAMERA_FLOATING)
