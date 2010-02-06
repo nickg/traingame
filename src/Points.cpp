@@ -43,6 +43,10 @@ public:
     xml::element toXml() const;
     track::TravelToken getTravelToken(track::Position aPosition,
 	track::Direction aDirection) const;
+    void nextState();
+    void prevState();
+    bool hasMultipleStates() const { return true; }
+    
 private:
     void transform(const track::TravelToken& aToken, double aDelta) const;
     void ensureValidDirection(track::Direction aDirection) const;
@@ -450,6 +454,16 @@ xml::element Points::toXml() const
 		: (myAxis == axis::Y ? "y"
 		    : (myAxis == -axis::Y ? "-y" : "?"))))
 	.addAttribute("reflect", amReflected);
+}
+
+void Points::nextState()
+{
+
+}
+
+void Points::prevState()
+{
+
 }
 
 ITrackSegmentPtr makePoints(track::Direction aDirection, bool reflect)

@@ -53,6 +53,11 @@ public:
     track::TravelToken getTravelToken(track::Position aPosition,
 	track::Direction aDirection) const;
     xml::element toXml() const;
+
+    bool hasMultipleStates() const { return false; }
+    void nextState() {}
+    void prevState() {}
+    
 private:
     void transform(const track::TravelToken& aToken, double aDelta) const;
     void ensureValidDirection(const track::Direction& aDirection) const;

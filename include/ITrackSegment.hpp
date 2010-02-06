@@ -38,7 +38,7 @@ namespace track {
     // Uniquely identifies the location of a train and its orientation
     // along a piece of track
     // Used for verifying whether bits of track can join together
-    typedef std::pair<Position, Direction> Connection;
+    typedef pair<Position, Direction> Connection;
 
     // Angles for curved track
     typedef int Angle;
@@ -141,6 +141,12 @@ struct ITrackSegment {
     // Convert the track segment to XML for writing out in the
     // map configuration file
     virtual xml::element toXml() const = 0;
+
+    // Some track segments may have several states - e.g. points
+    // These functions change the track state
+    virtual bool hasMultipleStates() const = 0;
+    virtual void prevState() = 0;
+    virtual void nextState() = 0;
 };
 
 ITrackSegmentPtr makeStraightTrack(const track::Direction& aDirection);
