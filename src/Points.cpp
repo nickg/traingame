@@ -46,6 +46,7 @@ public:
 private:
     void transform(const track::TravelToken& aToken, double aDelta) const;
     void ensureValidDirection(track::Direction aDirection) const;
+    void renderArrow() const;
 
     Point<int> displacedEndpoint() const;
     Point<int> straightEndpoint() const;
@@ -74,6 +75,28 @@ Points::Points(track::Direction aDirection, bool reflect)
       myAxis(aDirection), amReflected(reflect)
 {
    
+}
+
+void Points::renderArrow() const
+{
+    glPushMatrix();
+    glPushAttrib(GL_ENABLE_BIT);
+
+    glTranslatef(0.0f, 0.1f, 0.0f);
+
+    //glDisable(GL_CULL_FACE);
+
+    glEnable(GL_BLEND);
+    glColor4f(0.0f, 0.1f, 0.8f, 0.6f);
+    glBegin(GL_QUADS);
+    glVertex3f(-0.5f, 0.0f, 0.1f);
+    glVertex3f(0.5f, 0.0f, 0.1f);
+    glVertex3f(0.5f, 0.0f, -0.1f);
+    glVertex3f(-0.5f, 0.0f, -0.1f);
+    glEnd();
+
+    glPopAttrib();
+    glPopMatrix();
 }
 
 void Points::render() const
@@ -123,13 +146,17 @@ void Points::render() const
     }
    
     // Draw the straight sleepers
+    glPushMatrix();
     glTranslatef(-0.4f, 0.0f, 0.0f);
    
     for (int i = 0; i < 12; i++) {
 	renderSleeper();
 	glTranslatef(0.25f, 0.0f, 0.0f);
     }
+    glPopMatrix();
    
+    renderArrow();
+
     glPopMatrix();
 }
 

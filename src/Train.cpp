@@ -338,7 +338,7 @@ void Train::update(int aDelta)
 
     velocityVector = partPosition(engine()) - oldPos;
 
-    dumpFollowQueue();
+    //dumpFollowQueue();
 }
 
 // Called when the train enters a new segment
