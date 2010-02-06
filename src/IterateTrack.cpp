@@ -62,8 +62,8 @@ TrackIterator iterateTrack(IMapPtr aMap, track::Position aPosition,
          break;
       }
 
-   if (it.token.choices.size() > 1)
-      it.status = TRACK_CHOICE;
+   if (it.track->hasMultipleStates())
+       it.status = TRACK_CHOICE;
    
    return it;   
 }

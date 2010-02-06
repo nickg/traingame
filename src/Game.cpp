@@ -304,13 +304,13 @@ void Game::onKeyDown(SDLKey aKey)
 	getGameWindow()->takeScreenShot();
 	break;
     case SDLK_LEFT:
-	train->controller()->actOn(GO_LEFT);
+	//	train->controller()->actOn(GO_LEFT);
 	break;
     case SDLK_RIGHT:
-	train->controller()->actOn(GO_RIGHT);
+	//train->controller()->actOn(GO_RIGHT);
 	break;
     case SDLK_UP:
-	train->controller()->actOn(GO_STRAIGHT_ON);
+	//train->controller()->actOn(GO_STRAIGHT_ON);
 	break;
     case SDLK_TAB:
 	if (cameraMode == CAMERA_FLOATING)

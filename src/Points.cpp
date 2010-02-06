@@ -182,13 +182,11 @@ track::TravelToken Points::getTravelToken(track::Position aPosition,
     track::TravelToken tok = {
 	aDirection,
 	aPosition,
-	track::CHOOSE_STRAIGHT_ON,
 	bind(&Points::transform, this, _1, _2)
     };
-    tok.choices.insert(track::CHOOSE_STRAIGHT_ON);
-
-    if (aPosition.x == myX && aPosition.y == myY)
-	tok.choices.insert(track::CHOOSE_GO_RIGHT);
+    
+    //if (aPosition.x == myX && aPosition.y == myY)
+    //	tok.choices.insert(track::CHOOSE_GO_RIGHT);
    
     return tok;
 }
@@ -200,7 +198,8 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
     assert(aDelta < len);
 
     if (myX == aToken.position.x && myY == aToken.position.y
-	&& aToken.activeChoice == track::CHOOSE_STRAIGHT_ON) {
+	//	&& aToken.activeChoice == track::CHOOSE_STRAIGHT_ON
+    ) {
 
 	if (aToken.direction == myAxis
 	    && (myAxis == -axis::X || myAxis == -axis::Y))
@@ -246,7 +245,8 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
 	glTranslated(-0.5, 0.0, 0.0);
     }
     else if (aToken.position == displacedEndpoint()
-	|| aToken.activeChoice != track::CHOOSE_STRAIGHT_ON) {
+	//	|| aToken.activeChoice != track::CHOOSE_STRAIGHT_ON
+    ) {
 	// Curving onto the straight section
 	float xTrans, yTrans, rotate;
 
@@ -325,7 +325,7 @@ bool Points::isValidDirection(const track::Direction& aDirection) const
 
 track::Connection Points::nextPosition(const track::TravelToken& aToken) const
 {
-    bool branching = aToken.activeChoice != track::CHOOSE_STRAIGHT_ON;
+    bool branching = false; //aToken.activeChoice != track::CHOOSE_STRAIGHT_ON;
          
     if (myAxis == axis::X) {
 	if (aToken.direction == -axis::X) {

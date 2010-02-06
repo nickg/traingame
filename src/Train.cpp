@@ -64,9 +64,6 @@ private:
 	// Direction train part is travelling along the track
 	Vector<int> direction;
 
-	// Turns to take if this is not the engine
-	queue<track::Choice> followQueue;
-
 	// True if this is driving the train
 	bool isLeading;
 
@@ -87,9 +84,7 @@ private:
     void addPart(IRollingStockPtr aVehicle);
     Vector<float> partPosition(const Part& aPart) const;
     void updateSmokePosition(int aDelta);
-    void makeFollow(track::Choice aChoice);
     void flipLeader();
-    void dumpFollowQueue() const;
     void eachPart(function<void (Part&)> callback);
     void movePart(Part& part, double distance);
 
@@ -158,39 +153,6 @@ const Train::Part& Train::leading() const
     return *p;
 }
 
-// Make everything that's not the engine follow its choice
-void Train::makeFollow(track::Choice aChoice)
-{
-    const Part& leader = leading();
-    for (list<Part>::iterator it = parts.begin();
-	 it != parts.end(); ++it) {
-	if (*it != leader)
-	    (*it).followQueue.push(aChoice);
-    }
-}
-
-void Train::dumpFollowQueue() const
-{
-    ostringstream ss;
-
-    for (list<Part>::const_iterator it = parts.begin();
-	 it != parts.end(); ++it) {
-      
-	if ((*it).isLeading)
-	    ss << ">";
-            
-	if ((*it).followQueue.empty())
-	    ss << "-";
-	else {
-	    ss << (*it).followQueue.front();
-	}
-
-	ss << " ";
-    }
-
-    debug() << ss.str();
-}
-
 Train::Part& Train::engine()
 {
     assert(parts.size() > 0);
@@ -207,6 +169,7 @@ const Train::Part& Train::engine() const
 // versa
 void Train::flipLeader()
 {
+    // TODO: Delete?
     if (leading() == engine()) {
 	// Make the last waggon the leader
 	engine().isLeading = false;
@@ -218,11 +181,11 @@ void Train::flipLeader()
 	engine().isLeading = true;
     }
 
-    for (list<Part>::iterator it = parts.begin();
-	 it != parts.end(); ++it) {
-	while (!(*it).followQueue.empty())
-	    (*it).followQueue.pop();
-    }
+    // for (list<Part>::iterator it = parts.begin();
+    // 	 it != parts.end(); ++it) {
+    // 	while (!(*it).followQueue.empty())
+    // 	    (*it).followQueue.pop();
+    // }
 }
 
 // Iterate through the parts in order from the front of the
@@ -358,7 +321,7 @@ void Train::enterSegment(Part& aPart, const track::Connection& aConnection)
     aPart.segment = map->trackAt(pos);
     aPart.travelToken = aPart.segment->getTravelToken(pos, aPart.direction);
 
-    if (aPart.travelToken.choices.size() > 1) {
+    /*if (aPart.travelToken.choices.size() > 1) {
 	track::Choice choice;
       
 	if (aPart == leading()) {
@@ -375,7 +338,7 @@ void Train::enterSegment(Part& aPart, const track::Connection& aConnection)
 	}
       
 	aPart.travelToken.activeChoice = choice;
-    }
+	}*/
 }
 
 void Train::transformToPart(const Part& p)

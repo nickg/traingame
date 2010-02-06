@@ -93,10 +93,8 @@ CurvedTrack::getTravelToken(track::Position aPosition,
     track::TravelToken tok = {
 	aDirection,
 	aPosition,
-	track::CHOOSE_STRAIGHT_ON,
 	bind(&CurvedTrack::transform, this, _1, _2)
     };
-    tok.choices.insert(track::CHOOSE_STRAIGHT_ON);
     return tok;
 }
 

@@ -76,7 +76,6 @@ public:
    bool brakeOn() const { return isBrakeOn; }
    double pressure() const { return myBoilerPressure; }
    double temp() const { return myFireTemp; }
-   track::Choice consumeChoice();
    bool stopped() const { return haveStopped; }
 
    // IXMLCallback interface
@@ -94,8 +93,6 @@ private:
    int myThrottle;     // Ratio measured in tenths
    bool reverse;
    bool haveStopped;
-
-   track::Choice nextChoice;
 
    // Boiler pressure lags behind temperature
    MovingAverage<double, 1000> myBoilerDelay;
@@ -218,13 +215,6 @@ void Engine::update(int aDelta)
    //        << " (delta=" << aDelta << ")";
 }
 
-track::Choice Engine::consumeChoice()
-{
-   track::Choice c = nextChoice;
-   nextChoice = track::CHOOSE_STRAIGHT_ON;
-   return c;
-}
-
 // User interface to the engine
 void Engine::actOn(Action anAction)
 {
@@ -243,15 +233,6 @@ void Engine::actOn(Action anAction)
       break;
    case TOGGLE_REVERSE:
       reverse = !reverse;
-      break;
-   case GO_STRAIGHT_ON:
-      nextChoice = track::CHOOSE_STRAIGHT_ON;
-      break;
-   case GO_LEFT:
-      nextChoice = track::CHOOSE_GO_LEFT;
-      break;
-   case GO_RIGHT:
-      nextChoice = track::CHOOSE_GO_RIGHT;
       break;
    default:
       break;

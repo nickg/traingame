@@ -46,13 +46,6 @@ namespace track {
     struct TravelToken;
     typedef function<void (const TravelToken&, double)> TransformFunc;
 
-    // Choices that the player may make for a track segment
-    enum Choice {
-	CHOOSE_STRAIGHT_ON,
-	CHOOSE_GO_LEFT,
-	CHOOSE_GO_RIGHT
-    };
-   
     // Sums up all the information required to travel along a piece
     // of track
     struct TravelToken {
@@ -62,9 +55,6 @@ namespace track {
 	// Position of entry
 	Position position;
 
-	// Default choice
-	Choice activeChoice;
-      
 	// A function that transforms the location of the train
 	// so it will render in the correct place for this track segment
 	// The functions assumes that it is initially placed at the origin
@@ -75,9 +65,6 @@ namespace track {
 	{
 	    transformer(*this, aDelta);
 	}
-      
-	// Choices available to the player
-	set<Choice> choices;
     };
 }
 
