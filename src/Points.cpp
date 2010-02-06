@@ -179,22 +179,22 @@ double Points::segmentLength(const track::TravelToken& aToken) const
 	return 3.0;
 }
 
-track::TravelToken Points::getTravelToken(track::Position aPosition,
-    track::Direction aDirection) const
+track::TravelToken Points::getTravelToken(track::Position position,
+    track::Direction direction) const
 {
     using namespace placeholders;
    
-    ensureValidDirection(aDirection);
+    ensureValidDirection(direction);
 
+    const int nExits = position.x == myX && position.y == myY ? 2 : 1;
+    
     track::TravelToken tok = {
-	aDirection,
-	aPosition,
-	bind(&Points::transform, this, _1, _2)
+	direction,
+	position,
+	bind(&Points::transform, this, _1, _2),
+	nExits
     };
     
-    //if (aPosition.x == myX && aPosition.y == myY)
-    //	tok.choices.insert(track::CHOOSE_GO_RIGHT);
-   
     return tok;
 }
 

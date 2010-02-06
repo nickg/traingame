@@ -17,6 +17,8 @@
 
 #include "IterateTrack.hpp"
 
+#include <cassert>
+
 // Find the next piece of track
 TrackIterator TrackIterator::next() const
 {
@@ -62,8 +64,12 @@ TrackIterator iterateTrack(IMapPtr aMap, track::Position aPosition,
          break;
       }
 
-   if (it.track->hasMultipleStates())
+   if (it.token.numExits > 1) {
+       assert(it.track->hasMultipleStates());
        it.status = TRACK_CHOICE;
+   }
+   else
+       assert(it.token.numExits == 1);
    
    return it;   
 }

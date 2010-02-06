@@ -86,7 +86,8 @@ StraightTrack::getTravelToken(track::Position aPosition,
     track::TravelToken tok = {
 	aDirection,
 	aPosition,
-	bind(&StraightTrack::transform, this, _1, _2)
+	bind(&StraightTrack::transform, this, _1, _2),
+	1
     };
     return tok;
 }

@@ -55,10 +55,14 @@ namespace track {
 	// Position of entry
 	Position position;
 
-	// A function that transforms the location of the train
-	// so it will render in the correct place for this track segment
-	// The functions assumes that it is initially placed at the origin
+	// A function that transforms the location of the train so it will
+	// render in the correct place for this track segment The functions
+	// assumes that it is initially placed at the origin
 	TransformFunc transformer;
+
+	// Number of possible exits from this track segment given the direction
+	// we are travelling in
+	int numExits;
 
 	// Wrapper for the above
 	void transform(double aDelta) const
