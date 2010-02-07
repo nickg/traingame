@@ -28,6 +28,17 @@
 
 #include <boost/lexical_cast.hpp>
 
+void checkGLError()
+{
+    using namespace boost;
+   
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {   
+	throw runtime_error
+	    ("OpenGL error: " + lexical_cast<string>(gluErrorString(error)));
+    }
+}
+
 void drawGLScene(IWindowPtr aWindow, IGraphicsPtr aContext, IScreenPtr aScreen)
 {
     using namespace boost;
@@ -80,11 +91,7 @@ void drawGLScene(IWindowPtr aWindow, IGraphicsPtr aContext, IScreenPtr aScreen)
     aScreen->overlay();
 
     // Check for OpenGL errors
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR) {   
-	throw runtime_error
-	    ("OpenGL error: " + lexical_cast<string>(gluErrorString(error)));
-    }
+    checkGLError();
 }
 
 // Report the current OpenGL version

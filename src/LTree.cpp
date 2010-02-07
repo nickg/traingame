@@ -125,6 +125,7 @@ using namespace lsystem;
 class LTree : public IScenery {
 public:
     LTree();
+    ~LTree();
 
     // IScenery interface
     void render() const;
@@ -140,9 +141,12 @@ private:
     };
    
     void interpret(Token t, RenderState& rs) const;
+    void renderToDisplayList() const;
 
     LSystem ls;
     Vector<float> position;
+
+    GLuint displayList;
    
     static const Rule rules[];
 };
@@ -165,6 +169,14 @@ LTree::LTree()
 	evolve(ls);
 	//debug() << "n=" << n << ": " << ls;
     }
+
+    displayList = glGenLists(1);
+    renderToDisplayList();
+}
+
+LTree::~LTree()
+{
+    glDeleteLists(displayList, 1);
 }
 
 void LTree::interpret(Token t, RenderState& rs) const
@@ -220,11 +232,28 @@ void LTree::interpret(Token t, RenderState& rs) const
 
 void LTree::render() const
 {
-    using namespace placeholders;
+    glPushAttrib(GL_ENABLE_BIT);
+
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
 
     glPushMatrix();
-
+    
     gl::translate(position);
+    glCallList(displayList);
+
+    glPopMatrix();
+    
+    glPopAttrib();
+}
+
+void LTree::renderToDisplayList() const
+{
+    using namespace placeholders;
+
+    glNewList(displayList, GL_COMPILE);
+
+    glPushMatrix();
 
     gl::colour(makeRGB(159, 71, 17));
    
@@ -233,6 +262,8 @@ void LTree::render() const
 	bind(&LTree::interpret, this, _1, rs));
 
     glPopMatrix();
+
+    glEndList();
 }
 
 void LTree::setPosition(float x, float y, float z)

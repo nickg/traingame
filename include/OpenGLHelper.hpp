@@ -31,6 +31,7 @@ void initGL();
 void drawGLScene(IWindowPtr aWindow, IGraphicsPtr aContext, IScreenPtr aScreen);
 void resizeGLScene(IWindowPtr aWindow);
 void printGLVersion();
+void checkGLError();
 
 // Wrappers for OpenGL picking features
 void beginPick(IWindowPtr aWindow, unsigned* aBuffer, int x, int y);
