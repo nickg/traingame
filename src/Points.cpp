@@ -90,21 +90,47 @@ void Points::renderArrow() const
     glPushMatrix();
     glPushAttrib(GL_ENABLE_BIT);
 
-    glTranslatef(0.0f, 0.2f, 0.0f);
-
-    if (state == TAKEN)
-	glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
-
-    //glDisable(GL_CULL_FACE);
-
     glEnable(GL_BLEND);
-    glColor4f(0.0f, 0.1f, 0.8f, 0.6f);
-    glBegin(GL_QUADS);
-    glVertex3f(-0.5f, 0.0f, 0.1f);
-    glVertex3f(0.5f, 0.0f, 0.1f);
-    glVertex3f(0.5f, 0.0f, -0.1f);
-    glVertex3f(-0.5f, 0.0f, -0.1f);
-    glEnd();
+
+    glTranslatef(-0.5f, 0.11f, 0.0f);
+    glColor4f(0.1f, 0.1f, 0.8f, 0.6f);
+    
+    if (state == TAKEN) {
+	//glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
+
+	const BezierCurve<float>& curve =
+	    reflected ? myReflectedCurve : myCurve;
+
+	const float step = 0.1f;
+
+	for (float t = 0.0f; t < 1.0f; t += step) {
+
+	    const Vector<float> v1 = curve(t);
+	    const Vector<float> v2 = curve(t + step);
+
+	    glDisable(GL_CULL_FACE);
+
+	    glBegin(GL_QUADS);
+	    {
+		glVertex3f(v1.x, 0.0f, v1.y - 0.1f);
+		glVertex3f(v1.x, 0.0f, v1.y + 0.1f);
+		glVertex3f(v2.x, 0.0f, v2.y + 0.1f);
+		glVertex3f(v2.x, 0.0f, v2.y - 0.1f);
+	    }
+	    glEnd();
+
+	}
+    }
+    else {
+	glBegin(GL_QUADS);
+	{
+	    glVertex3f(0.0f, 0.0f, 0.1f);
+	    glVertex3f(3.0f, 0.0f, 0.1f);
+	    glVertex3f(3.0f, 0.0f, -0.1f);
+	    glVertex3f(0.0f, 0.0f, -0.1f);
+	}
+	glEnd();
+    }
 
     glPopAttrib();
     glPopMatrix();
