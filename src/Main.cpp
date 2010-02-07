@@ -31,11 +31,19 @@ using namespace boost::filesystem;
 
 namespace {
     IWindowPtr window;
+    struct sigaction oldSIGINT;
 
+    void clearSignalHandlers()
+    {
+	sigaction(SIGINT, &oldSIGINT, NULL);
+    }
+        
     void SIGINT_handler(int unused)
     {
 	log() << "Caught SIGINT";
 	::window->quit();
+
+	clearSignalHandlers();
     }
    
     void setupSignalHandlers()
@@ -45,7 +53,7 @@ namespace {
 	sa.sa_flags = 0;
 	sigemptyset(&sa.sa_mask);
 
-	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGINT, &sa, &oldSIGINT);
     }
 }
 
