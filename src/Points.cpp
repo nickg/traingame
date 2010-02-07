@@ -46,6 +46,7 @@ public:
     void nextState();
     void prevState();
     bool hasMultipleStates() const { return true; }
+    void setStateRenderHint();
     
 private:
     void transform(const track::TravelToken& aToken, double aDelta) const;
@@ -61,6 +62,9 @@ private:
     track::Direction myAxis;
     bool reflected;
     State state;
+
+    // Draw the arrow over the points if true
+    mutable bool stateRenderHint;
 
     static const BezierCurve<float> myCurve, myReflectedCurve;
 };
@@ -80,9 +84,15 @@ const BezierCurve<float> Points::myReflectedCurve = makeBezierCurve
 Points::Points(track::Direction aDirection, bool reflect)
     : myX(0), myY(0),
       myAxis(aDirection), reflected(reflect),
-      state(NOT_TAKEN)
+      state(NOT_TAKEN),
+      stateRenderHint(false)
 {
    
+}
+
+void Points::setStateRenderHint() 
+{
+    stateRenderHint = true;
 }
 
 void Points::renderArrow() const
@@ -215,8 +225,11 @@ void Points::render() const
 	glTranslatef(0.25f, 0.0f, 0.0f);
     }
     glPopMatrix();
-   
-    renderArrow();
+
+    if (stateRenderHint) {
+	renderArrow();
+	stateRenderHint = false;
+    }
 
     glPopMatrix();
 }

@@ -53,6 +53,7 @@ public:
     void nextState() {}
     void prevState() {}
     bool hasMultipleStates() const { return false; }
+    void setStateRenderHint() {}
     
 private:
     void transform(const track::TravelToken& aToken, double aDelta) const;

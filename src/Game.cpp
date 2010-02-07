@@ -261,6 +261,7 @@ void Game::lookAhead()
 		break;
 	    case TRACK_CHOICE:
 		setStatus("Oh no! You have to make a decision!");
+		it.track->setStateRenderHint();
 		break;
 	    default:
 		break;

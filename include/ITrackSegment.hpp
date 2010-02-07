@@ -138,6 +138,10 @@ struct ITrackSegment {
     virtual bool hasMultipleStates() const = 0;
     virtual void prevState() = 0;
     virtual void nextState() = 0;
+
+    // Set a hint to display something about the track state on the next render
+    // call - e.g display an arrow over points
+    virtual void setStateRenderHint() = 0;
 };
 
 ITrackSegmentPtr makeStraightTrack(const track::Direction& aDirection);
