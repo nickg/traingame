@@ -30,6 +30,15 @@ inline Colour makeColour(float r, float g, float b, float a=1.0f)
    return c;
 }
 
+inline Colour makeRGB(int r, int g, int b, int a=255)
+{
+    return makeColour(
+	static_cast<float>(r) / 255.0f,
+	static_cast<float>(g) / 255.0f,
+	static_cast<float>(b) / 255.0f,
+	static_cast<float>(a) / 255.0f);
+}
+
 namespace colour {
    const Colour WHITE = makeColour(1.0f, 1.0f, 1.0f);
 }

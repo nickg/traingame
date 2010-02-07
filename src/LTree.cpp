@@ -133,7 +133,7 @@ private:
     struct RenderState {
 	RenderState()
 	{
-	    widthStack.push(2.0f);
+	    widthStack.push(3.5f);
 	}
 
 	stack<float> widthStack;
@@ -176,8 +176,10 @@ void LTree::interpret(Token t, RenderState& rs) const
     case 'F':
 	glLineWidth(rs.widthStack.top());
 	glBegin(GL_LINES);
-	glVertex3f(0.0f, 0.0f, 0.0f);
-	glVertex3f(0.0f, SEGMENT_LEN, 0.0f);
+	{
+	    glVertex3f(0.0f, 0.0f, 0.0f);
+	    glVertex3f(0.0f, SEGMENT_LEN, 0.0f);
+	}
 	glEnd();
 	glTranslatef(0.0f, SEGMENT_LEN, 0.0f);
 	break;
@@ -200,7 +202,7 @@ void LTree::interpret(Token t, RenderState& rs) const
 	glRotatef(-25.0, 0.0f, 1.0f, 0.0f);
 	break;
     case '[':
-	rs.widthStack.push(rs.widthStack.top() * 0.9f);
+	rs.widthStack.push(rs.widthStack.top() * 0.8f);
 	glPushMatrix();
 	break;
     case ']':
@@ -223,8 +225,8 @@ void LTree::render() const
     glPushMatrix();
 
     gl::translate(position);
-   
-    glColor3f(0.0f, 0.0f, 0.0f);
+
+    gl::colour(makeRGB(159, 71, 17));
    
     RenderState rs;
     for_each(ls.state.begin(), ls.state.end(),
