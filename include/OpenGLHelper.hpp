@@ -54,6 +54,24 @@ namespace gl {
     {
 	glTranslatef(v.x, v.y, v.z);
     }
+
+    template <class T>
+    inline void vertex(const Vector<T>& v);
+
+    template <>
+    inline void vertex(const Vector<float>& v)
+    {
+	glVertex3f(v.x, v.y, v.z);
+    }
+
+    template <class T>
+    inline void normal(const Vector<T>& v);
+
+    template <>
+    inline void normal(const Vector<float>& v)
+    {
+	glNormal3f(v.x, v.y, v.z);
+    }
 }
 
 #endif

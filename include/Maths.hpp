@@ -22,6 +22,7 @@
 
 #include <cmath>
 #include <ostream>
+#include <cassert>
 
 // A generic 3D vector
 template <typename T>

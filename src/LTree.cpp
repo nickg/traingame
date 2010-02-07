@@ -19,6 +19,7 @@
 #include "ILogger.hpp"
 #include "Random.hpp"
 #include "OpenGLHelper.hpp"
+#include "Matrix.hpp"
 
 #include <list>
 #include <vector>
@@ -135,13 +136,16 @@ private:
 	RenderState()
 	{
 	    widthStack.push(3.5f);
+	    mStack.push(Matrix<float, 4>::identity());
 	}
 
 	stack<float> widthStack;
+	stack<Matrix<float, 4> > mStack;
     };
    
     void interpret(Token t, RenderState& rs) const;
     void renderToDisplayList() const;
+    int countLines() const;
 
     LSystem ls;
     Vector<float> position;
@@ -153,16 +157,15 @@ private:
 
 const Rule LTree::rules[] = {
     Rule(X, "F-[[X]+X]+F[+FX]-X"),
-    Rule(X, "F-[[X]+X]+FF[+FX]-X"),
     Rule(X, "F+[[X]-X]-F[-FX]+X"),
-    Rule(X, "+[[X]-X]-F[-FX]+X"),
+    //Rule(X, "+[[X]-X]-F[-FX]+X"),
     Rule(F, "FF"),
 };
 
 LTree::LTree()
     : ls(rules, sizeof(rules) / sizeof(Rule), X)
 {
-    const int N_GENERATIONS = 5;
+    const int N_GENERATIONS = 4;
    
     //debug() << "Initial: " << ls;
     for (int n = 0; n < N_GENERATIONS; n++) {
@@ -170,8 +173,12 @@ LTree::LTree()
 	//debug() << "n=" << n << ": " << ls;
     }
 
+    //debug() << ls;
+
     displayList = glGenLists(1);
     renderToDisplayList();
+
+    debug() << "LTree has " << countLines() << " lines";
 }
 
 LTree::~LTree()
@@ -181,19 +188,29 @@ LTree::~LTree()
 
 void LTree::interpret(Token t, RenderState& rs) const
 {
-    const float SEGMENT_LEN = 0.025f;
+    const float SEGMENT_LEN = 0.07f;
     const float LEAF_LEN = 0.1f;
+
+    Matrix<float, 4>& m = rs.mStack.top();
    
     switch (t) {
     case 'F':
-	glLineWidth(rs.widthStack.top());
-	glBegin(GL_LINES);
 	{
-	    glVertex3f(0.0f, 0.0f, 0.0f);
-	    glVertex3f(0.0f, SEGMENT_LEN, 0.0f);
+	    Vector<float> v1 = m.transform(makeVector(0.0f, 0.0f, 0.0f));
+	    Vector<float> v2 = m.transform(makeVector(0.0f, SEGMENT_LEN, 0.0f));
+	    Vector<float> n = m.transform(makeVector(0.0f, 1.0f, 0.0f));
+	    n.normalise();
+
+	    //glLineWidth(rs.widthStack.top());
+	    glBegin(GL_LINES);
+	    {
+		gl::normal(n);
+		gl::vertex(v1);
+		gl::vertex(v2);
+	    }
+	    glEnd();
 	}
-	glEnd();
-	glTranslatef(0.0f, SEGMENT_LEN, 0.0f);
+	m *= Matrix<float, 4>::translation(0.0f, SEGMENT_LEN, 0.0f);
 	break;
     case 'X':
 	/*glPushAttrib(GL_CURRENT_BIT);
@@ -206,20 +223,20 @@ void LTree::interpret(Token t, RenderState& rs) const
 	  glPopAttrib();*/
 	break;
     case '-':
-	glRotatef(25.0, 0.0f, 0.0f, 1.0f);
-	glRotatef(25.0, 0.0f, 1.0f, 0.0f);
+	m *= Matrix<float, 4>::rotation(25.0f, 0, 0, 1);
+	m *= Matrix<float, 4>::rotation(25.0f, 0, 1, 0);
 	break;
-    case '+':
-	glRotatef(-25.0, 0.0f, 0.0f, 1.0f);
-	glRotatef(-25.0, 0.0f, 1.0f, 0.0f);
+    case '+':	
+	m *= Matrix<float, 4>::rotation(-25.0f, 0, 0, 1);
+	m *= Matrix<float, 4>::rotation(-25.0f, 0, 1, 0);
 	break;
     case '[':
 	rs.widthStack.push(rs.widthStack.top() * 0.8f);
-	glPushMatrix();
+	rs.mStack.push(m);
 	break;
     case ']':
 	rs.widthStack.pop();
-	glPopMatrix();
+	rs.mStack.pop();
 	break;
     default:
 	{
@@ -272,6 +289,17 @@ void LTree::setPosition(float x, float y, float z)
     position.y = y;
     position.z = z;
 }
+
+int LTree::countLines() const
+{
+    int count = 0;
+    for (TokenList::const_iterator it = ls.state.begin();
+	 it != ls.state.end(); ++it)
+	if (*it == 'F')
+	    ++count;
+    
+    return count;
+}	
 
 ISceneryPtr makeLTree()
 {
