@@ -288,6 +288,10 @@ void Game::alterTrackState(TrackStateReq req)
     const int maxAlterLook = 10;
 
     for (int i = 0; i < maxAlterLook; i++) {
+
+	// Skip over the first section of track which may be some
+	// points - we don't want to alter the track we're on!
+	it = it.next();
     
 	if (it.status == TRACK_CHOICE) {
 	    switch (req) {
@@ -301,8 +305,6 @@ void Game::alterTrackState(TrackStateReq req)
 		
 	    return;
 	}
-
-	it = it.next();
     }
 
     warn() << "No nearby track state to change";

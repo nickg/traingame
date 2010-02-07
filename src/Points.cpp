@@ -462,34 +462,12 @@ xml::element Points::toXml() const
 
 void Points::nextState()
 {
-    debug() << "nextState r=" << reflected << " state=" << state;
-        
-    switch (state) {
-    case 0:
-	state = reflected ? NOT_TAKEN : NOT_TAKEN;
-	break;
-    case 1:
-	state = reflected ? NOT_TAKEN : TAKEN;
-	break;
-    }
-
-    debug() << "now=" << state;
+    state = reflected ? NOT_TAKEN : TAKEN;
 }
 
 void Points::prevState()
 {
-    debug() << "prevState r=" << reflected << " state=" << state;
-    
-    switch (state) {
-    case 0:
-	state = reflected ? TAKEN : TAKEN;
-	break;
-    case 1:
-	state = reflected ? TAKEN : NOT_TAKEN;
-	break;
-    }
-
-    debug() << "now="<<state;
+    state = reflected ? TAKEN : NOT_TAKEN;
 }
 
 ITrackSegmentPtr makePoints(track::Direction aDirection, bool reflect)
