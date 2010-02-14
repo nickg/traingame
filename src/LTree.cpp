@@ -34,14 +34,7 @@
 
 namespace lsystem {
 
-    enum Token {
-	X = 'X',   // Only used for replacement
-	F = 'F',   // Draw forward
-	L = '-',   // Turn left N degrees
-	R = '+',   // Turn right N degrees
-	B = '[',   // Push position
-	E = ']',   // Pop position
-    };
+    typedef char Token;
 
     typedef list<Token> TokenList;
 
@@ -135,11 +128,12 @@ private:
     struct RenderState {
 	RenderState()
 	{
-	    widthStack.push(3.5f);
+	    widthStack.push(5.5f);
 	    mStack.push(Matrix<float, 4>::identity());
+	    lengthStack.push(0.3f);
 	}
 
-	stack<float> widthStack;
+	stack<float> widthStack, lengthStack;
 	stack<Matrix<float, 4> > mStack;
     };
    
@@ -156,16 +150,21 @@ private:
 };
 
 const Rule LTree::rules[] = {
-    Rule(X, "F-[[X]+X]+F[+FX]-X"),
-    Rule(X, "F+[[X]-X]-F[-FX]+X"),
-    //Rule(X, "+[[X]-X]-F[-FX]+X"),
-    Rule(F, "FF"),
+    //Rule('S', "FFA"),
+    //Rule('A', "[&B]>[&B]>[&FB]>FA"),
+    //Rule('B', "F[L]~[&'B]'B"),
+    //Rule('L', "~lfL"),
+    Rule('S', "FX"),
+    Rule('X', "F-[[X]+X]+F[+FX]-X"),
+    Rule('X', "F+[[X]-X]-F[-FX]+X"),
+    Rule('X', "+[[X]-X]-F[-FX]+X"),
+    Rule('F', "FF"),
 };
 
 LTree::LTree()
-    : ls(rules, sizeof(rules) / sizeof(Rule), X)
+    : ls(rules, sizeof(rules) / sizeof(Rule), 'S')
 {
-    const int N_GENERATIONS = 4;
+    const int N_GENERATIONS = 6;
    
     //debug() << "Initial: " << ls;
     for (int n = 0; n < N_GENERATIONS; n++) {
@@ -173,7 +172,7 @@ LTree::LTree()
 	//debug() << "n=" << n << ": " << ls;
     }
 
-    //debug() << ls;
+    debug() << ls;
 
     displayList = glGenLists(1);
     renderToDisplayList();
@@ -188,20 +187,25 @@ LTree::~LTree()
 
 void LTree::interpret(Token t, RenderState& rs) const
 {
-    const float SEGMENT_LEN = 0.07f;
-    const float LEAF_LEN = 0.1f;
-
+    const float LEAF_LEN = 0.2f;
+    const float LEAF_WIDTH = 0.06f;
+    
     Matrix<float, 4>& m = rs.mStack.top();
    
+    float l = rs.lengthStack.top();
+	    
     switch (t) {
+    case 'f':
+	l /= 10.0f;
     case 'F':
 	{
 	    Vector<float> v1 = m.transform(makeVector(0.0f, 0.0f, 0.0f));
-	    Vector<float> v2 = m.transform(makeVector(0.0f, SEGMENT_LEN, 0.0f));
+	    Vector<float> v2 = m.transform(makeVector(0.0f, l, 0.0f));
 	    Vector<float> n = m.transform(makeVector(0.0f, 1.0f, 0.0f));
 	    n.normalise();
 
-	    //glLineWidth(rs.widthStack.top());
+	    gl::colour(makeRGB(159, 71, 17));
+	    glLineWidth(rs.widthStack.top());
 	    glBegin(GL_LINES);
 	    {
 		gl::normal(n);
@@ -209,18 +213,29 @@ void LTree::interpret(Token t, RenderState& rs) const
 		gl::vertex(v2);
 	    }
 	    glEnd();
+	    
+	    m *= Matrix<float, 4>::translation(0.0f, l, 0.0f);
 	}
-	m *= Matrix<float, 4>::translation(0.0f, SEGMENT_LEN, 0.0f);
 	break;
+    case 'B':
+    case 'l':
+	glPushAttrib(GL_CURRENT_BIT);
+	gl::colour(makeRGB(0, 83, 0, 0.9f));
+	glDisable(GL_CULL_FACE);
+	glBegin(GL_QUADS);
+	{
+	    const Vector<float> top = m.transform(makeVector(0.0f, 0.0f, 0.0f));
+	    gl::vertex(top);
+	    gl::vertex(top + makeVector(-LEAF_WIDTH/2, -LEAF_LEN/3, 0.0f));
+	    gl::vertex(top + makeVector(0.0f, -LEAF_LEN, 0.0f));
+	    gl::vertex(top + makeVector(LEAF_WIDTH/2, -LEAF_LEN/3, 0.0f));
+	}
+	glEnd();
+	glPopAttrib();
+	break;
+    case 'A':
+    case 'L':
     case 'X':
-	/*glPushAttrib(GL_CURRENT_BIT);
-	  glColor3f(0.0f, 0.8f, 0.0f);
-	  glBegin(GL_TRIANGLES);
-	  glVertex3f(0.0f, 0.0f, 0.0f);
-	  glVertex3f(LEAF_LEN, 0.0f, 0.0f);
-	  glVertex3f(0.0f, -LEAF_LEN, LEAF_LEN);
-	  glEnd();
-	  glPopAttrib();*/
 	break;
     case '-':
 	m *= Matrix<float, 4>::rotation(25.0f, 0, 0, 1);
@@ -230,13 +245,41 @@ void LTree::interpret(Token t, RenderState& rs) const
 	m *= Matrix<float, 4>::rotation(-25.0f, 0, 0, 1);
 	m *= Matrix<float, 4>::rotation(-25.0f, 0, 1, 0);
 	break;
+    case '&':
+	// Pitch down
+	m *= Matrix<float, 4>::rotation(-40.0f, 0, 0, 1);
+	break;
+    case '^':
+	// Pitch up
+	m *= Matrix<float, 4>::rotation(40.0f, 0, 0, 1);
+	break;
+    case '<':
+	// Roll left
+	m *= Matrix<float, 4>::rotation(-100.0f, 0, 1, 0);
+	break;
+    case '>':
+	// Roll right
+	m *= Matrix<float, 4>::rotation(100.0f, 0, 1, 0);
+	break;
+    case '~':
+	// Turn, pitch, and roll
+	m *= Matrix<float, 4>::rotation(15.0f, 1, 0, 0);
+	m *= Matrix<float, 4>::rotation(15.0f, 0, 1, 0);
+	m *= Matrix<float, 4>::rotation(15.0f, 0, 0, 1);
+	break;
+    case '\'':
+	// Decrease length
+	rs.lengthStack.top() *= 0.5f;
+	break;
     case '[':
 	rs.widthStack.push(rs.widthStack.top() * 0.8f);
+	rs.lengthStack.push(rs.lengthStack.top());
 	rs.mStack.push(m);
 	break;
     case ']':
 	rs.widthStack.pop();
 	rs.mStack.pop();
+	rs.lengthStack.pop();
 	break;
     default:
 	{
