@@ -533,16 +533,14 @@ void Map::dirtyTile(int x, int y)
 // Generate a terrain mesh for a particular sector
 void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
 {
-#define RGBi(r, g, b) r/255.0f, g/255.0f, b/255.0f
-   
-    static const tuple<float, float, float, float> colourMap[] = {
+    static const tuple<float, Colour> colourMap[] = {
 	//          Start height         colour
-	make_tuple(    7.0f,     RGBi(238, 233, 233) ),
-	make_tuple(    5.0f,     RGBi(124, 113, 36) ),
-	make_tuple(    3.0f,     RGBi(129, 142, 57) ),
-	make_tuple(    0.0f,     RGBi(103, 142, 57) ),
-	make_tuple(   -1.0f,     RGBi(224, 223, 134) ),
-	make_tuple(   -1e10f,    RGBi(178, 247, 220) )
+	make_tuple(    7.0f,     makeRGB(238, 233, 233) ),
+	make_tuple(    5.0f,     makeRGB(124, 113, 36) ),
+	make_tuple(    3.0f,     makeRGB(129, 142, 57) ),
+	make_tuple(    0.0f,     makeRGB(103, 142, 57) ),
+	make_tuple(   -1.0f,     makeRGB(224, 223, 134) ),
+	make_tuple(   -1e10f,    makeRGB(178, 247, 220) )
     };
    
     IMeshBufferPtr buf = makeMeshBuffer();
@@ -561,7 +559,7 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
 		const Vertex& v = heightMap[order[i]];
             
 		const float h = v.pos.y;
-		tuple<float, float, float, float> hcol;
+		tuple<float, Colour> hcol;
 		int j = 0;
 		do {
 		    hcol = colourMap[j++];
@@ -569,7 +567,7 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
 
 		buf->add(makeVector(v.pos.x, v.pos.y, v.pos.z),
 		    makeVector(v.normal.x, v.normal.y, v.normal.z),
-		    make_tuple(get<1>(hcol), get<2>(hcol), get<3>(hcol)));
+		    get<1>(hcol));
 	    }
 	}			
     }
@@ -580,7 +578,7 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
     const float y1 = static_cast<float>(botLeft.y) - 0.5f;
     const float y2 = static_cast<float>(topRight.y) - 0.5f;
 
-    const IMeshBuffer::Colour brown = make_tuple(RGBi(104, 57, 12));
+    const Colour brown = makeRGB(104, 57, 12);
     const float depth = -3.0f;
    
     int index[4];

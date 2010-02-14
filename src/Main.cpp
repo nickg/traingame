@@ -30,102 +30,102 @@
 using namespace boost::filesystem;
 
 namespace {
-    IWindowPtr window;
-    struct sigaction oldSIGINT;
+   IWindowPtr window;
+   struct sigaction oldSIGINT;
 
-    void clearSignalHandlers()
-    {
-	sigaction(SIGINT, &oldSIGINT, NULL);
-    }
+   void clearSignalHandlers()
+   {
+      sigaction(SIGINT, &oldSIGINT, NULL);
+   }
         
-    void SIGINT_handler(int unused)
-    {
-	log() << "Caught SIGINT";
-	::window->quit();
+   void SIGINT_handler(int unused)
+   {
+      log() << "Caught SIGINT";
+      ::window->quit();
 
-	clearSignalHandlers();
-    }
+      clearSignalHandlers();
+   }
    
-    void setupSignalHandlers()
-    {
-	struct sigaction sa;
-	sa.sa_handler = SIGINT_handler;
-	sa.sa_flags = 0;
-	sigemptyset(&sa.sa_mask);
+   void setupSignalHandlers()
+   {
+      struct sigaction sa;
+      sa.sa_handler = SIGINT_handler;
+      sa.sa_flags = 0;
+      sigemptyset(&sa.sa_mask);
 
-	sigaction(SIGINT, &sa, &oldSIGINT);
-    }
+      sigaction(SIGINT, &sa, &oldSIGINT);
+   }
 }
 
 IWindowPtr getGameWindow()
 {
-    return ::window;
+   return ::window;
 }
 
 int main(int argc, char** argv)
 {
-    cout << PACKAGE << " " << VERSION << "." << PATCH << endl << endl
-	 << "Copyright (C) 2009-2010  Nick Gasson" << endl
-	 << "This program comes with ABSOLUTELY NO WARRANTY. "
-	 << "This is free software, and" << endl
-	 << "you are welcome to redistribute it under certain conditions. "
-	 << "See the GNU" << endl
-	 << "General Public Licence for details." << endl << endl;
+   cout << PACKAGE << " " << VERSION << "." << PATCH << endl << endl
+	<< "Copyright (C) 2009-2010  Nick Gasson" << endl
+	<< "This program comes with ABSOLUTELY NO WARRANTY. "
+	<< "This is free software, and" << endl
+	<< "you are welcome to redistribute it under certain conditions. "
+	<< "See the GNU" << endl
+	<< "General Public Licence for details." << endl << endl;
    
-    log() << "Program started";
+   log() << "Program started";
 
-    setupSignalHandlers();
+   setupSignalHandlers();
    
-    try {
+   try {
 #ifndef WIN32
-	if (argc != 2 && argc != 3)
-	    throw runtime_error("Usage: TrainGame (edit|play) [map]");
-	initResources();
+      if (argc != 2 && argc != 3)
+	 throw runtime_error("Usage: TrainGame (edit|play) [map]");
+      initResources();
       
-	const string mapFile(argc == 3 ? argv[2] : "");
-	const string cmd(argv[1]);
+      const string mapFile(argc == 3 ? argv[2] : "");
+      const string cmd(argv[1]);
 #else
-	// For ease of debugging, specify a default map 
-	const string mapFile("figure8");
-	const string cmd("play");
+      // For ease of debugging, specify a default map 
+      const string mapFile("figure8");
+      const string cmd("play");
 #endif   // #ifndef WIN32
       
-	IConfigPtr cfg = getConfig();
+      IConfigPtr cfg = getConfig();
       
-	::window = makeSDLWindow();
+      ::window = makeSDLWindow();
       
-	IScreenPtr screen;
-	if (cmd == "edit") {
-	    if (resourceExists(mapFile, "maps"))
-		screen = makeEditorScreen(loadMap(mapFile));
-	    else {
-		screen = makeEditorScreen(makeEmptyMap(mapFile, 32, 32));
-	    }
-	}
-	else if (cmd == "play") {
-	    screen = makeGameScreen(loadMap(mapFile));
-	}
-	else if (cmd == "uidemo") {
-	    screen = makeUIDemo();
-	}
-	else if (cmd == "ltree") {
-	    screen = makeLTreeDemo();
-	}
-	else
-	    throw runtime_error("Unrecognised command: " + cmd);
+      IScreenPtr screen;
+      if (cmd == "edit") {
+	 if (resourceExists(mapFile, "maps"))
+	    screen = makeEditorScreen(loadMap(mapFile));
+	 else {
+	    screen = makeEditorScreen(makeEmptyMap(mapFile, 32, 32));
+	 }
+      }
+      else if (cmd == "play") {
+	 screen = makeGameScreen(loadMap(mapFile));
+      }
+      else if (cmd == "uidemo") {
+	 screen = makeUIDemo();
+      }
+      else if (cmd == "ltree") {
+	 screen = makeLTreeDemo();
+      }
+      else
+	 throw runtime_error("Unrecognised command: " + cmd);
          
-	::window->run(screen);
+      ::window->run(screen);
 
-	cfg->flush();
-    }
-    catch (const runtime_error& e) {
-	error() << "Fatal: " << e.what();
+      cfg->flush();
+   }
+   catch (const runtime_error& e) {
+      error() << "Fatal: " << e.what();
 
 #ifdef WIN32
-	MessageBox(NULL, e.what(), "Fatal error", MB_ICONERROR | MB_OK);
+      MessageBox(NULL, e.what(), "Fatal error", MB_ICONERROR | MB_OK);
 #endif
-    }
+   }
 
-    log() << "Finished";   
-    return 0;
+   log() << "Finished";   
+   return 0;
 }

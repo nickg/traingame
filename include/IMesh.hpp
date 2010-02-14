@@ -21,6 +21,7 @@
 #include "Platform.hpp"
 #include "Maths.hpp"
 #include "ITexture.hpp"
+#include "Colour.hpp"
 
 // Represent OpenGL materials
 struct Material {
@@ -39,7 +40,6 @@ struct IMeshBuffer {
    typedef Vector<float> Vertex;
    typedef Vector<float> Normal;
    typedef Point<float> TexCoord;
-   typedef std::tr1::tuple<float, float, float> Colour;
    typedef unsigned Index;
 
    virtual ~IMeshBuffer() {}
@@ -48,16 +48,16 @@ struct IMeshBuffer {
    
    virtual void add(const Vertex& aVertex, const Normal& aNormal) = 0;
    virtual void add(const Vertex& aVertex, const Normal& aNormal,
-                    const TexCoord& aTexCoord) = 0;
+      const TexCoord& aTexCoord) = 0;
    virtual void add(const Vertex& aVertex, const Normal& aNormal,
-                    const Colour& aColour) = 0;
+      const Colour& aColour) = 0;
 
    // Convenience functions
    virtual void addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
-                        Colour aColour) = 0;
+      Colour aColour) = 0;
    virtual void addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
-                        Normal na, Normal nb, Normal nc, Normal nd,
-                        Colour aColour) = 0;
+      Normal na, Normal nb, Normal nc, Normal nd,
+      Colour aColour) = 0;
 
    virtual void bindMaterial(const Material& aMaterial) = 0;
    
