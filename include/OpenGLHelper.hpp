@@ -41,37 +41,37 @@ unsigned endPick(unsigned* aBuffer);
 // as OpenGL types
 namespace gl {
 
-    inline void colour(const Colour& c)
-    {
-	glColor4f(c.r, c.g, c.b, c.a);
-    }
+   inline void colour(const Colour& c)
+   {
+      glColor4f(c.r, c.g, c.b, c.a);
+   }
 
-    template <class T>
-    inline void translate(const Vector<T>& v);
+   template <class T>
+   inline void translate(const Vector<T>& v);
 
-    template <>
-    inline void translate(const Vector<float>& v)
-    {
-	glTranslatef(v.x, v.y, v.z);
-    }
+   template <>
+   inline void translate(const Vector<float>& v)
+   {
+      glTranslatef(v.x, v.y, v.z);
+   }
 
-    template <class T>
-    inline void vertex(const Vector<T>& v);
+   template <class T>
+   inline void vertex(const Vector<T>& v);
 
-    template <>
-    inline void vertex(const Vector<float>& v)
-    {
-	glVertex3f(v.x, v.y, v.z);
-    }
+   template <>
+   inline void vertex(const Vector<float>& v)
+   {
+      glVertex3f(v.x, v.y, v.z);
+   }
 
-    template <class T>
-    inline void normal(const Vector<T>& v);
+   template <class T>
+   inline void normal(const Vector<T>& v);
 
-    template <>
-    inline void normal(const Vector<float>& v)
-    {
-	glNormal3f(v.x, v.y, v.z);
-    }
+   template <>
+   inline void normal(const Vector<float>& v)
+   {
+      glNormal3f(v.x, v.y, v.z);
+   }
 }
 
 #endif

@@ -23,26 +23,26 @@
 
 // Actions the user can send
 enum Action {
-    BRAKE_TOGGLE,
-    SHOVEL_COAL,
-    THROTTLE_UP,
-    THROTTLE_DOWN,
-    TOGGLE_REVERSE,
+   BRAKE_TOGGLE,
+   SHOVEL_COAL,
+   THROTTLE_UP,
+   THROTTLE_DOWN,
+   TOGGLE_REVERSE,
 };
 
 // Interface to something that can be controlled by the user
 struct IController {
-    virtual ~IController() {}
+   virtual ~IController() {}
 
-    virtual void actOn(Action anAction) = 0;
+   virtual void actOn(Action anAction) = 0;
    
-    // Get current values for the display
-    virtual int throttle() const = 0;
-    virtual bool brakeOn() const = 0;
-    virtual double pressure() const = 0;
-    virtual double temp() const = 0;
+   // Get current values for the display
+   virtual int throttle() const = 0;
+   virtual bool brakeOn() const = 0;
+   virtual double pressure() const = 0;
+   virtual double temp() const = 0;
 
-    virtual bool stopped() const = 0;
+   virtual bool stopped() const = 0;
 };
 
 typedef shared_ptr<IController> IControllerPtr;

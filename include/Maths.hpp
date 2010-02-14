@@ -33,9 +33,10 @@ struct Vector {
    // Cross product
    Vector<T> operator*(const Vector<T>& v) const
    {
-      return Vector<T>(y*v.z - z*v.y,
-                       z*v.x - x*v.z,
-                       x*v.y - y*v.x);
+      return Vector<T>(
+         y*v.z - z*v.y,
+         z*v.x - x*v.z,
+         x*v.y - y*v.x);
    }
 
    // Multiply by a scalar
@@ -131,7 +132,7 @@ Vector<T> makeVector(T x, T y, T z)
 // Find a surface normal
 template <typename T>
 Vector<T> surfaceNormal(const Vector<T>& a, const Vector<T>& b,
-                        const Vector<T>& c)
+   const Vector<T>& c)
 {
    Vector<T> v1 = b - a;
    Vector<T> v2 = c - a;
@@ -142,7 +143,7 @@ Vector<T> surfaceNormal(const Vector<T>& a, const Vector<T>& b,
 
 // Useful debugging function
 void drawNormal(const Vector<float>& aPosition,
-                const Vector<float>& aNormal);
+   const Vector<float>& aNormal);
 
 // A 2D point in space
 template <typename T>
@@ -186,7 +187,7 @@ struct Frustum {
    bool sphereInFrustum(float x, float y, float z, float radius);
    bool cubeInFrustum(float x, float y, float z, float size);	// size = 0.5*side_length
    bool cuboidInFrustum(float x,	  float y,	   float z,
-                        float sizeX, float sizeY, float sizeZ);
+      float sizeX, float sizeY, float sizeZ);
    
    float planes[6][4];
 };

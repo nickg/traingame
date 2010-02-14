@@ -24,16 +24,16 @@
 
 namespace gui {
 
-    // A button with an icon instead of text
-    class ImageButton : public Widget {
-    public:
-	ImageButton(const AttributeSet& attrs);
+   // A button with an icon instead of text
+   class ImageButton : public Widget {
+   public:
+      ImageButton(const AttributeSet& attrs);
 
-	void render(RenderContext& rc) const;
+      void render(RenderContext& rc) const;
       
-    private:
-	ITexturePtr texture;
-    };
+   private:
+      ITexturePtr texture;
+   };
    
 }
 
