@@ -130,7 +130,7 @@ private:
 	{
 	    widthStack.push(5.5f);
 	    mStack.push(Matrix<float, 4>::identity());
-	    lengthStack.push(0.3f);
+	    lengthStack.push(0.1f);
 	}
 
 	stack<float> widthStack, lengthStack;
@@ -154,17 +154,19 @@ const Rule LTree::rules[] = {
     //Rule('A', "[&B]>[&B]>[&FB]>FA"),
     //Rule('B', "F[L]~[&'B]'B"),
     //Rule('L', "~lfL"),
-    Rule('S', "FX"),
-    Rule('X', "F-[[X]+X]+F[+FX]-X"),
-    Rule('X', "F+[[X]-X]-F[-FX]+X"),
-    Rule('X', "+[[X]-X]-F[-FX]+X"),
+    Rule('S', "X"),
+    Rule('X', "F<[[X]+X]>F[+FX]>&X"),
+    //Rule('X', "F<[[X]+X]>F[+FX]+X"),
+    Rule('X', "F<[+FX]>F[[X]+X]>&X"),
+    //Rule('X', "[&X]>[&FX]"),
+    //Rule('X', "+[[X]-X]-F[-FX]+X"),
     Rule('F', "FF"),
 };
 
 LTree::LTree()
     : ls(rules, sizeof(rules) / sizeof(Rule), 'S')
 {
-    const int N_GENERATIONS = 6;
+    const int N_GENERATIONS = 5;
    
     //debug() << "Initial: " << ls;
     for (int n = 0; n < N_GENERATIONS; n++) {
@@ -239,19 +241,19 @@ void LTree::interpret(Token t, RenderState& rs) const
 	break;
     case '-':
 	m *= Matrix<float, 4>::rotation(25.0f, 0, 0, 1);
-	m *= Matrix<float, 4>::rotation(25.0f, 0, 1, 0);
+	//m *= Matrix<float, 4>::rotation(25.0f, 0, 1, 0);
 	break;
     case '+':	
 	m *= Matrix<float, 4>::rotation(-25.0f, 0, 0, 1);
-	m *= Matrix<float, 4>::rotation(-25.0f, 0, 1, 0);
+	//m *= Matrix<float, 4>::rotation(-25.0f, 0, 1, 0);
 	break;
     case '&':
 	// Pitch down
-	m *= Matrix<float, 4>::rotation(-40.0f, 0, 0, 1);
+	m *= Matrix<float, 4>::rotation(-25.0f, 0, 0, 1);
 	break;
     case '^':
 	// Pitch up
-	m *= Matrix<float, 4>::rotation(40.0f, 0, 0, 1);
+	m *= Matrix<float, 4>::rotation(25.0f, 0, 0, 1);
 	break;
     case '<':
 	// Roll left
@@ -292,7 +294,7 @@ void LTree::interpret(Token t, RenderState& rs) const
 
 void LTree::render() const
 {
-    glPushAttrib(GL_ENABLE_BIT);
+    glPushAttrib(GL_ENABLE_BIT | GL_LINE_BIT);
 
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
