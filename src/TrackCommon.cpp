@@ -26,323 +26,323 @@
 #include <GL/gl.h>
 
 namespace {
-    const float RAIL_WIDTH = 0.05f;
-    const float GAUGE = 0.5f;
+   const float RAIL_WIDTH = 0.05f;
+   const float GAUGE = 0.5f;
 
-    const int SLEEPERS_PER_UNIT = 4;
+   const int SLEEPERS_PER_UNIT = 4;
 
-    const float SLEEPER_LENGTH = 0.8f;
+   const float SLEEPER_LENGTH = 0.8f;
 
-    IMeshPtr theSleeperMesh, theRailMesh;
+   IMeshPtr theSleeperMesh, theRailMesh;
 
-    typedef map<int, IMeshPtr> CurvedRailMeshMap;
-    CurvedRailMeshMap theCurvedRailMeshes;
+   typedef map<int, IMeshPtr> CurvedRailMeshMap;
+   CurvedRailMeshMap theCurvedRailMeshes;
    
-    const Colour METAL = makeColour(0.5f, 0.5f, 0.5f);
+   const Colour METAL = makeColour(0.5f, 0.5f, 0.5f);
    
-    void generateSleeperMesh()
-    {
-	IMeshBufferPtr buf = makeMeshBuffer();
+   void generateSleeperMesh()
+   {
+      IMeshBufferPtr buf = makeMeshBuffer();
 
-	const Colour brown = makeColour(0.5f, 0.3f, 0.0f);
+      const Colour brown = makeColour(0.5f, 0.3f, 0.0f);
 
-	const float sleeperWidth = 0.1f;
-	const float sleeperDepth = 0.05f;
-	const float sleeperOff = sleeperWidth / 2.0f;
+      const float sleeperWidth = 0.1f;
+      const float sleeperDepth = 0.05f;
+      const float sleeperOff = sleeperWidth / 2.0f;
 
-	const float r = SLEEPER_LENGTH / 2.0f;
+      const float r = SLEEPER_LENGTH / 2.0f;
 
-	// Top
-	buf->addQuad(makeVector(-sleeperOff, sleeperDepth, -r),
-	    makeVector(-sleeperOff, sleeperDepth, r),
-	    makeVector(sleeperOff, sleeperDepth, r),
-	    makeVector(sleeperOff, sleeperDepth, -r),
-	    brown);
+      // Top
+      buf->addQuad(makeVector(-sleeperOff, sleeperDepth, -r),
+         makeVector(-sleeperOff, sleeperDepth, r),
+         makeVector(sleeperOff, sleeperDepth, r),
+         makeVector(sleeperOff, sleeperDepth, -r),
+         brown);
 
-	// Side 1
-	buf->addQuad(makeVector(sleeperOff, sleeperDepth, -r),
-	    makeVector(sleeperOff, 0.0f, -r),
-	    makeVector(-sleeperOff, 0.0f, -r),
-	    makeVector(-sleeperOff, sleeperDepth, -r),
-	    brown);
+      // Side 1
+      buf->addQuad(makeVector(sleeperOff, sleeperDepth, -r),
+         makeVector(sleeperOff, 0.0f, -r),
+         makeVector(-sleeperOff, 0.0f, -r),
+         makeVector(-sleeperOff, sleeperDepth, -r),
+         brown);
       
-	// Side 2
-	buf->addQuad(makeVector(-sleeperOff, sleeperDepth, r),
-	    makeVector(-sleeperOff, 0.0f, r),
-	    makeVector(sleeperOff, 0.0f, r),
-	    makeVector(sleeperOff, sleeperDepth, r),
-	    brown);
+      // Side 2
+      buf->addQuad(makeVector(-sleeperOff, sleeperDepth, r),
+         makeVector(-sleeperOff, 0.0f, r),
+         makeVector(sleeperOff, 0.0f, r),
+         makeVector(sleeperOff, sleeperDepth, r),
+         brown);
 
-	// Front
-	buf->addQuad(makeVector(sleeperOff, 0.0f, r),
-	    makeVector(sleeperOff, 0.0f, -r),
-	    makeVector(sleeperOff, sleeperDepth, -r),
-	    makeVector(sleeperOff, sleeperDepth, r),
-	    brown);
+      // Front
+      buf->addQuad(makeVector(sleeperOff, 0.0f, r),
+         makeVector(sleeperOff, 0.0f, -r),
+         makeVector(sleeperOff, sleeperDepth, -r),
+         makeVector(sleeperOff, sleeperDepth, r),
+         brown);
       
-	// Back
-	buf->addQuad(makeVector(-sleeperOff, sleeperDepth, r),
-	    makeVector(-sleeperOff, sleeperDepth, -r),
-	    makeVector(-sleeperOff, 0.0f, -r),
-	    makeVector(-sleeperOff, 0.0f, r),
-	    brown);
+      // Back
+      buf->addQuad(makeVector(-sleeperOff, sleeperDepth, r),
+         makeVector(-sleeperOff, sleeperDepth, -r),
+         makeVector(-sleeperOff, 0.0f, -r),
+         makeVector(-sleeperOff, 0.0f, r),
+         brown);
    
-	theSleeperMesh = makeMesh(buf);
-    }
+      theSleeperMesh = makeMesh(buf);
+   }
 
-    void generateRailMesh()
-    {
-	IMeshBufferPtr buf = makeMeshBuffer();
+   void generateRailMesh()
+   {
+      IMeshBufferPtr buf = makeMeshBuffer();
 
-	// Top side
-	buf->addQuad(makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
-	    makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
-	    makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
-	    makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
-	    METAL);
+      // Top side
+      buf->addQuad(makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
+         makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
+         makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
+         makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
+         METAL);
       
-	// Outer side
-	buf->addQuad(makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
-	    makeVector(-RAIL_WIDTH/2.0f, 0.0f, 0.0f),
-	    makeVector(-RAIL_WIDTH/2.0f, 0.0f, 1.0f),
-	    makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
-	    METAL);
+      // Outer side
+      buf->addQuad(makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
+         makeVector(-RAIL_WIDTH/2.0f, 0.0f, 0.0f),
+         makeVector(-RAIL_WIDTH/2.0f, 0.0f, 1.0f),
+         makeVector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
+         METAL);
    
-	// Inner side
-	buf->addQuad(makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
-	    makeVector(RAIL_WIDTH/2.0f, 0.0f, 1.0f),
-	    makeVector(RAIL_WIDTH/2.0f, 0.0f, 0.0f),
-	    makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
-	    METAL);   
+      // Inner side
+      buf->addQuad(makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
+         makeVector(RAIL_WIDTH/2.0f, 0.0f, 1.0f),
+         makeVector(RAIL_WIDTH/2.0f, 0.0f, 0.0f),
+         makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
+         METAL);   
       
-	theRailMesh = makeMesh(buf);
-    }
+      theRailMesh = makeMesh(buf);
+   }
 
-    // Generate a rail mesh from a Bezier curve
-    IMeshPtr generateBezierRailMesh(const BezierCurve<float>& aFunc)
-    {
-	IMeshBufferPtr buf = makeMeshBuffer();
+   // Generate a rail mesh from a Bezier curve
+   IMeshPtr generateBezierRailMesh(const BezierCurve<float>& aFunc)
+   {
+      IMeshBufferPtr buf = makeMeshBuffer();
       
-	const float step = 0.1f;
+      const float step = 0.1f;
 
-	for (float t = 0.0f; t < 1.0f; t += step) {
-	    Vector<float> v1 = aFunc(t);
-	    Vector<float> v2 = aFunc(t + step);
+      for (float t = 0.0f; t < 1.0f; t += step) {
+         Vector<float> v1 = aFunc(t);
+         Vector<float> v2 = aFunc(t + step);
          
-	    v1.y -= RAIL_WIDTH / 2.0f;
-	    v2.y -= RAIL_WIDTH / 2.0f;
+         v1.y -= RAIL_WIDTH / 2.0f;
+         v2.y -= RAIL_WIDTH / 2.0f;
 
-	    // Top of rail
-	    buf->addQuad(makeVector(v1.x, track::RAIL_HEIGHT, v1.y),
-		makeVector(v1.x, track::RAIL_HEIGHT, v1.y + RAIL_WIDTH),
-		makeVector(v2.x, track::RAIL_HEIGHT, v2.y + RAIL_WIDTH),
-		makeVector(v2.x, track::RAIL_HEIGHT, v2.y),
-		METAL);
+         // Top of rail
+         buf->addQuad(makeVector(v1.x, track::RAIL_HEIGHT, v1.y),
+            makeVector(v1.x, track::RAIL_HEIGHT, v1.y + RAIL_WIDTH),
+            makeVector(v2.x, track::RAIL_HEIGHT, v2.y + RAIL_WIDTH),
+            makeVector(v2.x, track::RAIL_HEIGHT, v2.y),
+            METAL);
 
-	    // Outer edge
-	    buf->addQuad(makeVector(v2.x, track::RAIL_HEIGHT, v2.y),
-		makeVector(v2.x , 0.0f, v2.y),
-		makeVector(v1.x, 0.0f, v1.y),
-		makeVector(v1.x, track::RAIL_HEIGHT, v1.y),
-		METAL);
+         // Outer edge
+         buf->addQuad(makeVector(v2.x, track::RAIL_HEIGHT, v2.y),
+            makeVector(v2.x , 0.0f, v2.y),
+            makeVector(v1.x, 0.0f, v1.y),
+            makeVector(v1.x, track::RAIL_HEIGHT, v1.y),
+            METAL);
 
-	    // Inner edge
-	    buf->addQuad(makeVector(v1.x, track::RAIL_HEIGHT, v1.y + RAIL_WIDTH),
-		makeVector(v1.x, 0.0f, v1.y + RAIL_WIDTH),
-		makeVector(v2.x , 0.0f, v2.y + RAIL_WIDTH),
-		makeVector(v2.x, track::RAIL_HEIGHT, v2.y + RAIL_WIDTH),
-		METAL);
-	}
+         // Inner edge
+         buf->addQuad(makeVector(v1.x, track::RAIL_HEIGHT, v1.y + RAIL_WIDTH),
+            makeVector(v1.x, 0.0f, v1.y + RAIL_WIDTH),
+            makeVector(v2.x , 0.0f, v2.y + RAIL_WIDTH),
+            makeVector(v2.x, track::RAIL_HEIGHT, v2.y + RAIL_WIDTH),
+            METAL);
+      }
 
-	return makeMesh(buf);
-    }
+      return makeMesh(buf);
+   }
    
-    enum RailType {
-	INNER_RAIL, OUTER_RAIL
-    };
+   enum RailType {
+      INNER_RAIL, OUTER_RAIL
+   };
    
-    IMeshPtr generateCurvedRailMesh(IMeshBufferPtr buf, int baseRadius, RailType type)
-    {
-	const float edgeWidth = (1 - GAUGE - RAIL_WIDTH)/2.0f;
-	const float R = static_cast<float>(baseRadius) - edgeWidth
-	    - (type == OUTER_RAIL ? 0 : GAUGE);
-	const float r = R - RAIL_WIDTH;
+   IMeshPtr generateCurvedRailMesh(IMeshBufferPtr buf, int baseRadius, RailType type)
+   {
+      const float edgeWidth = (1 - GAUGE - RAIL_WIDTH)/2.0f;
+      const float R = static_cast<float>(baseRadius) - edgeWidth
+         - (type == OUTER_RAIL ? 0 : GAUGE);
+      const float r = R - RAIL_WIDTH;
       
-	const float step = 0.2f;
+      const float step = 0.2f;
       
-	// Top of rail
-	for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
-	    buf->addQuad(makeVector(r * cos(theta), 0.1f, r * sin(theta)), 
-		makeVector(r * cos(theta + step), 0.1f, r * sin(theta + step)),
-		makeVector(R * cos(theta + step), 0.1f, R * sin(theta + step)),
-		makeVector(R * cos(theta), 0.1f, R * sin(theta)),
-		METAL);
-	}
+      // Top of rail
+      for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
+         buf->addQuad(makeVector(r * cos(theta), 0.1f, r * sin(theta)), 
+            makeVector(r * cos(theta + step), 0.1f, r * sin(theta + step)),
+            makeVector(R * cos(theta + step), 0.1f, R * sin(theta + step)),
+            makeVector(R * cos(theta), 0.1f, R * sin(theta)),
+            METAL);
+      }
       
-	// Outer edge
-	for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
-	    const float sinT = sin(theta);
-	    const float cosT = cos(theta);
-	    const float sinT1 = sin(theta + step);
-	    const float cosT1 = cos(theta + step);
+      // Outer edge
+      for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
+         const float sinT = sin(theta);
+         const float cosT = cos(theta);
+         const float sinT1 = sin(theta + step);
+         const float cosT1 = cos(theta + step);
 
-	    buf->addQuad(// Vertices
-		makeVector(R * cosT1, 0.1f, R * sinT1),
-		makeVector(R * cosT1, 0.0f, R * sinT1),
-		makeVector(R * cosT, 0.0f, R * sinT),
-		makeVector(R * cosT, 0.1f, R * sinT),
+         buf->addQuad(// Vertices
+            makeVector(R * cosT1, 0.1f, R * sinT1),
+            makeVector(R * cosT1, 0.0f, R * sinT1),
+            makeVector(R * cosT, 0.0f, R * sinT),
+            makeVector(R * cosT, 0.1f, R * sinT),
 
-		// Normals
-		makeVector(cosT1, 0.0f, sinT1),
-		makeVector(cosT1, 0.0f, sinT1),
-		makeVector(cosT, 0.0f, sinT),
-		makeVector(cosT, 0.0f, sinT),
+            // Normals
+            makeVector(cosT1, 0.0f, sinT1),
+            makeVector(cosT1, 0.0f, sinT1),
+            makeVector(cosT, 0.0f, sinT),
+            makeVector(cosT, 0.0f, sinT),
 
-		METAL);
-	}
+            METAL);
+      }
       
-	// Inner edge
-	for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
-	    const float sinT = sin(theta);
-	    const float cosT = cos(theta);
-	    const float sinT1 = sin(theta + step);
-	    const float cosT1 = cos(theta + step);
+      // Inner edge
+      for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
+         const float sinT = sin(theta);
+         const float cosT = cos(theta);
+         const float sinT1 = sin(theta + step);
+         const float cosT1 = cos(theta + step);
 
-	    buf->addQuad(// Vertices
-		makeVector(r * cosT, 0.1f, r * sinT),
-		makeVector(r * cosT, 0.0f, r * sinT),
-		makeVector(r * cosT1, 0.0f, r * sinT1),
-		makeVector(r * cosT1, 0.1f, r * sinT1),
+         buf->addQuad(// Vertices
+            makeVector(r * cosT, 0.1f, r * sinT),
+            makeVector(r * cosT, 0.0f, r * sinT),
+            makeVector(r * cosT1, 0.0f, r * sinT1),
+            makeVector(r * cosT1, 0.1f, r * sinT1),
 
-		// Normals
-		makeVector(-cosT, 0.0f, -sinT),
-		makeVector(-cosT, 0.0f, -sinT),
-		makeVector(-cosT1, 0.0f, -sinT1),
-		makeVector(-cosT1, 0.0f, -sinT1),
+            // Normals
+            makeVector(-cosT, 0.0f, -sinT),
+            makeVector(-cosT, 0.0f, -sinT),
+            makeVector(-cosT1, 0.0f, -sinT1),
+            makeVector(-cosT1, 0.0f, -sinT1),
 
-		METAL);
-	}
+            METAL);
+      }
 
-	return makeMesh(buf);
-    }
+      return makeMesh(buf);
+   }
    
-    void renderCurvedRail(int baseRadius)
-    {
-	IMeshPtr ptr;
+   void renderCurvedRail(int baseRadius)
+   {
+      IMeshPtr ptr;
       
-	CurvedRailMeshMap::iterator it = theCurvedRailMeshes.find(baseRadius);
-	if (it != theCurvedRailMeshes.end())
-	    ptr = (*it).second;
-	else {
-	    IMeshBufferPtr buf = makeMeshBuffer();
+      CurvedRailMeshMap::iterator it = theCurvedRailMeshes.find(baseRadius);
+      if (it != theCurvedRailMeshes.end())
+         ptr = (*it).second;
+      else {
+         IMeshBufferPtr buf = makeMeshBuffer();
          
-	    generateCurvedRailMesh(buf, baseRadius, INNER_RAIL);
-	    generateCurvedRailMesh(buf, baseRadius, OUTER_RAIL);
+         generateCurvedRailMesh(buf, baseRadius, INNER_RAIL);
+         generateCurvedRailMesh(buf, baseRadius, OUTER_RAIL);
             
-	    ptr = makeMesh(buf);
-	    theCurvedRailMeshes[baseRadius] = ptr;
-	}
+         ptr = makeMesh(buf);
+         theCurvedRailMeshes[baseRadius] = ptr;
+      }
 
-	ptr->render();
-    }
+      ptr->render();
+   }
 
-    void renderOneRail()
-    {
-	if (!theRailMesh)
-	    generateRailMesh();
+   void renderOneRail()
+   {
+      if (!theRailMesh)
+         generateRailMesh();
       
-	theRailMesh->render();
-    }
+      theRailMesh->render();
+   }
 }
 
 IMeshPtr makeBezierRailMesh(const BezierCurve<float>& aFunc)
 {
-    return generateBezierRailMesh(aFunc);
+   return generateBezierRailMesh(aFunc);
 }
 
 // Draw a sleeper in the current maxtrix location
 void renderSleeper()
 {
-    if (!theSleeperMesh)
-	generateSleeperMesh();
+   if (!theSleeperMesh)
+      generateSleeperMesh();
    
-    theSleeperMesh->render();
+   theSleeperMesh->render();
 }
 
 // Render a pre-generated rail mesh in the right place
 void renderRailMesh(IMeshPtr aMesh)
 {
-    glPushMatrix();
+   glPushMatrix();
 
-    glTranslatef(-0.5f, 0.0f, -GAUGE/2.0f);   
-    aMesh->render();
+   glTranslatef(-0.5f, 0.0f, -GAUGE/2.0f);   
+   aMesh->render();
    
-    glTranslatef(0.0f, 0.0f, GAUGE);
-    aMesh->render();
+   glTranslatef(0.0f, 0.0f, GAUGE);
+   aMesh->render();
 
-    glPopMatrix();
+   glPopMatrix();
 }
 
 void renderStraightRail()
 {
-    glPushMatrix();
+   glPushMatrix();
 
-    glTranslatef(-GAUGE/2.0f, 0.0f, -0.5f);
-    renderOneRail();
+   glTranslatef(-GAUGE/2.0f, 0.0f, -0.5f);
+   renderOneRail();
    
-    glTranslatef(GAUGE, 0.0f, 0.0f);
-    renderOneRail();
+   glTranslatef(GAUGE, 0.0f, 0.0f);
+   renderOneRail();
 
-    glPopMatrix();
+   glPopMatrix();
 }
 
 // Move to the origin of a curved section of track
 void transformToOrigin(int baseRadius, track::Angle startAngle)
 {
-    glTranslatef((baseRadius-1)*-sin(degToRad(startAngle)) - 0.5f, 0.0f,
-	(baseRadius-1)*-cos(degToRad(startAngle)) - 0.5f);
+   glTranslatef((baseRadius-1)*-sin(degToRad(startAngle)) - 0.5f, 0.0f,
+      (baseRadius-1)*-cos(degToRad(startAngle)) - 0.5f);
 
-    // There *must* be a way to incorporate this in the above translation
-    // as a neat formula, but I really can't think of it
-    // This is a complete a hack, but whatever...
-    if (startAngle >= 90 && startAngle <= 180)
-	glTranslatef(0.0f, 0.0f, 1.0f);
+   // There *must* be a way to incorporate this in the above translation
+   // as a neat formula, but I really can't think of it
+   // This is a complete a hack, but whatever...
+   if (startAngle >= 90 && startAngle <= 180)
+      glTranslatef(0.0f, 0.0f, 1.0f);
    
-    if (startAngle >= 180 && startAngle <= 270)
-	glTranslatef(1.0f, 0.0f, 0.0f);
+   if (startAngle >= 180 && startAngle <= 270)
+      glTranslatef(1.0f, 0.0f, 0.0f);
 }
 
 // `baseRadius' is measured in tiles
 void renderCurvedTrack(int baseRadius, track::Angle startAngle,
-    track::Angle endAngle)
+   track::Angle endAngle)
 {
-    glPushMatrix();
+   glPushMatrix();
    
-    transformToOrigin(baseRadius, startAngle);
+   transformToOrigin(baseRadius, startAngle);
 
-    glPushMatrix();
+   glPushMatrix();
    
-    glRotatef(static_cast<float>(startAngle), 0.0f, 1.0f, 0.0f);
-    renderCurvedRail(baseRadius);
+   glRotatef(static_cast<float>(startAngle), 0.0f, 1.0f, 0.0f);
+   renderCurvedRail(baseRadius);
 
-    glPopMatrix();
+   glPopMatrix();
 
-    const float length = degToRad(static_cast<float>(endAngle - startAngle)) * baseRadius;
-    const int numSleepers = static_cast<int>(length * SLEEPERS_PER_UNIT);
-    const float sleeperAngle =
-	static_cast<float>(endAngle - startAngle) / numSleepers;
+   const float length = degToRad(static_cast<float>(endAngle - startAngle)) * baseRadius;
+   const int numSleepers = static_cast<int>(length * SLEEPERS_PER_UNIT);
+   const float sleeperAngle =
+      static_cast<float>(endAngle - startAngle) / numSleepers;
    
-    for (int i = 0; i < numSleepers; i++) {
-	glPushMatrix();
+   for (int i = 0; i < numSleepers; i++) {
+      glPushMatrix();
       
-	glRotatef(static_cast<float>(startAngle) + (i + 0.5f)*sleeperAngle,
-	    0.0f, 1.0f, 0.0f);
-	glTranslatef(0.0f, 0.0f, static_cast<float>(baseRadius) - 0.5f);
+      glRotatef(static_cast<float>(startAngle) + (i + 0.5f)*sleeperAngle,
+         0.0f, 1.0f, 0.0f);
+      glTranslatef(0.0f, 0.0f, static_cast<float>(baseRadius) - 0.5f);
       
-	renderSleeper();
+      renderSleeper();
       
-	glPopMatrix();
-    }
+      glPopMatrix();
+   }
 
-    glPopMatrix();
+   glPopMatrix();
 }
