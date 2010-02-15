@@ -18,4 +18,9 @@
          font="status-font"
          x="10" y="60"
          colour="255 0 0"/>
+
+  <!-- Station loading/unloading window -->
+  <window width="300" height="200">
+    
+  </window>
 </layout>

@@ -17,6 +17,7 @@
 
 #include "gui/Widget.hpp"
 #include "ILogger.hpp"
+#include "GameScreens.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -26,13 +27,23 @@ int Widget::ourUniqueId(0);
 
 Widget::Widget(const AttributeSet& attrs)
    : name_(attrs.get<string>("name", uniqueName())),
-     x_(attrs.get<int>("x", 0)),
-     y_(attrs.get<int>("y", 0)),
+     x_(attrs.get<int>("x", -1)),
+     y_(attrs.get<int>("y", -1)),
      width_(attrs.get<int>("width", 0)),
      height_(attrs.get<int>("height", 0)),
      visible_(attrs.get<bool>("visible", true))
 {
-   
+   // If x or y weren't specified center the widget in the screen
+   if (x_ == -1 || y_ == -1) {
+      const int screenW = getGameWindow()->width();
+      const int screenH = getGameWindow()->height();
+
+      if (x_ == -1)
+         x_ = (screenW - width_) / 2;
+
+      if (y_ == -1)
+         y_ = (screenH - height_) / 2;
+   }
 }
 
 string Widget::uniqueName()
