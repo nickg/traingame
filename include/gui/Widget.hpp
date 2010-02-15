@@ -36,9 +36,10 @@ namespace gui {
       const string& name() const { return name_; }
       int x() const { return x_; }
       int y() const { return y_; }
-      int width() const { return width_; }
-      int height() const { return height_; }
+      int width() const { return width_ + 2*border_; }
+      int height() const { return height_ + 2*border_; }
       bool visible() const { return visible_; }
+      int border() const { return border_; }
 
       void x(int x) { x_ = x; }
       void y(int y) { y_ = y; }
@@ -71,6 +72,7 @@ namespace gui {
       string name_;
       int x_, y_, width_, height_;
       bool visible_;
+      int border_;
 
       map<Signal, SignalHandler> handlers;
             

@@ -29,9 +29,10 @@ Widget::Widget(const AttributeSet& attrs)
    : name_(attrs.get<string>("name", uniqueName())),
      x_(attrs.get<int>("x", -1)),
      y_(attrs.get<int>("y", -1)),
-     width_(attrs.get<int>("width", -1)),
-     height_(attrs.get<int>("height", -1)),
-     visible_(attrs.get<bool>("visible", true))
+     width_(attrs.get<int>("width", 0)),
+     height_(attrs.get<int>("height", 0)),
+     visible_(attrs.get<bool>("visible", true)),
+     border_(attrs.get<int>("border", 0))
 {
    // If x or y weren't specified center the widget in the screen
    if (x_ == -1 || y_ == -1) {

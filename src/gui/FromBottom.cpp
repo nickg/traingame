@@ -18,6 +18,8 @@
 #include "gui/FromBottom.hpp"
 #include "GameScreens.hpp"
 
+#include <cassert>
+
 using namespace gui;
 
 FromBottom::FromBottom(const AttributeSet& attrs)
@@ -37,7 +39,7 @@ FromBottom::FromBottom(const AttributeSet& attrs)
 }
 
 void FromBottom::render(RenderContext& rc) const
-{
+{   
    rc.pushOrigin(this);
    ContainerWidget::render(rc);
    rc.popOrigin();

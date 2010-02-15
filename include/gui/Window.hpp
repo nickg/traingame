@@ -40,7 +40,6 @@ namespace gui {
    private:
       string title_;
       bool dynamicWidth, dynamicHeight;
-      int border;
    };
    
 }

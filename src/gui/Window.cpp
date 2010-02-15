@@ -22,11 +22,10 @@ using namespace gui;
 
 Window::Window(const AttributeSet& attrs)
    : ContainerWidget(attrs),
-     title_(attrs.get<string>("title", "")),
-     border(attrs.get<int>("border", 0))
+     title_(attrs.get<string>("title", ""))
 {
-   dynamicWidth = width() == -1;
-   dynamicHeight = height() == -1;
+   dynamicWidth = !attrs.has("width");
+   dynamicHeight = !attrs.has("height");
 
    if (dynamicWidth)
       width(0);
@@ -41,7 +40,7 @@ void Window::render(RenderContext& rc) const
    rc.border(x(), y(), width(), height(),
       rc.theme().border());
 
-   rc.pushOrigin(this, border, border);
+   rc.pushOrigin(this);
 
    ContainerWidget::render(rc);
    
@@ -63,7 +62,7 @@ void Window::adjustForTheme(const Theme& theme)
             maxW = x + w;
       }
 
-      width(maxW + 2*border);
+      width(maxW);
    }
 
    if (dynamicHeight) {
@@ -77,6 +76,6 @@ void Window::adjustForTheme(const Theme& theme)
             maxH = y + h;
       }
 
-      height(maxH + 2*border);
+      height(maxH);
    }   
 }

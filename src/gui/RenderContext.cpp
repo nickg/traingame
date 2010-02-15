@@ -46,17 +46,20 @@ RenderContext::~RenderContext()
    glScissor(0, 0, wnd->width(), wnd->height());
 }
 
-void RenderContext::pushOrigin(const Widget* w, int borderX, int borderY)
+void RenderContext::pushOrigin(const Widget* w)
 {
-   origin_x += w->x() + borderX;
-   origin_y += w->y() + borderY;
+   origin_x += w->x() + w->border();
+   origin_y += w->y() + w->border();
    origin_stack.push(w);
 }
 
 void RenderContext::popOrigin()
 {
-   origin_x -= origin_stack.top()->x();
-   origin_y -= origin_stack.top()->y();
+   assert(!origin_stack.empty());
+   
+   const Widget* top = origin_stack.top();
+   origin_x -= top->x() + top->border();
+   origin_y -= top->y() + top->border();
    origin_stack.pop();
 }
 
