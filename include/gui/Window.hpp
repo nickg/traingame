@@ -36,8 +36,11 @@ namespace gui {
       void title(const string& t) { title_ = t; }
 
       void render(RenderContext& rc) const;
+      void adjustForTheme(const Theme& theme);
    private:
       string title_;
+      bool dynamicWidth, dynamicHeight;
+      int border;
    };
    
 }

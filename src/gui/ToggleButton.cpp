@@ -30,7 +30,7 @@ ToggleButton::ToggleButton(const AttributeSet& attrs)
 void ToggleButton::render(RenderContext& rc) const
 {
    rc.image(x(), y(), width(), height(), texture);
-
+   
    if (enabled)
       rc.border(x(), y(), width(), height(), colour::WHITE);
 }

@@ -21,6 +21,8 @@
 #include "IWindow.hpp"
 #include "OpenGLHelper.hpp"
 
+#include <cassert>
+
 #include <GL/gl.h>
 
 using namespace gui;
@@ -38,14 +40,16 @@ RenderContext::~RenderContext()
 {
    glPopAttrib();
 
+   assert(origin_stack.empty());
+   
    IWindowPtr wnd = getGameWindow();
    glScissor(0, 0, wnd->width(), wnd->height());
 }
 
-void RenderContext::pushOrigin(const Widget* w)
+void RenderContext::pushOrigin(const Widget* w, int borderX, int borderY)
 {
-   origin_x += w->x();
-   origin_y += w->y();
+   origin_x += w->x() + borderX;
+   origin_y += w->y() + borderY;
    origin_stack.push(w);
 }
 
