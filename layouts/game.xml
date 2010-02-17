@@ -20,7 +20,7 @@
          colour="255 0 0"/>
 
   <!-- Station loading/unloading window -->
-  <window width="300" height="200">
+  <window width="300" height="200" visible="false">
     
   </window>
 </layout>

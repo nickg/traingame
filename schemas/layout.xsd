@@ -42,6 +42,7 @@
     <xs:attribute name="width" type="xs:integer"/>
     <xs:attribute name="height" type="xs:integer"/>
     <xs:attribute name="border" type="xs:integer"/>
+    <xs:attribute name="visible" type="xs:boolean"/>
   </xs:complexType>
 
   <!-- Top-level windows -->

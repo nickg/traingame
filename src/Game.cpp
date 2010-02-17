@@ -26,13 +26,12 @@
 #include "IBillboard.hpp"
 #include "IterateTrack.hpp"
 #include "IConfig.hpp"
+#include "IMessageArea.hpp"
 
 #include "gui/ILayout.hpp"
 #include "gui/Label.hpp"
 #include "gui/ThrottleMeter.hpp"
 #include "gui/IFont.hpp"
-
-#include <GL/gl.h>
 
 // Implementation of the main play screen
 class Game : public IScreen {
@@ -53,7 +52,6 @@ public:
       MouseButton aButton) {}
 private:
    void lookAhead();
-   void setStatus(const string& s) { statusMsg = s; }
    void nearStation(IStationPtr s);
    void leftStation();
    Vector<float> cameraPosition(float aRadius) const;
@@ -81,9 +79,7 @@ private:
    CameraMode cameraMode;
    
    gui::ILayoutPtr layout;
-   
-   string statusMsg;
-   gui::IFontPtr statusFont;
+   IMessageAreaPtr messageArea;
 };
 
 Game::Game(IMapPtr aMap)
@@ -99,8 +95,7 @@ Game::Game(IMapPtr aMap)
 
    // Build the GUI
    layout = gui::makeLayout("layouts/game.xml");
-
-   statusFont = gui::loadFont("fonts/Vera.ttf", 18);
+   messageArea = makeMessageArea();
 
    switchToBirdCamera();
 }
@@ -152,15 +147,8 @@ void Game::display(IGraphicsPtr aContext) const
 
 void Game::overlay() const
 {
-   //myStatsPanel->render();
-
    layout->render();
-
-   const int screenH = getGameWindow()->height();
-   const int screenW = getGameWindow()->width();
-   const int len = statusFont->text_width(statusMsg);
-   statusFont->print((screenW - len)/2, screenH - 50,
-      colour::WHITE, statusMsg);
+   messageArea->render();
 }
 
 void Game::stoppedAtStation()
@@ -170,6 +158,8 @@ void Game::stoppedAtStation()
 
 void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
 {
+   messageArea->update(aDelta);
+   
    train->update(aDelta);
 
    // Update the GUI elements
@@ -238,7 +228,7 @@ void Game::lookAhead()
       if (train->controller()->stopped())
          stoppedAtStation();
       else
-         setStatus("Stop here for station " + it.station->name());
+         messageArea->post("Stop here for station " + it.station->name());
       
       return;
    }
@@ -252,15 +242,15 @@ void Game::lookAhead()
          
          switch (it.status) {
          case TRACK_STATION:
-            setStatus("Approaching station " + it.station->name());
+            messageArea->post("Approaching station " + it.station->name());
             nearStation(it.station);
             clearStation = false;
             return;
          case TRACK_NO_MORE:
-            setStatus("Oh no! You're going to crash!");
+            messageArea->post("Oh no! You're going to crash!");
             break;
          case TRACK_CHOICE:
-            setStatus("Oh no! You have to make a decision!");
+            messageArea->post("Oh no! You have to make a decision!");
             it.track->setStateRenderHint();
             break;
          default:
@@ -275,9 +265,6 @@ void Game::lookAhead()
    
    // We're not approaching any station
    leftStation();
-   
-   // Nothing to report
-   setStatus("");
 }
 
 void Game::alterTrackState(TrackStateReq req)
