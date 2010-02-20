@@ -22,10 +22,12 @@
 
 // Static scenery such as trees
 struct IScenery {
-    virtual ~IScenery() {}
-
-    virtual void render() const = 0;
-    virtual void setPosition(float x, float y, float z) = 0;
+   virtual ~IScenery() {}
+   
+   virtual void render() const = 0;
+   virtual void setPosition(float x, float y, float z) = 0;
+   virtual void setAngle(float angle) = 0;
+   virtual const string& resId() const = 0;
 };
 
 typedef shared_ptr<IScenery> ISceneryPtr;

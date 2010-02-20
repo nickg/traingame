@@ -7,6 +7,10 @@
 <heightmap>figure8.bin</heightmap>
 
 <tileset>
+<tile x="2" y="12">
+<tree angle="0" name="apple"/>
+</tile>
+
 <tile x="3" y="6">
 <straightTrack align="y"/>
 </tile>
@@ -43,6 +47,10 @@
 <curvedTrack startAngle="270" finishAngle="360" radius="4"/>
 </tile>
 
+<tile x="3" y="19">
+<tree angle="0" name="apple"/>
+</tile>
+
 <tile x="6" y="2">
 <curvedTrack startAngle="180" finishAngle="270" radius="4"/>
 </tile>
@@ -51,8 +59,16 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="7" y="15">
+<tree angle="0" name="apple"/>
+</tile>
+
 <tile x="7" y="17">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="7" y="18">
+<tree angle="0" name="apple"/>
 </tile>
 
 <tile x="8" y="2">
@@ -87,8 +103,16 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="11" y="21">
+<tree angle="0" name="apple"/>
+</tile>
+
 <tile x="12" y="17">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="13" y="12">
+<tree angle="0" name="apple"/>
 </tile>
 
 <tile x="13" y="17">
@@ -191,8 +215,16 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="17" y="14">
+<tree angle="0" name="apple"/>
+</tile>
+
 <tile x="17" y="17">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="17" y="19">
+<tree angle="0" name="apple"/>
 </tile>
 
 <tile x="18" y="17">

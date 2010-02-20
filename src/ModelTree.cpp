@@ -23,6 +23,8 @@
 #include "ResourceCache.hpp"
 #include "ILogger.hpp"
 
+#include <stdexcept>
+
 #include <boost/cast.hpp>
 
 // A tree which is just a 3D model
@@ -33,6 +35,8 @@ public:
    // IScenery interface
    void render() const;
    void setPosition(float x, float y, float z);
+   void setAngle(float angle) { this->angle = angle; }
+   const string& resId() const { return name; }
 
    // IXMLCallback interface
    void text(const string& localName, const string& content);
@@ -40,28 +44,45 @@ public:
 private:
    Vector<float> position;
    IModelPtr model;
+   float angle;
+   string name;
 
    struct ParserState {
       string modelFile;
       float scale;
-   } parserState;
+      IResourcePtr res;
+   } *parserState;
 };
 
 ModelTree::ModelTree(IResourcePtr res)
 {
    static IXMLParserPtr parser = makeXMLParser("schemas/tree.xsd");
 
-   parser->parse(res->xmlFileName(), *this);
+   parserState = new ParserState;
+   parserState->res = res;
    
-   model = loadModel(res, parserState.modelFile, parserState.scale);
+   parser->parse(res->xmlFileName(), *this);
+
+   model = loadModel(res, parserState->modelFile, parserState->scale);
+   
+   delete parserState;
 }
 
 void ModelTree::text(const string& localName, const string& content)
 {
    if (localName == "model")
-      parserState.modelFile = content;
+      parserState->modelFile = content;
    else if (localName == "scale")
-      parserState.scale = boost::lexical_cast<float>(content);
+      parserState->scale = boost::lexical_cast<float>(content);
+   else if (localName == "name") {
+      const string& expectedName = parserState->res->name();
+      if (content != expectedName)
+         throw runtime_error(
+            "Expected tree name to be '" + expectedName
+            + "' but found'" + content + "' in XML");
+      else
+         name = content;
+   }
 }
 
 void ModelTree::setPosition(float x, float y, float z)

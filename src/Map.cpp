@@ -125,8 +125,8 @@ private:
       TrackNodePtr track;    // Track at this location, if any
       IStationPtr station;   // Station on this tile, if any
       IBuildingPtr building; // Building on this tile, if any
-      float buildingAngle;   // Orientation of building
-      ISceneryPtr scenery;   // Static scenery, if any
+      float sceneryAngle;    // Orientation of building, tree, etc.
+      ISceneryPtr tree;      // Tree, if any
    } *tiles;
 
    // Vertices on the terrain
@@ -751,14 +751,14 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
          if (tile.building) {
             glPushMatrix();
             glTranslatef(static_cast<float>(x), 0.0f, static_cast<float>(y));
-            glRotatef(tile.buildingAngle, 0.0f, 1.0f, 0.0f);
+            glRotatef(tile.sceneryAngle, 0.0f, 1.0f, 0.0f);
             tile.building->model()->render();
             glPopMatrix();
          }
 
-         // Draw any scenery
-         if (tile.scenery)
-            tile.scenery->render();
+         // Draw any trees
+         if (tile.tree)
+            tile.tree->render();
       }			
    }
 }
@@ -997,7 +997,7 @@ void Map::placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding, float anAngle
    else {
       Tile& t = tileAt(aPoint.x, aPoint.y);
       t.building = aBuilding;
-      t.buildingAngle = anAngle;
+      t.sceneryAngle = anAngle;
    }
 }
 
@@ -1006,7 +1006,7 @@ void Map::addScenery(Point<int> where, ISceneryPtr s)
    if (tileAt(where.x, where.y).track)
       warn() << "Cannot place scenery on track";
    else {
-      tileAt(where.x, where.y).scenery = s;
+      tileAt(where.x, where.y).tree = s;
       s->setPosition(static_cast<float>(where.x),
          heightAt(where.x, where.y),
          static_cast<float>(where.y));
@@ -1224,8 +1224,16 @@ void Map::save()
          if (tile.building) {
             tileXml.addChild
                (xml::element("building")
-                  .addAttribute("angle", tile.buildingAngle)
+                  .addAttribute("angle", tile.sceneryAngle)
                   .addAttribute("name", tile.building->resId()));
+            useful = true;
+         }
+
+         if (tile.tree) {
+            tileXml.addChild
+               (xml::element("tree")
+                  .addAttribute("angle", tile.sceneryAngle)
+                  .addAttribute("name", tile.tree->resId()));
             useful = true;
          }
 
@@ -1279,6 +1287,8 @@ public:
          handleStation(attrs);
       else if (localName == "building")
          handleBuilding(attrs);
+      else if (localName == "tree")
+         handleTree(attrs);
    }
 
    void endElement(const string& localName)
@@ -1316,7 +1326,17 @@ private:
 
       myMap->placeBuilding(makePoint(myXPtr, myYPtr),
          loadBuilding(name), angle);
-   }      
+   }
+
+   void handleTree(const AttributeSet& attrs)
+   {
+      float angle;
+      string name;
+      attrs.get("name", name);
+      attrs.get("angle", angle);
+
+      myMap->addScenery(makePoint(myXPtr, myYPtr), makeModelTree());
+   }
    
    void handleStation(const AttributeSet& attrs)
    {

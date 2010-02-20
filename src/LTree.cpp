@@ -125,6 +125,9 @@ public:
    // IScenery interface
    void render() const;
    void setPosition(float x, float y, float z);
+   void setAngle(float angle) {}
+   const string& resId() const { return ""; }
+   
 private:
    struct RenderState {
       RenderState()
