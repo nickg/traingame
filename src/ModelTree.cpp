@@ -91,7 +91,7 @@ namespace {
 ISceneryPtr makeModelTree()
 {
    static ResourceCache<ModelTree> cache(loadTreeXml, "trees");
-   return cache.load("apple");
+   return cache.loadCopy("apple");
 }
 
 
