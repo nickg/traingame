@@ -122,6 +122,7 @@ public:
 private:
    // Tiles on the map
    struct Tile {
+      // TODO: Better to use a boost::variant here?
       TrackNodePtr track;    // Track at this location, if any
       IStationPtr station;   // Station on this tile, if any
       IBuildingPtr building; // Building on this tile, if any

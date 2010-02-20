@@ -32,10 +32,12 @@ using namespace boost::filesystem;
 namespace {
    IWindowPtr window;
    struct sigaction oldSIGINT;
+   struct sigaction oldSIGSEGV;
 
    void clearSignalHandlers()
    {
       sigaction(SIGINT, &oldSIGINT, NULL);
+      sigaction(SIGSEGV, &oldSIGSEGV, NULL);
    }
         
    void SIGINT_handler(int unused)
@@ -44,6 +46,24 @@ namespace {
       ::window->quit();
 
       clearSignalHandlers();
+   }
+
+   void SIGSEGV_handler(int unused)
+   {
+      // Getting a SEGV on Linux when using OpenGL can cause some
+      // very nasty things to happen - particularly with the
+      // proprietry Nvidia drivers
+
+      error() << "Caught SIGSEGV! Trying to clean up...";
+
+      // We could do a lot more here like printing a stack trace
+
+      clearSignalHandlers();
+      
+      ::window->forceQuit();
+
+      // Hopefully this will produce a useful core dump
+      abort();
    }
    
    void setupSignalHandlers()
@@ -54,6 +74,9 @@ namespace {
       sigemptyset(&sa.sa_mask);
 
       sigaction(SIGINT, &sa, &oldSIGINT);
+
+      sa.sa_handler = SIGSEGV_handler;
+      sigaction(SIGSEGV, &sa, &oldSIGSEGV);
    }
 }
 
