@@ -135,12 +135,16 @@ private:
 	 lengthStack.push(0.1f);
 	 
 	 leafMeshBuf = makeMeshBuffer();
+
+         static NormalFloat angleModRnd(0.0f, 10.0f);
+         angleMod = angleModRnd();
       }
       
       stack<float> widthStack, lengthStack;
       stack<Matrix<float, 4> > mStack;
       IMeshBufferPtr leafMeshBuf;
       int age;
+      float angleMod;
    };
    
    void interpret(Token t, RenderState& rs) const;
@@ -161,19 +165,19 @@ const Rule LTree::rules[] = {
    //Rule('A', "[&B]>[&B]>[&FB]>FA"),
    //Rule('B', "F[L]~[&'B]'B"),
    //Rule('L', "~lfL"),
-   Rule('S', "X"),
-   Rule('X', "F<[[X]+X]>[F[+FX]>&[X]]"),
-   //Rule('X', "F<[[X]+X]>F[+FX]+X"),
-   Rule('X', "F<[+FX]>[F[[X]+X]>&[X]]"),
+   Rule('X', "F<[[X]+X]>[F[+fX]>&[X]]"),
+   //Rule('X', "F<[[X]+X]>F[&fX]+X"),
+   //Rule('X', "F<[+FX]>[F[[X]+X]>&[X]]"),
    //Rule('X', "[&X]>[&FX]"),
    //Rule('X', "+[[X]-X]-F[-FX]+X"),
+   //Rule('X', "F<[+X]f[&X]X"),
    Rule('F', "FF"),
 };
 
 LTree::LTree()
-   : ls(rules, sizeof(rules) / sizeof(Rule), 'S')
+   : ls(rules, sizeof(rules) / sizeof(Rule), 'X')
 {
-   const int N_GENERATIONS = 5;
+   const int N_GENERATIONS = 4;
    
    //debug() << "Initial: " << ls;
    for (int n = 0; n < N_GENERATIONS; n++) {
@@ -196,15 +200,15 @@ LTree::~LTree()
 
 void LTree::interpret(Token t, RenderState& rs) const
 {
-   const float LEAF_LEN = 0.2f;
+   const float LEAF_LEN = 0.15f;
     
    Matrix<float, 4>& m = rs.mStack.top();
    
    float l = rs.lengthStack.top();
-	    
+  
    switch (t) {
    case 'f':
-      l /= 10.0f;
+      l /= 5.0f;
    case 'F':
       {
 	 Vector<float> v1 = m.transform(makeVector(0.0f, 0.0f, 0.0f));
@@ -227,7 +231,7 @@ void LTree::interpret(Token t, RenderState& rs) const
 	 if (rs.age > 1) {
 	    // Add leaves
 	    
-	    for (int i = 0; i < 2; i++) {
+	    for (int i = 0; i < 1; i++) {
 	       const float angle = static_cast<float>(rotateRnd());
 	       
 	       Matrix<float, 4> am = Matrix<float, 4>::rotation(angle, 0, 1, 0);
@@ -247,28 +251,26 @@ void LTree::interpret(Token t, RenderState& rs) const
    case 'X':
       break;
    case '-':
-      m *= Matrix<float, 4>::rotation(25.0f, 0, 0, 1);
-      //m *= Matrix<float, 4>::rotation(25.0f, 0, 1, 0);
+      m *= Matrix<float, 4>::rotation(35.0f + rs.angleMod, 0, 0, 1);
       break;
    case '+':	
-      m *= Matrix<float, 4>::rotation(-25.0f, 0, 0, 1);
-      //m *= Matrix<float, 4>::rotation(-25.0f, 0, 1, 0);
+      m *= Matrix<float, 4>::rotation(-35.0f - rs.angleMod, 0, 0, 1);
       break;
    case '&':
       // Pitch down
-      m *= Matrix<float, 4>::rotation(-25.0f, 0, 0, 1);
+      m *= Matrix<float, 4>::rotation(-35.0f - rs.angleMod, 0, 0, 1);
       break;
    case '^':
       // Pitch up
-      m *= Matrix<float, 4>::rotation(25.0f, 0, 0, 1);
+      m *= Matrix<float, 4>::rotation(35.0f + rs.angleMod, 0, 0, 1);
       break;
    case '<':
       // Roll left
-      m *= Matrix<float, 4>::rotation(-100.0f, 0, 1, 0);
+      m *= Matrix<float, 4>::rotation(-100.0f - rs.angleMod, 0, 1, 0);
       break;
    case '>':
       // Roll right
-      m *= Matrix<float, 4>::rotation(100.0f, 0, 1, 0);
+      m *= Matrix<float, 4>::rotation(100.0f + rs.angleMod, 0, 1, 0);
       break;
    case '~':
       // Turn, pitch, and roll
