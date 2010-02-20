@@ -75,7 +75,7 @@ IResource::Handle::Handle(const string& aFileName, Mode aMode)
 
 namespace {
     const char* classes[] = {
-	"maps", "buildings", "engines", "waggons",
+       "maps", "buildings", "engines", "waggons", "trees",
 	NULL
     };
 

@@ -31,7 +31,7 @@ struct IModel {
    virtual Vector<float> dimensions() const = 0;
 };
 
-typedef std::tr1::shared_ptr<IModel> IModelPtr;
+typedef shared_ptr<IModel> IModelPtr;
 
 // Load a model from a WaveFront .obj file
 IModelPtr loadModel(IResourcePtr aRes, const string& aFileName,

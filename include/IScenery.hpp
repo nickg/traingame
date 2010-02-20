@@ -32,5 +32,6 @@ typedef shared_ptr<IScenery> ISceneryPtr;
 
 ISceneryPtr makeTree();
 ISceneryPtr makeLTree();
+ISceneryPtr makeModelTree();
 
 #endif
