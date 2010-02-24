@@ -7,8 +7,32 @@
 <heightmap>figure8.bin</heightmap>
 
 <tileset>
+<tile x="0" y="21">
+<tree angle="0" name="pine"/>
+</tile>
+
+<tile x="1" y="25">
+<tree angle="0" name="pine"/>
+</tile>
+
+<tile x="1" y="27">
+<tree angle="0" name="pine"/>
+</tile>
+
 <tile x="2" y="12">
 <tree angle="0" name="apple"/>
+</tile>
+
+<tile x="2" y="23">
+<tree angle="0" name="pine"/>
+</tile>
+
+<tile x="2" y="25">
+<tree angle="0" name="pine"/>
+</tile>
+
+<tile x="2" y="31">
+<tree angle="0" name="pine"/>
 </tile>
 
 <tile x="3" y="6">
@@ -51,8 +75,36 @@
 <tree angle="0" name="apple"/>
 </tile>
 
+<tile x="4" y="11">
+<tree angle="0" name="pine"/>
+</tile>
+
+<tile x="5" y="8">
+<tree angle="0" name="pine"/>
+</tile>
+
+<tile x="5" y="25">
+<tree angle="0" name="pine"/>
+</tile>
+
+<tile x="5" y="30">
+<tree angle="0" name="pine"/>
+</tile>
+
 <tile x="6" y="2">
 <curvedTrack startAngle="180" finishAngle="270" radius="4"/>
+</tile>
+
+<tile x="6" y="21">
+<tree angle="0" name="pine"/>
+</tile>
+
+<tile x="6" y="27">
+<tree angle="0" name="pine"/>
+</tile>
+
+<tile x="6" y="29">
+<tree angle="0" name="pine"/>
 </tile>
 
 <tile x="7" y="2">
@@ -71,12 +123,28 @@
 <tree angle="0" name="apple"/>
 </tile>
 
+<tile x="7" y="31">
+<tree angle="0" name="pine"/>
+</tile>
+
 <tile x="8" y="2">
 <straightTrack align="x"/>
 </tile>
 
 <tile x="8" y="17">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="8" y="25">
+<tree angle="0" name="pine"/>
+</tile>
+
+<tile x="8" y="27">
+<tree angle="0" name="pine"/>
+</tile>
+
+<tile x="8" y="29">
+<tree angle="0" name="pine"/>
 </tile>
 
 <tile x="9" y="2">
@@ -87,12 +155,24 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="9" y="22">
+<tree angle="0" name="pine"/>
+</tile>
+
+<tile x="9" y="31">
+<tree angle="0" name="pine"/>
+</tile>
+
 <tile x="10" y="2">
 <straightTrack align="x"/>
 </tile>
 
 <tile x="10" y="17">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="10" y="29">
+<tree angle="0" name="pine"/>
 </tile>
 
 <tile x="11" y="2">
@@ -107,8 +187,20 @@
 <tree angle="0" name="apple"/>
 </tile>
 
+<tile x="11" y="27">
+<tree angle="0" name="pine"/>
+</tile>
+
+<tile x="11" y="31">
+<tree angle="0" name="pine"/>
+</tile>
+
 <tile x="12" y="17">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="12" y="23">
+<tree angle="0" name="pine"/>
 </tile>
 
 <tile x="13" y="12">

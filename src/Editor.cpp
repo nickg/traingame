@@ -457,7 +457,8 @@ void Editor::plantTrees()
     
    for (int x = xmin; x <= xmax; x++) {
       for (int y = ymin; y <= ymax; y++)
-	 map->addScenery(makePoint(x, y), makeModelTree());
+	 map->addScenery(makePoint(x, y),
+            makeModelTree("pine"));
    }
 }
 
