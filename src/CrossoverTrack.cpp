@@ -49,12 +49,14 @@ public:
       const track::Direction& aDirection);
    track::TravelToken getTravelToken(track::Position aPosition,
       track::Direction aDirection) const;
-   xml::element toXml() const;
    void nextState() {}
    void prevState() {}
    bool hasMultipleStates() const { return false; }
    void setStateRenderHint() {}
-    
+
+   // IXMLSerialisable interface
+   xml::element toXml() const;
+   
 private:
    void transform(const track::TravelToken& aToken, double aDelta) const;
    

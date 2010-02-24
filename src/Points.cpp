@@ -40,14 +40,15 @@ public:
    void getEndpoints(std::list<Point<int> >& aList) const;
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
       const track::Direction& aDirection);
-   xml::element toXml() const;
    track::TravelToken getTravelToken(track::Position aPosition,
       track::Direction aDirection) const;
    void nextState();
    void prevState();
    bool hasMultipleStates() const { return true; }
    void setStateRenderHint();
-    
+
+   // IXMLSerialisable interface
+   xml::element toXml() const;
 private:
    void transform(const track::TravelToken& aToken, double aDelta) const;
    void ensureValidDirection(track::Direction aDirection) const;

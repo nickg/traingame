@@ -20,13 +20,10 @@
 
 #include "Platform.hpp"
 #include "Maths.hpp"
+#include "IXMLSerialisable.hpp"
 
 #include <list>
 #include <set>
-
-namespace xml {
-   struct element;
-}
 
 // Types used for specifying track segments
 namespace track {
@@ -83,7 +80,7 @@ typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;
 
 // A segment of track which fits over a number of tiles
 // Each track segment has an origin and one or more exits
-struct ITrackSegment {   
+struct ITrackSegment : IXMLSerialisable {   
    virtual ~ITrackSegment() {}
 
    // Render the track with the origin in the centre
@@ -128,10 +125,6 @@ struct ITrackSegment {
    // a pointer to itself will be returned
    virtual ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
       const track::Direction& aDirection) = 0;
-
-   // Convert the track segment to XML for writing out in the
-   // map configuration file
-   virtual xml::element toXml() const = 0;
 
    // Some track segments may have several states - e.g. points
    // These functions change the track state
