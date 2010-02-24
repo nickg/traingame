@@ -28,35 +28,58 @@
 // Some useful wrappers around the complexities of Boost's
 // random number classes
 
-struct UniformInt { 
-   UniformInt(int min, int max)
+namespace distribution {
+
+   // Template trickery to pick the right distribution for a type
+
+   template <typename T>
+   struct UniformFor;
+   
+   template <>
+   struct UniformFor<float> { typedef boost::uniform_real<float> U; };
+
+   template <>
+   struct UniformFor<int> { typedef boost::uniform_int<> U; };
+   
+   template <typename T>
+   struct NormalFor { typedef boost::normal_distribution<T> N; };
+   
+}
+
+template <typename T>
+struct Uniform {
+   typedef typename distribution::UniformFor<T>::U Distribution;
+   
+   Uniform(T min, T max)
       : rnd(boost::mt19937(static_cast<uint32_t>(time(NULL))),
-         boost::uniform_int<>(min, max))
+         Distribution(min, max))
    {
    }
 
-   int operator()()
+   T operator()()
    {
       return rnd();
    }
    
-   boost::variate_generator<boost::mt19937, boost::uniform_int<> > rnd;
+   boost::variate_generator<boost::mt19937, Distribution> rnd;
 };
 
-struct NormalFloat {
-   NormalFloat(float mean, float std)
+template <typename T>
+struct Normal {
+   typedef typename distribution::NormalFor<T>::N Distribution;
+   
+   Normal(T mean, T std)
       : rnd(boost::mt19937(static_cast<uint32_t>(time(NULL))), 
-         boost::normal_distribution<float>(mean, std))
+         Distribution(mean, std))
    {
    }
 
-   float operator()()
+   T operator()()
    {
       return rnd();
    }
 
-   boost::variate_generator<boost::mt19937,
-                            boost::normal_distribution<float> > rnd;
+   boost::variate_generator<boost::mt19937, Distribution> rnd;
 };
 
 #endif

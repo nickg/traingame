@@ -83,7 +83,7 @@
                     <xs:element name="tree" minOccurs="0" maxOccurs="1">
                       <xs:complexType>
                         <xs:attribute name="angle"
-                                      type="xs:nonNegativeInteger"/>
+                                      type="xs:float"/>
                         <xs:attribute name="name" type="xs:string"/>
                       </xs:complexType>
                     </xs:element> 

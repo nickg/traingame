@@ -19,9 +19,10 @@
 #define INC_ISCENERY_HPP
 
 #include "Platform.hpp"
+#include "IXMLSerialisable.hpp"
 
 // Static scenery such as trees
-struct IScenery {
+struct IScenery : IXMLSerialisable {
    virtual ~IScenery() {}
    
    virtual void render() const = 0;
@@ -32,6 +33,9 @@ struct IScenery {
 
 typedef shared_ptr<IScenery> ISceneryPtr;
 
+class AttributeSet;
+
 ISceneryPtr makeTree(const string& name);
+ISceneryPtr makeTreeFromXml(const AttributeSet& attrs);
 
 #endif

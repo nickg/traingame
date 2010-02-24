@@ -1231,10 +1231,7 @@ void Map::save()
          }
 
          if (tile.tree) {
-            tileXml.addChild
-               (xml::element("tree")
-                  .addAttribute("angle", tile.sceneryAngle)
-                  .addAttribute("name", tile.tree->resId()));
+            tileXml.addChild(tile.tree->toXml());
             useful = true;
          }
 
@@ -1331,12 +1328,9 @@ private:
 
    void handleTree(const AttributeSet& attrs)
    {
-      float angle;
-      string name;
-      attrs.get("name", name);
-      attrs.get("angle", angle);
-
-      myMap->addScenery(makePoint(myXPtr, myYPtr), makeTree(name));
+      myMap->addScenery(
+         makePoint(myXPtr, myYPtr),
+         makeTreeFromXml(attrs));
    }
    
    void handleStation(const AttributeSet& attrs)

@@ -49,7 +49,7 @@ public:
 
    // Make a copy each time a new object is loaded but only
    // parse the XML once
-   // -> use this if the object has state
+   // -> use this if the object has state 
    shared_ptr<T> loadCopy(const string& aResId)
    {
       shared_ptr<T> original = load(aResId);

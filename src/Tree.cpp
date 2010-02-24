@@ -22,6 +22,8 @@
 #include "IXMLParser.hpp"
 #include "ResourceCache.hpp"
 #include "ILogger.hpp"
+#include "XMLBuilder.hpp"
+#include "Random.hpp"
 
 #include <stdexcept>
 
@@ -35,11 +37,14 @@ public:
    // IScenery interface
    void render() const;
    void setPosition(float x, float y, float z);
-   void setAngle(float angle) { this->angle = angle; }
+   void setAngle(float a) { angle = a; }
    const string& resId() const { return name; }
 
    // IXMLCallback interface
    void text(const string& localName, const string& content);
+
+   // IXMLSerialisable interface
+   xml::element toXml() const;
    
 private:
    Vector<float> position;
@@ -95,16 +100,24 @@ void Tree::render() const
    glPushMatrix();
 
    gl::translate(position);
+   glRotatef(angle, 0.0f, 1.0f, 0.0f);
    model->render();
    
    glPopMatrix();
+}
+
+xml::element Tree::toXml() const
+{
+   return xml::element("tree")
+      .addAttribute("angle", angle)
+      .addAttribute("name", name);
 }
 
 namespace {
    Tree* loadTreeXml(IResourcePtr res)
    {
       log() << "Loading tree from " << res->xmlFileName();
-
+   
       return new Tree(res);
    }
 }
@@ -112,7 +125,25 @@ namespace {
 ISceneryPtr makeTree(const string& name)
 {
    static ResourceCache<Tree> cache(loadTreeXml, "trees");
-   return cache.loadCopy(name);
+   ISceneryPtr tree = cache.loadCopy(name);
+
+   // Randomise the new tree's angle
+   static Uniform<float> angleRand(0.0f, 360.0f);
+   tree.get()->setAngle(angleRand());
+
+   return tree;
 }
 
+ISceneryPtr makeTreeFromXml(const AttributeSet& attrs)
+{
+   // Unserialise a tree
+   float angle;
+   string name;
+   attrs.get("name", name);
+   attrs.get("angle", angle);
 
+   ISceneryPtr tree = makeTree(name);
+   tree->setAngle(angle);
+
+   return tree;
+}

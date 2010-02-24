@@ -134,10 +134,10 @@ void SmokeTrail::update(int aDelta)
 void SmokeTrail::newParticle()
 {
    // Random number generator for colour variance
-   NormalFloat colourRand(0.0f, 0.06f);
+   Normal<float> colourRand(0.0f, 0.06f);
 
    // Random number generator for position variance
-   NormalFloat posRand(0.0f, 0.07f);
+   Normal<float> posRand(0.0f, 0.07f);
 
    const float col = 0.7f + colourRand();
 
