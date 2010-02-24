@@ -11,3 +11,4 @@ CPackSourceConfig.cmake
 install_manifest.txt
 GG/
 config.h
+core

@@ -28,9 +28,9 @@
 #include <boost/cast.hpp>
 
 // A tree which is just a 3D model
-class ModelTree : public IScenery, public IXMLCallback {
+class Tree : public IScenery, public IXMLCallback {
 public:
-   ModelTree(IResourcePtr res);
+   Tree(IResourcePtr res);
 
    // IScenery interface
    void render() const;
@@ -54,7 +54,7 @@ private:
    } *parserState;
 };
 
-ModelTree::ModelTree(IResourcePtr res)
+Tree::Tree(IResourcePtr res)
 {
    static IXMLParserPtr parser = makeXMLParser("schemas/tree.xsd");
 
@@ -68,7 +68,7 @@ ModelTree::ModelTree(IResourcePtr res)
    delete parserState;
 }
 
-void ModelTree::text(const string& localName, const string& content)
+void Tree::text(const string& localName, const string& content)
 {
    if (localName == "model")
       parserState->modelFile = content;
@@ -85,12 +85,12 @@ void ModelTree::text(const string& localName, const string& content)
    }
 }
 
-void ModelTree::setPosition(float x, float y, float z)
+void Tree::setPosition(float x, float y, float z)
 {
    position = makeVector(x, y, z);
 }
 
-void ModelTree::render() const
+void Tree::render() const
 {
    glPushMatrix();
 
@@ -101,17 +101,17 @@ void ModelTree::render() const
 }
 
 namespace {
-   ModelTree* loadTreeXml(IResourcePtr res)
+   Tree* loadTreeXml(IResourcePtr res)
    {
       log() << "Loading tree from " << res->xmlFileName();
 
-      return new ModelTree(res);
+      return new Tree(res);
    }
 }
 
-ISceneryPtr makeModelTree(const string& name)
+ISceneryPtr makeTree(const string& name)
 {
-   static ResourceCache<ModelTree> cache(loadTreeXml, "trees");
+   static ResourceCache<Tree> cache(loadTreeXml, "trees");
    return cache.loadCopy(name);
 }
 

@@ -32,8 +32,6 @@ struct IScenery {
 
 typedef shared_ptr<IScenery> ISceneryPtr;
 
-ISceneryPtr makeTree();
-ISceneryPtr makeLTree();
-ISceneryPtr makeModelTree(const string& name);
+ISceneryPtr makeTree(const string& name);
 
 #endif

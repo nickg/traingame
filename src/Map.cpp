@@ -1336,8 +1336,7 @@ private:
       attrs.get("name", name);
       attrs.get("angle", angle);
 
-      myMap->addScenery(makePoint(myXPtr, myYPtr),
-         makeModelTree(name));
+      myMap->addScenery(makePoint(myXPtr, myYPtr), makeTree(name));
    }
    
    void handleStation(const AttributeSet& attrs)
