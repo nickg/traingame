@@ -120,21 +120,26 @@ namespace {
    
       return new Tree(res);
    }
+
+   shared_ptr<Tree> loadTreeFromCache(const string& name)
+   {
+      static ResourceCache<Tree> cache(loadTreeXml, "trees");
+      return cache.loadCopy(name);
+   }
 }
 
 ISceneryPtr loadTree(const string& name)
 {
-   static ResourceCache<Tree> cache(loadTreeXml, "trees");
-   ISceneryPtr tree = cache.loadCopy(name);
-
+   shared_ptr<Tree> tree = loadTreeFromCache(name);
+   
    // Randomise the new tree's angle
    static Uniform<float> angleRand(0.0f, 360.0f);
    tree.get()->setAngle(angleRand());
 
-   return tree;
+   return ISceneryPtr(tree);
 }
 
-ISceneryPtr loadTreeFromXml(const AttributeSet& attrs)
+ISceneryPtr loadTree(const AttributeSet& attrs)
 {
    // Unserialise a tree
    float angle;
@@ -142,8 +147,8 @@ ISceneryPtr loadTreeFromXml(const AttributeSet& attrs)
    attrs.get("name", name);
    attrs.get("angle", angle);
 
-   ISceneryPtr tree = loadTree(name);
+   shared_ptr<Tree> tree = loadTreeFromCache(name);
    tree->setAngle(angle);
 
-   return tree;
+   return ISceneryPtr(tree);
 }

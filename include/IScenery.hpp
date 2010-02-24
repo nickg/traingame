@@ -38,6 +38,6 @@ typedef shared_ptr<IScenery> ISceneryPtr;
 class AttributeSet;
 
 ISceneryPtr loadTree(const string& name);
-ISceneryPtr loadTreeFromXml(const AttributeSet& attrs);
+ISceneryPtr loadTree(const AttributeSet& attrs);
 
 #endif

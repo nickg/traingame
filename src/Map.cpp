@@ -1332,7 +1332,7 @@ private:
 
    void handleTree(const AttributeSet& attrs)
    {
-      myMap->addScenery(tile, loadTreeFromXml(attrs));
+      myMap->addScenery(tile, loadTree(attrs));
    }
    
    void handleStation(const AttributeSet& attrs)
