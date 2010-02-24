@@ -158,6 +158,11 @@ private:
       return tiles[index(x, z)];
    }
 
+   inline Tile& tileAt(const Point<int>& p) const
+   {
+      return tileAt(p.x, p.y);
+   }
+
    inline Vertex& heightAt(int i) const
    {
       assert(i >= 0 && i < (myWidth + 1) * (myDepth + 1));
@@ -184,7 +189,7 @@ private:
    void tileVertices(int x, int y, int* indexes) const;
    void renderPickSector(Point<int> botLeft, Point<int> topRight);
    void drawStartLocation() const;
-   void setStationAt(int x, int y, IStationPtr aStation);
+   void setStationAt(Point<int> point, IStationPtr aStation);
 
    // Mesh modification
    void buildMesh(int id, Point<int> botLeft, Point<int> topRight);
@@ -244,9 +249,9 @@ IStationPtr Map::stationAt(Point<int> aPoint) const
    return tileAt(aPoint.x, aPoint.y).station;
 }
 
-void Map::setStationAt(int x, int y, IStationPtr aStation)
+void Map::setStationAt(Point<int> point, IStationPtr aStation)
 {
-   tileAt(x, y).station = aStation;
+   tileAt(point).station = aStation;
 }
 
 void Map::eraseTile(int x, int y)
@@ -1259,7 +1264,7 @@ IMapPtr makeEmptyMap(const string& aResId, int aWidth, int aDepth)
 class MapLoader : public IXMLCallback {
 public:
    MapLoader(shared_ptr<Map> aMap, IResourcePtr aRes)
-      : myMap(aMap), myXPtr(0), myYPtr(0),
+      : myMap(aMap), tile(makePoint(0, 0)),
         resource(aRes) {}
 
    void startElement(const std::string& localName,
@@ -1322,15 +1327,12 @@ private:
       attrs.get("name", name);
       attrs.get("angle", angle);
 
-      myMap->placeBuilding(makePoint(myXPtr, myYPtr),
-         loadBuilding(name), angle);
+      myMap->placeBuilding(tile, loadBuilding(name), angle);
    }
 
    void handleTree(const AttributeSet& attrs)
    {
-      myMap->addScenery(
-         makePoint(myXPtr, myYPtr),
-         loadTreeFromXml(attrs));
+      myMap->addScenery(tile, loadTreeFromXml(attrs));
    }
    
    void handleStation(const AttributeSet& attrs)
@@ -1357,8 +1359,8 @@ private:
 
    void handleTile(const AttributeSet& attrs)
    {
-      attrs.get("x", myXPtr);
-      attrs.get("y", myYPtr);
+      attrs.get("x", tile.x);
+      attrs.get("y", tile.y);
    }
 
    void handleStationPart(const AttributeSet& attrs)
@@ -1371,7 +1373,7 @@ private:
          throw runtime_error("No station definition for ID "
             + boost::lexical_cast<string>(id));
       else
-         myMap->setStationAt(myXPtr, myYPtr, (*it).second);
+         myMap->setStationAt(tile, (*it).second);
    }
 
    void handleStraightTrack(const AttributeSet& attrs)
@@ -1381,8 +1383,7 @@ private:
 
       track::Direction axis = align == "x" ? axis::X : axis::Y;
 
-      myMap->setTrackAt(makePoint(myXPtr, myYPtr),
-         makeStraightTrack(axis));
+      myMap->setTrackAt(tile, makeStraightTrack(axis));
    }
 
    void handlePoints(const AttributeSet& attrs)
@@ -1398,8 +1399,7 @@ private:
          : (align == "-x" ? -axis::X
             : (align == "y" ? axis::Y : -axis::Y));
 
-      myMap->setTrackAt(makePoint(myXPtr, myYPtr),
-         makePoints(dir, reflect));
+      myMap->setTrackAt(tile, makePoints(dir, reflect));
    }
    
    void handleCurvedTrack(const AttributeSet& attrs)
@@ -1409,20 +1409,18 @@ private:
       attrs.get("finishAngle", finishAngle);
       attrs.get("radius", radius);
 
-      myMap->setTrackAt(makePoint(myXPtr, myYPtr),
-         makeCurvedTrack(startAngle, finishAngle, radius));
+      myMap->setTrackAt(tile, makeCurvedTrack(startAngle, finishAngle, radius));
    }
 
    void handleCrossoverTrack(const AttributeSet& attrs)
    {
-      myMap->setTrackAt(makePoint(myXPtr, myYPtr),
-         makeCrossoverTrack());                        
+      myMap->setTrackAt(tile, makeCrossoverTrack());
    }
    
    shared_ptr<Map> myMap;
    map<int, IStationPtr> myStations;
    IStationPtr myActiveStation;
-   int myXPtr, myYPtr;
+   Point<int> tile;
 
    IResourcePtr resource;
 }; 
