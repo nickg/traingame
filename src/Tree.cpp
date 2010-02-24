@@ -122,7 +122,7 @@ namespace {
    }
 }
 
-ISceneryPtr makeTree(const string& name)
+ISceneryPtr loadTree(const string& name)
 {
    static ResourceCache<Tree> cache(loadTreeXml, "trees");
    ISceneryPtr tree = cache.loadCopy(name);
@@ -134,7 +134,7 @@ ISceneryPtr makeTree(const string& name)
    return tree;
 }
 
-ISceneryPtr makeTreeFromXml(const AttributeSet& attrs)
+ISceneryPtr loadTreeFromXml(const AttributeSet& attrs)
 {
    // Unserialise a tree
    float angle;
@@ -142,7 +142,7 @@ ISceneryPtr makeTreeFromXml(const AttributeSet& attrs)
    attrs.get("name", name);
    attrs.get("angle", angle);
 
-   ISceneryPtr tree = makeTree(name);
+   ISceneryPtr tree = loadTree(name);
    tree->setAngle(angle);
 
    return tree;

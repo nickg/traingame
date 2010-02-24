@@ -27,6 +27,8 @@ struct IScenery : IXMLSerialisable {
    
    virtual void render() const = 0;
    virtual void setPosition(float x, float y, float z) = 0;
+
+   // Don't need these: what about buildings???
    virtual void setAngle(float angle) = 0;
    virtual const string& resId() const = 0;
 };
@@ -35,7 +37,7 @@ typedef shared_ptr<IScenery> ISceneryPtr;
 
 class AttributeSet;
 
-ISceneryPtr makeTree(const string& name);
-ISceneryPtr makeTreeFromXml(const AttributeSet& attrs);
+ISceneryPtr loadTree(const string& name);
+ISceneryPtr loadTreeFromXml(const AttributeSet& attrs);
 
 #endif

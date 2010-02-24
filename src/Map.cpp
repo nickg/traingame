@@ -1330,7 +1330,7 @@ private:
    {
       myMap->addScenery(
          makePoint(myXPtr, myYPtr),
-         makeTreeFromXml(attrs));
+         loadTreeFromXml(attrs));
    }
    
    void handleStation(const AttributeSet& attrs)
