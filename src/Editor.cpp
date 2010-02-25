@@ -549,12 +549,7 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
 	 map->extendStation(dragBegin, dragEnd);
 	 break;
       case BUILDING_TOOL:
-	 {
-	    float angle;
-	    IBuildingPtr building;
-	    tie(building, angle) = buildingPicker->get();
-	    map->placeBuilding(dragBegin, building, angle);
-	 }
+         map->placeBuilding(dragBegin, buildingPicker->get());
 	 break;
       case TREE_TOOL:
 	 plantTrees();

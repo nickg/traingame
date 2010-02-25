@@ -29,18 +29,19 @@ private:
    void next();   
    void prev();
    void rotate();
-   tuple<IBuildingPtr, float> get() const;
+   IBuildingPtr get() const;
    void renderBuildingPreview(gui::Widget& canvas);
    void show();
    void hide();
 
-   void changeActive(IBuildingPtr b);
+   void changeActive(const string& newResName);
    
    ResourceList buildingList;
    ResourceList::const_iterator buildingIt;
    IBuildingPtr activeBuilding;
    gui::ILayoutPtr layout;
    float rotation;
+   string resName;
 };
 
 BuildingPicker::BuildingPicker(gui::ILayoutPtr l)
@@ -55,7 +56,7 @@ BuildingPicker::BuildingPicker(gui::ILayoutPtr l)
       warn() << "No buildings found";
    else {
       buildingIt = buildingList.begin();
-      changeActive(loadBuilding((*buildingIt)->name()));
+      changeActive((*buildingIt)->name());
    }
    
    layout->get("/building_wnd/preview").connect(gui::Widget::SIG_RENDER,
@@ -80,7 +81,7 @@ void BuildingPicker::next()
    if (++buildingIt == buildingList.end())
       buildingIt = buildingList.begin();
    
-   changeActive(loadBuilding((*buildingIt)->name()));      
+   changeActive((*buildingIt)->name());      
 }
    
 void BuildingPicker::prev()
@@ -89,7 +90,7 @@ void BuildingPicker::prev()
       buildingIt = buildingList.end();
    buildingIt--;
    
-   changeActive(loadBuilding((*buildingIt)->name()));
+   changeActive((*buildingIt)->name());
 }
 
 void BuildingPicker::show()
@@ -102,9 +103,9 @@ void BuildingPicker::hide()
    layout->get("/building_wnd").visible(false);
 }
    
-tuple<IBuildingPtr, float> BuildingPicker::get() const
+IBuildingPtr BuildingPicker::get() const
 {
-   return make_tuple(activeBuilding, rotation);
+   return loadBuilding(resName, rotation);
 }
 
 void BuildingPicker::renderBuildingPreview(gui::Widget& canvas)
@@ -115,18 +116,20 @@ void BuildingPicker::renderBuildingPreview(gui::Widget& canvas)
    glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
    glTranslatef(1.5f, -2.6f, -1.5f);
    glColor3f(1.0f, 1.0f, 1.0f);
-   glRotatef(rotation, 0.0f, 1.0f, 0.0f);
-   
    sun->apply();
    
-   activeBuilding->model()->render();
+   activeBuilding->render();
 }
 
-void BuildingPicker::changeActive(IBuildingPtr b)
+void BuildingPicker::changeActive(const string& newResName)
 {
-   activeBuilding = b;
-
-   layout->cast<gui::Label&>("/building_wnd/bld_name").text(b->name());
+   if (newResName != resName) {
+      activeBuilding = loadBuilding(newResName, rotation);
+      resName = newResName;
+      
+      layout->cast<gui::Label&>("/building_wnd/bld_name")
+         .text(activeBuilding->name());
+   }   
 }
 
 void BuildingPicker::rotate()
@@ -134,6 +137,8 @@ void BuildingPicker::rotate()
    rotation += 90.0f;
    if (rotation >= 350.0f)
       rotation = 0.0f;
+
+   activeBuilding->setAngle(rotation);
 }
 
 IBuildingPickerPtr makeBuildingPicker(gui::ILayoutPtr layout)

@@ -20,20 +20,24 @@
 
 #include "Platform.hpp"
 #include "IModel.hpp"
+#include "IXMLSerialisable.hpp"
 
 #include <string>
 
 // Interface to buildings and other bits of scenery
-struct IBuilding {
+struct IBuilding : IXMLSerialisable {
    virtual ~IBuilding() {}
 
-   virtual IModelPtr model() const = 0;
    virtual const string& name() const = 0;
-   virtual string resId() const = 0;
+   virtual void render() const = 0;
+   virtual void setAngle(float a) = 0;
 };
 
 typedef shared_ptr<IBuilding> IBuildingPtr;
 
-IBuildingPtr loadBuilding(const string& aResId);
+class AttributeSet;
+
+IBuildingPtr loadBuilding(const string& aResId, float angle);
+IBuildingPtr loadBuilding(const AttributeSet& attrs);
 
 #endif

@@ -20,6 +20,8 @@
 #include "ResourceCache.hpp"
 #include "ILogger.hpp"
 #include "IXMLParser.hpp"
+#include "XMLBuilder.hpp"
+#include "OpenGLHelper.hpp"
 
 // Concrete implementation of buildings
 class Building : public IBuilding, public IXMLCallback {
@@ -27,24 +29,40 @@ public:
    Building(IResourcePtr aRes);
 
    // IBuildingInterface
-   IModelPtr model() const { return model_; }
    const string& name() const { return name_; }
    string resId() const { return resource->name(); }
+   void render() const;
+   void setAngle(float a) { angle = a; }
 
+   // IXMLSerialisable interface
+   xml::element toXml() const;
+   
    // IXMLCallback interface
    void text(const string& localName, const string& aString);
+
 private:
    IModelPtr model_;
    string name_;
    IResourcePtr resource;
+   float angle;
 };
 
 Building::Building(IResourcePtr aRes)
-   : name_("???"), resource(aRes)
+   : name_("???"), resource(aRes), angle(0.0f)
 {
    static IXMLParserPtr parser = makeXMLParser("schemas/building.xsd");
 
    parser->parse(aRes->xmlFileName(), *this);
+}
+
+void Building::render() const
+{
+   glPushMatrix();
+
+   glRotatef(angle, 0.0f, 1.0f, 0.0f);
+   model_->render();
+   
+   glPopMatrix();
 }
 
 void Building::text(const string& localName, const string& aString)
@@ -53,6 +71,13 @@ void Building::text(const string& localName, const string& aString)
       name_ = aString;
    else if (localName == "model")
       model_ = loadModel(resource, aString);
+}
+
+xml::element Building::toXml() const
+{
+   return xml::element("building")
+      .addAttribute("angle", static_cast<int>(angle))
+      .addAttribute("name", resource->name());
 }
 
 namespace {
@@ -64,8 +89,22 @@ namespace {
    }
 }
 
-IBuildingPtr loadBuilding(const string& aResId)
+IBuildingPtr loadBuilding(const string& aResId, float angle)
 {
    static ResourceCache<Building> cache(loadBuildingXml, "buildings");
-   return cache.load(aResId);
+   
+   shared_ptr<Building> bld = cache.loadCopy(aResId);
+   bld->setAngle(angle);
+
+   return IBuildingPtr(bld);
+}
+
+IBuildingPtr loadBuilding(const AttributeSet& attrs)
+{
+   float angle;
+   string name;
+   attrs.get("name", name);
+   attrs.get("angle", angle);
+
+   return loadBuilding(name, angle);
 }

@@ -108,8 +108,7 @@ public:
 
    IStationPtr extendStation(Point<int> aStartPos,
       Point<int> aFinishPos);
-   void placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding,
-      float anAngle);
+   void placeBuilding(Point<int> point, IBuildingPtr building);
    float heightAt(float x, float y) const;
    void addScenery(Point<int> where, ISceneryPtr s);
    
@@ -126,7 +125,6 @@ private:
       TrackNodePtr track;    // Track at this location, if any
       IStationPtr station;   // Station on this tile, if any
       IBuildingPtr building; // Building on this tile, if any
-      float sceneryAngle;    // Orientation of building, tree, etc.
       ISceneryPtr tree;      // Tree, if any
    } *tiles;
 
@@ -757,8 +755,7 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
          if (tile.building) {
             glPushMatrix();
             glTranslatef(static_cast<float>(x), 0.0f, static_cast<float>(y));
-            glRotatef(tile.sceneryAngle, 0.0f, 1.0f, 0.0f);
-            tile.building->model()->render();
+            tile.building->render();
             glPopMatrix();
          }
 
@@ -996,15 +993,12 @@ void Map::lowerArea(const Point<int>& aStartPos,
    changeAreaHeight(aStartPos, aFinishPos, -0.1f);
 }
 
-void Map::placeBuilding(Point<int> aPoint, IBuildingPtr aBuilding, float anAngle)
+void Map::placeBuilding(Point<int> point, IBuildingPtr building)
 {
-   if (tileAt(aPoint.x, aPoint.y).track)
+   if (tileAt(point).track)
       warn() << "Cannot place building on track";
-   else {
-      Tile& t = tileAt(aPoint.x, aPoint.y);
-      t.building = aBuilding;
-      t.sceneryAngle = anAngle;
-   }
+   else
+      tileAt(point).building = building;
 }
 
 void Map::addScenery(Point<int> where, ISceneryPtr s)
@@ -1228,10 +1222,7 @@ void Map::save()
          }
 
          if (tile.building) {
-            tileXml.addChild
-               (xml::element("building")
-                  .addAttribute("angle", tile.sceneryAngle)
-                  .addAttribute("name", tile.building->resId()));
+            tileXml.addChild(tile.building->toXml());
             useful = true;
          }
 
@@ -1322,12 +1313,7 @@ private:
 
    void handleBuilding(const AttributeSet& attrs)
    {
-      float angle;
-      string name;
-      attrs.get("name", name);
-      attrs.get("angle", angle);
-
-      myMap->placeBuilding(tile, loadBuilding(name), angle);
+      myMap->placeBuilding(tile, loadBuilding(attrs));
    }
 
    void handleTree(const AttributeSet& attrs)
