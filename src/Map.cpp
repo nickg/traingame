@@ -419,7 +419,7 @@ void Map::renderHighlightedTiles() const
       // User should be able to click on the highlight as well
       glPushName(tileName(point.x, point.y));
       
-      glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_WRITEMASK);
+      glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
       
       glDisable(GL_TEXTURE_2D);
       glEnable(GL_BLEND);
