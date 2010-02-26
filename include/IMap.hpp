@@ -62,10 +62,10 @@ public:
    
    virtual void render(IGraphicsPtr aContext) const = 0;
 
-   // Draw a white border around the given tile
+   // Draw a coloured highlight over the given tile
    typedef tuple<float, float, float> HighlightColour;
-   virtual void highlightTile(IGraphicsPtr aContext,
-      const Point<int>& aPoint, HighlightColour aColour) const = 0;
+   virtual void highlightTile(const Point<int>& aPoint,
+      HighlightColour aColour) const = 0;
    
    // Given a pick name return the (x, y) co-ordinate
    virtual Point<int> pickPosition(unsigned aName) const = 0;

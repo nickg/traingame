@@ -93,7 +93,7 @@ public:
    void setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack);
    bool isValidTrack(const Point<int>& aPoint) const;
    void render(IGraphicsPtr aContext) const;
-   void highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint,
+   void highlightTile(const Point<int>& aPoint,
       HighlightColour aColour) const;
    void resetMap(int aWidth, int aDepth);
    void eraseTile(int x, int y);
@@ -188,6 +188,7 @@ private:
    void renderPickSector(Point<int> botLeft, Point<int> topRight);
    void drawStartLocation() const;
    void setStationAt(Point<int> point, IStationPtr aStation);
+   void renderHighlightedTiles() const;
 
    // Mesh modification
    void buildMesh(int id, Point<int> botLeft, Point<int> topRight);
@@ -210,6 +211,8 @@ private:
    bool shouldDrawGridLines, inPickMode;
    list<Point<int> > dirtyTiles;
    IResourcePtr resource;
+
+   mutable vector<tuple<Point<int>, HighlightColour> > highlightedTiles;
 };
 
 const float Map::TILE_HEIGHT(0.2f);
@@ -397,9 +400,59 @@ void Map::resetMarks() const
    }  
 }
 
+void Map::highlightTile(const Point<int>& point, HighlightColour colour) const
+{
+   highlightedTiles.push_back(make_tuple(point, colour));
+}
+
+void Map::renderHighlightedTiles() const
+{
+   // At the end of the render loop, draw the highlighted tiles over
+   // the top of all others - this is to get the transparency working
+   
+   vector<tuple<Point<int>, HighlightColour> >::const_iterator it;
+   for (it = highlightedTiles.begin(); it != highlightedTiles.end(); ++it) {
+
+      const Point<int>& point = get<0>(*it);
+      const HighlightColour& colour = get<1>(*it);
+      
+      // User should be able to click on the highlight as well
+      glPushName(tileName(point.x, point.y));
+      
+      glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_WRITEMASK);
+      
+      glDisable(GL_TEXTURE_2D);
+      glEnable(GL_BLEND);
+      glDisable(GL_LIGHTING);
+      
+      glDepthMask(GL_FALSE);
+      
+      glPushMatrix();
+      glColor4f(get<0>(colour), get<1>(colour), get<2>(colour), 0.5f);
+      glBegin(GL_POLYGON);
+      
+      int indexes[4];
+      tileVertices(point.x, point.y, indexes);
+      
+      for (int i = 0; i < 4; i++) {
+         Vertex& v = heightMap[indexes[i]];
+         glNormal3f(v.normal.x, v.normal.y, v.normal.z);
+         glVertex3f(v.pos.x, v.pos.y + 0.1f, v.pos.z);
+      }
+      
+      glEnd();
+      glPopMatrix();
+      
+      glPopAttrib();
+
+      glPopName();
+   }
+}
+
 void Map::render(IGraphicsPtr aContext) const
 {
    resetMarks();
+   highlightedTiles.clear();
    
    fog->apply();
    
@@ -420,40 +473,8 @@ void Map::render(IGraphicsPtr aContext) const
    glPopMatrix();
    
    glPopAttrib();
-}
 
-// Draw a thick border around a single tile
-void Map::highlightTile(IGraphicsPtr aContext, const Point<int>& aPoint,
-   HighlightColour aColour) const
-{
-   // User should be able to click on the highlight as well
-   glPushName(tileName(aPoint.x, aPoint.y));
-
-   glPushAttrib(GL_ENABLE_BIT);
-   
-   glDisable(GL_TEXTURE_2D);
-   glEnable(GL_BLEND);
-   glDisable(GL_LIGHTING);
-   
-   glPushMatrix();
-   glColor4f(get<0>(aColour), get<1>(aColour), get<2>(aColour), 0.5f);
-   glBegin(GL_POLYGON);
-
-   int indexes[4];
-   tileVertices(aPoint.x, aPoint.y, indexes);
-   
-   for (int i = 0; i < 4; i++) {
-      Vertex& v = heightMap[indexes[i]];
-      glNormal3f(v.normal.x, v.normal.y, v.normal.z);
-      glVertex3f(v.pos.x, v.pos.y + 0.1f, v.pos.z);
-   }
-   
-   glEnd();
-   glPopMatrix();
-
-   glPopAttrib();
-
-   glPopName();
+   renderHighlightedTiles();
 }
 
 // Draw an arrow on the start location
@@ -743,8 +764,7 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
          // Draw the station, if any
          if (tile.station
             && (shouldDrawGridLines || tile.station->highlightVisible()))
-            highlightTile(aContext, makePoint(x, y),
-               tile.station->highlightColour());
+            highlightTile(makePoint(x, y), tile.station->highlightColour());
 
          // Draw the start location if it's on this tile
          if (startLocation.x == x && startLocation.y == y
