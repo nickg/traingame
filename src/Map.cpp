@@ -267,10 +267,8 @@ void Map::eraseTile(int x, int y)
       tile.track->get()->getEndpoints(endpoints);
 
       for (list<Point<int> >::iterator it = endpoints.begin();
-           it != endpoints.end(); ++it) {
-         assert(tileAt(*it).track);
-         tileAt(*it).track.reset();
-      }
+           it != endpoints.end(); ++it)
+         tileAt((*it).x, (*it).y).track.reset();
    }
 
    if (tile.building)
