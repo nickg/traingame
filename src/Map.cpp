@@ -447,12 +447,13 @@ void Map::renderHighlightedTiles() const
 
       glPopName();
    }
+   
+   highlightedTiles.clear();
 }
 
 void Map::render(IGraphicsPtr aContext) const
 {
    resetMarks();
-   highlightedTiles.clear();
    
    fog->apply();
    

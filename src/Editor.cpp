@@ -169,8 +169,6 @@ void Editor::display(IGraphicsPtr aContext) const
    aContext->setCamera(myPosition, makeVector(45.0f, 45.0f, 0.0f));
  
    mySun->apply();
-   
-   map->render(aContext);
 
    // Draw the highlight if we are dragging track
    if (amDragging) {
@@ -182,6 +180,8 @@ void Editor::display(IGraphicsPtr aContext) const
 	    map->highlightTile(makePoint(x, y), make_tuple(1.0f, 1.0f, 1.0f));
       }         
    }
+      
+   map->render(aContext);
 }
 
 // Render the overlay
