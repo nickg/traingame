@@ -177,7 +177,7 @@ void Editor::display(IGraphicsPtr aContext) const
       
       for (int x = xmin; x <= xmax; x++) {
 	 for (int y = ymin; y <= ymax; y++)
-	    map->highlightTile(makePoint(x, y), make_tuple(1.0f, 1.0f, 1.0f));
+	    map->highlightTile(makePoint(x, y), colour::WHITE);
       }         
    }
       

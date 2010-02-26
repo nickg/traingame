@@ -20,6 +20,7 @@
 
 #include "Platform.hpp"
 #include "Maths.hpp"
+#include "Colour.hpp"
 
 #include <string>
 
@@ -48,8 +49,7 @@ struct IStation {
 
    // A station has a random colour that is used to identify it when
    // the highlight is drawn
-   typedef tuple<float, float, float> HighlightColour;
-   virtual HighlightColour highlightColour() const = 0;
+   virtual Colour highlightColour() const = 0;
    virtual bool highlightVisible() const = 0;
    virtual void setHighlightVisible(bool onOff) = 0;
 };

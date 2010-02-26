@@ -16,11 +16,9 @@
 //
 
 #include "IStation.hpp"
-
-#include <ctime>
+#include "Random.hpp"
 
 #include <boost/lexical_cast.hpp>
-#include <boost/random.hpp>
 
 // Concrete implementation of stations
 class Station : public IStation {
@@ -33,12 +31,12 @@ public:
    void setName(const string& aName) { myName = aName; }
    int id() const { return myId; }
    void setId(int anId) { myId = anId; }
-   HighlightColour highlightColour() const { return myColour; }
+   Colour highlightColour() const { return colour; }
    bool highlightVisible() const { return isHighlightVisible; }
    void setHighlightVisible(bool onOff);
 private:
    string myName;
-   HighlightColour myColour;
+   Colour colour;
    bool isHighlightVisible;
    int myId;
 };
@@ -54,12 +52,8 @@ Station::Station()
    myName = "Station" + lexical_cast<string>(myId);
 
    // Generate a random colour
-   static variate_generator<mt19937, uniform_real<float> >
-      colourRand(mt19937(static_cast<uint32_t>(time(NULL))), 
-                 uniform_real<float>(0.2f, 1.0f));
-   myColour = make_tuple(colourRand(),
-                         colourRand(),
-                         colourRand());
+   static Uniform<float> colourRand(0.3f, 1.0f);
+   colour = makeColour(colourRand(), colourRand(), colourRand());
 }
 
 void Station::setHighlightVisible(bool onOff)

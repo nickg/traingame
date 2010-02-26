@@ -27,6 +27,7 @@
 #include "IStation.hpp"
 #include "IResource.hpp"
 #include "IScenery.hpp"
+#include "OpenGLHelper.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -93,8 +94,7 @@ public:
    void setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack);
    bool isValidTrack(const Point<int>& aPoint) const;
    void render(IGraphicsPtr aContext) const;
-   void highlightTile(const Point<int>& aPoint,
-      HighlightColour aColour) const;
+   void highlightTile(Point<int> point, Colour colour) const;
    void resetMap(int aWidth, int aDepth);
    void eraseTile(int x, int y);
 
@@ -212,7 +212,7 @@ private:
    list<Point<int> > dirtyTiles;
    IResourcePtr resource;
 
-   mutable vector<tuple<Point<int>, HighlightColour> > highlightedTiles;
+   mutable vector<tuple<Point<int>, Colour> > highlightedTiles;
 };
 
 const float Map::TILE_HEIGHT(0.2f);
@@ -400,7 +400,7 @@ void Map::resetMarks() const
    }  
 }
 
-void Map::highlightTile(const Point<int>& point, HighlightColour colour) const
+void Map::highlightTile(Point<int> point, Colour colour) const
 {
    highlightedTiles.push_back(make_tuple(point, colour));
 }
@@ -418,16 +418,17 @@ void Map::renderHighlightedTiles() const
    
    glDepthMask(GL_FALSE);
       
-   vector<tuple<Point<int>, HighlightColour> >::const_iterator it;
+   vector<tuple<Point<int>, Colour> >::const_iterator it;
    for (it = highlightedTiles.begin(); it != highlightedTiles.end(); ++it) {
 
       const Point<int>& point = get<0>(*it);
-      const HighlightColour& colour = get<1>(*it);
+      Colour colour = get<1>(*it);
       
       // User should be able to click on the highlight as well
       glPushName(tileName(point.x, point.y));
-      
-      glColor4f(get<0>(colour), get<1>(colour), get<2>(colour), 0.5f);
+
+      colour.a = 0.5f;
+      gl::colour(colour);
       glBegin(GL_POLYGON);
       
       int indexes[4];

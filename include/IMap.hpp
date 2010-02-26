@@ -24,6 +24,7 @@
 #include "IResource.hpp"
 #include "IBuilding.hpp"
 #include "IScenery.hpp"
+#include "Colour.hpp"
 
 #include <memory>
 #include <string>
@@ -63,9 +64,7 @@ public:
    virtual void render(IGraphicsPtr aContext) const = 0;
 
    // Draw a coloured highlight over the given tile
-   typedef tuple<float, float, float> HighlightColour;
-   virtual void highlightTile(const Point<int>& aPoint,
-      HighlightColour aColour) const = 0;
+   virtual void highlightTile(Point<int> point, Colour colour) const = 0;
    
    // Given a pick name return the (x, y) co-ordinate
    virtual Point<int> pickPosition(unsigned aName) const = 0;
