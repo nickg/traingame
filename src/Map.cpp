@@ -410,6 +410,14 @@ void Map::renderHighlightedTiles() const
    // At the end of the render loop, draw the highlighted tiles over
    // the top of all others - this is to get the transparency working
    
+   glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
+   
+   glDisable(GL_TEXTURE_2D);
+   glEnable(GL_BLEND);
+   glDisable(GL_LIGHTING);
+   
+   glDepthMask(GL_FALSE);
+      
    vector<tuple<Point<int>, HighlightColour> >::const_iterator it;
    for (it = highlightedTiles.begin(); it != highlightedTiles.end(); ++it) {
 
@@ -419,15 +427,6 @@ void Map::renderHighlightedTiles() const
       // User should be able to click on the highlight as well
       glPushName(tileName(point.x, point.y));
       
-      glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
-      
-      glDisable(GL_TEXTURE_2D);
-      glEnable(GL_BLEND);
-      glDisable(GL_LIGHTING);
-      
-      glDepthMask(GL_FALSE);
-      
-      glPushMatrix();
       glColor4f(get<0>(colour), get<1>(colour), get<2>(colour), 0.5f);
       glBegin(GL_POLYGON);
       
@@ -441,12 +440,11 @@ void Map::renderHighlightedTiles() const
       }
       
       glEnd();
-      glPopMatrix();
       
-      glPopAttrib();
-
       glPopName();
    }
+
+   glPopAttrib();
    
    highlightedTiles.clear();
 }
