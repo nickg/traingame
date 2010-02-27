@@ -23,7 +23,7 @@
     </toggleBar>
   </window>
 
-  <window x="10" y="60" border="5"
+  <window x="10" y="60" border="5" visible="false"
           name="building_wnd">
     <imageButton name="prev" x="5" y="5" width="32" height="32"
                  image="images/icons/prev.png"/>
@@ -35,7 +35,21 @@
     <canvas3d name="preview" x="10" y="40" width="170" height="120"
               clear="false"/>
 
-    <label name="bld_name" x="5" y="165" text="title"
+    <label name="name" x="5" y="165" text="title"
+           font="small-font"/>
+  </window>
+
+  <window x="10" y="60" border="5" visible="false"
+          name="tree_wnd">
+    <imageButton name="prev" x="5" y="5" width="32" height="32"
+                 image="images/icons/prev.png"/>
+    <imageButton name="next" x="37" y="5" width="32" height="32"
+                 image="images/icons/next.png"/>
+    
+    <canvas3d name="preview" x="10" y="40" width="170" height="120"
+              clear="false"/>
+
+    <label name="name" x="5" y="165" text="title"
            font="small-font"/>
   </window>
 

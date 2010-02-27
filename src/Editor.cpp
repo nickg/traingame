@@ -22,7 +22,7 @@
 #include "Maths.hpp"
 #include "ILight.hpp"
 #include "gui/ILayout.hpp"
-#include "IBuildingPicker.hpp"
+#include "ISceneryPicker.hpp"
 
 #include <algorithm>
 #include <stdexcept>
@@ -85,7 +85,7 @@ private:
 
    // GUI elements
    gui::ILayoutPtr layout;
-   IBuildingPickerPtr buildingPicker;
+   ISceneryPickerPtr buildingPicker;
 };
 
 Editor::Editor(IMapPtr aMap) 
@@ -134,7 +134,7 @@ void Editor::buildGUI()
    layout->get("/lower/action_wnd/save").connect(gui::Widget::SIG_CLICK,
       bind(&Editor::save, this));
     
-   buildingPicker = makeBuildingPicker(layout);
+   buildingPicker = makeSceneryPicker(layout);
 }
 
 void Editor::setMap(IMapPtr aMap)

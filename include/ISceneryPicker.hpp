@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,22 +15,22 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_IBUILDINGPICKER_HPP
-#define INC_IBUILDINGPICKER_HPP
+#ifndef INC_ISCENERYPICKER_HPP
+#define INC_ISCENERYPICKER_HPP
 
 #include "Platform.hpp"
 #include "gui/ILayout.hpp"
 #include "IScenery.hpp"
 
-// A dialog box for picking buildings in the editor
-struct IBuildingPicker {
-   virtual ~IBuildingPicker() {}
+// A dialog box for picking scenery in the editor
+struct ISceneryPicker {
+   virtual ~ISceneryPicker() {}
 
    virtual ISceneryPtr get() const = 0;
 };
 
-typedef shared_ptr<IBuildingPicker> IBuildingPickerPtr;
+typedef shared_ptr<ISceneryPicker> ISceneryPickerPtr;
 
-IBuildingPickerPtr makeBuildingPicker(gui::ILayoutPtr layout);
+ISceneryPickerPtr makeSceneryPicker(gui::ILayoutPtr layout);
 
 #endif

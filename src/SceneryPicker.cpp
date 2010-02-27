@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,15 +15,15 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "IBuildingPicker.hpp"
+#include "ISceneryPicker.hpp"
 #include "ILogger.hpp"
 #include "ILight.hpp"
 #include "OpenGLHelper.hpp"
 #include "gui/Label.hpp"
 
-class BuildingPicker : public IBuildingPicker {
+class SceneryPicker : public ISceneryPicker {
 public:
-   BuildingPicker(gui::ILayoutPtr l);
+   SceneryPicker(gui::ILayoutPtr l);
      
 private: 
    void next();   
@@ -44,7 +44,7 @@ private:
    string resName;
 };
 
-BuildingPicker::BuildingPicker(gui::ILayoutPtr l)
+SceneryPicker::SceneryPicker(gui::ILayoutPtr l)
    : layout(l),
      rotation(0.0f)
 {
@@ -60,23 +60,23 @@ BuildingPicker::BuildingPicker(gui::ILayoutPtr l)
    }
    
    layout->get("/building_wnd/preview").connect(gui::Widget::SIG_RENDER,
-      bind(&BuildingPicker::renderBuildingPreview, this, _1));
+      bind(&SceneryPicker::renderBuildingPreview, this, _1));
    layout->get("/building_wnd/next").connect(gui::Widget::SIG_CLICK,
-      bind(&BuildingPicker::next, this));
+      bind(&SceneryPicker::next, this));
    layout->get("/building_wnd/prev").connect(gui::Widget::SIG_CLICK,
-      bind(&BuildingPicker::prev, this));
+      bind(&SceneryPicker::prev, this));
    layout->get("/building_wnd/rotate").connect(gui::Widget::SIG_CLICK,
-      bind(&BuildingPicker::rotate, this));
+      bind(&SceneryPicker::rotate, this));
 
    layout->get("/tool_wnd/tools/building").connect(gui::Widget::SIG_ENTER,
-      bind(&BuildingPicker::show, this));
+      bind(&SceneryPicker::show, this));
    layout->get("/tool_wnd/tools/building").connect(gui::Widget::SIG_LEAVE,
-      bind(&BuildingPicker::hide, this));
+      bind(&SceneryPicker::hide, this));
 
    hide();
 }
     
-void BuildingPicker::next()
+void SceneryPicker::next()
 {
    if (++buildingIt == buildingList.end())
       buildingIt = buildingList.begin();
@@ -84,7 +84,7 @@ void BuildingPicker::next()
    changeActive((*buildingIt)->name());      
 }
    
-void BuildingPicker::prev()
+void SceneryPicker::prev()
 {
    if (buildingIt == buildingList.begin())
       buildingIt = buildingList.end();
@@ -93,22 +93,22 @@ void BuildingPicker::prev()
    changeActive((*buildingIt)->name());
 }
 
-void BuildingPicker::show()
+void SceneryPicker::show()
 {
    layout->get("/building_wnd").visible(true);
 }
 
-void BuildingPicker::hide()
+void SceneryPicker::hide()
 {
    layout->get("/building_wnd").visible(false);
 }
    
-ISceneryPtr BuildingPicker::get() const
+ISceneryPtr SceneryPicker::get() const
 {
    return loadBuilding(resName, rotation);
 }
 
-void BuildingPicker::renderBuildingPreview(gui::Widget& canvas)
+void SceneryPicker::renderBuildingPreview(gui::Widget& canvas)
 {
    static ILightPtr sun = makeSunLight();
       
@@ -121,18 +121,18 @@ void BuildingPicker::renderBuildingPreview(gui::Widget& canvas)
    activeBuilding->render();
 }
 
-void BuildingPicker::changeActive(const string& newResName)
+void SceneryPicker::changeActive(const string& newResName)
 {
    if (newResName != resName) {
       activeBuilding = loadBuilding(newResName, rotation);
       resName = newResName;
       
-      layout->cast<gui::Label&>("/building_wnd/bld_name")
+      layout->cast<gui::Label&>("/building_wnd/name")
          .text(activeBuilding->name());
    }   
 }
 
-void BuildingPicker::rotate()
+void SceneryPicker::rotate()
 {
    rotation += 90.0f;
    if (rotation >= 350.0f)
@@ -141,7 +141,7 @@ void BuildingPicker::rotate()
    activeBuilding->setAngle(rotation);
 }
 
-IBuildingPickerPtr makeBuildingPicker(gui::ILayoutPtr layout)
+ISceneryPickerPtr makeSceneryPicker(gui::ILayoutPtr layout)
 {
-   return IBuildingPickerPtr(new BuildingPicker(layout));
+   return ISceneryPickerPtr(new SceneryPicker(layout));
 }
