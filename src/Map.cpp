@@ -564,8 +564,8 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
       make_tuple(    5.0f,     makeRGB(124, 113, 36) ),
       make_tuple(    3.0f,     makeRGB(129, 142, 57) ),
       make_tuple(    0.0f,     makeRGB(103, 142, 57) ),
-      make_tuple(   -1.0f,     makeRGB(224, 223, 134) ),
-      make_tuple(   -1e10f,    makeRGB(178, 247, 220) )
+      make_tuple(   -2.0f,     makeRGB(208, 207, 104)),
+      make_tuple(   -1e10f,    makeRGB(177, 176, 96) )
    };
    
    IMeshBufferPtr buf = makeMeshBuffer();
@@ -798,7 +798,7 @@ void Map::postRenderSector(IGraphicsPtr aContext, int id,
       glDisable(GL_TEXTURE_2D);
       
       static const float seaLevel = -0.6f;
-      glColor4f(0.0f, 0.2f, 0.8f, 0.4f);
+      gl::colour(makeRGB(0, 80, 160, 150));
       glNormal3f(0.0f, 1.0f, 0.0f);
       glBegin(GL_QUADS);
       glVertex3f(botLeft.x - 0.5f, seaLevel, botLeft.y - 0.5f);
