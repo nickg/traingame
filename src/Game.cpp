@@ -316,12 +316,6 @@ void Game::onKeyDown(SDLKey aKey)
    case SDLK_LCTRL:
       train->controller()->actOn(SHOVEL_COAL);
       break;
-   case SDLK_a:
-      train->controller()->actOn(THROTTLE_DOWN);
-      break;
-   case SDLK_s:
-      train->controller()->actOn(THROTTLE_UP);
-      break;
    case SDLK_PRINT:
       getGameWindow()->takeScreenShot();
       break;
@@ -332,6 +326,10 @@ void Game::onKeyDown(SDLKey aKey)
       alterTrackState(NEXT);
       break;
    case SDLK_UP:
+      train->controller()->actOn(THROTTLE_UP);
+      break;
+   case SDLK_DOWN:
+      train->controller()->actOn(THROTTLE_DOWN);
       break;
    case SDLK_TAB:
       if (cameraMode == CAMERA_FLOATING)
