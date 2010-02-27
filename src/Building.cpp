@@ -33,6 +33,7 @@ public:
    string resId() const { return resource->name(); }
    void render() const;
    void setAngle(float a) { angle = a; }
+   void setPosition(float x, float y, float z);
 
    // IXMLSerialisable interface
    xml::element toXml() const;
@@ -45,6 +46,7 @@ private:
    string name_;
    IResourcePtr resource;
    float angle;
+   Vector<float> position;
 };
 
 Building::Building(IResourcePtr aRes)
@@ -55,10 +57,16 @@ Building::Building(IResourcePtr aRes)
    parser->parse(aRes->xmlFileName(), *this);
 }
 
+void Building::setPosition(float x, float y, float z)
+{
+   position = makeVector(x, y, z);
+}
+
 void Building::render() const
 {
    glPushMatrix();
 
+   gl::translate(position);
    glRotatef(angle, 0.0f, 1.0f, 0.0f);
    model_->render();
    

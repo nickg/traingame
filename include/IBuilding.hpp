@@ -31,6 +31,7 @@ struct IBuilding : IXMLSerialisable {
    virtual const string& name() const = 0;
    virtual void render() const = 0;
    virtual void setAngle(float a) = 0;
+   virtual void setPosition(float x, float y, float z) = 0;
 };
 
 typedef shared_ptr<IBuilding> IBuildingPtr;

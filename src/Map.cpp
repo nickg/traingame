@@ -785,12 +785,8 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
             drawStartLocation();
 
          // Draw any buildings
-         if (tile.building) {
-            glPushMatrix();
-            glTranslatef(static_cast<float>(x), 0.0f, static_cast<float>(y));
+         if (tile.building)
             tile.building->render();
-            glPopMatrix();
-         }
 
          // Draw any trees
          if (tile.tree)
@@ -1028,10 +1024,15 @@ void Map::lowerArea(const Point<int>& aStartPos,
 
 void Map::placeBuilding(Point<int> point, IBuildingPtr building)
 {
+   // TODO: level?
    if (tileAt(point).track)
       warn() << "Cannot place building on track";
-   else
+   else {
       tileAt(point).building = building;
+      building->setPosition(static_cast<float>(point.x),
+         heightAt(point.x, point.y),
+         static_cast<float>(point.y));
+   }
 }
 
 void Map::addScenery(Point<int> where, ISceneryPtr s)
