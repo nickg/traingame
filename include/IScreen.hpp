@@ -22,7 +22,7 @@
 #include "IGraphics.hpp"
 #include "IPickBuffer.hpp"
 
-#include <SDL.h>
+#include <SDL/SDL_keysym.h>
 
 enum MouseButton {
    MOUSE_UNKNOWN, MOUSE_LEFT, MOUSE_MIDDLE, MOUSE_RIGHT,
