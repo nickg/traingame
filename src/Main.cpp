@@ -44,7 +44,7 @@ namespace {
    {
       log() << "Caught SIGINT";
       ::window->quit();
-
+      
       clearSignalHandlers();
    }
 

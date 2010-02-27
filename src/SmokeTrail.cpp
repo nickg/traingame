@@ -134,10 +134,10 @@ void SmokeTrail::update(int aDelta)
 void SmokeTrail::newParticle()
 {
    // Random number generator for colour variance
-   Normal<float> colourRand(0.0f, 0.06f);
+   static Normal<float> colourRand(0.0f, 0.06f);
 
    // Random number generator for position variance
-   Normal<float> posRand(0.0f, 0.07f);
+   static Normal<float> posRand(0.0f, 0.07f);
 
    const float col = 0.7f + colourRand();
 
@@ -154,6 +154,10 @@ void SmokeTrail::newParticle()
 
       makeSphericalBillboard(particleTex)
    };
+
+   p.billboard->setPosition(p.x, p.y, p.z);
+   p.billboard->setColour(p.r, p.g, p.b, p.a);
+   p.billboard->setScale(p.scale);
    
    particles.push_back(p);
 }
