@@ -25,6 +25,7 @@
 #include <iostream>
 
 #include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
 #include <signal.h>
 
 using namespace boost::filesystem;
@@ -78,6 +79,47 @@ namespace {
       sa.sa_handler = SIGSEGV_handler;
       sigaction(SIGSEGV, &sa, &oldSIGSEGV);
    }
+
+   // Options set from command line
+   int newMapWidth = 32;
+   int newMapHeight = 32;
+   string mapFile;
+   string action;
+
+   void parseOptions(int argc, char** argv)
+   {
+      using namespace boost::program_options;
+
+      options_description desc("Allowed options");
+      desc.add_options()
+         ("help", "Display this help message")
+         ("width", value<int>(&newMapWidth), "Set new map width")
+         ("height", value<int>(&newMapHeight), "Set new map height")
+         ("action", value<string>(&action), "Either `play' or `edit'")
+         ("map", value<string>(&mapFile), "Name of map to load or create")
+         ;
+
+      positional_options_description p;
+      p.add("action", 1).add("map", 2);
+
+      variables_map vm;
+      try {
+         store(command_line_parser(argc, argv)
+            .options(desc).positional(p).run(), vm);
+      }
+      catch (const exception& e) {
+         cerr << "Error: " << e.what() << endl;
+         exit(EXIT_FAILURE);
+      }
+
+      notify(vm);
+
+      if (vm.count("help")) {
+         cout << desc << endl;
+         exit(EXIT_SUCCESS);
+      }
+
+   }
 }
 
 IWindowPtr getGameWindow()
@@ -87,6 +129,8 @@ IWindowPtr getGameWindow()
 
 int main(int argc, char** argv)
 {
+   parseOptions(argc, argv);
+   
    cout << PACKAGE << " " << VERSION << "." << PATCH << endl << endl
 	<< "Copyright (C) 2009-2010  Nick Gasson" << endl
 	<< "This program comes with ABSOLUTELY NO WARRANTY. "
@@ -98,41 +142,34 @@ int main(int argc, char** argv)
    log() << "Program started";
 
    setupSignalHandlers();
-   
+
    try {
-#ifndef WIN32
-      if (argc != 2 && argc != 3)
+      if (::action == "" || ::mapFile == "")
 	 throw runtime_error("Usage: TrainGame (edit|play) [map]");
-      initResources();
       
-      const string mapFile(argc == 3 ? argv[2] : "");
-      const string cmd(argv[1]);
-#else
-      // For ease of debugging, specify a default map 
-      const string mapFile("figure8");
-      const string cmd("play");
-#endif   // #ifndef WIN32
+      initResources();
       
       IConfigPtr cfg = getConfig();
       
       ::window = makeSDLWindow();
       
       IScreenPtr screen;
-      if (cmd == "edit") {
+      if (::action == "edit") {
 	 if (resourceExists(mapFile, "maps"))
-	    screen = makeEditorScreen(loadMap(mapFile));
+	    screen = makeEditorScreen(loadMap(::mapFile));
 	 else {
-	    screen = makeEditorScreen(makeEmptyMap(mapFile, 1024, 8));
+	    screen = makeEditorScreen(
+               makeEmptyMap(::mapFile, ::newMapWidth, ::newMapHeight));
 	 }
       }
-      else if (cmd == "play") {
-	 screen = makeGameScreen(loadMap(mapFile));
+      else if (::action == "play") {
+	 screen = makeGameScreen(loadMap(::mapFile));
       }
-      else if (cmd == "uidemo") {
+      else if (::action == "uidemo") {
 	 screen = makeUIDemo();
       }
       else
-	 throw runtime_error("Unrecognised command: " + cmd);
+	 throw runtime_error("Unrecognised command: " + ::action);
          
       ::window->run(screen);
 
