@@ -37,7 +37,8 @@ public:
    double segmentLength(const track::TravelToken& aToken) const;
    bool isValidDirection(const track::Direction& aDirection) const;
    track::Connection nextPosition(const track::TravelToken& aToken) const;
-   void getEndpoints(std::list<Point<int> >& aList) const;
+   void getEndpoints(vector<Point<int> >& aList) const;
+   void getCovers(vector<Point<int> >& output) const;
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
       const track::Direction& aDirection);
    track::TravelToken getTravelToken(track::Position aPosition,
@@ -499,11 +500,35 @@ Point<int> Points::straightEndpoint() const
       assert(false);
 }
 
-void Points::getEndpoints(std::list<Point<int> >& aList) const
+void Points::getEndpoints(vector<Point<int> >& aList) const
 {
    aList.push_back(makePoint(myX, myY));
    aList.push_back(straightEndpoint());
    aList.push_back(displacedEndpoint());
+}
+
+void Points::getCovers(vector<Point<int> >& output) const
+{
+   const int reflect = reflected ? -1 : 1;
+
+   if (myAxis == axis::X) {
+      output.push_back(makePoint(myX + 1, myY + 1*reflect));
+      output.push_back(makePoint(myX + 1, myY));
+   }
+   else if (myAxis == -axis::X) {
+      output.push_back(makePoint(myX - 1, myY - 1*reflect));
+      output.push_back(makePoint(myX - 1, myY));
+   }
+   else if (myAxis == axis::Y) {
+      output.push_back(makePoint(myX - 1*reflect, myY + 1));
+      output.push_back(makePoint(myX, myY + 1));
+   }
+   else if (myAxis == -axis::Y) {
+      output.push_back(makePoint(myX + 1*reflect, myY - 1));
+      output.push_back(makePoint(myX, myY - 1));
+   }
+   else
+      assert(false);
 }
 
 ITrackSegmentPtr Points::mergeExit(const Point<int>& aPoint,

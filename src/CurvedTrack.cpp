@@ -23,6 +23,7 @@
 #include <cmath>
 #include <cassert>
 #include <stdexcept>
+#include <set>
 
 #include <GL/gl.h>
 #include <boost/lexical_cast.hpp>
@@ -46,7 +47,8 @@ public:
 
    Connection nextPosition(const track::TravelToken& aToken) const;
    bool isValidDirection(const Direction& aDirection) const;
-   void getEndpoints(list<Point<int> >& aList) const;
+   void getEndpoints(vector<Point<int> >& aList) const;
+   void getCovers(vector<Point<int> >& output) const;
    
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
       const track::Direction& aDirection);
@@ -217,7 +219,7 @@ Connection CurvedTrack::nextPosition(const track::TravelToken& aToken) const
       nextDir);
 }
 
-void CurvedTrack::getEndpoints(list<Point<int> >& aList) const
+void CurvedTrack::getEndpoints(vector<Point<int> >& aList) const
 {
    aList.push_back(origin);
 
@@ -233,15 +235,53 @@ void CurvedTrack::getEndpoints(list<Point<int> >& aList) const
    aList.push_back(makePoint(origin.x + xDelta, origin.y + yDelta));
 }
 
+void CurvedTrack::getCovers(vector<Point<int> >& output) const
+{
+   vector<Point<int> > exits;
+   getEndpoints(exits);
+
+   const Point<int>& start = exits.at(0);
+   const Point<int>& finish = exits.at(1);
+   
+   Point<int> trueOrigin =
+      (startAngle == 90 || startAngle == 270)
+      ? makePoint(finish.x, start.y)
+      : makePoint(start.x, finish.y);
+   
+   set<Point<int> > tmp;
+
+   // A fiddle factor to put the cover tiles in the best location
+   const float fiddleRadius = static_cast<float>(baseRadius) - 0.5f;
+
+   const float sign = (startAngle == 0 || startAngle == 180) ? 1.0f : -1.0f;
+
+   for (track::Angle angle = startAngle; angle < finishAngle; angle += 5) {
+      float x = fiddleRadius * sign * cos(degToRad(angle));
+      float y = fiddleRadius * sign * sin(degToRad(angle));
+      Point<int> p = makePoint(static_cast<int>(x),
+         static_cast<int>(y));
+
+      if (abs(p.x) >= baseRadius || abs(p.y) >= baseRadius)
+         continue;
+      
+      Point<int> actual = p + trueOrigin;
+
+      if (actual != start && actual != finish)
+         tmp.insert(actual);
+   }
+
+   copy(tmp.begin(), tmp.end(), back_inserter(output));
+}
+
 ITrackSegmentPtr CurvedTrack::mergeExit(const Point<int>& aPoint,
    const track::Direction& aDirection)
 {
    // See if this is already an exit
    if (isValidDirection(aDirection)) {
-      list<Point<int> > exits;
+      vector<Point<int> > exits;
       getEndpoints(exits);
 
-      for (list<Point<int> >::iterator it = exits.begin();
+      for (vector<Point<int> >::iterator it = exits.begin();
            it != exits.end(); ++it)
          if (*it == aPoint)
             return shared_from_this();

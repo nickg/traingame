@@ -46,7 +46,8 @@ public:
    Vector<double> offsetForDelta(double aDelta) const;
    Connection nextPosition(const track::TravelToken& aDirection) const;
    bool isValidDirection(const Direction& aDirection) const;
-   void getEndpoints(list<Point<int> >& aList) const;
+   void getEndpoints(vector<Point<int> >& aList) const;
+   void getCovers(vector<Point<int> >& output) const { }
    
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
       const track::Direction& aDirection);
@@ -169,7 +170,7 @@ bool StraightTrack::isValidDirection(const Direction& aDirection) const
       return aDirection == axis::Y || -aDirection == axis::Y;
 }
 
-void StraightTrack::getEndpoints(list<Point<int> >& aList) const
+void StraightTrack::getEndpoints(vector<Point<int> >& aList) const
 {
    aList.push_back(origin);
 }

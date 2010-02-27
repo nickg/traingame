@@ -22,7 +22,7 @@
 #include "Maths.hpp"
 #include "IXMLSerialisable.hpp"
 
-#include <list>
+#include <vector>
 #include <set>
 
 // Types used for specifying track segments
@@ -114,7 +114,11 @@ struct ITrackSegment : IXMLSerialisable {
    // Note that an endpoint is not the same as what is returned
    // from `nextPosition' - e.g. a straight track that takes up
    // one tile has a single endpoint which is its origin
-   virtual void getEndpoints(std::list<Point<int> >& aList) const = 0;
+   virtual void getEndpoints(vector<Point<int> >& aList) const = 0;
+
+   // Similar to endpoints, the `covers' of a track are the tiles
+   // which are not endpoints but are underneath the track
+   virtual void getCovers(vector<Point<int> >& output) const = 0;
 
    // Add an exit to this section of track possibly generating
    // a new track segment

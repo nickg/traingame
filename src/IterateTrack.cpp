@@ -52,7 +52,7 @@ TrackIterator iterateTrack(IMapPtr aMap, track::Position aPosition,
    }
 
    // Are we sitting on a station?
-   typedef list<Point<int> > PointList;
+   typedef vector<Point<int> > PointList;
    PointList endpoints;
    it.track->getEndpoints(endpoints);
 

@@ -161,9 +161,19 @@ struct Point {
       return aPoint.x == x && aPoint.y == y;
    }
 
+   bool operator!=(const Point<T>& rhs) const
+   {
+      return rhs.x != x || rhs.y != y;
+   }
+
    Point<T> operator+(const Point<T>& rhs) const
    {
       return Point(x + rhs.x, y + rhs.y);
+   }
+
+   bool operator<(const Point<T>& rhs) const
+   {
+      return x < rhs.x || y < rhs.y;
    }
    
    T x, y;

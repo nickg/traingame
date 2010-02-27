@@ -44,7 +44,8 @@ public:
    double segmentLength(const track::TravelToken& aToken) const;
    bool isValidDirection(const track::Direction& aDirection) const;
    track::Connection nextPosition(const track::TravelToken& aToken) const;
-   void getEndpoints(std::list<Point<int> >& aList) const;
+   void getEndpoints(vector<Point<int> >& aList) const;
+   void getCovers(vector<Point<int> >& output) const { }
    ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
       const track::Direction& aDirection);
    track::TravelToken getTravelToken(track::Position aPosition,
@@ -171,7 +172,7 @@ CrossoverTrack::nextPosition(const track::TravelToken& aToken) const
          ("Invalid direction on crossover: " + lexical_cast<string>(aToken.direction));
 }
 
-void CrossoverTrack::getEndpoints(std::list<Point<int> >& aList) const
+void CrossoverTrack::getEndpoints(vector<Point<int> >& aList) const
 {
    aList.push_back(makePoint(myX, myY));
 }

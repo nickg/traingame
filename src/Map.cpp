@@ -263,11 +263,12 @@ void Map::eraseTile(int x, int y)
       // We have to be a bit careful since a piece of track has multiple
       // endpoints
 
-      list<Point<int> > endpoints;
-      tile.track->get()->getEndpoints(endpoints);
+      vector<Point<int> > covers;
+      tile.track->get()->getEndpoints(covers);
+      tile.track->get()->getCovers(covers);
 
-      for (list<Point<int> >::iterator it = endpoints.begin();
-           it != endpoints.end(); ++it)
+      for (vector<Point<int> >::iterator it = covers.begin();
+           it != covers.end(); ++it)
          tileAt((*it).x, (*it).y).track.reset();
    }
 
@@ -281,12 +282,13 @@ void Map::setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack)
 
    TrackNodePtr node(new TrackNode(aTrack, aPoint.x, aPoint.y));  
 
-   // Attach the track node to every endpoint
-   list<Point<int> > endpoints;
-   aTrack->getEndpoints(endpoints);
+   // Attach the track node to every tile it covers
+   vector<Point<int> > covers;
+   aTrack->getEndpoints(covers);
+   aTrack->getCovers(covers);
 
-   for (list<Point<int> >::iterator it = endpoints.begin();
-        it != endpoints.end(); ++it) {
+   for (vector<Point<int> >::iterator it = covers.begin();
+        it != covers.end(); ++it) {
       tileAt((*it).x, (*it).y).track = node;
    }
 }
@@ -753,12 +755,20 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
             
             tile.track->setMark();
             
+#if 0
             // Draw the endpoints for debugging
-            //list<Point<int> > endpoints;
-            //tile.track->get()->getEndpoints(endpoints);
-            //for_each(endpoints.begin(), endpoints.end(),
-            //        bind(&Map::highlightTile, this, aContext, placeholders::_1,
-            //              make_tuple(0.9f, 0.1f, 0.1f)));
+            vector<Point<int> > tiles;
+            tile.track->get()->getEndpoints(tiles);
+            for_each(tiles.begin(), tiles.end(),
+                    bind(&Map::highlightTile, this, placeholders::_1,
+                          makeColour(0.9f, 0.1f, 0.1f)));
+
+            tiles.clear();
+            tile.track->get()->getCovers(tiles);
+            for_each(tiles.begin(), tiles.end(),
+                    bind(&Map::highlightTile, this, placeholders::_1,
+                          makeColour(0.4f, 0.7f, 0.1f)));
+#endif
          }
 
          // Draw the station, if any

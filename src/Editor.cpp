@@ -419,11 +419,11 @@ void Editor::drawDraggedTrack()
       ITrackSegmentPtr track = makeCurvedTrack(startAngle, endAngle, xlen);
       track->setOrigin(where.x, where.y);
 
-      list<Point<int> > exits;
+      vector<Point<int> > exits;
       track->getEndpoints(exits);
 
       bool ok = true;
-      for (list<Point<int> >::iterator it = exits.begin();
+      for (vector<Point<int> >::iterator it = exits.begin();
 	   it != exits.end(); ++it) {
 	 if (map->isValidTrack(*it)) {
 	    warn() << "Cannot place curve here";
