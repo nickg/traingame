@@ -122,7 +122,7 @@ int main(int argc, char** argv)
 	 if (resourceExists(mapFile, "maps"))
 	    screen = makeEditorScreen(loadMap(mapFile));
 	 else {
-	    screen = makeEditorScreen(makeEmptyMap(mapFile, 32, 32));
+	    screen = makeEditorScreen(makeEmptyMap(mapFile, 1024, 8));
 	 }
       }
       else if (cmd == "play") {

@@ -360,9 +360,6 @@ void Map::setGrid(bool onOff)
 
 void Map::resetMap(int aWidth, int aDepth)
 {   
-   if (aWidth != aDepth)
-      throw runtime_error("Maps must be square");
- 
    myWidth = aWidth;
    myDepth = aDepth;
    
@@ -389,7 +386,7 @@ void Map::resetMap(int aWidth, int aDepth)
    }
    
    // Create quad tree
-   quadTree = makeQuadTree(shared_from_this(), myWidth);
+   quadTree = makeQuadTree(shared_from_this(), myWidth, myDepth);
 }
 
 void Map::resetMarks() const

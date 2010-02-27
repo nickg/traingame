@@ -30,7 +30,7 @@ public:
    QuadTree(ISectorRenderablePtr aRenderable);
    ~QuadTree();
 
-   void buildTree(int aDim);
+   void buildTree(int width, int height);
    
    void render(IGraphicsPtr aContext);
 
@@ -42,7 +42,7 @@ private:
       unsigned int id;
       unsigned int children[4];
       QuadType type;
-   } *mySectors;
+   } *sectors;
 
    int calcNumSectors(int aWidth);
    int buildNode(int anId, int aParent, int x1, int y1, int x2, int y2);
@@ -51,22 +51,29 @@ private:
    int size, numSectors, usedSectors;
    ISectorRenderablePtr renderer;
 
+   // We support non-square maps using a kludge where we make a quad tree
+   // of size equal to the the largest dimension and then ignore sectors
+   // that fall outside the real dimensions
+   int realWidth, realHeight;
+
    int killCount;
 
    static const int QT_LEAF_SIZE = 8; 	// Number of tiles in a QuadTree leaf
 };
 
 QuadTree::QuadTree(ISectorRenderablePtr aRenderable)
-   : mySectors(NULL), size(0), numSectors(0), usedSectors(0),
-     renderer(aRenderable), killCount(0)
+   : sectors(NULL), size(0), numSectors(0), usedSectors(0),
+     renderer(aRenderable),
+     realWidth(0), realHeight(0),
+     killCount(0)
 {
    
 }
 
 QuadTree::~QuadTree()
 {
-   if (mySectors)
-      delete[] mySectors;
+   if (sectors)
+      delete[] sectors;
 }
 
 void QuadTree::render(IGraphicsPtr aContext)
@@ -87,20 +94,25 @@ void QuadTree::render(IGraphicsPtr aContext)
 }
 
 // Creates a blank QuadTree
-void QuadTree::buildTree(int aDim)
+void QuadTree::buildTree(int width, int height)
 {
-   size = aDim;
+   size = max(width, height);
+
+   realWidth = width;
+   realHeight = height;
 
    // Error checking
-   if (aDim % QT_LEAF_SIZE != 0)
+   if (size % QT_LEAF_SIZE != 0)
       throw runtime_error("Invalid QuadTree dimensions!");
    
    // Allocate memory
-   numSectors = calcNumSectors(aDim);
+   numSectors = calcNumSectors(size);
    usedSectors = 0;
-   if (mySectors)
-      delete[] mySectors;
-   mySectors = new Sector[numSectors];
+   if (sectors)
+      delete[] sectors;
+   sectors = new Sector[numSectors];
+
+   debug() << "buildTree numSectors=" << numSectors;
    
    // Build the tree
    buildNode(0, 0, 0, 0, size, size);
@@ -110,23 +122,23 @@ void QuadTree::buildTree(int aDim)
 int QuadTree::buildNode(int anId, int aParent, int x1, int y1, int x2, int y2)
 {   
    // Store this sector's data
-   mySectors[anId].id = anId;
-   mySectors[anId].botLeft.x = x1;
-   mySectors[anId].botLeft.y = y1;
-   mySectors[anId].topRight.x = x2;
-   mySectors[anId].topRight.y = y2;
+   sectors[anId].id = anId;
+   sectors[anId].botLeft.x = x1;
+   sectors[anId].botLeft.y = y1;
+   sectors[anId].topRight.x = x2;
+   sectors[anId].topRight.y = y2;
 
    // Check to see if it's a leaf
    if (abs(x1 - x2) == QT_LEAF_SIZE && abs(y1 - y2) == QT_LEAF_SIZE)
-      mySectors[anId].type = QT_LEAF;
+      sectors[anId].type = QT_LEAF;
    else {
-      mySectors[anId].type = QT_BRANCH;
+      sectors[anId].type = QT_BRANCH;
       
       int w = x2 - x1;
       int h = y2 - y1;
       
       // Build children
-      unsigned int* c = mySectors[anId].children;
+      unsigned int* c = sectors[anId].children;
       c[0] = buildNode(++usedSectors, anId, x1,		  y1,     x1+w/2, y1+h/2);
       c[1] = buildNode(++usedSectors, anId, x1,		  y1+h/2, x1+w/2, y2		);
       c[3] = buildNode(++usedSectors, anId, x1+w/2, y1+h/2, x2,		  y2	  );
@@ -159,15 +171,25 @@ void QuadTree::visibleSectors(IGraphicsPtr aContext, list<Sector*>& aList,
       ss << "displaySector(" << aSector << ") out of range";
       throw runtime_error(ss.str());
    }
+
+   Sector& s = sectors[aSector];
+
+   bool botLeftOutside =
+      s.botLeft.x >= realWidth
+      || s.botLeft.y >= realHeight;
+   if (botLeftOutside) {
+      // A non-square map
+      return;
+   }      
  
    // See if it's a leaf
-   if (mySectors[aSector].type == QT_LEAF)
-      aList.push_back(&mySectors[aSector]);
+   if (s.type == QT_LEAF)
+      aList.push_back(&s);
    else {
       // Loop through each sector
       for (int i = 3; i >= 0; i--) {
-         int childID = mySectors[aSector].children[i];
-         Sector* child = &mySectors[childID];
+         int childID = s.children[i];
+         Sector* child = &sectors[childID];
          
          int w = child->topRight.x - child->botLeft.x;
          int h = child->topRight.y - child->botLeft.y;
@@ -183,9 +205,9 @@ void QuadTree::visibleSectors(IGraphicsPtr aContext, list<Sector*>& aList,
    }
 }
 
-IQuadTreePtr makeQuadTree(ISectorRenderablePtr aRenderer, int aDim)
+IQuadTreePtr makeQuadTree(ISectorRenderablePtr aRenderer, int width, int height)
 {
    auto_ptr<QuadTree> ptr(new QuadTree(aRenderer));
-   ptr->buildTree(aDim);
+   ptr->buildTree(width, height);
    return IQuadTreePtr(ptr);
 }

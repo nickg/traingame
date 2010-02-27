@@ -44,6 +44,7 @@ struct IQuadTree {
 typedef shared_ptr<IQuadTree> IQuadTreePtr;
 
 // Produce a quad tree of given square dimension
-IQuadTreePtr makeQuadTree(ISectorRenderablePtr aRenderable, int aDim);
+IQuadTreePtr makeQuadTree(ISectorRenderablePtr aRenderable,
+   int width, int height);
 
 #endif
