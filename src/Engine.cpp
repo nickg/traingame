@@ -157,10 +157,15 @@ double Engine::tractiveEffort() const
 // Calculate the magnitude of the resistance on the train
 double Engine::resistance() const
 {
+   const double sign = mySpeed < 0.0 ? -1.0 : 1.0;
+   
    const double a = 0.0;
    const double b = 0.09;
    const double c = 0.02;
-   return a + b*mySpeed + c*mySpeed*mySpeed;
+
+   const double absSpeed = abs(mySpeed);
+   
+   return sign * (a + b*absSpeed + c*absSpeed*absSpeed);
 }
 
 // Calculate the magnitude of the braking force
@@ -209,10 +214,10 @@ void Engine::update(int aDelta)
    else
       haveStopped = false;
    
-   //debug() << "P=" << netP << ", Q=" << Q
-   //        << ", B=" << B
-   //        << ", a=" << a << ", v=" << mySpeed
-   //        << " (delta=" << aDelta << ")";
+   // debug() << "P=" << netP << ", Q=" << Q
+   //         << ", B=" << B
+   //         << ", a=" << a << ", v=" << mySpeed
+   //         << " (delta=" << aDelta << ")";
 }
 
 // User interface to the engine
