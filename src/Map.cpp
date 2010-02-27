@@ -124,8 +124,7 @@ private:
       // TODO: Better to use a boost::variant here?
       TrackNodePtr track;    // Track at this location, if any
       IStationPtr station;   // Station on this tile, if any
-      ISceneryPtr building; // Building on this tile, if any
-      ISceneryPtr tree;      // Tree, if any
+      ISceneryPtr scenery;   // Scenery, if any
    } *tiles;
 
    // Vertices on the terrain
@@ -272,11 +271,8 @@ void Map::eraseTile(int x, int y)
          tileAt((*it).x, (*it).y).track.reset();
    }
 
-   if (tile.building)
-      tile.building.reset();
-
-   if (tile.tree)
-      tile.tree.reset();
+   if (tile.scenery)
+      tile.scenery.reset();
 }
 
 void Map::setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack)
@@ -781,13 +777,9 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
             && shouldDrawGridLines)
             drawStartLocation();
 
-         // Draw any buildings
-         if (tile.building)
-            tile.building->render();
-
-         // Draw any trees
-         if (tile.tree)
-            tile.tree->render();
+         // Draw any scenery
+         if (tile.scenery)
+            tile.scenery->render();
       }			
    }
 }
@@ -1025,7 +1017,7 @@ void Map::placeBuilding(Point<int> point, ISceneryPtr building)
    if (tileAt(point).track)
       warn() << "Cannot place building on track";
    else {
-      tileAt(point).building = building;
+      tileAt(point).scenery = building;
       building->setPosition(static_cast<float>(point.x),
          heightAt(point.x, point.y),
          static_cast<float>(point.y));
@@ -1037,7 +1029,7 @@ void Map::addScenery(Point<int> where, ISceneryPtr s)
    if (tileAt(where.x, where.y).track)
       warn() << "Cannot place scenery on track";
    else {
-      tileAt(where.x, where.y).tree = s;
+      tileAt(where.x, where.y).scenery = s;
       s->setPosition(static_cast<float>(where.x),
          heightAt(where.x, where.y),
          static_cast<float>(where.y));
@@ -1252,13 +1244,8 @@ void Map::save()
             useful = true;
          }
 
-         if (tile.building) {
-            tileXml.addChild(tile.building->toXml());
-            useful = true;
-         }
-
-         if (tile.tree) {
-            tileXml.addChild(tile.tree->toXml());
+         if (tile.scenery) {
+            tileXml.addChild(tile.scenery->toXml());
             useful = true;
          }
 
