@@ -274,6 +274,9 @@ void Map::eraseTile(int x, int y)
 
    if (tile.building)
       tile.building.reset();
+
+   if (tile.tree)
+      tile.tree.reset();
 }
 
 void Map::setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack)
