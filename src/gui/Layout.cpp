@@ -44,6 +44,7 @@ public:
 
    // ILayout interface
    Widget& get(const string& path) const;
+   bool exists(const string& path) const;
    void render() const;
 
    bool click(int x, int y);
@@ -177,6 +178,12 @@ Widget& Layout::get(const string& path) const
       return *(*it).second;
    else
       throw runtime_error("Widget " + path + " does not exist");
+}
+
+bool Layout::exists(const string& path) const
+{
+   WidgetMap::const_iterator it = widgets.find(path);
+   return it != widgets.end();
 }
 
 bool Layout::click(int x, int y)

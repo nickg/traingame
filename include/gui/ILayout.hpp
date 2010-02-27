@@ -38,6 +38,7 @@ namespace gui {
       }
 
       virtual Widget& get(const string& path) const = 0;
+      virtual bool exists(const string& path) const = 0;
       virtual void render() const = 0;
 
       virtual bool click(int x, int y) = 0;

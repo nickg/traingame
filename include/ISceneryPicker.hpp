@@ -31,6 +31,7 @@ struct ISceneryPicker {
 
 typedef shared_ptr<ISceneryPicker> ISceneryPickerPtr;
 
-ISceneryPickerPtr makeSceneryPicker(gui::ILayoutPtr layout);
+ISceneryPickerPtr makeBuildingPicker(gui::ILayoutPtr layout);
+ISceneryPickerPtr makeTreePicker(gui::ILayoutPtr layout);
 
 #endif

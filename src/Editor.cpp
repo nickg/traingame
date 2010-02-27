@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ private:
 
    // GUI elements
    gui::ILayoutPtr layout;
-   ISceneryPickerPtr buildingPicker;
+   ISceneryPickerPtr buildingPicker, treePicker;
 };
 
 Editor::Editor(IMapPtr aMap) 
@@ -134,7 +134,8 @@ void Editor::buildGUI()
    layout->get("/lower/action_wnd/save").connect(gui::Widget::SIG_CLICK,
       bind(&Editor::save, this));
     
-   buildingPicker = makeSceneryPicker(layout);
+   buildingPicker = makeBuildingPicker(layout);
+   treePicker = makeTreePicker(layout);
 }
 
 void Editor::setMap(IMapPtr aMap)
@@ -455,7 +456,7 @@ void Editor::plantTrees()
     
    for (int x = xmin; x <= xmax; x++) {
       for (int y = ymin; y <= ymax; y++)
-	 map->addScenery(makePoint(x, y), loadTree("pine"));
+	 map->addScenery(makePoint(x, y), treePicker->get());
    }
 }
 
