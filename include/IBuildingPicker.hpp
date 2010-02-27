@@ -20,13 +20,13 @@
 
 #include "Platform.hpp"
 #include "gui/ILayout.hpp"
-#include "IBuilding.hpp"
+#include "IScenery.hpp"
 
 // A dialog box for picking buildings in the editor
 struct IBuildingPicker {
    virtual ~IBuildingPicker() {}
 
-   virtual IBuildingPtr get() const = 0;
+   virtual ISceneryPtr get() const = 0;
 };
 
 typedef shared_ptr<IBuildingPicker> IBuildingPickerPtr;

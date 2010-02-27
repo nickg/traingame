@@ -15,22 +15,22 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "IBuilding.hpp"
+#include "IScenery.hpp"
 #include "IResource.hpp"
 #include "ResourceCache.hpp"
 #include "ILogger.hpp"
 #include "IXMLParser.hpp"
 #include "XMLBuilder.hpp"
 #include "OpenGLHelper.hpp"
+#include "IModel.hpp"
 
 // Concrete implementation of buildings
-class Building : public IBuilding, public IXMLCallback {
+class Building : public IScenery, public IXMLCallback {
 public:
    Building(IResourcePtr aRes);
 
    // IBuildingInterface
    const string& name() const { return name_; }
-   string resId() const { return resource->name(); }
    void render() const;
    void setAngle(float a) { angle = a; }
    void setPosition(float x, float y, float z);
@@ -97,17 +97,17 @@ namespace {
    }
 }
 
-IBuildingPtr loadBuilding(const string& aResId, float angle)
+ISceneryPtr loadBuilding(const string& aResId, float angle)
 {
    static ResourceCache<Building> cache(loadBuildingXml, "buildings");
    
    shared_ptr<Building> bld = cache.loadCopy(aResId);
    bld->setAngle(angle);
 
-   return IBuildingPtr(bld);
+   return ISceneryPtr(bld);
 }
 
-IBuildingPtr loadBuilding(const AttributeSet& attrs)
+ISceneryPtr loadBuilding(const AttributeSet& attrs)
 {
    float angle;
    string name;

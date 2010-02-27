@@ -29,7 +29,7 @@ private:
    void next();   
    void prev();
    void rotate();
-   IBuildingPtr get() const;
+   ISceneryPtr get() const;
    void renderBuildingPreview(gui::Widget& canvas);
    void show();
    void hide();
@@ -38,7 +38,7 @@ private:
    
    ResourceList buildingList;
    ResourceList::const_iterator buildingIt;
-   IBuildingPtr activeBuilding;
+   ISceneryPtr activeBuilding;
    gui::ILayoutPtr layout;
    float rotation;
    string resName;
@@ -103,7 +103,7 @@ void BuildingPicker::hide()
    layout->get("/building_wnd").visible(false);
 }
    
-IBuildingPtr BuildingPicker::get() const
+ISceneryPtr BuildingPicker::get() const
 {
    return loadBuilding(resName, rotation);
 }

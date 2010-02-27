@@ -38,7 +38,7 @@ public:
    void render() const;
    void setPosition(float x, float y, float z);
    void setAngle(float a) { angle = a; }
-   const string& resId() const { return name; }
+   const string& name() const { return name_; }
 
    // IXMLCallback interface
    void text(const string& localName, const string& content);
@@ -50,7 +50,7 @@ private:
    Vector<float> position;
    IModelPtr model;
    float angle;
-   string name;
+   string name_;
 
    struct ParserState {
       string modelFile;
@@ -86,7 +86,7 @@ void Tree::text(const string& localName, const string& content)
             "Expected tree name to be '" + expectedName
             + "' but found'" + content + "' in XML");
       else
-         name = content;
+         name_ = content;
    }
 }
 
@@ -110,7 +110,7 @@ xml::element Tree::toXml() const
 {
    return xml::element("tree")
       .addAttribute("angle", angle)
-      .addAttribute("name", name);
+      .addAttribute("name", name_);
 }
 
 namespace {

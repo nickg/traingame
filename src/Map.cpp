@@ -108,7 +108,7 @@ public:
 
    IStationPtr extendStation(Point<int> aStartPos,
       Point<int> aFinishPos);
-   void placeBuilding(Point<int> point, IBuildingPtr building);
+   void placeBuilding(Point<int> point, ISceneryPtr building);
    float heightAt(float x, float y) const;
    void addScenery(Point<int> where, ISceneryPtr s);
    
@@ -124,7 +124,7 @@ private:
       // TODO: Better to use a boost::variant here?
       TrackNodePtr track;    // Track at this location, if any
       IStationPtr station;   // Station on this tile, if any
-      IBuildingPtr building; // Building on this tile, if any
+      ISceneryPtr building; // Building on this tile, if any
       ISceneryPtr tree;      // Tree, if any
    } *tiles;
 
@@ -1022,7 +1022,7 @@ void Map::lowerArea(const Point<int>& aStartPos,
    changeAreaHeight(aStartPos, aFinishPos, -0.1f);
 }
 
-void Map::placeBuilding(Point<int> point, IBuildingPtr building)
+void Map::placeBuilding(Point<int> point, ISceneryPtr building)
 {
    // TODO: level?
    if (tileAt(point).track)

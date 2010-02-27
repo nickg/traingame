@@ -21,7 +21,6 @@
 #include "IMap.hpp"
 #include "Maths.hpp"
 #include "ILight.hpp"
-#include "IBuilding.hpp"
 #include "gui/ILayout.hpp"
 #include "IBuildingPicker.hpp"
 

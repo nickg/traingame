@@ -22,7 +22,6 @@
 #include "ITrackSegment.hpp"
 #include "IStation.hpp"
 #include "IResource.hpp"
-#include "IBuilding.hpp"
 #include "IScenery.hpp"
 #include "Colour.hpp"
 
@@ -105,7 +104,7 @@ public:
       Point<int> aFinishPos) = 0;
 
    // Place a building at this location
-   virtual void placeBuilding(Point<int> point, IBuildingPtr building) = 0;
+   virtual void placeBuilding(Point<int> point, ISceneryPtr building) = 0;
 
    // Get the height above ground at a particular point
    virtual float heightAt(float x, float y) const = 0;
