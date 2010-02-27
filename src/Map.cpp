@@ -108,7 +108,6 @@ public:
 
    IStationPtr extendStation(Point<int> aStartPos,
       Point<int> aFinishPos);
-   void placeBuilding(Point<int> point, ISceneryPtr building);
    float heightAt(float x, float y) const;
    void addScenery(Point<int> where, ISceneryPtr s);
    
@@ -1011,19 +1010,6 @@ void Map::lowerArea(const Point<int>& aStartPos,
    changeAreaHeight(aStartPos, aFinishPos, -0.1f);
 }
 
-void Map::placeBuilding(Point<int> point, ISceneryPtr building)
-{
-   // TODO: level?
-   if (tileAt(point).track)
-      warn() << "Cannot place building on track";
-   else {
-      tileAt(point).scenery = building;
-      building->setPosition(static_cast<float>(point.x),
-         heightAt(point.x, point.y),
-         static_cast<float>(point.y));
-   }
-}
-
 void Map::addScenery(Point<int> where, ISceneryPtr s)
 {
    if (tileAt(where.x, where.y).track)
@@ -1331,7 +1317,7 @@ private:
 
    void handleBuilding(const AttributeSet& attrs)
    {
-      myMap->placeBuilding(tile, loadBuilding(attrs));
+      myMap->addScenery(tile, loadBuilding(attrs));
    }
 
    void handleTree(const AttributeSet& attrs)

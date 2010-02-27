@@ -548,7 +548,7 @@ void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
 	 map->extendStation(dragBegin, dragEnd);
 	 break;
       case BUILDING_TOOL:
-         map->placeBuilding(dragBegin, buildingPicker->get());
+         map->addScenery(dragBegin, buildingPicker->get());
 	 break;
       case TREE_TOOL:
 	 plantTrees();
