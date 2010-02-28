@@ -110,6 +110,8 @@ public:
    IStationPtr extendStation(Point<int> aStartPos,
       Point<int> aFinishPos);
    float heightAt(float x, float y) const;
+   Vector<float> slopeAt(Point<int> where, track::Direction axis,
+      bool& level) const;
    void addScenery(Point<int> where, ISceneryPtr s);
    
    // ISectorRenderable interface
@@ -888,10 +890,10 @@ void Map::tileVertices(int x, int y, int* indexes) const
 {
    assert(x >= 0 && x < myWidth && y >= 0 && y < myDepth);
           
-   indexes[3] = x + (y * (myWidth+1));
-   indexes[2] = (x+1) + (y * (myWidth+1));
-   indexes[1] = (x+1) + ((y+1) * (myWidth+1));
-   indexes[0] = x + ((y+1) * (myWidth+1));          
+   indexes[3] = x + (y * (myWidth+1));         // (X, Y)
+   indexes[2] = (x+1) + (y * (myWidth+1));     // (X+1, Y)
+   indexes[1] = (x+1) + ((y+1) * (myWidth+1)); // (X+1, Y+1)
+   indexes[0] = x + ((y+1) * (myWidth+1));     // (X, Y+1)
 }
 
 // True if changing the height of this tile will affect
@@ -966,6 +968,36 @@ float Map::heightAt(float x, float y) const
       avg += heightMap[indexes[i]].pos.y;
    
    return avg / 4.0f;
+}
+
+Vector<float> Map::slopeAt(Point<int> where,
+   track::Direction axis, bool &level) const
+{
+   int indexes[4];
+   tileVertices(where.x, where.y, indexes);
+
+   // This is slightly consfusing since the track Y axis
+   // is the Z axis in the height map
+
+   Vector<float> v1, v2;
+
+   if (axis == axis::X) {
+      v1 = heightMap[indexes[2]].pos - heightMap[indexes[3]].pos;
+      v2 = heightMap[indexes[1]].pos - heightMap[indexes[0]].pos;
+   }
+   else {
+      v1 = heightMap[indexes[0]].pos - heightMap[indexes[3]].pos;
+      v2 = heightMap[indexes[1]].pos - heightMap[indexes[2]].pos;
+   }
+
+   level = v1.approxEqual(v2, 0.001f);
+
+   debug() << "slopeAt where=" << where
+           << " axis=" << axis
+           << " v1=" << v1 << " v2=" << v2
+           << " level=" << level;
+
+   return v1;
 }
 
 void Map::changeAreaHeight(const Point<int>& aStartPos,

@@ -112,6 +112,13 @@ struct Vector {
    {
       return !(v == *this);
    }
+
+   bool approxEqual(const Vector<T>& rhs, T delta) const
+   {
+      return (abs(rhs.x - x) < delta)
+         && (abs(rhs.y - y) < delta)
+         && (abs(rhs.z - z) < delta);
+   }
    
    T x, y, z;
 };

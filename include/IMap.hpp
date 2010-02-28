@@ -109,6 +109,12 @@ public:
    // Get the height above ground at a particular point
    virtual float heightAt(float x, float y) const = 0;
 
+   // Given a tile and an axis, return a vector indicating the slope
+   // along that axis. `level' is set if the slope is the same across
+   // the tile
+   virtual Vector<float> slopeAt(Point<int> where,
+      track::Direction axis, bool& level) const = 0;
+
    // Place a tree, building, etc. at a location
    virtual void addScenery(Point<int> where, ISceneryPtr s) = 0;
    

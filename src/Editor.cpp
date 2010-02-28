@@ -233,8 +233,17 @@ bool Editor::drawTrackTile(const Point<int>& aPoint, const track::Direction& anA
       }
    }
    else {
-      map->setTrackAt(aPoint, makeStraightTrack(anAxis));
-      return true;
+      bool level;
+      Vector<float> slope = map->slopeAt(aPoint, anAxis, level);
+
+      if (level) {
+         map->setTrackAt(aPoint, makeStraightTrack(anAxis));
+         return true;
+      }
+      else {
+         warn() << "Track must be placed on level ground";
+         return false;
+      }
    }
 }
 
