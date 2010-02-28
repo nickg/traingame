@@ -29,7 +29,6 @@ public:
    virtual void run(IScreenPtr aScreen) = 0;
    virtual void switchScreen(IScreenPtr aScreen) = 0;
    virtual void quit() = 0;
-   virtual void forceQuit() = 0;
    virtual void takeScreenShot() = 0;
    virtual int width() const = 0;
    virtual int height() const = 0;
