@@ -18,11 +18,14 @@
 #include "ITrackSegment.hpp"
 #include "IXMLSerialisable.hpp"
 #include "XMLBuilder.hpp"
+#include "BezierCurve.hpp"
+
+#include <cassert>
 
 // Like StraightTrack but with a change of height
 class SlopeTrack : public ITrackSegment {
 public:
-   SlopeTrack(track::Direction axis,
+   SlopeTrack(track::Direction axis, Vector<float> slope,
       Vector<float> slopeBefore, Vector<float> slopeAfter);
 
    // ITrackSegment interface
@@ -47,26 +50,42 @@ public:
 
 private:
    Point<int> origin;
+   BezierCurve<float> curve;
 };
 
-SlopeTrack::SlopeTrack(track::Direction axis,
+SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
    Vector<float> slopeBefore, Vector<float> slopeAfter)
 {
+   Vector<float> p1, p2, p3, p4;
 
+   if (axis == axis::X) {
+      p1 = makeVector(0.0f, 0.0f, 0.0f);
+      p2 = makeVector(0.1f, 0.0f, 0.0f);
+      p3 = makeVector(0.9f, slope.y, 0.0f);
+      p4 = makeVector(1.0f, slope.y, 0.0f);
+   }
+   else {
+      p1 = makeVector(0.0f, 0.0f, 0.0f);
+      p2 = makeVector(0.0f, 0.0f, 0.1f);
+      p3 = makeVector(0.0f, slope.y, 0.9f);
+      p4 = makeVector(0.0f, slope.y, 1.0f);
+   }
 }
 
 void SlopeTrack::render() const
 {
-
+   
 }
 
 double SlopeTrack::segmentLength(const track::TravelToken& token) const
 {
-   return 1.0;  // TODO: use Pythagoras!
+   assert(false);
+   return 1.0;  // TODO: use Pythagoras
 }
 
 bool SlopeTrack::isValidDirection(const track::Direction& dir) const
 {
+   assert(false);
    return false;  // TODO
 }
 
@@ -74,12 +93,14 @@ track::Connection SlopeTrack::nextPosition(
    const track::TravelToken& token) const
 {
    // TODO
+   assert(false);
 }
 
 track::TravelToken SlopeTrack::getTravelToken(track::Position pos,
       track::Direction dir) const
 {
    // TODO
+   assert(false);
 }
 
 void SlopeTrack::getEndpoints(vector<Point<int> >& output) const
@@ -97,8 +118,9 @@ xml::element SlopeTrack::toXml() const
    return xml::element("slopeTrack");
 }
 
-ITrackSegmentPtr makeSlope(track::Direction axis,
+ITrackSegmentPtr makeSlopeTrack(track::Direction axis, Vector<float> slope,
    Vector<float> slopeBefore, Vector<float> slopeAfter)
 {
-   return ITrackSegmentPtr(new SlopeTrack(axis, slopeBefore, slopeAfter));
+   return ITrackSegmentPtr(
+      new SlopeTrack(axis, slopeBefore, slope, slopeAfter));
 }

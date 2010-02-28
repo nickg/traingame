@@ -270,10 +270,14 @@ bool Editor::drawTrackTile(Point<int> where, track::Direction axis)
                Vector<float> slopeBefore = map->slopeAt(before, axis, ignored);
                Vector<float> slopeAfter = map->slopeAt(after, axis, ignored);
 
-               debug() << "before=" << slopeBefore << " after=" << slopeAfter;
-               
-               warn() << "Slopes not supported yet";
-               return false;
+               debug() << "slope=" << slope
+                       << " before=" << slopeBefore
+                       << " after=" << slopeAfter;
+
+               map->setTrackAt(where,
+                  makeSlopeTrack(axis, slope, slopeBefore, slopeAfter));
+
+               return true;
             }
          }
       }

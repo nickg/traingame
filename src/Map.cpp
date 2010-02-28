@@ -992,11 +992,13 @@ Vector<float> Map::slopeAt(Point<int> where,
 
    level = v1.approxEqual(v2, 0.001f);
 
+#if 0
    debug() << "slopeAt where=" << where
            << " axis=" << axis
            << " v1=" << v1 << " v2=" << v2
            << " level=" << level;
-
+#endif
+   
    return v1;
 }
 
