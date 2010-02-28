@@ -45,7 +45,6 @@ public:
    void run(IScreenPtr aScreen);
    void switchScreen(IScreenPtr aScreen);
    void quit();
-   void forceQuit();
    void takeScreenShot();
    int width() const { return width_; }
    int height() const { return height_; }
@@ -166,7 +165,7 @@ SDLWindow::SDLWindow()
    // Start OpenGL
    printGLVersion();
    initGL();
-   
+
    log() << "Created " << width_ << "x" << height_ << " window";
 }
 
@@ -246,13 +245,6 @@ void SDLWindow::run(IScreenPtr aScreen)
 void SDLWindow::quit()
 {
    amRunning = false;
-}
-
-// Stop the game in an emergency
-void SDLWindow::forceQuit()
-{
-   quit();
-   SDL_Quit();
 }
 
 // Convert an SDL button constant to a MouseButton
