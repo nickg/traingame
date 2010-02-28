@@ -129,28 +129,28 @@ namespace {
          Vector<float> v1 = aFunc(t);
          Vector<float> v2 = aFunc(t + step);
          
-         v1.y -= RAIL_WIDTH / 2.0f;
-         v2.y -= RAIL_WIDTH / 2.0f;
+         v1.z -= RAIL_WIDTH / 2.0f;
+         v2.z -= RAIL_WIDTH / 2.0f;
 
          // Top of rail
-         buf->addQuad(makeVector(v1.x, track::RAIL_HEIGHT, v1.y),
-            makeVector(v1.x, track::RAIL_HEIGHT, v1.y + RAIL_WIDTH),
-            makeVector(v2.x, track::RAIL_HEIGHT, v2.y + RAIL_WIDTH),
-            makeVector(v2.x, track::RAIL_HEIGHT, v2.y),
+         buf->addQuad(makeVector(v1.x, v1.y + track::RAIL_HEIGHT, v1.z),
+            makeVector(v1.x, v1.y + track::RAIL_HEIGHT, v1.z + RAIL_WIDTH),
+            makeVector(v2.x, v2.y + track::RAIL_HEIGHT, v2.z + RAIL_WIDTH),
+            makeVector(v2.x, v2.y + track::RAIL_HEIGHT, v2.z),
             METAL);
 
          // Outer edge
-         buf->addQuad(makeVector(v2.x, track::RAIL_HEIGHT, v2.y),
-            makeVector(v2.x , 0.0f, v2.y),
-            makeVector(v1.x, 0.0f, v1.y),
-            makeVector(v1.x, track::RAIL_HEIGHT, v1.y),
+         buf->addQuad(makeVector(v2.x, v2.y + track::RAIL_HEIGHT, v2.z),
+            makeVector(v2.x , v2.y, v2.z),
+            makeVector(v1.x, v1.y, v1.z),
+            makeVector(v1.x, v1.y + track::RAIL_HEIGHT, v1.z),
             METAL);
 
          // Inner edge
-         buf->addQuad(makeVector(v1.x, track::RAIL_HEIGHT, v1.y + RAIL_WIDTH),
-            makeVector(v1.x, 0.0f, v1.y + RAIL_WIDTH),
-            makeVector(v2.x , 0.0f, v2.y + RAIL_WIDTH),
-            makeVector(v2.x, track::RAIL_HEIGHT, v2.y + RAIL_WIDTH),
+         buf->addQuad(makeVector(v1.x, v1.y + track::RAIL_HEIGHT, v1.z + RAIL_WIDTH),
+            makeVector(v1.x, v1.y, v1.z + RAIL_WIDTH),
+            makeVector(v2.x , v2.y, v2.z + RAIL_WIDTH),
+            makeVector(v2.x, v2.y + track::RAIL_HEIGHT, v2.z + RAIL_WIDTH),
             METAL);
       }
 

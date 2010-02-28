@@ -33,7 +33,7 @@ public:
 
    // ITrackSegment interface
    void render() const;
-   void setOrigin(int x, int y) { myX = x; myY = y; }
+   void setOrigin(int x, int y, float h) { myX = x; myY = y; height = h; }
    double segmentLength(const track::TravelToken& aToken) const;
    bool isValidDirection(const track::Direction& aDirection) const;
    track::Connection nextPosition(const track::TravelToken& aToken) const;
@@ -63,6 +63,7 @@ private:
    track::Direction myAxis;
    bool reflected;
    State state;
+   float height;
 
    // Draw the arrow over the points if true
    mutable bool stateRenderHint;
@@ -73,19 +74,20 @@ private:
 const BezierCurve<float> Points::myCurve = makeBezierCurve
    (makeVector(0.0f, 0.0f, 0.0f),
       makeVector(1.0f, 0.0f, 0.0f),
-      makeVector(2.0f, 1.0f, 0.0f),
-      makeVector(3.0f, 1.0f, 0.0f));
+      makeVector(2.0f, 0.0f, 1.0f),
+      makeVector(3.0f, 0.0f, 1.0f));
 
 const BezierCurve<float> Points::myReflectedCurve = makeBezierCurve
    (makeVector(0.0f, 0.0f, 0.0f),
       makeVector(1.0f, 0.0f, 0.0f),
-      makeVector(2.0f, -1.0f, 0.0f),
-      makeVector(3.0f, -1.0f, 0.0f));
+      makeVector(2.0f, 0.0f, -1.0f),
+      makeVector(3.0f, 0.0f, -1.0f));
       
 Points::Points(track::Direction aDirection, bool reflect)
    : myX(0), myY(0),
      myAxis(aDirection), reflected(reflect),
      state(NOT_TAKEN),
+     height(0.0f),
      stateRenderHint(false)
 {
    
@@ -127,19 +129,19 @@ void Points::renderArrow() const
             // Arrow head
             glBegin(GL_TRIANGLES);
             {
-               glVertex3f(v1.x, 0.0f, v1.y - headWidth);
-               glVertex3f(v2.x, 0.0f, v2.y);
-               glVertex3f(v1.x, 0.0f, v1.y + headWidth);
+               glVertex3f(v1.x, 0.0f, v1.z - headWidth);
+               glVertex3f(v2.x, 0.0f, v2.z);
+               glVertex3f(v1.x, 0.0f, v1.z + headWidth);
             }
             glEnd();
          }
          else {
             glBegin(GL_QUADS);
             {
-               glVertex3f(v1.x, 0.0f, v1.y - 0.1f);
-               glVertex3f(v1.x, 0.0f, v1.y + 0.1f);
-               glVertex3f(v2.x, 0.0f, v2.y + 0.1f);
-               glVertex3f(v2.x, 0.0f, v2.y - 0.1f);
+               glVertex3f(v1.x, 0.0f, v1.z - 0.1f);
+               glVertex3f(v1.x, 0.0f, v1.z + 0.1f);
+               glVertex3f(v2.x, 0.0f, v2.z + 0.1f);
+               glVertex3f(v2.x, 0.0f, v2.z - 0.1f);
             }
             glEnd();
          }
@@ -178,6 +180,8 @@ void Points::render() const
    
    glPushMatrix();
 
+   glTranslatef(0.0f, height, 0.0f);
+
    if (myAxis == -axis::X)
       glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
    else if (myAxis == -axis::Y)
@@ -198,17 +202,17 @@ void Points::render() const
    glPopMatrix();
 
    // Draw the curved sleepers
-   for (float i = 0.2f; i < 1.0f; i += 0.08f) {
+   for (float i = 0.2f; i < 0.95f; i += 0.08f) {
       glPushMatrix();
       
       Vector<float> v = (reflected ? myReflectedCurve : myCurve)(i);
 
-      glTranslatef(v.x - 0.4f, 0.0f, v.y);
+      glTranslatef(v.x - 0.4f, 0.0f, v.z);
       
       const Vector<float> deriv =
          (reflected ? myReflectedCurve : myCurve).deriv(i);
       const float angle =
-         radToDeg<float>(atanf(deriv.y / deriv.x));
+         radToDeg<float>(atanf(deriv.z / deriv.x));
 
       glRotatef(-angle, 0.0f, 1.0f, 0.0f);
 

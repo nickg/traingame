@@ -87,7 +87,7 @@ struct ITrackSegment : IXMLSerialisable {
    virtual void render() const = 0;
 
    // Set the absolute position of the track in the world
-   virtual void setOrigin(int x, int y) = 0;
+   virtual void setOrigin(int x, int y, float height) = 0;
 
    // Get the length of this track segment
    virtual double segmentLength(const track::TravelToken& aToken) const = 0;

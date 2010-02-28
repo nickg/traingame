@@ -19,8 +19,15 @@
 #include "IXMLSerialisable.hpp"
 #include "XMLBuilder.hpp"
 #include "BezierCurve.hpp"
+#include "IMesh.hpp"
+#include "TrackCommon.hpp"
+#include "OpenGLHelper.hpp"
+#include "ILogger.hpp"
 
 #include <cassert>
+#include <stdexcept>
+
+#include <boost/cast.hpp>
 
 // Like StraightTrack but with a change of height
 class SlopeTrack : public ITrackSegment {
@@ -30,7 +37,7 @@ public:
 
    // ITrackSegment interface
    void render() const;
-   void setOrigin(int x, int y) { origin = makePoint(x, y); }
+   void setOrigin(int x, int y, float h);
    double segmentLength(const track::TravelToken& token) const;
    track::TravelToken getTravelToken(track::Position pos,
       track::Direction dir) const;
@@ -49,12 +56,19 @@ public:
    xml::element toXml() const;
 
 private:
+   void ensureValidDirection(const track::Direction& dir) const;
+   void transform(const track::TravelToken& token, double delta) const;
+   
    Point<int> origin;
-   BezierCurve<float> curve;
+   float height;
+   IMeshPtr railMesh;
+   track::Direction axis;
+   float length;
 };
 
 SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
    Vector<float> slopeBefore, Vector<float> slopeAfter)
+   : height(0.0f), axis(axis)
 {
    Vector<float> p1, p2, p3, p4;
 
@@ -70,42 +84,113 @@ SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
       p3 = makeVector(0.0f, slope.y, 0.9f);
       p4 = makeVector(0.0f, slope.y, 1.0f);
    }
+
+   BezierCurve<float> curve = makeBezierCurve(p1, p2, p3, p4);
+   length = curve.length;
+
+   // TODO: we should cache these
+   railMesh = makeBezierRailMesh(curve);
 }
 
 void SlopeTrack::render() const
 {
+   glPushMatrix();
    
+   glTranslatef(0.0f, height, 0.0f);
+
+   renderRailMesh(railMesh);
+   
+   glPopMatrix();
+}
+
+void SlopeTrack::setOrigin(int x, int y, float h)
+{
+   origin = makePoint(x, y);
+   height = h;
 }
 
 double SlopeTrack::segmentLength(const track::TravelToken& token) const
 {
-   assert(false);
-   return 1.0;  // TODO: use Pythagoras
+   return length;
 }
 
 bool SlopeTrack::isValidDirection(const track::Direction& dir) const
 {
-   assert(false);
-   return false;  // TODO
+   if (axis == axis::X)
+      return dir == axis::X || -dir == axis::X;
+   else
+      return dir == axis::Y || -dir == axis::Y;
+}
+
+void SlopeTrack::ensureValidDirection(const track::Direction& dir) const
+{
+   if (!isValidDirection(dir))
+      throw runtime_error
+         ("Invalid direction on straight track: "
+            + boost::lexical_cast<string>(dir)
+            + " (should be parallel to "
+            + boost::lexical_cast<string>(axis) + ")");
 }
 
 track::Connection SlopeTrack::nextPosition(
    const track::TravelToken& token) const
 {
-   // TODO
-   assert(false);
+   ensureValidDirection(token.direction);
+
+   if (token.direction == axis::X)
+      return make_pair(makePoint(origin.x + 1, origin.y), axis::X);
+   else if (token.direction == -axis::X)
+      return make_pair(makePoint(origin.x - 1, origin.y), -axis::X);
+   else if (token.direction == axis::Y)
+      return make_pair(makePoint(origin.x, origin.y + 1), axis::Y);
+   else if (token.direction == -axis::Y)
+      return make_pair(makePoint(origin.x, origin.y - 1), -axis::Y);
+   else
+      assert(false);
 }
 
 track::TravelToken SlopeTrack::getTravelToken(track::Position pos,
       track::Direction dir) const
 {
-   // TODO
-   assert(false);
+   using namespace placeholders;
+   
+   ensureValidDirection(dir);
+
+   track::TravelToken tok = {
+      dir,
+      pos,
+      bind(&SlopeTrack::transform, this, _1, _2),
+      1
+   };
+   return tok;
+}
+
+void SlopeTrack::transform(const track::TravelToken& token, double delta) const
+{
+   assert(delta < 1.0);
+
+   if (token.direction == -axis)
+      delta = 1.0 - delta;
+
+   const double xTrans = axis == axis::X ? delta : 0;
+   const double yTrans = axis == axis::Y ? delta : 0;
+
+   glTranslated(static_cast<double>(origin.x) + xTrans,
+      0.0,
+      static_cast<double>(origin.y) + yTrans);
+
+   if (axis == axis::Y)
+      glRotated(-90.0, 0.0, 1.0, 0.0);
+
+   glTranslated(-0.5, 0.0, 0.0);
+   
+   if (token.direction == -axis)
+      glRotated(-180.0, 0.0, 1.0, 0.0);
 }
 
 void SlopeTrack::getEndpoints(vector<Point<int> >& output) const
 {
-
+   output.push_back(origin);
 }
 
 ITrackSegmentPtr SlopeTrack::mergeExit(Point<int> where, track::Direction dir)

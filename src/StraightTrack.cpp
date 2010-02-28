@@ -40,7 +40,7 @@ public:
    
    void render() const;
    
-   void setOrigin(int x, int y) { origin.x = x; origin.y = y; }
+   void setOrigin(int x, int y, float h);
    double segmentLength(const track::TravelToken& aToken) const { return 1.0; }
 
    Vector<double> offsetForDelta(double aDelta) const;
@@ -67,10 +67,11 @@ private:
    
    Point<int> origin;  // Absolute position
    Direction direction;
+   float height;
 };
 
 StraightTrack::StraightTrack(const Direction& aDirection)
-   : direction(aDirection)
+   : direction(aDirection), height(0.0f)
 {
    
 }
@@ -78,6 +79,12 @@ StraightTrack::StraightTrack(const Direction& aDirection)
 StraightTrack::~StraightTrack()
 {
    
+}
+
+void StraightTrack::setOrigin(int x, int y, float h)
+{
+   origin = makePoint(x, y);
+   height = h;
 }
 
 track::TravelToken
@@ -205,6 +212,8 @@ Connection StraightTrack::nextPosition(const track::TravelToken& aToken) const
 void StraightTrack::render() const
 {
    glPushMatrix();
+
+   glTranslatef(0.0f, height, 0.0f);
 
    if (direction == axis::X)
       glRotated(90.0, 0.0, 1.0, 0.0);

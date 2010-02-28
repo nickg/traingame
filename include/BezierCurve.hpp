@@ -50,12 +50,6 @@ struct BezierCurve {
       }
    }
 
-   BezierCurve()
-      : length(0)
-   {
-      
-   }
-
    Vector<T> operator()(T t) const
    {
       return makeVector

@@ -469,7 +469,7 @@ void Editor::drawDraggedTrack()
       }
 
       ITrackSegmentPtr track = makeCurvedTrack(startAngle, endAngle, xlen);
-      track->setOrigin(where.x, where.y);
+      track->setOrigin(where.x, where.y, map->heightAt(where.x, where.y));
 
       vector<Point<int> > exits;
       track->getEndpoints(exits);

@@ -42,7 +42,7 @@ public:
 
    void render() const;
 
-   void setOrigin(int x, int y) { origin.x = x; origin.y = y; }
+   void setOrigin(int x, int y, float h);
    double segmentLength(const track::TravelToken& aToken) const;
 
    Connection nextPosition(const track::TravelToken& aToken) const;
@@ -70,13 +70,15 @@ private:
    Point<int> origin;
    int baseRadius;
    track::Angle startAngle, finishAngle;
+   float height;
 };
 
 CurvedTrack::CurvedTrack(track::Angle aStartAngle,
    track::Angle aFinishAngle,
    int aRadius)
    : origin(makePoint(0, 0)), baseRadius(aRadius),
-     startAngle(aStartAngle), finishAngle(aFinishAngle)
+     startAngle(aStartAngle), finishAngle(aFinishAngle),
+     height(0.0f)
 {
    
 }
@@ -84,6 +86,12 @@ CurvedTrack::CurvedTrack(track::Angle aStartAngle,
 CurvedTrack::~CurvedTrack()
 {
 
+}
+
+void CurvedTrack::setOrigin(int x, int y, float h)
+{
+   origin = makePoint(x, y);
+   height = h;
 }
 
 track::TravelToken
@@ -291,7 +299,13 @@ ITrackSegmentPtr CurvedTrack::mergeExit(Point<int> where, track::Direction dir)
 
 void CurvedTrack::render() const
 {
+   glPushMatrix();
+   
+   glTranslatef(0.0f, height, 0.0f);
+
    renderCurvedTrack(baseRadius, startAngle, finishAngle);
+
+   glPopMatrix();
 }
 
 xml::element CurvedTrack::toXml() const

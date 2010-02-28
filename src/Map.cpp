@@ -284,16 +284,23 @@ bool Map::emptyTile(Point<int> point) const
    return !(tile.track || tile.scenery);
 }
 
-void Map::setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack)
+void Map::setTrackAt(const Point<int>& where, ITrackSegmentPtr track)
 {
-   aTrack->setOrigin(aPoint.x, aPoint.y);
+   int indexes[4];
+   tileVertices(where.x, where.y, indexes);
 
-   TrackNodePtr node(new TrackNode(aTrack, aPoint.x, aPoint.y));  
+   float lowestHeight = 1.0e20f;
+   for (int i = 0; i < 4; i++)
+      lowestHeight = min(heightMap[indexes[i]].pos.y, lowestHeight);
+   
+   track->setOrigin(where.x, where.y, lowestHeight);
+         
+   TrackNodePtr node(new TrackNode(track, where.x, where.y));  
 
    // Attach the track node to every tile it covers
    vector<Point<int> > covers;
-   aTrack->getEndpoints(covers);
-   aTrack->getCovers(covers);
+   track->getEndpoints(covers);
+   track->getCovers(covers);
 
    for (vector<Point<int> >::iterator it = covers.begin();
         it != covers.end(); ++it) {
@@ -301,13 +308,13 @@ void Map::setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack)
    }
 }
 
-bool Map::isValidTrack(const Point<int>& aPoint) const
+bool Map::isValidTrack(const Point<int>& where) const
 {
-   if (aPoint.x < 0 || aPoint.y < 0
-      || aPoint.x >= myWidth || aPoint.y >= myDepth)
+   if (where.x < 0 || where.y < 0
+      || where.x >= myWidth || where.y >= myDepth)
       return false;
 
-   return tileAt(aPoint.x, aPoint.y).track;
+   return tileAt(where.x, where.y).track;
 }
 
 // Return a location where the train may start

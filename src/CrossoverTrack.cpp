@@ -35,10 +35,10 @@ using namespace boost;
 class CrossoverTrack : public ITrackSegment,
                        public enable_shared_from_this<CrossoverTrack> {
 public:
-   CrossoverTrack() : myX(0), myY(0) {}
+   CrossoverTrack() : myX(0), myY(0), height(0.0f) {}
    ~CrossoverTrack() {}
 
-   void setOrigin(int x, int y) { myX = x; myY = y; }
+   void setOrigin(int x, int y, float h);
    
    void render() const;
    double segmentLength(const track::TravelToken& aToken) const;
@@ -61,12 +61,15 @@ private:
    void transform(const track::TravelToken& aToken, double aDelta) const;
    
    int myX, myY;
+   float height;
 };
 
 void CrossoverTrack::render() const
 {
    // Render the y-going rails and sleepers
    glPushMatrix();
+
+   glTranslatef(0.0f, height, 0.0f);
 
    renderStraightRail();
    
@@ -96,6 +99,13 @@ void CrossoverTrack::render() const
    }
 
    glPopMatrix();
+}
+
+void CrossoverTrack::setOrigin(int x, int y, float h )
+{
+   myX = x;
+   myY = y;
+   height = h;
 }
 
 double CrossoverTrack::segmentLength(const track::TravelToken& aToken) const
