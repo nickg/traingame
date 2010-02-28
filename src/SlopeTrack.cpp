@@ -70,23 +70,22 @@ SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
    Vector<float> slopeBefore, Vector<float> slopeAfter)
    : height(0.0f), axis(axis)
 {
-   Vector<float> p1, p2, p3, p4;
+   const float OFF = 0.1f;
 
-   const float OFF = 0.2f;
+   const float hFactor0 = sqrt(OFF / (1 + slopeBefore.y * slopeBefore.y));
+   const float hFactor1 = sqrt(OFF / (1 + slopeAfter.y * slopeAfter.y));
+
+   const float xDelta0 = hFactor0;
+   const float yDelta0 = hFactor0 * slopeBefore.y;
+
+   const float xDelta1 = hFactor1;
+   const float yDelta1 = hFactor1 * slopeAfter.y;
    
-   if (axis == axis::X) {
-      p1 = makeVector(0.0f, 0.0f, 0.0f);
-      p2 = makeVector(OFF, 0.0f, 0.0f);
-      p3 = makeVector(1.0f - OFF, slope.y, 0.0f);
-      p4 = makeVector(1.0f, slope.y, 0.0f);
-   }
-   else {
-      p1 = makeVector(0.0f, 0.0f, 0.0f);
-      p2 = makeVector(0.0f, 0.0f, OFF);
-      p3 = makeVector(0.0f, slope.y, 1.0f - OFF);
-      p4 = makeVector(0.0f, slope.y, 1.0f);
-   }
-
+   Vector<float> p1 = makeVector(0.0f, 0.0f, 0.0f);
+   Vector<float> p2 = makeVector(xDelta0, yDelta0, 0.0f);
+   Vector<float> p3 = makeVector(1.0f - xDelta1, slope.y - yDelta1, 0.0f);
+   Vector<float> p4 = makeVector(1.0f, slope.y, 0.0f);
+      
    debug() << p1 << " " << p2 << " " << p3 << " " << p4;
    
    BezierCurve<float> curve = makeBezierCurve(p1, p2, p3, p4);
@@ -101,6 +100,9 @@ void SlopeTrack::render() const
    glPushMatrix();
    
    glTranslatef(0.0f, height, 0.0f);
+
+   if (axis == axis::Y)
+      glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
 
    renderRailMesh(railMesh);
    
