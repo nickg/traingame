@@ -23,6 +23,7 @@
 #include "ILight.hpp"
 #include "gui/ILayout.hpp"
 #include "ISceneryPicker.hpp"
+#include "Random.hpp"
 
 #include <algorithm>
 #include <stdexcept>
@@ -38,13 +39,14 @@ public:
    
    void display(IGraphicsPtr aContext) const;
    void overlay() const;
-   void update(IPickBufferPtr aPickBuffer, int aDelta);
+   void update(IPickBufferPtr pickBuffer, int aDelta);
    void onKeyDown(SDLKey aKey);
    void onKeyUp(SDLKey aKey);
-   void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y, int xrel, int yrel);
-   void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
+   void onMouseMove(IPickBufferPtr pickBuffer,
+      int x, int y, int xrel, int yrel);
+   void onMouseClick(IPickBufferPtr pickBuffer, int x, int y,
       MouseButton aButton);
-   void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
+   void onMouseRelease(IPickBufferPtr pickBuffer, int x, int y,
       MouseButton aButton);
    
    // Different tools the user can be using
@@ -191,7 +193,7 @@ void Editor::overlay() const
 }
 
 // Prepare the next frame
-void Editor::update(IPickBufferPtr aPickBuffer, int aDelta)
+void Editor::update(IPickBufferPtr pickBuffer, int aDelta)
 {
    
 }
@@ -449,26 +451,34 @@ void Editor::deleteObjects()
    }
 }
 
+// Plant trees at random locations in the dragged region
 void Editor::plantTrees()
 {
    int xmin, xmax, ymin, ymax;
    dragBoxBounds(xmin, xmax, ymin, ymax);
+
+   const bool isSingleTile = (xmin == xmax) && (ymin == ymax);
+   const float threshold = 0.9f;
+
+   static Uniform<float> treeRand(0.0f, 1.0f);
     
    for (int x = xmin; x <= xmax; x++) {
-      for (int y = ymin; y <= ymax; y++)
-	 map->addScenery(makePoint(x, y), treePicker->get());
+      for (int y = ymin; y <= ymax; y++) {
+         if (isSingleTile || treeRand() > threshold)
+            map->addScenery(makePoint(x, y), treePicker->get());
+      }
    }
 }
 
-void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
+void Editor::onMouseMove(IPickBufferPtr pickBuffer, int x, int y,
    int xrel, int yrel)
 {
    if (amDragging) {
       // Extend the selection rectangle
       map->setPickMode(true);
-      IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
+      IGraphicsPtr pickContext = pickBuffer->beginPick(x, y);
       display(pickContext);
-      int id = aPickBuffer->endPick();
+      int id = pickBuffer->endPick();
       map->setPickMode(false);
 
       if (id > 0)
@@ -485,7 +495,7 @@ void Editor::onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
    }
 }
 
-void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
+void Editor::onMouseClick(IPickBufferPtr pickBuffer, int x, int y,
    MouseButton aButton)
 {   
    if (aButton == MOUSE_RIGHT) {
@@ -498,9 +508,9 @@ void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
       if (!clickedOnGUI) {
 	 // See if the user clicked on something in the map
 	 map->setPickMode(true);
-	 IGraphicsPtr pickContext = aPickBuffer->beginPick(x, y);
+	 IGraphicsPtr pickContext = pickBuffer->beginPick(x, y);
 	 display(pickContext);
-	 int id = aPickBuffer->endPick();
+	 int id = pickBuffer->endPick();
 	 map->setPickMode(false);
          
 	 if (id > 0) {
@@ -520,7 +530,7 @@ void Editor::onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
    }
 }
 
-void Editor::onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
+void Editor::onMouseRelease(IPickBufferPtr pickBuffer, int x, int y,
    MouseButton aButton)
 {
    if (amDragging) {
