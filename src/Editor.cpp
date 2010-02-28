@@ -237,8 +237,16 @@ bool Editor::drawTrackTile(const Point<int>& aPoint, const track::Direction& anA
       Vector<float> slope = map->slopeAt(aPoint, anAxis, level);
 
       if (level) {
-         map->setTrackAt(aPoint, makeStraightTrack(anAxis));
-         return true;
+         const bool flat = abs(slope.y) < 0.001f;
+         
+         if (flat) {
+            map->setTrackAt(aPoint, makeStraightTrack(anAxis));
+            return true;
+         }
+         else {
+            warn() << "Slopes not supported yet";
+            return false;
+         }
       }
       else {
          warn() << "Track must be placed on level ground";
