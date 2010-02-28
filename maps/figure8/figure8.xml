@@ -7,8 +7,24 @@
 <heightmap>figure8.bin</heightmap>
 
 <tileset>
+<tile x="0" y="8">
+<tree angle="307.183" name="apple"/>
+</tile>
+
 <tile x="0" y="21">
 <tree angle="184.229" name="pine"/>
+</tile>
+
+<tile x="1" y="0">
+<tree angle="80.5498" name="apple"/>
+</tile>
+
+<tile x="1" y="7">
+<tree angle="305.988" name="apple"/>
+</tile>
+
+<tile x="1" y="8">
+<tree angle="242.525" name="apple"/>
 </tile>
 
 <tile x="1" y="25">
@@ -17,6 +33,10 @@
 
 <tile x="1" y="27">
 <tree angle="158.482" name="pine"/>
+</tile>
+
+<tile x="2" y="3">
+<tree angle="49.9644" name="apple"/>
 </tile>
 
 <tile x="2" y="12">
@@ -95,6 +115,14 @@
 <curvedTrack startAngle="180" finishAngle="270" radius="4"/>
 </tile>
 
+<tile x="6" y="3">
+<tree angle="193.51" name="apple"/>
+</tile>
+
+<tile x="6" y="13">
+<tree angle="218.752" name="apple"/>
+</tile>
+
 <tile x="6" y="21">
 <tree angle="51.8413" name="pine"/>
 </tile>
@@ -109,6 +137,10 @@
 
 <tile x="7" y="2">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="7" y="11">
+<tree angle="290.275" name="apple"/>
 </tile>
 
 <tile x="7" y="15">
@@ -147,8 +179,16 @@
 <tree angle="253.804" name="pine"/>
 </tile>
 
+<tile x="9" y="1">
+<tree angle="255.139" name="apple"/>
+</tile>
+
 <tile x="9" y="2">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="9" y="5">
+<tree angle="119.306" name="apple"/>
 </tile>
 
 <tile x="9" y="17">
@@ -177,6 +217,14 @@
 
 <tile x="11" y="2">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="11" y="6">
+<tree angle="149.638" name="apple"/>
+</tile>
+
+<tile x="11" y="15">
+<tree angle="277.716" name="apple"/>
 </tile>
 
 <tile x="11" y="17">
@@ -209,6 +257,10 @@
 
 <tile x="13" y="17">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="13" y="29">
+<tree angle="49.1695" name="pine"/>
 </tile>
 
 <tile x="14" y="4">
@@ -299,16 +351,36 @@
 <curvedTrack startAngle="270" finishAngle="360" radius="5"/>
 </tile>
 
+<tile x="14" y="31">
+<tree angle="83.8935" name="pine"/>
+</tile>
+
+<tile x="15" y="6">
+<tree angle="199.776" name="pine"/>
+</tile>
+
 <tile x="15" y="17">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="16" y="2">
+<tree angle="213.594" name="pine"/>
 </tile>
 
 <tile x="16" y="17">
 <straightTrack align="x"/>
 </tile>
 
+<tile x="17" y="10">
+<tree angle="223.94" name="pine"/>
+</tile>
+
 <tile x="17" y="14">
 <tree angle="106.625" name="apple"/>
+</tile>
+
+<tile x="17" y="16">
+<tree angle="247.67" name="apple"/>
 </tile>
 
 <tile x="17" y="17">
@@ -319,12 +391,88 @@
 <tree angle="95.9247" name="apple"/>
 </tile>
 
+<tile x="17" y="24">
+<tree angle="81.9884" name="apple"/>
+</tile>
+
+<tile x="18" y="6">
+<tree angle="80.9504" name="pine"/>
+</tile>
+
 <tile x="18" y="17">
 <straightTrack align="x"/>
 </tile>
 
+<tile x="19" y="4">
+<tree angle="198.753" name="pine"/>
+</tile>
+
+<tile x="19" y="6">
+<tree angle="251.933" name="pine"/>
+</tile>
+
 <tile x="19" y="29">
 <curvedTrack startAngle="0" finishAngle="90" radius="6"/>
+</tile>
+
+<tile x="19" y="31">
+<tree angle="130.456" name="pine"/>
+</tile>
+
+<tile x="20" y="4">
+<tree angle="88.6906" name="pine"/>
+</tile>
+
+<tile x="20" y="5">
+<tree angle="78.438" name="pine"/>
+</tile>
+
+<tile x="20" y="8">
+<tree angle="207.525" name="pine"/>
+</tile>
+
+<tile x="20" y="20">
+<tree angle="181.919" name="apple"/>
+</tile>
+
+<tile x="20" y="22">
+<tree angle="262.07" name="apple"/>
+</tile>
+
+<tile x="21" y="15">
+<tree angle="17.4322" name="apple"/>
+</tile>
+
+<tile x="22" y="2">
+<tree angle="82.0713" name="pine"/>
+</tile>
+
+<tile x="22" y="8">
+<tree angle="247.034" name="pine"/>
+</tile>
+
+<tile x="22" y="9">
+<tree angle="156.76" name="pine"/>
+</tile>
+
+<tile x="23" y="3">
+<tree angle="204.138" name="pine"/>
+</tile>
+
+<tile x="23" y="6">
+<tree angle="167.142" name="pine"/>
+</tile>
+
+<tile x="23" y="8">
+<tree angle="313.612" name="pine"/>
+</tile>
+
+<tile x="24" y="4">
+<tree angle="21.6547" name="pine"/>
+</tile>
+
+<tile x="24" y="16">
+<tree angle="335.477" name="apple"/>
 </tile>
 
 <tile x="24" y="22">
@@ -333,6 +481,70 @@
 
 <tile x="24" y="23">
 <straightTrack align="y"/>
+</tile>
+
+<tile x="24" y="26">
+<tree angle="166.524" name="apple"/>
+</tile>
+
+<tile x="25" y="19">
+<tree angle="71.6088" name="apple"/>
+</tile>
+
+<tile x="25" y="30">
+<tree angle="89.0975" name="pine"/>
+</tile>
+
+<tile x="26" y="2">
+<tree angle="46.7025" name="pine"/>
+</tile>
+
+<tile x="26" y="24">
+<tree angle="67.2635" name="apple"/>
+</tile>
+
+<tile x="26" y="31">
+<tree angle="19.7229" name="pine"/>
+</tile>
+
+<tile x="27" y="26">
+<tree angle="205.886" name="apple"/>
+</tile>
+
+<tile x="27" y="31">
+<tree angle="65.0809" name="pine"/>
+</tile>
+
+<tile x="28" y="3">
+<tree angle="188.034" name="pine"/>
+</tile>
+
+<tile x="28" y="6">
+<tree angle="54.4918" name="pine"/>
+</tile>
+
+<tile x="28" y="15">
+<tree angle="240.721" name="apple"/>
+</tile>
+
+<tile x="29" y="25">
+<tree angle="289.538" name="apple"/>
+</tile>
+
+<tile x="30" y="2">
+<tree angle="333.384" name="pine"/>
+</tile>
+
+<tile x="31" y="2">
+<tree angle="90.1441" name="pine"/>
+</tile>
+
+<tile x="31" y="4">
+<tree angle="98.0478" name="pine"/>
+</tile>
+
+<tile x="31" y="8">
+<tree angle="45.446" name="pine"/>
 </tile>
 </tileset>
 </map>
