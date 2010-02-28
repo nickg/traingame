@@ -464,8 +464,10 @@ void Editor::plantTrees()
     
    for (int x = xmin; x <= xmax; x++) {
       for (int y = ymin; y <= ymax; y++) {
-         if (isSingleTile || treeRand() > threshold)
-            map->addScenery(makePoint(x, y), treePicker->get());
+         const Point<int> p = makePoint(x, y);
+         
+         if ((isSingleTile || treeRand() > threshold) && map->emptyTile(p))
+            map->addScenery(p, treePicker->get());
       }
    }
 }

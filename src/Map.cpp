@@ -97,6 +97,7 @@ public:
    void highlightTile(Point<int> point, Colour colour) const;
    void resetMap(int aWidth, int aDepth);
    void eraseTile(int x, int y);
+   bool emptyTile(Point<int> tile) const;
 
    void raiseArea(const Point<int>& aStartPos,
       const Point<int>& aFinishPos);
@@ -272,6 +273,13 @@ void Map::eraseTile(int x, int y)
 
    if (tile.scenery)
       tile.scenery.reset();
+}
+
+bool Map::emptyTile(Point<int> point) const
+{
+   Tile& tile = tileAt(point);
+
+   return !(tile.track || tile.scenery);
 }
 
 void Map::setTrackAt(const Point<int>& aPoint, ITrackSegmentPtr aTrack)

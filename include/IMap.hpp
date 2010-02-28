@@ -56,6 +56,9 @@ public:
    // Delete the contents of a tile
    virtual void eraseTile(int x, int y) = 0;
 
+   // False if this tile has something in it (track, scenery, etc.)
+   virtual bool emptyTile(Point<int> point) const = 0;
+
    // The start location consists of both a position and
    // a direction vector
    virtual track::Connection start() const = 0;
