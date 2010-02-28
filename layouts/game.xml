@@ -20,7 +20,8 @@
          colour="255 0 0"/>
 
   <!-- Station loading/unloading window -->
-  <window width="300" height="200" visible="false">
-    
+  <window width="300" height="200" border="5" visible="false"
+          name="station">
+    <label name="name" text="" x="0" y="0" />
   </window>
 </layout>

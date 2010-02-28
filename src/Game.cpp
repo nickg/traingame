@@ -153,7 +153,7 @@ void Game::overlay() const
 
 void Game::stoppedAtStation()
 {
-   debug() << "Stopped at " << activeStation->name();
+   layout->get("/station").visible(true);
 }
 
 void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
@@ -202,15 +202,21 @@ void Game::nearStation(IStationPtr s)
    if (s != activeStation) {
       activeStation = s;
       s->setHighlightVisible(true);
+
+      gui::Widget& stationWnd = layout->get("/station");
+
+      layout->cast<gui::Label>("/station/name").text(s->name());
    }
 }
 
 // Signal that we are no longer at or approaching a station
 void Game::leftStation()
-{ 
+{
    if (activeStation) {
       activeStation->setHighlightVisible(false);
       activeStation.reset();
+
+      layout->get("/station").visible(false);
    }
 }
 
