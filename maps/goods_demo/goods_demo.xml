@@ -23,6 +23,30 @@
 <heightmap>goods_demo.bin</heightmap>
 
 <tileset>
+<tile x="0" y="8">
+<tree angle="308.485" name="apple"/>
+</tile>
+
+<tile x="1" y="2">
+<tree angle="198.647" name="apple"/>
+</tile>
+
+<tile x="1" y="22">
+<tree angle="186.025" name="pine"/>
+</tile>
+
+<tile x="1" y="26">
+<tree angle="189.379" name="pine"/>
+</tile>
+
+<tile x="1" y="27">
+<tree angle="351.041" name="pine"/>
+</tile>
+
+<tile x="1" y="29">
+<tree angle="277.247" name="pine"/>
+</tile>
+
 <tile x="2" y="5">
 <straightTrack align="y"/>
 </tile>
@@ -151,12 +175,28 @@
 <building angle="270" name="platform_end"/>
 </tile>
 
+<tile x="3" y="25">
+<tree angle="181.306" name="pine"/>
+</tile>
+
 <tile x="4" y="2">
 <curvedTrack startAngle="180" finishAngle="270" radius="3"/>
 </tile>
 
+<tile x="4" y="5">
+<tree angle="256.048" name="apple"/>
+</tile>
+
 <tile x="5" y="2">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="5" y="22">
+<tree angle="104.401" name="pine"/>
+</tile>
+
+<tile x="5" y="26">
+<tree angle="312.669" name="pine"/>
 </tile>
 
 <tile x="5" y="29">
@@ -199,8 +239,24 @@
 <curvedTrack startAngle="270" finishAngle="360" radius="3"/>
 </tile>
 
+<tile x="6" y="16">
+<tree angle="90.1309" name="pine"/>
+</tile>
+
+<tile x="6" y="18">
+<tree angle="1.59732" name="pine"/>
+</tile>
+
+<tile x="6" y="28">
+<tree angle="335.133" name="pine"/>
+</tile>
+
 <tile x="6" y="29">
 <points align="x" reflect="true"/>
+</tile>
+
+<tile x="7" y="0">
+<tree angle="278.979" name="apple"/>
 </tile>
 
 <tile x="7" y="2">
@@ -211,6 +267,26 @@
 <curvedTrack startAngle="180" finishAngle="270" radius="2"/>
 </tile>
 
+<tile x="7" y="16">
+<tree angle="224.46" name="pine"/>
+</tile>
+
+<tile x="7" y="19">
+<tree angle="37.3419" name="pine"/>
+</tile>
+
+<tile x="7" y="24">
+<tree angle="356.429" name="pine"/>
+</tile>
+
+<tile x="8" y="12">
+<tree angle="186.391" name="pine"/>
+</tile>
+
+<tile x="8" y="15">
+<tree angle="274.239" name="pine"/>
+</tile>
+
 <tile x="9" y="13">
 <building angle="180" name="platform_end"/>
 </tile>
@@ -219,6 +295,14 @@
 <straightTrack align="x"/>
 
 <stationPart id="2"/>
+</tile>
+
+<tile x="9" y="19">
+<tree angle="309.919" name="pine"/>
+</tile>
+
+<tile x="9" y="22">
+<tree angle="327.101" name="pine"/>
 </tile>
 
 <tile x="9" y="28">
@@ -238,13 +322,21 @@
 </tile>
 
 <tile x="10" y="13">
-<building angle="180" name="platform_middle"/>
+<building angle="0" name="platform_middle"/>
 </tile>
 
 <tile x="10" y="14">
 <straightTrack align="x"/>
 
 <stationPart id="2"/>
+</tile>
+
+<tile x="10" y="15">
+<tree angle="21.4337" name="pine"/>
+</tile>
+
+<tile x="10" y="22">
+<tree angle="124.642" name="pine"/>
 </tile>
 
 <tile x="10" y="29">
@@ -259,6 +351,10 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="11" y="11">
+<tree angle="267.899" name="pine"/>
+</tile>
+
 <tile x="11" y="13">
 <building angle="180" name="platform_middle"/>
 </tile>
@@ -267,6 +363,10 @@
 <straightTrack align="x"/>
 
 <stationPart id="2"/>
+</tile>
+
+<tile x="11" y="16">
+<tree angle="7.32659" name="pine"/>
 </tile>
 
 <tile x="11" y="23">
@@ -291,6 +391,10 @@
 
 <tile x="12" y="2">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="12" y="11">
+<tree angle="255.468" name="pine"/>
 </tile>
 
 <tile x="12" y="13">
@@ -323,6 +427,10 @@
 <curvedTrack startAngle="180" finishAngle="270" radius="3"/>
 </tile>
 
+<tile x="14" y="0">
+<tree angle="152.899" name="apple"/>
+</tile>
+
 <tile x="14" y="1">
 <straightTrack align="x"/>
 </tile>
@@ -333,6 +441,14 @@
 
 <tile x="14" y="20">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="14" y="23">
+<tree angle="64.8955" name="pine"/>
+</tile>
+
+<tile x="14" y="24">
+<tree angle="88.0681" name="pine"/>
 </tile>
 
 <tile x="14" y="28">
@@ -357,6 +473,10 @@
 
 <tile x="15" y="20">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="15" y="21">
+<tree angle="353.829" name="pine"/>
 </tile>
 
 <tile x="15" y="27">
@@ -385,8 +505,20 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="16" y="6">
+<tree angle="74.0224" name="apple"/>
+</tile>
+
+<tile x="16" y="14">
+<tree angle="346.949" name="pine"/>
+</tile>
+
 <tile x="16" y="20">
 <curvedTrack startAngle="0" finishAngle="90" radius="3"/>
+</tile>
+
+<tile x="16" y="23">
+<tree angle="94.8853" name="pine"/>
 </tile>
 
 <tile x="16" y="27">
@@ -409,6 +541,14 @@
 
 <tile x="17" y="2">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="17" y="18">
+<tree angle="52.2398" name="pine"/>
+</tile>
+
+<tile x="17" y="26">
+<tree angle="322.452" name="pine"/>
 </tile>
 
 <tile x="17" y="27">
@@ -525,6 +665,10 @@
 <building angle="270" name="platform_end"/>
 </tile>
 
+<tile x="19" y="24">
+<tree angle="75.1478" name="pine"/>
+</tile>
+
 <tile x="19" y="28">
 <curvedTrack startAngle="0" finishAngle="90" radius="2"/>
 </tile>
@@ -637,16 +781,60 @@
 <points align="-x" reflect="false"/>
 </tile>
 
+<tile x="22" y="3">
+<tree angle="287.63" name="pine"/>
+</tile>
+
+<tile x="22" y="8">
+<tree angle="149.343" name="pine"/>
+</tile>
+
+<tile x="22" y="19">
+<tree angle="225.68" name="pine"/>
+</tile>
+
+<tile x="22" y="23">
+<tree angle="342.972" name="pine"/>
+</tile>
+
+<tile x="22" y="27">
+<tree angle="289.522" name="apple"/>
+</tile>
+
 <tile x="22" y="29">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="23" y="0">
+<tree angle="280.021" name="apple"/>
 </tile>
 
 <tile x="23" y="2">
 <straightTrack align="x"/>
 </tile>
 
+<tile x="23" y="6">
+<tree angle="296.624" name="pine"/>
+</tile>
+
 <tile x="23" y="29">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="24" y="9">
+<tree angle="53.4215" name="pine"/>
+</tile>
+
+<tile x="24" y="10">
+<tree angle="190.16" name="pine"/>
+</tile>
+
+<tile x="24" y="13">
+<tree angle="6.42325" name="pine"/>
+</tile>
+
+<tile x="24" y="16">
+<tree angle="247.595" name="pine"/>
 </tile>
 
 <tile x="24" y="26">
@@ -657,6 +845,22 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="25" y="3">
+<tree angle="186.169" name="pine"/>
+</tile>
+
+<tile x="25" y="6">
+<tree angle="9.13292" name="pine"/>
+</tile>
+
+<tile x="25" y="7">
+<tree angle="38.9245" name="pine"/>
+</tile>
+
+<tile x="25" y="12">
+<tree angle="239.38" name="pine"/>
+</tile>
+
 <tile x="25" y="26">
 <straightTrack align="x"/>
 </tile>
@@ -665,16 +869,44 @@
 <straightTrack align="x"/>
 </tile>
 
+<tile x="26" y="1">
+<tree angle="176.136" name="apple"/>
+</tile>
+
+<tile x="26" y="12">
+<tree angle="278.903" name="pine"/>
+</tile>
+
 <tile x="26" y="26">
 <curvedTrack startAngle="0" finishAngle="90" radius="3"/>
+</tile>
+
+<tile x="26" y="28">
+<tree angle="165.754" name="apple"/>
 </tile>
 
 <tile x="26" y="29">
 <straightTrack align="x"/>
 </tile>
 
+<tile x="27" y="9">
+<tree angle="185.882" name="pine"/>
+</tile>
+
+<tile x="27" y="16">
+<tree angle="101.993" name="pine"/>
+</tile>
+
 <tile x="27" y="29">
 <curvedTrack startAngle="0" finishAngle="90" radius="3"/>
+</tile>
+
+<tile x="28" y="11">
+<tree angle="103.163" name="pine"/>
+</tile>
+
+<tile x="28" y="16">
+<tree angle="304.588" name="pine"/>
 </tile>
 
 <tile x="28" y="20">
