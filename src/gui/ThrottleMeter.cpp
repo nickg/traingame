@@ -50,13 +50,15 @@ void ThrottleMeter::render(RenderContext& rc) const
    int ox = x(), oy = y();
    rc.offset(ox, oy);
 
-   font->print(ox, oy, colour::WHITE, "Throttle: ");
+   static const string LABEL = "Power: ";
+
+   font->print(ox, oy, colour::WHITE, LABEL);
 
    glPushMatrix();
 
    const int off = (height() - METER_HEIGHT) / 2;
 
-   glTranslatef(ox + static_cast<float>(font->text_width("Throttle: ")),
+   glTranslatef(ox + static_cast<float>(font->text_width(LABEL)),
                 static_cast<float>(oy + off), 0.0f);
 
    const int unit = METER_WIDTH / (maxValue + 1);

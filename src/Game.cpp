@@ -311,7 +311,10 @@ void Game::onKeyDown(SDLKey aKey)
       train->controller()->actOn(BRAKE_TOGGLE);
       break;
    case SDLK_r:
-      train->controller()->actOn(TOGGLE_REVERSE);
+      if (train->controller()->throttle() == 0)
+         train->controller()->actOn(TOGGLE_REVERSE);
+      else
+         messageArea->post("Reduce power first!", 51, 1000);
       break;
    case SDLK_LCTRL:
       train->controller()->actOn(SHOVEL_COAL);
