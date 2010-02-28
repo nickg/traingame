@@ -39,8 +39,7 @@ public:
    track::Connection nextPosition(const track::TravelToken& aToken) const;
    void getEndpoints(vector<Point<int> >& aList) const;
    void getCovers(vector<Point<int> >& output) const;
-   ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
-      const track::Direction& aDirection);
+   ITrackSegmentPtr mergeExit(Point<int> where, track::Direction dir);
    track::TravelToken getTravelToken(track::Position aPosition,
       track::Direction aDirection) const;
    void nextState();
@@ -531,8 +530,7 @@ void Points::getCovers(vector<Point<int> >& output) const
       assert(false);
 }
 
-ITrackSegmentPtr Points::mergeExit(const Point<int>& aPoint,
-   const track::Direction& aDirection)
+ITrackSegmentPtr Points::mergeExit(Point<int> where, track::Direction dir)
 {
    // Cant merge with anything
    return ITrackSegmentPtr();

@@ -50,8 +50,7 @@ public:
    void getEndpoints(vector<Point<int> >& aList) const;
    void getCovers(vector<Point<int> >& output) const;
    
-   ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
-      const track::Direction& aDirection);
+   ITrackSegmentPtr mergeExit(Point<int> where, track::Direction dir);
 
    xml::element toXml() const;
    track::TravelToken getTravelToken(track::Position aPosition,
@@ -273,17 +272,16 @@ void CurvedTrack::getCovers(vector<Point<int> >& output) const
    copy(tmp.begin(), tmp.end(), back_inserter(output));
 }
 
-ITrackSegmentPtr CurvedTrack::mergeExit(const Point<int>& aPoint,
-   const track::Direction& aDirection)
+ITrackSegmentPtr CurvedTrack::mergeExit(Point<int> where, track::Direction dir)
 {
    // See if this is already an exit
-   if (isValidDirection(aDirection)) {
+   if (isValidDirection(dir)) {
       vector<Point<int> > exits;
       getEndpoints(exits);
 
       for (vector<Point<int> >::iterator it = exits.begin();
            it != exits.end(); ++it)
-         if (*it == aPoint)
+         if (*it == where)
             return shared_from_this();
    }
 

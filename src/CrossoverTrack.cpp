@@ -46,8 +46,7 @@ public:
    track::Connection nextPosition(const track::TravelToken& aToken) const;
    void getEndpoints(vector<Point<int> >& aList) const;
    void getCovers(vector<Point<int> >& output) const { }
-   ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
-      const track::Direction& aDirection);
+   ITrackSegmentPtr mergeExit(Point<int> where, track::Direction dir);
    track::TravelToken getTravelToken(track::Position aPosition,
       track::Direction aDirection) const;
    void nextState() {}
@@ -177,11 +176,11 @@ void CrossoverTrack::getEndpoints(vector<Point<int> >& aList) const
    aList.push_back(makePoint(myX, myY));
 }
 
-ITrackSegmentPtr CrossoverTrack::mergeExit(const Point<int>& aPoint,
-   const track::Direction& aDirection)
+ITrackSegmentPtr CrossoverTrack::mergeExit(Point<int> where,
+   track::Direction dir)
 {
-   if (aPoint == makePoint(myX, myY)
-      && isValidDirection(aDirection))
+   if (where == makePoint(myX, myY)
+      && isValidDirection(dir))
       return shared_from_this();
 
    // No way to extend a crossover

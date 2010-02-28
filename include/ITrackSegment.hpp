@@ -76,7 +76,7 @@ namespace axis {
 }
 
 struct ITrackSegment;
-typedef std::tr1::shared_ptr<ITrackSegment> ITrackSegmentPtr;
+typedef shared_ptr<ITrackSegment> ITrackSegmentPtr;
 
 // A segment of track which fits over a number of tiles
 // Each track segment has an origin and one or more exits
@@ -127,8 +127,8 @@ struct ITrackSegment : IXMLSerialisable {
    // may be bigger than the origin segment
    // The track may already have an exit here in which case
    // a pointer to itself will be returned
-   virtual ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
-      const track::Direction& aDirection) = 0;
+   virtual ITrackSegmentPtr mergeExit(Point<int> where,
+      track::Direction dir) = 0;
 
    // Some track segments may have several states - e.g. points
    // These functions change the track state
@@ -146,5 +146,7 @@ ITrackSegmentPtr makeCurvedTrack(track::Angle aStartAngle,
    track::Angle aFinishAngle, int aRadius);
 ITrackSegmentPtr makeCrossoverTrack();
 ITrackSegmentPtr makePoints(track::Direction aDirection, bool reflect);
+ITrackSegmentPtr makeSlope(track::Direction axis,
+   Vector<float> slopeBefore, Vector<float> slopeAfter);
 
 #endif

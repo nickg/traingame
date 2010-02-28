@@ -49,8 +49,7 @@ public:
    void getEndpoints(vector<Point<int> >& aList) const;
    void getCovers(vector<Point<int> >& output) const { }
    
-   ITrackSegmentPtr mergeExit(const Point<int>& aPoint,
-      const track::Direction& aDirection);
+   ITrackSegmentPtr mergeExit(Point<int> where, track::Direction dir);
    track::TravelToken getTravelToken(track::Position aPosition,
       track::Direction aDirection) const;
 
@@ -120,41 +119,43 @@ void StraightTrack::transform(const track::TravelToken& aToken,
       glRotated(-180.0, 0.0, 1.0, 0.0);
 }
 
-ITrackSegmentPtr StraightTrack::mergeExit(const Point<int>& aPoint,
-   const track::Direction& aDirection)
+ITrackSegmentPtr StraightTrack::mergeExit(Point<int> where,
+   track::Direction dir)
 {
-   debug() << "mergeExit aPoint=" << aPoint
-           << " aDirection=" << aDirection
+#if 0
+   debug() << "mergeExit where=" << where
+           << " dir=" << dir
            << " me=" << origin;
+#endif
 
    // See if this is already a valid exit
-   if (isValidDirection(aDirection) && aPoint == origin)
+   if (isValidDirection(dir) && where == origin)
       return shared_from_this();
 
    // See if we can make this a crossover track
-   if (direction != aDirection && aPoint == origin)
+   if (direction != dir && where == origin)
       return makeCrossoverTrack();
 
    // See if we can make some points
-   if (isValidDirection(aDirection)) {
+   if (isValidDirection(dir)) {
       // X-aligned points
-      if (aPoint == origin + makePoint(-2, 1))
+      if (where == origin + makePoint(-2, 1))
          return makePoints(-axis::X, true);
-      else if (aPoint == origin + makePoint(-2, -1))
+      else if (where == origin + makePoint(-2, -1))
          return makePoints(-axis::X, false);
-      else if (aPoint == origin + makePoint(2, 1))
+      else if (where == origin + makePoint(2, 1))
          return makePoints(axis::X, false);
-      else if (aPoint == origin + makePoint(2, -1))
+      else if (where == origin + makePoint(2, -1))
          return makePoints(axis::X, true);
 
       // Y-aligned points
-      if (aPoint == origin + makePoint(1, -2))
+      if (where == origin + makePoint(1, -2))
          return makePoints(-axis::Y, false);
-      else if (aPoint == origin + makePoint(-1, -2))
+      else if (where == origin + makePoint(-1, -2))
          return makePoints(-axis::Y, true);
-      else if (aPoint == origin + makePoint(1, 2))
+      else if (where == origin + makePoint(1, 2))
          return makePoints(axis::Y, true);
-      else if (aPoint == origin + makePoint(-1, 2))
+      else if (where == origin + makePoint(-1, 2))
          return makePoints(axis::Y, false);
    }
    
