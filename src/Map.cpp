@@ -112,6 +112,10 @@ public:
    float heightAt(float x, float y) const;
    Vector<float> slopeAt(Point<int> where, track::Direction axis,
       bool& level) const;
+   Vector<float> slopeBefore(Point<int> where,
+      track::Direction axis, bool &valid) const;
+   Vector<float> slopeAfter(Point<int> where,
+      track::Direction axis, bool &valid) const;
    void addScenery(Point<int> where, ISceneryPtr s);
    
    // ISectorRenderable interface
@@ -1009,6 +1013,54 @@ Vector<float> Map::slopeAt(Point<int> where,
    return v1;
 }
 
+Vector<float> Map::slopeBefore(Point<int> where,
+   track::Direction axis, bool &valid) const
+{
+   Point<int> before;
+
+   if (axis == axis::X)
+      before = where + makePoint(-1, 0);
+   else
+      before = where + makePoint(0, -1);
+            
+   const bool offEdge =
+      (axis == axis::X && before.x < 0)
+      || (axis == axis::Y && before.y < 0);
+
+   valid = !offEdge;
+         
+   if (offEdge)
+      return makeVector(0.0f, 0.0f, 0.0f);
+   else {
+      bool ignored;
+      return slopeAt(before, axis, ignored);
+   }
+}
+
+Vector<float> Map::slopeAfter(Point<int> where,
+   track::Direction axis, bool &valid) const
+{
+   Point<int> after;
+
+   if (axis == axis::X)
+      after = where + makePoint(1, 0);
+   else
+      after = where + makePoint(0, 1);
+            
+   const bool offEdge =
+      (axis == axis::X && after.x >= width())
+      || (axis == axis::Y && after.y >= depth());
+
+   valid = !offEdge;
+   
+   if (offEdge)
+      return makeVector(0.0f, 0.0f, 0.0f);
+   else {
+      bool ignored;
+      return slopeAt(after, axis, ignored);
+   }
+}
+
 void Map::changeAreaHeight(const Point<int>& aStartPos,
    const Point<int>& aFinishPos,
    float aHeightDelta)
@@ -1328,6 +1380,8 @@ public:
          handleCrossoverTrack(attrs);
       else if (localName == "points")
          handlePoints(attrs);
+      else if (localName == "slopeTrack")
+         handleSlopeTrack(attrs);
       else if (localName == "stationPart")
          handleStationPart(attrs);
       else if (localName == "station")
@@ -1423,6 +1477,29 @@ private:
       track::Direction axis = align == "x" ? axis::X : axis::Y;
 
       myMap->setTrackAt(tile, makeStraightTrack(axis));
+   }
+
+   void handleSlopeTrack(const AttributeSet& attrs)
+   {
+      string align;
+      bool flip;
+      attrs.get("align", align);
+      attrs.get("flip", flip);
+      
+      track::Direction axis = align == "x" ? axis::X : axis::Y;
+
+      bool level;
+      Vector<float> slope = myMap->slopeAt(tile, axis, level);
+         
+      bool aValid, bValid;
+      Vector<float> slopeBefore = myMap->slopeBefore(tile, axis, bValid);
+      Vector<float> slopeAfter = myMap->slopeAfter(tile, axis, aValid);
+
+      if (!aValid || !bValid || !level)
+         throw runtime_error("SlopeTrack in invalid location");
+
+      myMap->setTrackAt(tile,
+         makeSlopeTrack(axis, slope, slopeBefore, slopeAfter));
    }
 
    void handlePoints(const AttributeSet& attrs)

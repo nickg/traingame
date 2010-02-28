@@ -244,32 +244,15 @@ bool Editor::drawTrackTile(Point<int> where, track::Direction axis)
             return true;
          }
          else {
-            Point<int> before, after;
-
-            if (axis == axis::X) {
-               before = where + makePoint(-1, 0);
-               after = where + makePoint(1, 0);
-            }
-            else {
-               before = where + makePoint(0, -1);
-               after = where + makePoint(0, 1);
-            }
-            
-            const bool offEdge =
-               (axis == axis::X
-                  && (before.x < 0 || after.x >= map->width()))
-               || (axis == axis::Y
-                  && (before.y < 0 || after.y >= map->depth()));
-
-            if (offEdge) {
+            bool bValid, aValid;
+            Vector<float> slopeBefore = map->slopeBefore(where, axis, bValid);
+            Vector<float> slopeAfter = map->slopeAfter(where, axis, aValid);
+               
+            if (!bValid || !aValid) {
                warn() << "Cannot place track here";
                return false;
             }
             else {
-               bool ignored;
-               Vector<float> slopeBefore = map->slopeAt(before, axis, ignored);
-               Vector<float> slopeAfter = map->slopeAt(after, axis, ignored);
-
                debug() << "slope=" << slope
                        << " before=" << slopeBefore
                        << " after=" << slopeAfter;

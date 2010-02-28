@@ -64,6 +64,7 @@ private:
    IMeshPtr railMesh;
    track::Direction axis;
    float length;
+   bool flip;
 };
 
 SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
@@ -71,6 +72,14 @@ SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
    : height(0.0f), axis(axis)
 {
    const float OFF = 0.1f;
+
+   if ((flip = (slope.y < 0.0f))) {
+      slope.y = abs(slope.y);
+      slopeBefore.y = abs(slopeBefore.y);
+      slopeAfter.y = abs(slopeAfter.y);
+
+      swap(slopeBefore, slopeAfter);
+   }
 
    const float hFactor0 = sqrt(OFF / (1 + slopeBefore.y * slopeBefore.y));
    const float hFactor1 = sqrt(OFF / (1 + slopeAfter.y * slopeAfter.y));
@@ -103,6 +112,9 @@ void SlopeTrack::render() const
 
    if (axis == axis::Y)
       glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
+
+   if (flip)
+      glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
 
    renderRailMesh(railMesh);
    
@@ -206,7 +218,9 @@ ITrackSegmentPtr SlopeTrack::mergeExit(Point<int> where, track::Direction dir)
 
 xml::element SlopeTrack::toXml() const
 {
-   return xml::element("slopeTrack");
+   return xml::element("slopeTrack")
+      .addAttribute("align", axis == axis::X ? "x" : "y")
+      .addAttribute("flip", flip);
 }
 
 ITrackSegmentPtr makeSlopeTrack(track::Direction axis, Vector<float> slope,

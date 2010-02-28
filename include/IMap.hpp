@@ -115,6 +115,13 @@ public:
    virtual Vector<float> slopeAt(Point<int> where,
       track::Direction axis, bool& level) const = 0;
 
+   // Similar to slopeAt, but calculates slope of tile before and
+   // after along `axis'
+   virtual Vector<float> slopeBefore(Point<int> where,
+      track::Direction axis, bool &valid) const = 0;
+   virtual Vector<float> slopeAfter(Point<int> where,
+      track::Direction axis, bool &valid) const = 0;
+
    // Place a tree, building, etc. at a location
    virtual void addScenery(Point<int> where, ISceneryPtr s) = 0;
    
