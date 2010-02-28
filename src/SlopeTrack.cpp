@@ -219,8 +219,7 @@ ITrackSegmentPtr SlopeTrack::mergeExit(Point<int> where, track::Direction dir)
 xml::element SlopeTrack::toXml() const
 {
    return xml::element("slopeTrack")
-      .addAttribute("align", axis == axis::X ? "x" : "y")
-      .addAttribute("flip", flip);
+      .addAttribute("align", axis == axis::X ? "x" : "y");
 }
 
 ITrackSegmentPtr makeSlopeTrack(track::Direction axis, Vector<float> slope,

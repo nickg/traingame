@@ -1482,9 +1482,7 @@ private:
    void handleSlopeTrack(const AttributeSet& attrs)
    {
       string align;
-      bool flip;
       attrs.get("align", align);
-      attrs.get("flip", flip);
       
       track::Direction axis = align == "x" ? axis::X : axis::Y;
 
