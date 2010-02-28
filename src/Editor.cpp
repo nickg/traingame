@@ -63,7 +63,7 @@ public:
 private:
    void buildGUI();
    void drawDraggedTrack();
-   bool drawTrackTile(const Point<int>& aPoint, const track::Direction& anAxis);
+   bool drawTrackTile(Point<int> where, track::Direction axis);
    void drawDraggedStraight(const track::Direction& anAxis, int aLength);
    void drawDraggedCurve(int xLength, int yLength);
    bool canConnect(const Point<int>& aFirstPoint,
@@ -219,12 +219,12 @@ bool Editor::canConnect(const Point<int>& aFirstPoint,
 
 // Draw a single tile of straight track and check for collisions
 // Returns `false' if track cannot be placed here
-bool Editor::drawTrackTile(const Point<int>& aPoint, const track::Direction& anAxis)
+bool Editor::drawTrackTile(Point<int> where, track::Direction axis)
 {
-   if (map->isValidTrack(aPoint)) {
-      ITrackSegmentPtr merged = map->trackAt(aPoint)->mergeExit(aPoint, anAxis);
+   if (map->isValidTrack(where)) {
+      ITrackSegmentPtr merged = map->trackAt(where)->mergeExit(where, axis);
       if (merged) {
-	 map->setTrackAt(aPoint, merged);
+	 map->setTrackAt(where, merged);
 	 return true;
       }
       else {
@@ -234,18 +234,47 @@ bool Editor::drawTrackTile(const Point<int>& aPoint, const track::Direction& anA
    }
    else {
       bool level;
-      Vector<float> slope = map->slopeAt(aPoint, anAxis, level);
+      Vector<float> slope = map->slopeAt(where, axis, level);
 
       if (level) {
          const bool flat = abs(slope.y) < 0.001f;
          
          if (flat) {
-            map->setTrackAt(aPoint, makeStraightTrack(anAxis));
+            map->setTrackAt(where, makeStraightTrack(axis));
             return true;
          }
          else {
-            warn() << "Slopes not supported yet";
-            return false;
+            Point<int> before, after;
+
+            if (axis == axis::X) {
+               before = where + makePoint(-1, 0);
+               after = where + makePoint(1, 0);
+            }
+            else {
+               before = where + makePoint(0, -1);
+               after = where + makePoint(0, 1);
+            }
+            
+            const bool offEdge =
+               (axis == axis::X
+                  && (before.x < 0 || after.x >= map->width()))
+               || (axis == axis::Y
+                  && (before.y < 0 || after.y >= map->depth()));
+
+            if (offEdge) {
+               warn() << "Cannot place track here";
+               return false;
+            }
+            else {
+               bool ignored;
+               Vector<float> slopeBefore = map->slopeAt(before, axis, ignored);
+               Vector<float> slopeAfter = map->slopeAt(after, axis, ignored);
+
+               debug() << "before=" << slopeBefore << " after=" << slopeAfter;
+               
+               warn() << "Slopes not supported yet";
+               return false;
+            }
          }
       }
       else {
