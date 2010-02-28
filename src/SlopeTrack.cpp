@@ -72,19 +72,23 @@ SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
 {
    Vector<float> p1, p2, p3, p4;
 
+   const float OFF = 0.2f;
+   
    if (axis == axis::X) {
       p1 = makeVector(0.0f, 0.0f, 0.0f);
-      p2 = makeVector(0.1f, 0.0f, 0.0f);
-      p3 = makeVector(0.9f, slope.y, 0.0f);
+      p2 = makeVector(OFF, 0.0f, 0.0f);
+      p3 = makeVector(1.0f - OFF, slope.y, 0.0f);
       p4 = makeVector(1.0f, slope.y, 0.0f);
    }
    else {
       p1 = makeVector(0.0f, 0.0f, 0.0f);
-      p2 = makeVector(0.0f, 0.0f, 0.1f);
-      p3 = makeVector(0.0f, slope.y, 0.9f);
+      p2 = makeVector(0.0f, 0.0f, OFF);
+      p3 = makeVector(0.0f, slope.y, 1.0f - OFF);
       p4 = makeVector(0.0f, slope.y, 1.0f);
    }
 
+   debug() << p1 << " " << p2 << " " << p3 << " " << p4;
+   
    BezierCurve<float> curve = makeBezierCurve(p1, p2, p3, p4);
    length = curve.length;
 
@@ -207,5 +211,5 @@ ITrackSegmentPtr makeSlopeTrack(track::Direction axis, Vector<float> slope,
    Vector<float> slopeBefore, Vector<float> slopeAfter)
 {
    return ITrackSegmentPtr(
-      new SlopeTrack(axis, slopeBefore, slope, slopeAfter));
+      new SlopeTrack(axis, slope, slopeBefore, slopeAfter));
 }
