@@ -109,12 +109,12 @@ int main(int argc, char** argv)
    parseOptions(argc, argv);
    
    cout << PACKAGE << " " << VERSION << "." << PATCH << endl << endl
-	<< "Copyright (C) 2009-2010  Nick Gasson" << endl
-	<< "This program comes with ABSOLUTELY NO WARRANTY. "
-	<< "This is free software, and" << endl
-	<< "you are welcome to redistribute it under certain conditions. "
-	<< "See the GNU" << endl
-	<< "General Public Licence for details." << endl << endl;
+        << "Copyright (C) 2009-2010  Nick Gasson" << endl
+        << "This program comes with ABSOLUTELY NO WARRANTY. "
+        << "This is free software, and" << endl
+        << "you are welcome to redistribute it under certain conditions. "
+        << "See the GNU" << endl
+        << "General Public Licence for details." << endl << endl;
    
    log() << "Program started";
 
@@ -122,7 +122,7 @@ int main(int argc, char** argv)
 
    try {
       if (::action == "" || ::mapFile == "")
-	 throw runtime_error("Usage: TrainGame (edit|play) [map]");
+         throw runtime_error("Usage: TrainGame (edit|play) [map]");
       
       initResources();
       
@@ -132,21 +132,21 @@ int main(int argc, char** argv)
 
       IScreenPtr screen;
       if (::action == "edit") {
-	 if (resourceExists(mapFile, "maps"))
-	    screen = makeEditorScreen(loadMap(::mapFile));
-	 else {
-	    screen = makeEditorScreen(
+         if (resourceExists(mapFile, "maps"))
+            screen = makeEditorScreen(loadMap(::mapFile));
+         else {
+            screen = makeEditorScreen(
                makeEmptyMap(::mapFile, ::newMapWidth, ::newMapHeight));
-	 }
+         }
       }
       else if (::action == "play") {
-	 screen = makeGameScreen(loadMap(::mapFile));
+         screen = makeGameScreen(loadMap(::mapFile));
       }
       else if (::action == "uidemo") {
-	 screen = makeUIDemo();
+         screen = makeUIDemo();
       }
       else
-	 throw runtime_error("Unrecognised command: " + ::action);
+         throw runtime_error("Unrecognised command: " + ::action);
          
       ::window->run(screen);
 
