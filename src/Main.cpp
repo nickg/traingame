@@ -32,30 +32,6 @@ using namespace boost::filesystem;
 
 namespace {
    IWindowPtr window;
-   struct sigaction oldSIGINT;
-
-   void clearSignalHandlers()
-   {
-      sigaction(SIGINT, &oldSIGINT, NULL);
-   }
-        
-   void SIGINT_handler(int unused)
-   {
-      log() << "Caught SIGINT";
-      ::window->quit();
-      
-      clearSignalHandlers();
-   }
-   
-   void setupSignalHandlers()
-   {
-      struct sigaction sa;
-      sa.sa_handler = SIGINT_handler;
-      sa.sa_flags = 0;
-      sigemptyset(&sa.sa_mask);
-
-      sigaction(SIGINT, &sa, &oldSIGINT);
-   }
 
    // Options set from command line
    int newMapWidth = 32;
@@ -118,8 +94,6 @@ int main(int argc, char** argv)
    
    log() << "Program started";
 
-   setupSignalHandlers();
-
    try {
       if (::action == "" || ::mapFile == "")
          throw runtime_error("Usage: TrainGame (edit|play) [map]");
@@ -129,7 +103,7 @@ int main(int argc, char** argv)
       IConfigPtr cfg = getConfig();
       
       ::window = makeSDLWindow();
-
+      
       IScreenPtr screen;
       if (::action == "edit") {
          if (resourceExists(mapFile, "maps"))
