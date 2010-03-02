@@ -65,6 +65,7 @@ private:
    track::Direction axis;
    float length;
    bool flip;
+   BezierCurve<float> curve;
 };
 
 SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
@@ -97,7 +98,7 @@ SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
       
    debug() << p1 << " " << p2 << " " << p3 << " " << p4;
    
-   BezierCurve<float> curve = makeBezierCurve(p1, p2, p3, p4);
+   curve = makeBezierCurve(p1, p2, p3, p4);
    length = curve.length;
 
    // TODO: we should cache these
@@ -185,17 +186,30 @@ track::TravelToken SlopeTrack::getTravelToken(track::Position pos,
 
 void SlopeTrack::transform(const track::TravelToken& token, double delta) const
 {
-   assert(delta < 1.0);
+   assert(delta < length);
 
-   if (token.direction == -axis)
-      delta = 1.0 - delta;
+   //if (token.direction == -axis)
+   //   delta = length - delta;
 
-   const double xTrans = axis == axis::X ? delta : 0;
-   const double yTrans = axis == axis::Y ? delta : 0;
+   const float curveDelta = delta / length;
 
+   const Vector<float> curveValue = curve(curveDelta);
+
+   // const double xTrans = axis == axis::X ? delta : 0;
+   // const double yTrans = axis == axis::Y ? delta : 0;
+
+   // const float along =
+   //   token.direction == -axis ? 1.0f - curveValue.x : curveValue.x;
+
+   const float along = curveValue.x;
+   
+   const float xTrans = axis == axis::X ? along : 0.0f;
+   const float yTrans = curveValue.y;
+   const float zTrans = axis == axis::Y ? along : 0.0f;
+   
    glTranslated(static_cast<double>(origin.x) + xTrans,
-      0.0,
-      static_cast<double>(origin.y) + yTrans);
+      height + yTrans,
+      static_cast<double>(origin.y) + zTrans);
 
    if (axis == axis::Y)
       glRotated(-90.0, 0.0, 1.0, 0.0);

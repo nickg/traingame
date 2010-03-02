@@ -147,7 +147,7 @@ void CrossoverTrack::transform(const track::TravelToken& aToken,
    const double yTrans = dir == axis::Y ? aDelta : 0;
 
    glTranslated(static_cast<double>(myX) + xTrans,
-      0.0,
+      height,
       static_cast<double>(myY) + yTrans);
 
    if (dir == axis::Y)

@@ -114,7 +114,7 @@ void CurvedTrack::transform(const track::TravelToken& aToken, double aDelta) con
    assert(aDelta < segmentLength(aToken));
    
    glTranslated(static_cast<double>(origin.x),
-      0.0,
+      height,
       static_cast<double>(origin.y));
 
    transformToOrigin(baseRadius, startAngle);

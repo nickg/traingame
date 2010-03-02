@@ -114,7 +114,7 @@ void StraightTrack::transform(const track::TravelToken& aToken,
    const double yTrans = direction == axis::Y ? aDelta : 0;
 
    glTranslated(static_cast<double>(origin.x) + xTrans,
-      0.0,
+      height,
       static_cast<double>(origin.y) + yTrans);
 
    if (direction == axis::Y)
