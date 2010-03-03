@@ -188,8 +188,17 @@ void SlopeTrack::transform(const track::TravelToken& token, double delta) const
 {
    assert(delta < length);
 
+   debug() << "flip=" << flip
+           << " axis=" << axis
+           << " direction=" << token.direction;
+
+   debug() << "f(0)=" << curve(0.0f)
+           << " f(0.5)=" << curve(0.5f)
+           << " f(1.0)=" << curve(1.0f);
+   
    //if (token.direction == -axis)
-   //   delta = length - delta;
+   if (flip && token.direction == axis)
+         delta = length - delta;
 
    const float curveDelta = delta / length;
 
@@ -198,13 +207,14 @@ void SlopeTrack::transform(const track::TravelToken& token, double delta) const
    // const double xTrans = axis == axis::X ? delta : 0;
    // const double yTrans = axis == axis::Y ? delta : 0;
 
-   // const float along =
-   //   token.direction == -axis ? 1.0f - curveValue.x : curveValue.x;
+   const float along =
+      (/*token.direction == axis && */flip) ? 1.0f - curveValue.x : curveValue.x;
+   
 
-   const float along = curveValue.x;
+   //const float along = curveValue.x;
    
    const float xTrans = axis == axis::X ? along : 0.0f;
-   const float yTrans = curveValue.y;
+   const float yTrans =curveValue.y;
    const float zTrans = axis == axis::Y ? along : 0.0f;
    
    glTranslated(static_cast<double>(origin.x) + xTrans,
