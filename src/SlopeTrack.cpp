@@ -196,22 +196,16 @@ void SlopeTrack::transform(const track::TravelToken& token, double delta) const
            << " f(0.5)=" << curve(0.5f)
            << " f(1.0)=" << curve(1.0f);
    
-   //if (token.direction == -axis)
-   if (flip && token.direction == axis)
+   if ((flip && token.direction == axis)
+      || (!flip && token.direction == -axis))
          delta = length - delta;
 
    const float curveDelta = delta / length;
 
    const Vector<float> curveValue = curve(curveDelta);
 
-   // const double xTrans = axis == axis::X ? delta : 0;
-   // const double yTrans = axis == axis::Y ? delta : 0;
-
    const float along =
-      (/*token.direction == axis && */flip) ? 1.0f - curveValue.x : curveValue.x;
-   
-
-   //const float along = curveValue.x;
+      flip ? 1.0f - curveValue.x : curveValue.x;
    
    const float xTrans = axis == axis::X ? along : 0.0f;
    const float yTrans =curveValue.y;
