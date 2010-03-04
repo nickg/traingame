@@ -195,6 +195,10 @@ void SlopeTrack::transform(const track::TravelToken& token, double delta) const
    debug() << "f(0)=" << curve(0.0f)
            << " f(0.5)=" << curve(0.5f)
            << " f(1.0)=" << curve(1.0f);
+
+   debug() << "f'(0)=" << curve.deriv(0.0f)
+           << " f'(0.5)=" << curve.deriv(0.5f)
+           << " f'(1.0)=" << curve.deriv(1.0f);
    
    if ((flip && token.direction == axis)
       || (!flip && token.direction == -axis))
@@ -224,12 +228,12 @@ void SlopeTrack::transform(const track::TravelToken& token, double delta) const
       glRotated(-180.0, 0.0, 1.0, 0.0);
 
    const Vector<float> deriv = curve.deriv(
-      // token.direction == axis ? curveDelta : 1.0f - curveDelta);
+      //flip ? curveDelta : 1.0f - curveDelta);
       curveDelta);
    const float angle =
       radToDeg<float>(atanf(deriv.y / deriv.x));
 
-   debug() << "slope=" << deriv << " angle=" << angle;
+   //debug() << "slope=" << deriv << " angle=" << angle;
 
    if ((flip && token.direction == axis)
       || (!flip && token.direction == -axis))
