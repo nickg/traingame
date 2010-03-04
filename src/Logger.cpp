@@ -46,12 +46,14 @@ LoggerImpl::LoggerImpl()
 #else
    isStdoutTTY = (isatty(fileno(stdout)) != 0);
 #endif
+
+   cout.precision(3);
 }
 
 PrintLinePtr LoggerImpl::writeMsg(LogMsgType type)
 {
    if (isStdoutTTY)
-         cout << "\x1B[1m";
+      cout << "\x1B[1m";
    
    switch (type) {
    case LOG_NORMAL:
