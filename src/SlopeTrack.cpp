@@ -63,33 +63,30 @@ private:
    float height;
    IMeshPtr railMesh;
    track::Direction axis;
-   float length;
-   bool flip;
+   float length, yOffset;
    BezierCurve<float> curve;
 };
 
 SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
    Vector<float> slopeBefore, Vector<float> slopeAfter)
-   : height(0.0f), axis(axis)
+   : height(0.0f), axis(axis), yOffset(0.0f)
 {
    const float OFF = 0.1f;
 
-   if ((flip = (slope.y < 0.0f))) {
-      slope.y = abs(slope.y);
-      slopeBefore.y = abs(slopeBefore.y);
-      slopeAfter.y = abs(slopeAfter.y);
+   const Vector<float> avgBefore = (slope + slopeBefore) / 2.0f;
+   const Vector<float> avgAfter = (slope + slopeAfter) / 2.0f;
 
-      swap(slopeBefore, slopeAfter);
-   }
+   if (slope.y < 0.0f)
+      yOffset = abs(slope.y);
 
-   const float hFactor0 = sqrt(OFF / (1 + slopeBefore.y * slopeBefore.y));
-   const float hFactor1 = sqrt(OFF / (1 + slopeAfter.y * slopeAfter.y));
+   const float hFactor0 = sqrt(OFF / (1 + avgBefore.y * avgBefore.y));
+   const float hFactor1 = sqrt(OFF / (1 + avgAfter.y * avgAfter.y));
 
    const float xDelta0 = hFactor0;
-   const float yDelta0 = hFactor0 * slopeBefore.y;
+   const float yDelta0 = hFactor0 * avgBefore.y;
 
    const float xDelta1 = hFactor1;
-   const float yDelta1 = hFactor1 * slopeAfter.y;
+   const float yDelta1 = hFactor1 * avgAfter.y;
    
    Vector<float> p1 = makeVector(0.0f, 0.0f, 0.0f);
    Vector<float> p2 = makeVector(xDelta0, yDelta0, 0.0f);
@@ -100,7 +97,7 @@ SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
    
    curve = makeBezierCurve(p1, p2, p3, p4);
    length = curve.length;
-
+   
    // TODO: we should cache these
    railMesh = makeBezierRailMesh(curve);
 }
@@ -114,9 +111,6 @@ void SlopeTrack::render() const
    if (axis == axis::Y)
       glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
 
-   if (flip)
-      glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
-
    renderRailMesh(railMesh);
    
    glPopMatrix();
@@ -125,7 +119,7 @@ void SlopeTrack::render() const
 void SlopeTrack::setOrigin(int x, int y, float h)
 {
    origin = makePoint(x, y);
-   height = h;
+   height = h + yOffset;
 }
 
 double SlopeTrack::segmentLength(const track::TravelToken& token) const
@@ -188,10 +182,7 @@ void SlopeTrack::transform(const track::TravelToken& token, double delta) const
 {
    assert(delta < length);
 
-   debug() << "flip=" << flip
-           << " axis=" << axis
-           << " direction=" << token.direction;
-
+#if 0
    debug() << "f(0)=" << curve(0.0f)
            << " f(0.5)=" << curve(0.5f)
            << " f(1.0)=" << curve(1.0f);
@@ -199,21 +190,18 @@ void SlopeTrack::transform(const track::TravelToken& token, double delta) const
    debug() << "f'(0)=" << curve.deriv(0.0f)
            << " f'(0.5)=" << curve.deriv(0.5f)
            << " f'(1.0)=" << curve.deriv(1.0f);
+#endif
    
-   if ((flip && token.direction == axis)
-      || (!flip && token.direction == -axis))
-         delta = length - delta;
+   if (token.direction == -axis)
+      delta = length - delta;
 
    const float curveDelta = delta / length;
 
    const Vector<float> curveValue = curve(curveDelta);
-
-   const float along =
-      flip ? 1.0f - curveValue.x : curveValue.x;
    
-   const float xTrans = axis == axis::X ? along : 0.0f;
+   const float xTrans = axis == axis::X ? curveValue.x : 0.0f;
    const float yTrans =curveValue.y;
-   const float zTrans = axis == axis::Y ? along : 0.0f;
+   const float zTrans = axis == axis::Y ? curveValue.x : 0.0f;
    
    glTranslated(static_cast<double>(origin.x) + xTrans,
       height + yTrans,
@@ -227,16 +215,13 @@ void SlopeTrack::transform(const track::TravelToken& token, double delta) const
    if (token.direction == -axis)
       glRotated(-180.0, 0.0, 1.0, 0.0);
 
-   const Vector<float> deriv = curve.deriv(
-      //flip ? curveDelta : 1.0f - curveDelta);
-      curveDelta);
+   const Vector<float> deriv = curve.deriv(curveDelta);
    const float angle =
       radToDeg<float>(atanf(deriv.y / deriv.x));
 
    //debug() << "slope=" << deriv << " angle=" << angle;
 
-   if ((flip && token.direction == axis)
-      || (!flip && token.direction == -axis))
+   if (token.direction == -axis)
       glRotatef(-angle, 0.0f, 0.0f, 1.0f);
    else
       glRotatef(angle, 0.0f, 0.0f, 1.0f);

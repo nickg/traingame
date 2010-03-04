@@ -175,7 +175,7 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    lookAhead();
 
    // Move the camera vertically if it's currently underground
-
+#if 0
    // Calculate the location of the near clip plane
    const float nearClip = getConfig()->get<float>("NearClip");
    Vector<float> clipPosition = cameraPosition(viewRadius - nearClip);
@@ -188,6 +188,7 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
       cameraVTarget -= 0.001f * static_cast<float>(aDelta);
       cameraSpeed = 200.0f;
    }
+#endif
    
    // Bounce the camera if we need to
    vertAngle -= (vertAngle - cameraVTarget) / cameraSpeed;
