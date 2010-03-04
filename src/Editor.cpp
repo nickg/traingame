@@ -236,18 +236,21 @@ bool Editor::drawTrackTile(Point<int> where, track::Direction axis)
       bool level;
       Vector<float> slope = map->slopeAt(where, axis, level);
 
+      bool bValid, aValid;
+      Vector<float> slopeBefore = map->slopeBefore(where, axis, bValid);
+      Vector<float> slopeAfter = map->slopeAfter(where, axis, aValid);
+               
       if (level) {
-         const bool flat = abs(slope.y) < 0.001f;
+         const bool flat =
+            abs(slope.y) < 0.001f
+            && (!bValid || abs(slopeBefore.y) < 0.001f)
+            && (!aValid || abs(slopeAfter.y) < 0.001);
          
          if (flat) {
             map->setTrackAt(where, makeStraightTrack(axis));
             return true;
          }
          else {
-            bool bValid, aValid;
-            Vector<float> slopeBefore = map->slopeBefore(where, axis, bValid);
-            Vector<float> slopeAfter = map->slopeAfter(where, axis, aValid);
-               
             if (!bValid || !aValid) {
                warn() << "Cannot place track here";
                return false;
