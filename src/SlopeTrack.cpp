@@ -222,6 +222,20 @@ void SlopeTrack::transform(const track::TravelToken& token, double delta) const
    
    if (token.direction == -axis)
       glRotated(-180.0, 0.0, 1.0, 0.0);
+
+   const Vector<float> deriv = curve.deriv(
+      // token.direction == axis ? curveDelta : 1.0f - curveDelta);
+      curveDelta);
+   const float angle =
+      radToDeg<float>(atanf(deriv.y / deriv.x));
+
+   debug() << "slope=" << deriv << " angle=" << angle;
+
+   if ((flip && token.direction == axis)
+      || (!flip && token.direction == -axis))
+      glRotatef(-angle, 0.0f, 0.0f, 1.0f);
+   else
+      glRotatef(angle, 0.0f, 0.0f, 1.0f);
 }
 
 void SlopeTrack::getEndpoints(vector<Point<int> >& output) const
