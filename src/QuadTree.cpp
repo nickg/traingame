@@ -111,8 +111,6 @@ void QuadTree::buildTree(int width, int height)
    if (sectors)
       delete[] sectors;
    sectors = new Sector[numSectors];
-
-   debug() << "buildTree numSectors=" << numSectors;
    
    // Build the tree
    buildNode(0, 0, 0, 0, size, size);

@@ -95,12 +95,9 @@ SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
    Vector<float> p3 = makeVector(1.0f - xDelta1, slope.y - yDelta1, 0.0f);
    Vector<float> p4 = makeVector(1.0f, slope.y, 0.0f);
 
-   debug() << p1 << " " << p2 << " " << p3 << " " << p4;
-   
    curve = makeBezierCurve(p1, p2, p3, p4);
    length = curve.length;
-   
-   // TODO: we should cache these
+
    railMesh = makeBezierRailMesh(curve);
 }
 
@@ -240,8 +237,6 @@ void SlopeTrack::transform(const track::TravelToken& token, double delta) const
    const Vector<float> deriv = curve.deriv(curveDelta);
    const float angle =
       radToDeg<float>(atanf(deriv.y / deriv.x));
-
-   //debug() << "slope=" << deriv << " angle=" << angle;
 
    if (token.direction == -axis)
       glRotatef(-angle, 0.0f, 0.0f, 1.0f);
