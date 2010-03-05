@@ -114,7 +114,27 @@ void SlopeTrack::render() const
       glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
 
    renderRailMesh(railMesh);
-   
+
+   // Draw the sleepers
+   glTranslatef(-0.5f, 0.0f, 0.0f);
+
+   for (float t = 0.1f; t < 1.0f; t += 0.25f) {
+      const Vector<float> curveValue = curve(t);
+
+      const Vector<float> deriv = curve.deriv(t);
+      const float angle =
+         radToDeg<float>(atanf(deriv.y / deriv.x));
+
+      glPushMatrix();
+      
+      glTranslatef(curveValue.x, curveValue.y, 0.0f);
+      glRotatef(angle, 0.0f, 0.0f, 1.0f);
+      
+      renderSleeper();
+
+      glPopMatrix();
+   }
+      
    glPopMatrix();
 }
 
