@@ -221,6 +221,12 @@ bool Editor::canConnect(const Point<int>& aFirstPoint,
 // Returns `false' if track cannot be placed here
 bool Editor::drawTrackTile(Point<int> where, track::Direction axis)
 {
+   // Ensure axis is only in the positive direction
+   if (axis == -axis::X)
+      axis = axis::X;
+   else if (axis == -axis::Y)
+      axis = axis::Y;
+   
    if (map->isValidTrack(where)) {
       ITrackSegmentPtr merged = map->trackAt(where)->mergeExit(where, axis);
       if (merged) {

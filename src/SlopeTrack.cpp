@@ -73,6 +73,8 @@ SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
 {
    const float OFF = 0.1f;
 
+   assert(axis == axis::X || axis == axis::Y);
+   
    const Vector<float> avgBefore = (slope + slopeBefore) / 2.0f;
    const Vector<float> avgAfter = (slope + slopeAfter) / 2.0f;
 
@@ -92,7 +94,7 @@ SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
    Vector<float> p2 = makeVector(xDelta0, yDelta0, 0.0f);
    Vector<float> p3 = makeVector(1.0f - xDelta1, slope.y - yDelta1, 0.0f);
    Vector<float> p4 = makeVector(1.0f, slope.y, 0.0f);
-      
+
    debug() << p1 << " " << p2 << " " << p3 << " " << p4;
    
    curve = makeBezierCurve(p1, p2, p3, p4);
