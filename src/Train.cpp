@@ -276,27 +276,28 @@ void Train::updateSmokePosition(int aDelta)
    smokeTrail->setDelay(baseDelay - (throttle * 15));
 }
 
-void Train::update(int aDelta)
+void Train::update(int delta)
 {
    int oldSpeedSign = engine().vehicle->speed() >= 0.0 ? 1 : 0;
    
    for (list<Part>::iterator it = parts.begin();
         it != parts.end(); ++it)
-      (*it).vehicle->update(aDelta);
+      (*it).vehicle->update(delta,
+         (*it).travelToken.gradient((*it).segmentDelta));
 
    int newSpeedSign = engine().vehicle->speed() >= 0.0 ? 1 : 0;
 
    if (oldSpeedSign != newSpeedSign)
       flipLeader();
    
-   updateSmokePosition(aDelta);
+   updateSmokePosition(delta);
    
    // How many metres does a tile correspond to?
    const double M_PER_UNIT = 5.0;
 
    const Vector<float> oldPos = partPosition(engine());
    
-   const double deltaSeconds = static_cast<float>(aDelta) / 1000.0f;
+   const double deltaSeconds = static_cast<float>(delta) / 1000.0f;
    move(engine().vehicle->speed() * deltaSeconds / M_PER_UNIT);
 
    velocityVector = partPosition(engine()) - oldPos;

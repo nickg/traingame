@@ -42,6 +42,9 @@ namespace track {
 
    struct TravelToken;
    typedef function<void (const TravelToken&, double)> TransformFunc;
+   typedef function<float (const TravelToken&, float)> GradientFunc;
+
+   inline float flatGradientFunc(const TravelToken& t, float d) { return 0.0f; }
 
    // Sums up all the information required to travel along a piece
    // of track
@@ -57,14 +60,23 @@ namespace track {
       // assumes that it is initially placed at the origin
       TransformFunc transformer;
 
+      // A function that returns the gradient at any point
+      GradientFunc gradientf;
+
       // Number of possible exits from this track segment given the direction
       // we are travelling in
       int numExits;
 
-      // Wrapper for the above
+      // Wrappers for the above functions
+      
       void transform(double aDelta) const
       {
          transformer(*this, aDelta);
+      }
+
+      float gradient(float delta) const
+      {
+         return gradientf(*this, delta);
       }
    };
 }

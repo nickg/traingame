@@ -104,6 +104,7 @@ CurvedTrack::getTravelToken(track::Position aPosition,
       aDirection,
       aPosition,
       bind(&CurvedTrack::transform, this, _1, _2),
+      track::flatGradientFunc,
       1
    };
    return tok;

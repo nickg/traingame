@@ -58,6 +58,7 @@ public:
 private:
    void ensureValidDirection(const track::Direction& dir) const;
    void transform(const track::TravelToken& token, double delta) const;
+   float gradient(const track::TravelToken& token, float delta) const;
    
    Point<int> origin;
    float height;
@@ -192,14 +193,25 @@ track::TravelToken SlopeTrack::getTravelToken(track::Position pos,
       dir,
       pos,
       bind(&SlopeTrack::transform, this, _1, _2),
+      bind(&SlopeTrack::gradient, this, _1, _2),
       1
    };
    return tok;
 }
 
+float SlopeTrack::gradient(const track::TravelToken& token, float delta) const
+{
+   assert(delta < length && delta >= 0.0f);
+   
+   if (token.direction == -axis)
+      delta = length - delta;
+
+   return curve.deriv(delta).y;
+}
+
 void SlopeTrack::transform(const track::TravelToken& token, double delta) const
 {
-   assert(delta < length);
+   assert(delta < length && delta >= 0.0f);
 
 #if 0
    debug() << "f(0)=" << curve(0.0f)

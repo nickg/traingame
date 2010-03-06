@@ -33,7 +33,7 @@ public:
    ~Waggon() {}
 
    // IRollingStock interface
-   void update(int aDelta);
+   void update(int delta, float gradient);
    void render() const;
    IControllerPtr controller();
    double speed() const { return 0.0; }
@@ -65,7 +65,7 @@ void Waggon::text(const string& localName, const string& aString)
       model = loadModel(resource, aString, MODEL_SCALE);
 }
 
-void Waggon::update(int aDelta)
+void Waggon::update(int delta, float gradient)
 {
    
 }

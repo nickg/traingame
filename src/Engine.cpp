@@ -64,7 +64,7 @@ public:
 
    // IRollingStock interface
    void render() const;
-   void update(int aDelta);
+   void update(int delta, float gradient);
    
    double speed() const { return mySpeed; }
    IControllerPtr controller() { return shared_from_this(); }
@@ -84,6 +84,7 @@ private:
    double tractiveEffort() const;
    double resistance() const;
    double brakeForce() const;
+   double gravity(float gradient) const;
    
    IModelPtr model;
 
@@ -168,6 +169,13 @@ double Engine::resistance() const
    return sign * (a + b*absSpeed + c*absSpeed*absSpeed);
 }
 
+// Calculate the resistance due to gravity on a slope
+double Engine::gravity(float gradient) const
+{
+   const double g = 9.78;
+   return -g * gradient;
+}
+
 // Calculate the magnitude of the braking force
 double Engine::brakeForce() const
 {
@@ -187,7 +195,7 @@ double Engine::brakeForce() const
 }
 
 // Compute the next state of the engine
-void Engine::update(int aDelta)
+void Engine::update(int delta, float gradient)
 {
    // Update the pressure of the boiler
    // The fire temperature is delayed and then used to increase it
@@ -197,27 +205,31 @@ void Engine::update(int aDelta)
    const double P = tractiveEffort();
    const double Q = resistance();
    const double B = isBrakeOn ? brakeForce() : 0.0;
+   const double G = gravity(gradient);   
 
    // The applied tractive effort is controlled by the throttle
    const double netP = P * static_cast<double>(myThrottle) / 10.0;
 
-   const double deltaSeconds = aDelta / 1000.0f;
-   const double a = ((netP - Q - B) / myMass) * deltaSeconds;
+   const double deltaSeconds = delta / 1000.0f;
+   const double a = ((netP - Q - B - G) / myMass) * deltaSeconds;
 
    //   mySpeed = max(mySpeed + a, 0.0);
    mySpeed += a;
 
-   if (abs(mySpeed) < STOP_SPEED && myThrottle == 0) {
+   if (abs(mySpeed) < STOP_SPEED && myThrottle == 0 && isBrakeOn) {
       mySpeed = 0.0;
       haveStopped = true;
    }
    else
       haveStopped = false;
-   
-   // debug() << "P=" << netP << ", Q=" << Q
-   //         << ", B=" << B
-   //         << ", a=" << a << ", v=" << mySpeed
-   //         << " (delta=" << aDelta << ")";
+
+#if 1
+   debug() << "P=" << netP << ", Q=" << Q
+           << ", B=" << B
+           << ", G=" << G
+           << ", a=" << a << ", v=" << mySpeed
+           << " (delta=" << delta << " grad=" << gradient << ")";
+#endif
 }
 
 // User interface to the engine

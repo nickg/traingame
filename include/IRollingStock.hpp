@@ -27,7 +27,7 @@ struct IRollingStock {
    virtual ~IRollingStock() {}
 
    // Update speed, fuel, etc.
-   virtual void update(int aDelta) = 0;
+   virtual void update(int delta, float gradient) = 0;
    
    // Display the model
    virtual void render() const = 0;

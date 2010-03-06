@@ -125,6 +125,7 @@ CrossoverTrack::getTravelToken(track::Position aPosition,
       aDirection,
       aPosition,
       bind(&CrossoverTrack::transform, this, _1, _2),
+      track::flatGradientFunc,
       1
    };
    return tok;

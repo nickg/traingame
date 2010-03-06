@@ -97,6 +97,7 @@ StraightTrack::getTravelToken(track::Position aPosition,
       aDirection,
       aPosition,
       bind(&StraightTrack::transform, this, _1, _2),
+      track::flatGradientFunc,
       1
    };
    return tok;

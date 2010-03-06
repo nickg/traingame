@@ -260,6 +260,7 @@ track::TravelToken Points::getTravelToken(track::Position position,
       direction,
       position,
       bind(&Points::transform, this, _1, _2),
+      track::flatGradientFunc,
       nExits
    };
     
