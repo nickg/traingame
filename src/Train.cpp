@@ -115,9 +115,11 @@ Train::Train(IMapPtr aMap)
 
    // Bit of a hack to put the engine in the right place
    move(0.275);
-   
+
+#if 0
    for (int i = 1; i <= 4; i++)
       addPart(loadWaggon("coal_truck"));
+#endif
 
    smokeTrail = makeSmokeTrail();
 }

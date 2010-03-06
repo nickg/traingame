@@ -161,8 +161,8 @@ double Engine::resistance() const
    const double sign = mySpeed < 0.0 ? -1.0 : 1.0;
    
    const double a = 0.0;
-   const double b = 0.09;
-   const double c = 0.02;
+   const double b = 0.1;
+   const double c = 0.04;
 
    const double absSpeed = abs(mySpeed);
    
@@ -173,7 +173,7 @@ double Engine::resistance() const
 double Engine::gravity(float gradient) const
 {
    const double g = 9.78;
-   return -g * gradient;
+   return -g * gradient * myMass;
 }
 
 // Calculate the magnitude of the braking force
@@ -184,9 +184,9 @@ double Engine::brakeForce() const
 
    // Brake always acts against direction of motion
    double dir;
-   if (abs(mySpeed) < STOP_SPEED)
+   /*if (abs(mySpeed) < STOP_SPEED)
       dir = 0.0;
-   else if (mySpeed < 0.0)
+      else*/ if (mySpeed < 0.0)
       dir = -1.0;
    else
       dir = 1.0;
