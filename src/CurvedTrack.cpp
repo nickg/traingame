@@ -43,7 +43,7 @@ public:
    void render() const;
 
    void setOrigin(int x, int y, float h);
-   double segmentLength(const track::TravelToken& aToken) const;
+   float segmentLength(const track::TravelToken& aToken) const;
 
    Connection nextPosition(const track::TravelToken& aToken) const;
    bool isValidDirection(const Direction& aDirection) const;
@@ -62,7 +62,7 @@ public:
    void setStateRenderHint() {}
       
 private:
-   void transform(const track::TravelToken& aToken, double aDelta) const;
+   void transform(const track::TravelToken& aToken, float delta) const;
    Vector<int> cwEntryVector() const;
    Vector<int> ccwEntryVector() const;
    void ensureValidDirection(const Direction& aDirection) const;
@@ -110,9 +110,9 @@ CurvedTrack::getTravelToken(track::Position aPosition,
    return tok;
 }
 
-void CurvedTrack::transform(const track::TravelToken& aToken, double aDelta) const
+void CurvedTrack::transform(const track::TravelToken& aToken, float delta) const
 {
-   assert(aDelta < segmentLength(aToken));
+   assert(delta < segmentLength(aToken));
    
    glTranslated(static_cast<double>(origin.x),
       height,
@@ -122,7 +122,7 @@ void CurvedTrack::transform(const track::TravelToken& aToken, double aDelta) con
 
    bool backwards = aToken.direction == cwEntryVector();
    
-   double ratio = aDelta / segmentLength(aToken);
+   double ratio = delta / segmentLength(aToken);
    if (backwards)
       ratio = 1.0 - ratio;
       
@@ -135,10 +135,10 @@ void CurvedTrack::transform(const track::TravelToken& aToken, double aDelta) con
       glRotatef(180.0, 0, 1, 0);
 }
 
-double CurvedTrack::segmentLength(const track::TravelToken& aToken) const
+float CurvedTrack::segmentLength(const track::TravelToken& aToken) const
 {
    // Assume curve is only through 90 degrees
-   return M_PI * (static_cast<double>(baseRadius) - 0.5) / 2.0;
+   return M_PI * (static_cast<float>(baseRadius) - 0.5f) / 2.0f;
 }
 
 //

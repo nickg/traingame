@@ -58,7 +58,7 @@ private:
       // segmentLength() This delta value ranges from 0 to that length and
       // indicates how far along the segment the train is
       ITrackSegmentPtr segment;
-      double segmentDelta;
+      float segmentDelta;
       track::TravelToken travelToken;
       
       // Direction train part is travelling along the track
@@ -68,7 +68,7 @@ private:
       bool isLeading;
 
       // Handles reversal mid-segment
-      double movementSign;
+      float movementSign;
 
       bool operator==(const Part& other) const
       {

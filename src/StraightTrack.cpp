@@ -41,9 +41,8 @@ public:
    void render() const;
    
    void setOrigin(int x, int y, float h);
-   double segmentLength(const track::TravelToken& aToken) const { return 1.0; }
+   float segmentLength(const track::TravelToken& token) const { return 1.0f; }
 
-   Vector<double> offsetForDelta(double aDelta) const;
    Connection nextPosition(const track::TravelToken& aDirection) const;
    bool isValidDirection(const Direction& aDirection) const;
    void getEndpoints(vector<Point<int> >& aList) const;
@@ -62,7 +61,7 @@ public:
    xml::element toXml() const;
    
 private:
-   void transform(const track::TravelToken& aToken, double aDelta) const;
+   void transform(const track::TravelToken& aToken, float delta) const;
    void ensureValidDirection(const track::Direction& aDirection) const;
    
    Point<int> origin;  // Absolute position
@@ -104,15 +103,15 @@ StraightTrack::getTravelToken(track::Position aPosition,
 }
 
 void StraightTrack::transform(const track::TravelToken& aToken,
-   double aDelta) const
+   float delta) const
 {
-   assert(aDelta < 1.0);
+   assert(delta < 1.0);
 
    if (aToken.direction == -direction)
-      aDelta = 1.0 - aDelta;
+      delta = 1.0 - delta;
 
-   const double xTrans = direction == axis::X ? aDelta : 0;
-   const double yTrans = direction == axis::Y ? aDelta : 0;
+   const float xTrans = direction == axis::X ? delta : 0;
+   const float yTrans = direction == axis::Y ? delta : 0;
 
    glTranslated(static_cast<double>(origin.x) + xTrans,
       height,

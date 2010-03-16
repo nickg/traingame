@@ -69,9 +69,9 @@ namespace track {
 
       // Wrappers for the above functions
       
-      void transform(double aDelta) const
+      void transform(float delta) const
       {
-         transformer(*this, aDelta);
+         transformer(*this, delta);
       }
 
       float gradient(float delta) const
@@ -102,7 +102,7 @@ struct ITrackSegment : IXMLSerialisable {
    virtual void setOrigin(int x, int y, float height) = 0;
 
    // Get the length of this track segment
-   virtual double segmentLength(const track::TravelToken& aToken) const = 0;
+   virtual float segmentLength(const track::TravelToken& aToken) const = 0;
 
    // Get a travel token for this track segment starting at a particular
    // position and moving in a particular direciton

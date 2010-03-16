@@ -40,7 +40,7 @@ struct IMeshBuffer {
    typedef Vector<float> Vertex;
    typedef Vector<float> Normal;
    typedef Point<float> TexCoord;
-   typedef unsigned Index;
+   typedef size_t Index;
 
    virtual ~IMeshBuffer() {}
 
@@ -64,7 +64,7 @@ struct IMeshBuffer {
    virtual void printStats() const = 0;
 };
 
-typedef std::tr1::shared_ptr<IMeshBuffer> IMeshBufferPtr;
+typedef shared_ptr<IMeshBuffer> IMeshBufferPtr;
 
 // Generic interface to meshes
 struct IMesh {
@@ -73,7 +73,7 @@ struct IMesh {
    virtual void render() const = 0;
 };
 
-typedef std::tr1::shared_ptr<IMesh> IMeshPtr;
+typedef shared_ptr<IMesh> IMeshPtr;
 
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer);
 IMeshBufferPtr makeMeshBuffer();

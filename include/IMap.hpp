@@ -108,6 +108,7 @@ public:
 
    // Get the height above ground at a particular point
    virtual float heightAt(float x, float y) const = 0;
+   virtual float heightAt(Point<int> where) const = 0;
 
    // Given a tile and an axis, return a vector indicating the slope
    // along that axis. `level' is set if the slope is the same across

@@ -41,7 +41,7 @@ public:
    void setOrigin(int x, int y, float h);
    
    void render() const;
-   double segmentLength(const track::TravelToken& aToken) const;
+   float segmentLength(const track::TravelToken& aToken) const;
    bool isValidDirection(const track::Direction& aDirection) const;
    track::Connection nextPosition(const track::TravelToken& aToken) const;
    void getEndpoints(vector<Point<int> >& aList) const;
@@ -58,7 +58,7 @@ public:
    xml::element toXml() const;
    
 private:
-   void transform(const track::TravelToken& aToken, double aDelta) const;
+   void transform(const track::TravelToken& aToken, float delta) const;
    
    int myX, myY;
    float height;
@@ -108,9 +108,9 @@ void CrossoverTrack::setOrigin(int x, int y, float h )
    height = h;
 }
 
-double CrossoverTrack::segmentLength(const track::TravelToken& aToken) const
+float CrossoverTrack::segmentLength(const track::TravelToken& aToken) const
 {
-   return 1.0;
+   return 1.0f;
 }
 
 track::TravelToken
@@ -132,20 +132,20 @@ CrossoverTrack::getTravelToken(track::Position aPosition,
 }
 
 void CrossoverTrack::transform(const track::TravelToken& aToken,
-   double aDelta) const
+   float delta) const
 {
-   assert(aDelta < 1.0);
+   assert(delta < 1.0);
    
    bool backwards = aToken.direction== -axis::X || aToken.direction == -axis::Y;
 
    if (backwards) {
-      aDelta = 1.0 - aDelta;
+      delta = 1.0f - delta;
    }
 
    track::Direction dir = backwards ? -aToken.direction : aToken.direction;
 
-   const double xTrans = dir == axis::X ? aDelta : 0;
-   const double yTrans = dir == axis::Y ? aDelta : 0;
+   const double xTrans = dir == axis::X ? delta : 0;
+   const double yTrans = dir == axis::Y ? delta : 0;
 
    glTranslated(static_cast<double>(myX) + xTrans,
       height,

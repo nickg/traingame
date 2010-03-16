@@ -38,9 +38,13 @@ struct BezierCurve {
       Vector<T> cur = operator()(0.0), prev;
 
       length = 0.0;
+
+            
+      const T step = static_cast<T>(0.01);
+      const T min = static_cast<T>(0.1);
+      const T max = static_cast<T>(1.0);
       
-      const T step = 0.01;
-      for (T t = 0.1; t <= 1.0; t += step) {
+      for (T t = min; t <= max; t += step) {
          prev = cur;
          cur = operator()(t);
 

@@ -34,7 +34,7 @@ public:
    // ITrackSegment interface
    void render() const;
    void setOrigin(int x, int y, float h) { myX = x; myY = y; height = h; }
-   double segmentLength(const track::TravelToken& aToken) const;
+   float segmentLength(const track::TravelToken& aToken) const;
    bool isValidDirection(const track::Direction& aDirection) const;
    track::Connection nextPosition(const track::TravelToken& aToken) const;
    void getEndpoints(vector<Point<int> >& aList) const;
@@ -50,7 +50,7 @@ public:
    // IXMLSerialisable interface
    xml::element toXml() const;
 private:
-   void transform(const track::TravelToken& aToken, double aDelta) const;
+   void transform(const track::TravelToken& aToken, float aDelta) const;
    void ensureValidDirection(track::Direction aDirection) const;
    void renderArrow() const;
 
@@ -239,12 +239,12 @@ void Points::render() const
    glPopMatrix();
 }
 
-double Points::segmentLength(const track::TravelToken& aToken) const
+float Points::segmentLength(const track::TravelToken& aToken) const
 {
    if (aToken.position == displacedEndpoint())
       return myCurve.length;
    else
-      return 3.0;
+      return 3.0f;
 }
 
 track::TravelToken Points::getTravelToken(track::Position position,
@@ -267,29 +267,29 @@ track::TravelToken Points::getTravelToken(track::Position position,
    return tok;
 }
 
-void Points::transform(const track::TravelToken& aToken, double aDelta) const
+void Points::transform(const track::TravelToken& aToken, float delta) const
 {
    const float len = segmentLength(aToken);
    
-   assert(aDelta < len);
+   assert(delta < len);
 
    if (myX == aToken.position.x && myY == aToken.position.y
       && state == NOT_TAKEN) {
 
       if (aToken.direction == myAxis
          && (myAxis == -axis::X || myAxis == -axis::Y))
-         aDelta -= 1.0;
+         delta -= 1.0f;
       
-      const double xTrans =
-         myAxis == axis::X ? aDelta
-         : (myAxis == -axis::X ? -aDelta : 0.0);
-      const double yTrans =
-         myAxis == axis::Y ? aDelta
-         : (myAxis == -axis::Y ? -aDelta : 0.0);
+      const float xTrans =
+         myAxis == axis::X ? delta
+         : (myAxis == -axis::X ? -delta : 0.0f);
+      const float yTrans =
+         myAxis == axis::Y ? delta
+         : (myAxis == -axis::Y ? -delta : 0.0f);
       
-      glTranslatef(static_cast<double>(myX) + xTrans,
+      glTranslatef(static_cast<float>(myX) + xTrans,
          height,
-         static_cast<double>(myY) + yTrans);
+         static_cast<float>(myY) + yTrans);
       
       if (myAxis == axis::Y || myAxis == -axis::Y)
          glRotated(-90.0, 0.0, 1.0, 0.0);
@@ -297,27 +297,27 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       glTranslated(-0.5, 0.0, 0.0);
    }
    else if (aToken.position == straightEndpoint()) {
-      aDelta = 2.0 - aDelta;
+      delta = 2.0f - delta;
 
       if (aToken.direction == -myAxis
          && (myAxis == axis::X || myAxis == axis::Y))
-         aDelta += 1.0;
+         delta += 1.0f;
       
-      const double xTrans =
-         myAxis == axis::X ? aDelta
-         : (myAxis == -axis::X ? -aDelta : 0.0);
-      const double yTrans =
-         myAxis == axis::Y ? aDelta
-         : (myAxis == -axis::Y ? -aDelta : 0.0);
+      const float xTrans =
+         myAxis == axis::X ? delta
+         : (myAxis == -axis::X ? -delta : 0.0f);
+      const float yTrans =
+         myAxis == axis::Y ? delta
+         : (myAxis == -axis::Y ? -delta : 0.0f);
       
-      glTranslatef(static_cast<double>(myX) + xTrans,
+      glTranslatef(static_cast<float>(myX) + xTrans,
          0.0,
-         static_cast<double>(myY) + yTrans);
+         static_cast<float>(myY) + yTrans);
       
       if (myAxis == axis::Y || myAxis == -axis::Y)
-         glRotated(-90.0, 0.0, 1.0, 0.0);
+         glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
       
-      glTranslated(-0.5, 0.0, 0.0);
+      glTranslatef(-0.5f, 0.0f, 0.0f);
    }
    else if (aToken.position == displacedEndpoint() || state == TAKEN) {
       // Curving onto the straight section
@@ -326,7 +326,7 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       // We have a slight problem in that the domain of the curve
       // function is [0,1] but the delta is in [0,len] so we have
       // to compress the delta into [0,1] here
-      const float curveDelta = aDelta / len;
+      const float curveDelta = delta / len;
 
       bool backwards = aToken.position == displacedEndpoint();
       
@@ -362,12 +362,15 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       else
          assert(false);
 
-      glTranslatef(myX + xTrans, 0.0f, myY + yTrans);
+      glTranslatef(
+         static_cast<float>(myX) + xTrans,
+         0.0f,
+         static_cast<float>(myY) + yTrans);
       
       if (myAxis == axis::Y || myAxis == -axis::Y)
-         glRotated(-90.0, 0.0, 1.0, 0.0);
+         glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
       
-      glTranslated(-0.5, 0.0, 0.0);
+      glTranslatef(-0.5f, 0.0f, 0.0f);
 
       glRotatef(rotate, 0.0f, 1.0f, 0.0f);
    }

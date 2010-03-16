@@ -117,7 +117,7 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal)
       }
    }
    
-   const int index = vertices.size();
+   const size_t index = vertices.size();
    vertices.push_back(aVertex);
    normals.push_back(aNormal);
    indices.push_back(index);
@@ -153,7 +153,7 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal,
       }
    }
    
-   const int index = vertices.size();
+   const size_t index = vertices.size();
    vertices.push_back(aVertex);
    normals.push_back(aNormal);
    colours.push_back(aColour);
@@ -183,7 +183,7 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal,
       }
    }
    
-   const int index = vertices.size();
+   const size_t index = vertices.size();
    vertices.push_back(aVertex);
    normals.push_back(aNormal);
    texCoords.push_back(aTexCoord);
@@ -376,9 +376,9 @@ private:
 
    Material material;
    bool hasMaterial, hasTexture;
-   int myVertexCount;
+   size_t myVertexCount;
    VertexData* myVertexData;
-   int myIndexCount;
+   size_t myIndexCount;
    GLushort* myIndices;
 };
 
@@ -437,7 +437,8 @@ void VertexArrayMesh::render() const
    glNormalPointer(GL_FLOAT, sizeof(VertexData),
       reinterpret_cast<GLvoid*>(&myVertexData->nx));
 
-   glDrawElements(GL_TRIANGLES, myIndexCount, GL_UNSIGNED_SHORT, myIndices);
+   glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(myIndexCount),
+      GL_UNSIGNED_SHORT, myIndices);
    
    glPopClientAttrib();
    glPopAttrib();
@@ -542,7 +543,8 @@ void VBOMesh::render() const
    glVertexPointer(3, GL_FLOAT, sizeof(VertexData),
       reinterpret_cast<GLvoid*>(0));
    
-   glDrawElements(GL_TRIANGLES, myIndexCount, GL_UNSIGNED_SHORT, 0);
+   glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(myIndexCount),
+      GL_UNSIGNED_SHORT, 0);
 
    glBindBufferARB(GL_ARRAY_BUFFER, 0);
    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);

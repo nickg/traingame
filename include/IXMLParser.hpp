@@ -64,7 +64,7 @@ namespace {
             "Cannot parse colour attribute with value '"
             + str + "'");
 
-      return makeColour(r / 255.0f, g / 255.0f, b / 255.0f);
+      return makeRGB(r, g, b);
    }
 
    template <class T>

@@ -110,6 +110,7 @@ public:
    IStationPtr extendStation(Point<int> aStartPos,
       Point<int> aFinishPos);
    float heightAt(float x, float y) const;
+   float heightAt(Point<int> where) const;
    Vector<float> slopeAt(Point<int> where, track::Direction axis,
       bool& level) const;
    Vector<float> slopeBefore(Point<int> where,
@@ -814,15 +815,20 @@ void Map::postRenderSector(IGraphicsPtr aContext, int id,
 
       glEnable(GL_BLEND);
       glDisable(GL_TEXTURE_2D);
+
+      const float blX = static_cast<float>(botLeft.x);
+      const float blY = static_cast<float>(botLeft.y);
+      const float trX = static_cast<float>(topRight.x);
+      const float trY = static_cast<float>(topRight.y);
       
       static const float seaLevel = -0.6f;
       gl::colour(makeRGB(0, 80, 160, 150));
       glNormal3f(0.0f, 1.0f, 0.0f);
       glBegin(GL_QUADS);
-      glVertex3f(botLeft.x - 0.5f, seaLevel, botLeft.y - 0.5f);
-      glVertex3f(botLeft.x - 0.5f, seaLevel, topRight.y - 0.5f);
-      glVertex3f(topRight.x - 0.5f, seaLevel, topRight.y - 0.5f);
-      glVertex3f(topRight.x - 0.5f, seaLevel, botLeft.y - 0.5f);
+      glVertex3f(blX - 0.5f, seaLevel, blY - 0.5f);
+      glVertex3f(blX - 0.5f, seaLevel, trY - 0.5f);
+      glVertex3f(trX - 0.5f, seaLevel, trY - 0.5f);
+      glVertex3f(trX - 0.5f, seaLevel, blY - 0.5f);
       glEnd();
 
       glPopAttrib();
@@ -967,12 +973,17 @@ float Map::heightAt(float x, float y) const
    const int xFloor = static_cast<int>(floorf(x));
    const int yFloor = static_cast<int>(floorf(y));
 
-   if (xFloor < 0 || yFloor < 0
-      || xFloor >= myWidth || yFloor >= myDepth)
+   return heightAt(makePoint(xFloor, yFloor));
+}
+
+float Map::heightAt(Point<int> where) const
+{
+   if (where.x < 0 || where.y < 0
+      || where.x >= myWidth || where.y >= myDepth)
       return 0.0f;
 
    int indexes[4];
-   tileVertices(x, y, indexes);
+   tileVertices(where.x, where.y, indexes);
 
    float avg = 0.0f;
    for (int i = 0; i < 4; i++)
@@ -1118,7 +1129,7 @@ void Map::addScenery(Point<int> where, ISceneryPtr s)
    else {
       tileAt(where.x, where.y).scenery = s;
       s->setPosition(static_cast<float>(where.x),
-         heightAt(where.x, where.y),
+         heightAt(where),
          static_cast<float>(where.y));
    }
 }

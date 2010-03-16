@@ -91,7 +91,7 @@ private:
 };
 
 Editor::Editor(IMapPtr aMap) 
-   : map(aMap), myPosition(4.5, -17.5, -21.5),
+   : map(aMap), myPosition(4.5f, -17.5f, -21.5f),
      myTool(TRACK_TOOL), amScrolling(false), amDragging(false)
 {
    mySun = makeSunLight();
@@ -461,7 +461,7 @@ void Editor::drawDraggedTrack()
       }
 
       ITrackSegmentPtr track = makeCurvedTrack(startAngle, endAngle, xlen);
-      track->setOrigin(where.x, where.y, map->heightAt(where.x, where.y));
+      track->setOrigin(where.x, where.y, map->heightAt(where));
 
       vector<Point<int> > exits;
       track->getEndpoints(exits);
@@ -531,11 +531,11 @@ void Editor::onMouseMove(IPickBufferPtr pickBuffer, int x, int y,
    else if (amScrolling) {
       const float speed = 0.05f;
       
-      myPosition.x -= xrel * speed;
-      myPosition.z -= xrel * speed;
+      myPosition.x -= static_cast<float>(xrel) * speed;
+      myPosition.z -= static_cast<float>(xrel) * speed;
       
-      myPosition.x += yrel * speed;
-      myPosition.z -= yrel * speed;      
+      myPosition.x += static_cast<float>(yrel) * speed;
+      myPosition.z -= static_cast<float>(yrel) * speed;      
    }
 }
 
@@ -567,10 +567,10 @@ void Editor::onMouseClick(IPickBufferPtr pickBuffer, int x, int y,
       }
    }
    else if (aButton == MOUSE_WHEEL_UP) {
-      myPosition.y -= 0.5;
+      myPosition.y -= 0.5f;
    }
    else if (aButton == MOUSE_WHEEL_DOWN) {
-      myPosition.y += 0.5;
+      myPosition.y += 0.5f;
    }
 }
 

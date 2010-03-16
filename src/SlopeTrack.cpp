@@ -38,7 +38,7 @@ public:
    // ITrackSegment interface
    void render() const;
    void setOrigin(int x, int y, float h);
-   double segmentLength(const track::TravelToken& token) const;
+   float segmentLength(const track::TravelToken& token) const;
    track::TravelToken getTravelToken(track::Position pos,
       track::Direction dir) const;
    bool isValidDirection(const track::Direction& dir) const;
@@ -57,7 +57,7 @@ public:
 
 private:
    void ensureValidDirection(const track::Direction& dir) const;
-   void transform(const track::TravelToken& token, double delta) const;
+   void transform(const track::TravelToken& token, float delta) const;
    float gradient(const track::TravelToken& token, float delta) const;
    
    Point<int> origin;
@@ -142,7 +142,7 @@ void SlopeTrack::setOrigin(int x, int y, float h)
    height = h + yOffset;
 }
 
-double SlopeTrack::segmentLength(const track::TravelToken& token) const
+float SlopeTrack::segmentLength(const track::TravelToken& token) const
 {
    return length;
 }
@@ -209,7 +209,7 @@ float SlopeTrack::gradient(const track::TravelToken& token, float delta) const
    return curve.deriv(delta).y;
 }
 
-void SlopeTrack::transform(const track::TravelToken& token, double delta) const
+void SlopeTrack::transform(const track::TravelToken& token, float delta) const
 {
    assert(delta < length && delta >= 0.0f);
 
