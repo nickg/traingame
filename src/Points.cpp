@@ -337,25 +337,25 @@ void Points::transform(const track::TravelToken& aToken, double aDelta) const
       // point makes to (one of) the axis at this point
       const Vector<float> deriv = myCurve.deriv(fValue);
       const float angle =
-         radToDeg<float>(atanf(deriv.y / deriv.x));
+         radToDeg<float>(atanf(deriv.z / deriv.x));
 
       if (myAxis == -axis::X) {
          xTrans = 1.0f - curveValue.x;
-         yTrans = reflected ? curveValue.y : -curveValue.y;
+         yTrans = reflected ? curveValue.z : -curveValue.z;
          rotate = reflected ? angle : -angle;
       }
       else if (myAxis == axis::X) {
          xTrans = curveValue.x;
-         yTrans = reflected ? -curveValue.y : curveValue.y;
+         yTrans = reflected ? -curveValue.z : curveValue.z;
          rotate = reflected ? angle : -angle;
       }
       else if (myAxis == -axis::Y) {
-         xTrans = reflected ? -curveValue.y : curveValue.y;
+         xTrans = reflected ? -curveValue.z : curveValue.z;
          yTrans = 1.0f - curveValue.x;
          rotate = reflected ? angle : -angle;
       }
       else if (myAxis == axis::Y) {
-         xTrans = reflected ? curveValue.y : -curveValue.y;
+         xTrans = reflected ? curveValue.z: -curveValue.z;
          yTrans = curveValue.x;
          rotate = reflected ? angle : -angle;
       }
