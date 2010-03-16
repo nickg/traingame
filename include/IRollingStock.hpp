@@ -39,7 +39,7 @@ struct IRollingStock {
    virtual double speed() const = 0;
 
    // Return the length of the vehicle in game units
-   virtual double length() const = 0;
+   virtual float length() const = 0;
 };
 
 typedef shared_ptr<IRollingStock> IRollingStockPtr;

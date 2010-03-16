@@ -37,7 +37,7 @@ public:
    void render() const;
    IControllerPtr controller();
    double speed() const { return 0.0; }
-   double length() const { return model->dimensions().x; }
+   float length() const { return model->dimensions().x; }
 
    // IXMLCallback interface
    void text(const string& localName, const string& aString);
