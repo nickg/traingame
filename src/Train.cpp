@@ -104,7 +104,7 @@ private:
    static const double SEPARATION;
 };
 
-const double Train::SEPARATION(0.1);
+const double Train::SEPARATION(0.15);
 
 Train::Train(IMapPtr aMap)
    : map(aMap), velocityVector(makeVector(0.0f, 0.0f, 0.0f))
@@ -116,7 +116,7 @@ Train::Train(IMapPtr aMap)
    // Bit of a hack to put the engine in the right place
    move(0.275);
 
-#if 0
+#if 1
    for (int i = 1; i <= 4; i++)
       addPart(loadWaggon("coal_truck"));
 #endif
