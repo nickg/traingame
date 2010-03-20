@@ -286,15 +286,10 @@ void Train::update(int delta)
         it != parts.end(); ++it) {
       float gradient = (*it).travelToken.gradient((*it).segmentDelta);
 
-         
-      debug() << "dir=" << (*it).direction << " ms=" << (*it).movementSign
-              << " g=" << gradient;
-      
       if ((*it).direction.x < 0 || (*it).direction.z < 0)
          gradient *= -1.0f;
 
       gradient *= (*it).movementSign;
-      
       
       (*it).vehicle->update(delta, gradient);
    }
@@ -325,9 +320,11 @@ void Train::enterSegment(Part& aPart, const track::Connection& aConnection)
 {
    Point<int> pos;
    tie(pos, aPart.direction) = aConnection;
-   
-   //debug() << "Train part entered segment at " << pos
-   //        << " moving " << aPart.direction;
+
+#if 0
+   debug() << "Train part entered segment at " << pos
+           << " moving " << aPart.direction;
+#endif
 
    if (!map->isValidTrack(pos))
       throw runtime_error("Train fell off end of track!");

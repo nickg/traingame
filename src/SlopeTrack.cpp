@@ -206,7 +206,7 @@ float SlopeTrack::gradient(const track::TravelToken& token, float delta) const
    if (token.direction == -axis)
       delta = length - delta;
 
-   return curve.deriv(delta).y;
+   return curve.deriv(delta / length).y;
 }
 
 void SlopeTrack::transform(const track::TravelToken& token, float delta) const

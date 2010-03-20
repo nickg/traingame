@@ -207,13 +207,14 @@ void Engine::update(int delta, float gradient)
    const double B = isBrakeOn ? brakeForce() : 0.0;
    const double G = gravity(gradient);   
 
-#if 1
-   if (gradient > 0.01f)
-      debug() << "U = " << gradient;
-   else if (gradient < -0.01f)
-      debug() << "D =" << gradient;
-   else
-      debug() << "F =" << gradient;
+#if 0
+   static float lastGradient = gradient;
+   if (abs(gradient - lastGradient) > 0.01f) {
+      error() << "too big gradient change "
+              << lastGradient << " -> "
+              << gradient;
+   }
+   lastGradient = gradient;
 #endif
    
    // The applied tractive effort is controlled by the throttle
