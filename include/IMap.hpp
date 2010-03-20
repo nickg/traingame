@@ -102,6 +102,9 @@ public:
    // Make all tiles in the area the same height
    virtual void levelArea(Point<int> aStartPos, Point<int> aFinishPos) = 0;
 
+   // Smooth the gradient along a strip
+   virtual void smoothArea(Point<int> start, Point<int> finish) = 0;
+
    // Create a new station covering this area or extend an existing station
    virtual IStationPtr extendStation(Point<int> aStartPos,
       Point<int> aFinishPos) = 0;

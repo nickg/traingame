@@ -205,13 +205,22 @@ void Engine::update(int delta, float gradient)
    const double P = tractiveEffort();
    const double Q = resistance();
    const double B = isBrakeOn ? brakeForce() : 0.0;
-   const double G = gravity(gradient);   
+   const double G = 0;//gravity(gradient);   
 
+#if 0
+   if (gradient * P > 0.001f)
+      debug() << "D";
+   else if (gradient * P < -0.001f)
+      debug() << "U";
+   else
+      debug() << "F";
+#endif
+   
    // The applied tractive effort is controlled by the throttle
    const double netP = P * static_cast<double>(myThrottle) / 10.0;
 
    const double deltaSeconds = delta / 1000.0f;
-   const double a = ((netP - Q - B - G) / myMass) * deltaSeconds;
+   const double a = ((netP - Q - B + G) / myMass) * deltaSeconds;
 
    //   mySpeed = max(mySpeed + a, 0.0);
    mySpeed += a;
@@ -223,7 +232,7 @@ void Engine::update(int delta, float gradient)
    else
       haveStopped = false;
 
-#if 1
+#if 0
    debug() << "P=" << netP << ", Q=" << Q
            << ", B=" << B
            << ", G=" << G

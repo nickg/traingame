@@ -104,6 +104,7 @@ public:
    void lowerArea(const Point<int>& aStartPos,
       const Point<int>& aFinishPos);
    void levelArea(Point<int> aStartPos, Point<int> aFinishPos);
+   void smoothArea(Point<int> start, Point<int> finish);
    
    void save();
 
@@ -1108,6 +1109,72 @@ void Map::levelArea(Point<int> aStartPos, Point<int> aFinishPos)
       for (int y = ymin; y <= ymax; y++)
          setTileHeight(x, y, avgHeight);
    }
+}
+
+void Map::smoothArea(Point<int> start, Point<int> finish)
+{
+   const int xmin = min(start.x, finish.x);
+   const int xmax = max(start.x, finish.x);
+
+   const int ymin = min(start.y, finish.y);
+   const int ymax = max(start.y, finish.y);
+
+   Point<int> step;
+   if (xmin == xmax)
+      step = makePoint(0, 1);
+   else if (ymin == ymax)
+      step = makePoint(1, 0);
+   else {
+      warn() << "Can only smooth strips";
+      return;
+   }
+
+   const Point<int> absStart = makePoint(xmin, ymin);
+   const Point<int> absFinish = makePoint(xmax, ymax);
+
+   const float heightStart = heightAt(absStart);
+   const float heightFinish = heightAt(absFinish);
+
+   setTileHeight(absStart.x, absStart.y, heightStart);
+   setTileHeight(absFinish.x, absFinish.y, heightFinish);
+
+   const float drop =
+      (heightStart - heightFinish) / (xmax + ymax - xmin - ymin);
+   debug() << "drop=" << drop;
+
+   int i = 0;
+   for (Point<int> it = absStart; it != absFinish; i++, it += step) {
+      const bool trackAffected = raiseWillCoverTrack(it.x, it.y);
+      
+      int indexes[4];
+      tileVertices(it.x, it.y, indexes);
+
+      int targets[2];
+      if (xmin == xmax) {
+         targets[0] = 0;
+         targets[1] = 1;
+      }
+      else {
+         targets[0] = 1;
+         targets[1] = 2;
+      }
+      
+      for (int j = 0; j < 2; j++) {
+         const float newHeight = heightStart - (i * drop);
+         
+         if (trackAffected
+            && abs(heightMap[indexes[targets[j]]].pos.y - newHeight) > 0.01f) {
+            warn() << "Cannot change terrain under track";
+            return;
+         }        
+         else
+            heightMap[indexes[targets[j]]].pos.y = newHeight;
+      }
+      
+      fixNormals(it.x, it.y);
+      dirtyTile(it.x, it.y);
+   }
+      
 }
 
 void Map::raiseArea(const Point<int>& aStartPos,

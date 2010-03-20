@@ -178,6 +178,13 @@ struct Point {
       return Point(x + rhs.x, y + rhs.y);
    }
 
+   Point<T>& operator+=(const Point<T>& rhs)
+   {
+      x += rhs.x;
+      y += rhs.y;
+      return *this;
+   }
+
    bool operator<(const Point<T>& rhs) const
    {
       return x < rhs.x || y < rhs.y;

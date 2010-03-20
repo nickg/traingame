@@ -15,6 +15,7 @@
       <toggleButton name="raise" image="images/raise_icon.png"/>
       <toggleButton name="lower" image="images/lower_icon.png"/>
       <toggleButton name="level" image="images/level_icon.png"/>
+      <toggleButton name="smooth" image="images/icons/smooth.png"/>
       <toggleButton name="delete" image="images/delete_icon.png"/>
       <toggleButton name="start" image="images/start_icon2.png"/>
       <toggleButton name="station" image="images/station_icon.png"/>

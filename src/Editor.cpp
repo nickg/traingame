@@ -53,7 +53,7 @@ public:
    enum Tool {
       TRACK_TOOL, RAISE_TOOL, LOWER_TOOL, DELETE_TOOL,
       LEVEL_TOOL, START_TOOL, STATION_TOOL, BUILDING_TOOL,
-      TREE_TOOL
+      TREE_TOOL, SMOOTH_TOOL
    };
    void setTool(Tool aTool) { myTool = aTool; }
 
@@ -132,6 +132,8 @@ void Editor::buildGUI()
       bind(&Editor::setTool, this, BUILDING_TOOL));
    layout->get("/tool_wnd/tools/tree").connect(gui::Widget::SIG_CLICK,
       bind(&Editor::setTool, this, TREE_TOOL));
+   layout->get("/tool_wnd/tools/smooth").connect(gui::Widget::SIG_CLICK,
+      bind(&Editor::setTool, this, SMOOTH_TOOL));
     
    layout->get("/lower/action_wnd/save").connect(gui::Widget::SIG_CLICK,
       bind(&Editor::save, this));
@@ -607,6 +609,9 @@ void Editor::onMouseRelease(IPickBufferPtr pickBuffer, int x, int y,
       case TREE_TOOL:
 	 plantTrees();
 	 break;
+      case SMOOTH_TOOL:
+         map->smoothArea(dragBegin, dragEnd);
+         break;
       }
          
       amDragging = false;
