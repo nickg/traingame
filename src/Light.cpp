@@ -28,9 +28,9 @@ struct SunLight : ILight {
       const GLfloat globalAmbient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
       glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
       
-      const GLfloat ambient[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+      const GLfloat ambient[] = { 0.45f, 0.45f, 0.45f, 1.0f };
       //const GLfloat diffuse[] = { 0.4f, 0.4f, 0.4f, 1.0f };
-      const GLfloat diffuse[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+      const GLfloat diffuse[] = { 0.55f, 0.55f, 0.55f, 1.0f };
       //const GLfloat specular[] = { 0.4f, 0.4f, 0.4f, 1.0f };
       const GLfloat specular[] = { 0.0f, 0.0f, 0.0f, 1.0f };
       const GLfloat position[] = { 1.0f, 3.0f, 1.0f, 
