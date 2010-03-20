@@ -283,9 +283,21 @@ void Train::update(int delta)
    int oldSpeedSign = engine().vehicle->speed() >= 0.0 ? 1 : 0;
    
    for (list<Part>::iterator it = parts.begin();
-        it != parts.end(); ++it)
-      (*it).vehicle->update(delta,
-         (*it).travelToken.gradient((*it).segmentDelta));
+        it != parts.end(); ++it) {
+      float gradient = (*it).travelToken.gradient((*it).segmentDelta);
+
+         
+      debug() << "dir=" << (*it).direction << " ms=" << (*it).movementSign
+              << " g=" << gradient;
+      
+      if ((*it).direction.x < 0 || (*it).direction.z < 0)
+         gradient *= -1.0f;
+
+      gradient *= (*it).movementSign;
+      
+      
+      (*it).vehicle->update(delta, gradient);
+   }
 
    int newSpeedSign = engine().vehicle->speed() >= 0.0 ? 1 : 0;
 

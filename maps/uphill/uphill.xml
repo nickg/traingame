@@ -2,7 +2,7 @@
 <map width="32" height="32">
 <name>No Name</name>
 
-<start x="11" y="14" dirX="0" dirY="-1"/>
+<start x="22" y="2" dirX="1" dirY="0"/>
 
 <heightmap>uphill.bin</heightmap>
 
