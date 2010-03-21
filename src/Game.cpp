@@ -170,7 +170,9 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    layout->cast<gui::Label>("/speed_label").format(
       "Speed: %.1lfmph", abs(train->speed()) * msToMPH);
 
-   layout->get("/brake_label").visible(train->controller()->brakeOn());
+   IControllerPtr ctrl = train->controller();
+   layout->get("/brake_label").visible(ctrl->brakeOn());
+   layout->get("/reverse_label").visible(ctrl->reverseOn());
    
    lookAhead();
 

@@ -18,6 +18,12 @@
          font="status-font"
          x="10" y="60"
          colour="255 0 0"/>
+  <label text="Reverse"
+         name="reverse_label"
+         font="status-font"
+         x="10" y="85"
+         visible="false"
+         colour="255 0 0"/>
 
   <!-- Station loading/unloading window -->
   <window width="300" height="200" border="5" visible="false"

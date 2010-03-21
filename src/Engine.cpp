@@ -74,6 +74,7 @@ public:
    void actOn(Action anAction);
    int throttle() const { return myThrottle; }
    bool brakeOn() const { return isBrakeOn; }
+   bool reverseOn() const { return reverse; }
    double pressure() const { return myBoilerPressure; }
    double temp() const { return myFireTemp; }
    bool stopped() const { return haveStopped; }
@@ -233,7 +234,7 @@ void Engine::update(int delta, float gradient)
       haveStopped = false;
    }
 
-#if 1
+#if 0
    debug() << "P=" << netP << ", Q=" << Q
            << ", B=" << B
            << ", G=" << G
