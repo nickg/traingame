@@ -50,12 +50,11 @@
 class TrackNode {
 public:
    TrackNode(ITrackSegmentPtr aTrack, int x, int y)
-      : track(aTrack), amMarked(false),
+      : track(aTrack), lastFrame(-1),
         origin(makePoint(x, y)) {}
 
-   inline void setMark() { amMarked = true; }
-   inline void resetMark() { amMarked = false; }
-   inline bool marked() const { return amMarked; }
+   inline void renderedOn(int f) { lastFrame = f; }
+   inline bool needsRendering(int f) const { return f != lastFrame; }
 
    inline ITrackSegmentPtr get() { return track; }
 
@@ -63,7 +62,7 @@ public:
    inline int originY() const { return origin.y; }
 private:
    ITrackSegmentPtr track;
-   bool amMarked;
+   int lastFrame;
    Point<int> origin;
 };
 
@@ -188,7 +187,6 @@ private:
       return makePoint(a % myWidth, a / myWidth);
    }
 
-   void resetMarks() const;
    void writeHeightMap() const;
    void readHeightMap(IResource::Handle aHandle);
    void tileVertices(int x, int y, int* indexes) const;
@@ -219,6 +217,8 @@ private:
    list<Point<int> > dirtyTiles;
    IResourcePtr resource;
 
+   // Variables used during rendering
+   mutable int frameNum;
    mutable vector<tuple<Point<int>, Colour> > highlightedTiles;
 };
 
@@ -229,7 +229,7 @@ Map::Map(IResourcePtr aRes)
      startLocation(makePoint(1, 1)),
      startDirection(axis::X),
      shouldDrawGridLines(false), inPickMode(false),
-     resource(aRes)
+     resource(aRes), frameNum(0)
 {
    fog = makeFog(0.005f,            // Density
       50.0f, 70.0f);     // Start and end distance
@@ -410,19 +410,6 @@ void Map::resetMap(int aWidth, int aDepth)
    quadTree = makeQuadTree(shared_from_this(), myWidth, myDepth);
 }
 
-void Map::resetMarks() const
-{   
-   // Clear the mark bit of every track segment
-   // This is set whenever we render a track endpoint to ensure
-   // the track is only drawn once
-   for (int x = 0; x < myWidth; x++) {
-      for (int y = 0; y < myDepth; y++) {
-         if (tileAt(x, y).track)
-            tileAt(x, y).track->resetMark();
-      }
-   }  
-}
-
 void Map::highlightTile(Point<int> point, Colour colour) const
 {
    highlightedTiles.push_back(make_tuple(point, colour));
@@ -475,7 +462,9 @@ void Map::renderHighlightedTiles() const
 
 void Map::render(IGraphicsPtr aContext) const
 {
-   resetMarks();
+   // The `frameNum' counter is used to ensure we draw each
+   // track segment at most once per frame
+   frameNum++;
    
    fog->apply();
    
@@ -767,14 +756,14 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
 
          // Draw the track, if any
          Tile& tile = tileAt(x, y);
-         if (tile.track && !tile.track->marked()) {
+         if (tile.track && tile.track->needsRendering(frameNum)) {
             glPushMatrix();
             glTranslated(static_cast<double>(tile.track->originX()), 0,
                static_cast<double>(tile.track->originY()));
             tile.track->get()->render();
             glPopMatrix();
             
-            tile.track->setMark();
+            tile.track->renderedOn(frameNum);
             
 #if 0
             // Draw the endpoints for debugging
