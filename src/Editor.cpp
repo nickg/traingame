@@ -68,6 +68,7 @@ private:
    void drawDraggedCurve(int xLength, int yLength);
    bool canConnect(const Point<int>& aFirstPoint,
       const Point<int>& aSecondPoint) const;
+   bool canPlaceTrack(ITrackSegmentPtr track);
    void dragBoxBounds(int& xMin, int& xMax, int &yMin, int& yMax) const;
    void deleteObjects();
    void plantTrees();
@@ -296,6 +297,24 @@ void Editor::drawDraggedStraight(const track::Direction& anAxis, int aLength)
    }
 }
 
+// True if a track segment could be placed in its present location
+bool Editor::canPlaceTrack(ITrackSegmentPtr track)
+{
+   vector<Point<int> > covered;
+   track->getEndpoints(covered);
+   track->getCovers(covered);
+   
+   for (vector<Point<int> >::iterator it = covered.begin();
+        it != covered.end(); ++it) {
+      if (map->isValidTrack(*it)) {
+         warn() << "Cannot place curve here";
+         return false;
+      }
+   }
+
+   return true;
+}
+
 // Called when the user has finished dragging a rectangle for track
 // Connect the beginning and end up in the simplest way possible
 void Editor::drawDraggedTrack()
@@ -390,8 +409,13 @@ void Editor::drawDraggedTrack()
    else if (ylen == 1)
       drawDraggedStraight(axis::X, xlen);
    else if (startDir == endDir) {
-      // An S-bend (not implemented)
-      warn() << "Sorry! No S-bends yet...";
+      // An S-bend
+      ITrackSegmentPtr track = makeSBend(startDir, xlen, ylen);
+      const Point<int> where = dragBegin;
+      track->setOrigin(where.x, where.y, map->heightAt(where));
+
+      if (canPlaceTrack(track))
+	 map->setTrackAt(where, track);
    }
    else {
       // Curves at the moment cannot be ellipses so lay track down
@@ -465,20 +489,7 @@ void Editor::drawDraggedTrack()
       ITrackSegmentPtr track = makeCurvedTrack(startAngle, endAngle, xlen);
       track->setOrigin(where.x, where.y, map->heightAt(where));
 
-      vector<Point<int> > exits;
-      track->getEndpoints(exits);
-
-      bool ok = true;
-      for (vector<Point<int> >::iterator it = exits.begin();
-	   it != exits.end(); ++it) {
-	 if (map->isValidTrack(*it)) {
-	    warn() << "Cannot place curve here";
-	    ok = false;
-	    break;
-	 }
-      }
-
-      if (ok)
+      if (canPlaceTrack(track))
 	 map->setTrackAt(where, track);
    }
 }

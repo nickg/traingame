@@ -54,12 +54,19 @@ private:
    int x_, y_;
    int xOffset, yOffset;
    float height;
+   track::Direction axis;
 };
 
 SBend::SBend(track::Direction dir, int xoff, int yoff)
-   : x_(0), y_(0), xOffset(xoff), yOffset(yoff), height(0.0f)
+   : x_(0), y_(0),
+     xOffset(xoff), yOffset(yoff),
+     height(0.0f),
+     axis(dir)
 {
-
+   assert(xoff > 0);
+   assert(yoff > 0);
+   
+   debug() << "SBend axis=" << axis << " xoff=" << xoff << " yoff=" << yoff;
 }
 
 void SBend::render() const
