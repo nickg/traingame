@@ -30,7 +30,7 @@ namespace gui {
       Label(const AttributeSet& attrs);
 
       const string& text() const { return text_; }
-      void text(const string& t) { text_ = t; }
+      void text(const string& t);
 
       Colour colour() const { return colour_; }
       void colour(Colour c) { colour_ = c; }
@@ -42,6 +42,7 @@ namespace gui {
    private:
       string text_, fontName;
       Colour colour_;
+      bool dirty;
    };
 }
 

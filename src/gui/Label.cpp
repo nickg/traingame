@@ -27,9 +27,18 @@ Label::Label(const AttributeSet& attrs)
    : Widget(attrs),
      text_(attrs.get<string>("text")),
      fontName(attrs.get<string>("font", "")),
-     colour_(attrs.get<Colour>("colour", colour::WHITE))
+     colour_(attrs.get<Colour>("colour", colour::WHITE)),
+     dirty(true)
 {
    
+}
+
+void Label::text(const string& t)
+{
+   if (text_ != t) {
+      text_ = t;
+      dirty = true;
+   }
 }
 
 void Label::render(RenderContext& rc) const
@@ -40,9 +49,13 @@ void Label::render(RenderContext& rc) const
 void Label::adjustForTheme(const Theme& theme)
 {
    IFontPtr font = theme.font(fontName);
-   
-   width(font->text_width(text_));
-   height(font->height());
+
+   if (dirty) {
+      width(font->text_width(text_));
+      height(font->height());
+
+      dirty = false;
+   }
 }
 
 void Label::format(const char* fmt, ...)
