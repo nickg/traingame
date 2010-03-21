@@ -168,7 +168,7 @@ void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
    
    const double msToMPH = 2.237;
    layout->cast<gui::Label>("/speed_label").format(
-      "Speed: %.1lfmph", train->speed() * msToMPH);
+      "Speed: %.1lfmph", abs(train->speed()) * msToMPH);
 
    layout->get("/brake_label").visible(train->controller()->brakeOn());
    
