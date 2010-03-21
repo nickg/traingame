@@ -2,10 +2,10 @@
 <map width="32" height="32">
 <name>No Name</name>
 
-<start x="2" y="15" dirX="0" dirY="-1"/>
+<start x="2" y="17" dirX="0" dirY="-1"/>
 
-<station id="1">
-<name>Station1</name>
+<station id="5">
+<name>Station5</name>
 </station>
 
 <station id="2">
@@ -27,8 +27,32 @@
 <tree angle="308.485" name="apple"/>
 </tile>
 
+<tile x="0" y="15">
+<tree angle="114.73" name="pine"/>
+</tile>
+
+<tile x="0" y="19">
+<tree angle="126.151" name="pine"/>
+</tile>
+
+<tile x="0" y="20">
+<tree angle="35.0055" name="pine"/>
+</tile>
+
+<tile x="0" y="23">
+<tree angle="218.472" name="pine"/>
+</tile>
+
 <tile x="1" y="2">
 <tree angle="198.647" name="apple"/>
+</tile>
+
+<tile x="1" y="13">
+<tree angle="46.707" name="pine"/>
+</tile>
+
+<tile x="1" y="14">
+<tree angle="139.741" name="pine"/>
 </tile>
 
 <tile x="1" y="22">
@@ -48,123 +72,111 @@
 </tile>
 
 <tile x="2" y="5">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="6">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="7">
-<straightTrack align="y"/>
-
-<stationPart id="1"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="8">
-<straightTrack align="y"/>
-
-<stationPart id="1"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="9">
-<straightTrack align="y"/>
-
-<stationPart id="1"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="10">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 
-<stationPart id="1"/>
+<stationPart id="5"/>
 </tile>
 
 <tile x="2" y="11">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 
-<stationPart id="1"/>
+<stationPart id="5"/>
 </tile>
 
 <tile x="2" y="12">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 
-<stationPart id="1"/>
+<stationPart id="5"/>
 </tile>
 
 <tile x="2" y="13">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
+
+<stationPart id="5"/>
 </tile>
 
 <tile x="2" y="14">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
+
+<stationPart id="5"/>
 </tile>
 
 <tile x="2" y="15">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
+
+<stationPart id="5"/>
 </tile>
 
 <tile x="2" y="16">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="17">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="18">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="19">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="20">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="21">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="22">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="23">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="24">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="25">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="26">
-<straightTrack align="y"/>
+<slopeTrack align="y"/>
 </tile>
 
 <tile x="2" y="27">
 <curvedTrack startAngle="270" finishAngle="360" radius="3"/>
 </tile>
 
-<tile x="3" y="7">
-<building angle="90" name="platform_end"/>
-</tile>
-
-<tile x="3" y="8">
-<building angle="90" name="platform_middle"/>
-</tile>
-
-<tile x="3" y="9">
-<building angle="90" name="platform_middle"/>
-</tile>
-
 <tile x="3" y="10">
-<building angle="90" name="platform_middle"/>
+<building angle="90" name="platform_end"/>
 </tile>
 
 <tile x="3" y="11">
@@ -172,6 +184,18 @@
 </tile>
 
 <tile x="3" y="12">
+<building angle="90" name="platform_middle"/>
+</tile>
+
+<tile x="3" y="13">
+<building angle="90" name="platform_middle"/>
+</tile>
+
+<tile x="3" y="14">
+<building angle="90" name="platform_middle"/>
+</tile>
+
+<tile x="3" y="15">
 <building angle="270" name="platform_end"/>
 </tile>
 
@@ -187,8 +211,28 @@
 <tree angle="256.048" name="apple"/>
 </tile>
 
+<tile x="4" y="8">
+<tree angle="166.005" name="apple"/>
+</tile>
+
+<tile x="4" y="16">
+<tree angle="208.486" name="pine"/>
+</tile>
+
+<tile x="4" y="20">
+<tree angle="6.99073" name="pine"/>
+</tile>
+
 <tile x="5" y="2">
 <straightTrack align="x"/>
+</tile>
+
+<tile x="5" y="15">
+<tree angle="335.654" name="pine"/>
+</tile>
+
+<tile x="5" y="19">
+<tree angle="126.041" name="pine"/>
 </tile>
 
 <tile x="5" y="22">
