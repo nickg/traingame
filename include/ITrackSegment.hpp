@@ -160,5 +160,6 @@ ITrackSegmentPtr makeCrossoverTrack();
 ITrackSegmentPtr makePoints(track::Direction aDirection, bool reflect);
 ITrackSegmentPtr makeSlopeTrack(track::Direction axis, Vector<float> slope,
    Vector<float> slopeBefore, Vector<float> slopeAfter);
+ITrackSegmentPtr makeSBend(track::Direction dir, int xoff, int yoff);
 
 #endif
