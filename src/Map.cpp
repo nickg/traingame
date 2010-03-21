@@ -281,6 +281,9 @@ void Map::eraseTile(int x, int y)
 
    if (tile.scenery)
       tile.scenery.reset();
+
+   if (tile.station)
+      tile.station.reset();
 }
 
 bool Map::emptyTile(Point<int> point) const
