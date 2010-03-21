@@ -162,7 +162,7 @@ double Engine::resistance() const
    
    const double a = 0.0;
    const double b = 0.1;
-   const double c = 0.04;
+   const double c = 0.05;
 
    const double absSpeed = abs(mySpeed);
    
@@ -224,16 +224,16 @@ void Engine::update(int delta, float gradient)
    const double a = ((netP - Q - B + G) / myMass) * deltaSeconds;
 
    //   mySpeed = max(mySpeed + a, 0.0);
-   mySpeed += a;
-
-   if (abs(mySpeed) < STOP_SPEED && myThrottle == 0 && isBrakeOn) {
+   if (abs(mySpeed) < STOP_SPEED && myThrottle == 0) {
       mySpeed = 0.0;
       haveStopped = true;
    }
-   else
+   else {
+      mySpeed += a;
       haveStopped = false;
+   }
 
-#if 0
+#if 1
    debug() << "P=" << netP << ", Q=" << Q
            << ", B=" << B
            << ", G=" << G
