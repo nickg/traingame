@@ -20,8 +20,10 @@
 #include "ILogger.hpp"
 #include "XMLBuilder.hpp"
 #include "BezierCurve.hpp"
+#include "OpenGLHelper.hpp"
 
 #include <cassert>
+#include <boost/lexical_cast.hpp>
 
 // Spline curves which start and finish in the same direction
 class SBend : public ITrackSegment {
@@ -30,7 +32,7 @@ public:
 
    // ITrackSegment interface
    void render() const;
-   void setOrigin(int x, int y, float h) { x_ = x; y_ = y; height = h; }
+   void setOrigin(int x, int y, float h);
    float segmentLength(const track::TravelToken& token) const;
    bool isValidDirection(const track::Direction& dir) const;
    track::Connection nextPosition(const track::TravelToken& token) const;
@@ -51,15 +53,17 @@ private:
    void transform(const track::TravelToken& token, float delta) const;
    void ensureValidDirection(track::Direction dir) const;
 
-   int x_, y_;
+   Point<int> origin;
    int xOffset, yOffset;
    float height;
    track::Direction axis;
+
+   BezierCurve<float> curve;
+   IMeshPtr railMesh;
 };
 
 SBend::SBend(track::Direction dir, int xoff, int yoff)
-   : x_(0), y_(0),
-     xOffset(xoff), yOffset(yoff),
+   : xOffset(xoff), yOffset(yoff),
      height(0.0f),
      axis(dir)
 {
@@ -67,36 +71,81 @@ SBend::SBend(track::Direction dir, int xoff, int yoff)
    assert(yoff > 0);
    
    debug() << "SBend axis=" << axis << " xoff=" << xoff << " yoff=" << yoff;
+
+   static const float PINCH = 1.0f;
+   const float pinchX = dir == axis::X ? PINCH : 0.0f;
+   const float pinchY = dir == axis::Y ? PINCH : 0.0f;
+
+   const float xoffF = static_cast<float>(xoff - (dir == axis::Y ? 1 : 0));
+   const float yoffF = static_cast<float>(yoff - (dir == axis::X ? 1 : 0));
+   
+   Vector<float> p1 = makeVector(0.0f, 0.0f, 0.0f);
+   Vector<float> p2 = makeVector(pinchX, 0.0f, pinchY);
+   Vector<float> p3 = makeVector(xoffF - pinchX, 0.0f, yoffF - pinchY);
+   Vector<float> p4 = makeVector(xoffF, 0.0f, yoffF);
+
+   curve = makeBezierCurve(p1, p2, p3, p4);
+   railMesh = makeBezierRailMesh(curve);
+
+   debug() << "f(0) = " << curve(0.0f)
+           << " f(1) = " << curve(1.0f);
 }
 
+void SBend::setOrigin(int x, int y, float h)
+{
+   origin = makePoint(x, y);
+   height = h;
+}
+   
 void SBend::render() const
 {
+   glPushMatrix();
 
+   glTranslatef(0.0f, height, 0.0f);
+
+   renderRailMesh(railMesh);
+   
+   glPopMatrix();
 }
 
 float SBend::segmentLength(const track::TravelToken& token) const
 {
-   assert(false);
+   return curve.length;
 }
 
 bool SBend::isValidDirection(const track::Direction& dir) const
 {
-   assert(false);
+   if (axis == axis::X)
+      return dir == axis::X || -dir == axis::X;
+   else
+      return dir == axis::Y || -dir == axis::Y;
 }
 
 track::Connection SBend::nextPosition(const track::TravelToken& token) const
 {
-   assert(false);
+   ensureValidDirection(token.direction);
+
+   if (token.direction == axis::X)
+      return make_pair(makePoint(origin.x + 1, origin.y), axis::X);
+   else if (token.direction == -axis::X)
+      return make_pair(makePoint(origin.x - 1, origin.y), -axis::X);
+   else if (token.direction == axis::Y)
+      return make_pair(makePoint(origin.x, origin.y + 1), axis::Y);
+   else if (token.direction == -axis::Y)
+      return make_pair(makePoint(origin.x, origin.y - 1), -axis::Y);
+   else
+      assert(false);
 }
 
 void SBend::getEndpoints(vector<Point<int> >& output) const
 {
-   assert(false);
+   output.push_back(origin);
+   output.push_back(origin + makePoint(xOffset, yOffset));
 }
 
 void SBend::getCovers(vector<Point<int> >& output) const
 {
-   assert(false);
+   // TODO
 }
 
 ITrackSegmentPtr SBend::mergeExit(Point<int> where, track::Direction dir)
@@ -117,7 +166,12 @@ void SBend::transform(const track::TravelToken& token, float delta) const
 
 void SBend::ensureValidDirection(track::Direction dir) const
 {
-   assert(false);
+   if (!isValidDirection(dir))
+      throw runtime_error
+         ("Invalid direction on straight track: "
+            + boost::lexical_cast<string>(dir)
+            + " (should be parallel to "
+            + boost::lexical_cast<string>(axis) + ")");
 }
 
 xml::element SBend::toXml() const
