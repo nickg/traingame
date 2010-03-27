@@ -108,6 +108,24 @@ void SBend::render() const
 
    renderRailMesh(railMesh);
    
+   for (float i = 0.1f; i < curve.length; i += 0.25f) {
+      glPushMatrix();
+      
+      Vector<float> v = curve(i / curve.length);
+
+      glTranslatef(v.x - 0.4f, 0.0f, v.z);
+      
+      const Vector<float> deriv = curve.deriv(i / curve.length);
+      const float angle =
+         radToDeg<float>(atanf(deriv.z / deriv.x));
+
+      glRotatef(-angle, 0.0f, 1.0f, 0.0f);
+
+      renderSleeper();
+      
+      glPopMatrix();
+   }
+   
    glPopMatrix();
 }
 
