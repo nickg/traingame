@@ -156,7 +156,33 @@ void SBend::getEndpoints(vector<Point<int> >& output) const
 
 void SBend::getCovers(vector<Point<int> >& output) const
 {
-   // TODO
+   vector<Point<int> > exits;
+   getEndpoints(exits);
+
+   set<Point<int> > tmp;
+   
+   for (float f = 0.0f; f < 1.0f; f += 0.1f) {
+      Vector<float> curveValue = curve(f);
+      
+      curveValue.z += 0.5f;
+      
+      int x, y;
+      if (axis == axis::X) {
+         x = static_cast<int>(floor(curveValue.x + origin.x));
+         y = static_cast<int>(floor(curveValue.z + origin.y));
+      }
+      else {
+         x = -static_cast<int>(floor(curveValue.z - origin.x));
+         y = static_cast<int>(floor(curveValue.x + origin.y));
+      }
+
+      Point<int> p = makePoint(x, y);
+
+      if (p != exits.at(0) && p != exits.at(1))
+         tmp.insert(p);
+   }
+
+   copy(tmp.begin(), tmp.end(), back_inserter(output));
 }
 
 ITrackSegmentPtr SBend::mergeExit(Point<int> where, track::Direction dir)
