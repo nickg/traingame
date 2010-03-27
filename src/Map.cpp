@@ -765,7 +765,7 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
             
             tile.track->renderedOn(frameNum);
             
-#if 0
+#if 1
             // Draw the endpoints for debugging
             vector<Point<int> > tiles;
             tile.track->get()->getEndpoints(tiles);

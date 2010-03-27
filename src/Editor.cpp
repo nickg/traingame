@@ -307,7 +307,7 @@ bool Editor::canPlaceTrack(ITrackSegmentPtr track)
    for (vector<Point<int> >::iterator it = covered.begin();
         it != covered.end(); ++it) {
       if (map->isValidTrack(*it)) {
-         warn() << "Cannot place curve here";
+         warn() << "Cannot place track here";
          return false;
       }
    }

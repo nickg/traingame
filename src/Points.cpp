@@ -364,7 +364,7 @@ void Points::transform(const track::TravelToken& aToken, float delta) const
 
       glTranslatef(
          static_cast<float>(myX) + xTrans,
-         0.0f,
+         height,
          static_cast<float>(myY) + yTrans);
       
       if (myAxis == axis::Y || myAxis == -axis::Y)

@@ -72,7 +72,7 @@ SBend::SBend(track::Direction dir, int straight, int off)
 
    assert(straight > 0);
 
-   static const float PINCH = 1.0f;
+   const float pinch = static_cast<float>(straight) / 3.0f;
 
    const int reflect = (axis == axis::Y ? -1 : 1);
    
@@ -80,8 +80,8 @@ SBend::SBend(track::Direction dir, int straight, int off)
    const float straightF = static_cast<float>(straight);
    
    Vector<float> p1 = makeVector(0.0f, 0.0f, 0.0f);
-   Vector<float> p2 = makeVector(PINCH, 0.0f, 0.0f);
-   Vector<float> p3 = makeVector(straightF - PINCH, 0.0f, offsetF);
+   Vector<float> p2 = makeVector(pinch, 0.0f, 0.0f);
+   Vector<float> p3 = makeVector(straightF - pinch, 0.0f, offsetF);
    Vector<float> p4 = makeVector(straightF, 0.0f, offsetF);
 
    curve = makeBezierCurve(p1, p2, p3, p4);
@@ -128,22 +128,30 @@ track::Connection SBend::nextPosition(const track::TravelToken& token) const
 {
    ensureValidDirection(token.direction);
 
+   Point<int> disp;
+   
    if (token.direction == axis::X)
-      return make_pair(makePoint(origin.x + 1, origin.y), axis::X);
+      disp = makePoint(straight, offset);
    else if (token.direction == -axis::X)
-      return make_pair(makePoint(origin.x - 1, origin.y), -axis::X);
+      disp = makePoint(-1, 0);
    else if (token.direction == axis::Y)
-      return make_pair(makePoint(origin.x, origin.y + 1), axis::Y);
+      disp = makePoint(offset, straight);
    else if (token.direction == -axis::Y)
-      return make_pair(makePoint(origin.x, origin.y - 1), -axis::Y);
+      disp = makePoint(0, -1);
    else
       assert(false);
+
+   return make_pair(origin + disp, token.direction);
 }
 
 void SBend::getEndpoints(vector<Point<int> >& output) const
 {
    output.push_back(origin);
-   //   output.push_back(origin + makePoint(xOffset, yOffset));
+
+   if (axis == axis::X)
+      output.push_back(origin + makePoint(straight - 1, offset));
+   else
+      output.push_back(origin + makePoint(offset, straight - 1));
 }
 
 void SBend::getCovers(vector<Point<int> >& output) const
@@ -159,12 +167,62 @@ ITrackSegmentPtr SBend::mergeExit(Point<int> where, track::Direction dir)
 track::TravelToken SBend::getTravelToken(track::Position pos,
    track::Direction dir) const
 {
-   assert(false);
+   using namespace placeholders;
+   
+   ensureValidDirection(dir);
+
+   track::TravelToken tok = {
+      dir,
+      pos,
+      bind(&SBend::transform, this, _1, _2),
+      track::flatGradientFunc,
+      1
+   };
+   return tok;
 }
 
 void SBend::transform(const track::TravelToken& token, float delta) const
 {
-   assert(false);
+   assert(delta < curve.length);
+
+   const bool backwards = token.direction == -axis;
+   if (backwards)
+      delta = curve.length - delta;
+
+   const float curveDelta = delta / curve.length;
+
+   Vector<float> curveValue = curve(curveDelta);
+
+   const Vector<float> deriv = curve.deriv(curveDelta);
+   const float angle =
+      radToDeg<float>(atanf(deriv.z / deriv.x));
+
+   float xTrans, yTrans;
+   if (axis == axis::X) {
+      xTrans = curveValue.x;
+      yTrans = curveValue.z;
+   }
+   else if (axis == axis::Y) {
+      xTrans = -curveValue.z;
+      yTrans = curveValue.x;
+   }
+   else
+      assert(false);
+
+   glTranslatef(
+      static_cast<float>(origin.x) + xTrans,
+      height,
+      static_cast<float>(origin.y) + yTrans);
+      
+   if (axis == axis::Y)
+      glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
+      
+   glTranslatef(-0.5f, 0.0f, 0.0f);
+
+   glRotatef(-angle, 0.0f, 1.0f, 0.0f);
+
+   if (backwards)
+      glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
 }
 
 void SBend::ensureValidDirection(track::Direction dir) const
