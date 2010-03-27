@@ -410,7 +410,19 @@ void Editor::drawDraggedTrack()
       drawDraggedStraight(axis::X, xlen);
    else if (startDir == endDir) {
       // An S-bend
-      ITrackSegmentPtr track = makeSBend(startDir, xlen, ylen);
+
+      if (startDir == axis::Y && dragBegin.y > dragEnd.y)
+         swap(dragBegin, dragEnd);
+      
+      const int straight =
+         (startDir == axis::X
+            ? dragEnd.x - dragBegin.x
+            : dragEnd.y - dragBegin.y) + 1;
+      const int offset =
+         startDir == axis::X
+         ? dragEnd.y - dragBegin.y
+         : dragEnd.x - dragBegin.x;
+      ITrackSegmentPtr track = makeSBend(startDir, straight, offset);
       const Point<int> where = dragBegin;
       track->setOrigin(where.x, where.y, map->heightAt(where));
 

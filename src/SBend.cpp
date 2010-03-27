@@ -28,7 +28,7 @@
 // Spline curves which start and finish in the same direction
 class SBend : public ITrackSegment {
 public:
-   SBend(track::Direction dir, int xoff, int yoff);
+   SBend(track::Direction dir, int straight, int off);
 
    // ITrackSegment interface
    void render() const;
@@ -54,7 +54,7 @@ private:
    void ensureValidDirection(track::Direction dir) const;
 
    Point<int> origin;
-   int xOffset, yOffset;
+   int straight, offset;
    float height;
    track::Direction axis;
 
@@ -62,27 +62,27 @@ private:
    IMeshPtr railMesh;
 };
 
-SBend::SBend(track::Direction dir, int xoff, int yoff)
-   : xOffset(xoff), yOffset(yoff),
+SBend::SBend(track::Direction dir, int straight, int off)
+   : straight(straight), offset(off),
      height(0.0f),
      axis(dir)
 {
-   assert(xoff > 0);
-   assert(yoff > 0);
-   
-   debug() << "SBend axis=" << axis << " xoff=" << xoff << " yoff=" << yoff;
+   debug() << "SBend axis=" << axis
+           << " straight=" << straight << " off=" << off;
+
+   assert(straight > 0);
 
    static const float PINCH = 1.0f;
-   const float pinchX = dir == axis::X ? PINCH : 0.0f;
-   const float pinchY = dir == axis::Y ? PINCH : 0.0f;
 
-   const float xoffF = static_cast<float>(xoff - (dir == axis::Y ? 1 : 0));
-   const float yoffF = static_cast<float>(yoff - (dir == axis::X ? 1 : 0));
+   const int reflect = (axis == axis::Y ? -1 : 1);
+   
+   const float offsetF = static_cast<float>(offset * reflect);
+   const float straightF = static_cast<float>(straight);
    
    Vector<float> p1 = makeVector(0.0f, 0.0f, 0.0f);
-   Vector<float> p2 = makeVector(pinchX, 0.0f, pinchY);
-   Vector<float> p3 = makeVector(xoffF - pinchX, 0.0f, yoffF - pinchY);
-   Vector<float> p4 = makeVector(xoffF, 0.0f, yoffF);
+   Vector<float> p2 = makeVector(PINCH, 0.0f, 0.0f);
+   Vector<float> p3 = makeVector(straightF - PINCH, 0.0f, offsetF);
+   Vector<float> p4 = makeVector(straightF, 0.0f, offsetF);
 
    curve = makeBezierCurve(p1, p2, p3, p4);
    railMesh = makeBezierRailMesh(curve);
@@ -102,6 +102,9 @@ void SBend::render() const
    glPushMatrix();
 
    glTranslatef(0.0f, height, 0.0f);
+
+   if (axis == axis::Y)
+      glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
 
    renderRailMesh(railMesh);
    
@@ -140,7 +143,7 @@ track::Connection SBend::nextPosition(const track::TravelToken& token) const
 void SBend::getEndpoints(vector<Point<int> >& output) const
 {
    output.push_back(origin);
-   output.push_back(origin + makePoint(xOffset, yOffset));
+   //   output.push_back(origin + makePoint(xOffset, yOffset));
 }
 
 void SBend::getCovers(vector<Point<int> >& output) const
@@ -168,7 +171,7 @@ void SBend::ensureValidDirection(track::Direction dir) const
 {
    if (!isValidDirection(dir))
       throw runtime_error
-         ("Invalid direction on straight track: "
+         ("Invalid direction on s-bend track: "
             + boost::lexical_cast<string>(dir)
             + " (should be parallel to "
             + boost::lexical_cast<string>(axis) + ")");
@@ -179,7 +182,7 @@ xml::element SBend::toXml() const
    assert(false);
 }
 
-ITrackSegmentPtr makeSBend(track::Direction dir, int xoff, int yoff)
+ITrackSegmentPtr makeSBend(track::Direction dir, int straight, int off)
 {
-   return ITrackSegmentPtr(new SBend(dir, xoff, yoff));
+   return ITrackSegmentPtr(new SBend(dir, straight, off));
 }
