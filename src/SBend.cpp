@@ -54,7 +54,7 @@ private:
    void ensureValidDirection(track::Direction dir) const;
 
    Point<int> origin;
-   int straight, offset;
+   const int straight, offset;
    float height;
    track::Direction axis;
 
@@ -179,7 +179,10 @@ void SBend::ensureValidDirection(track::Direction dir) const
 
 xml::element SBend::toXml() const
 {
-   assert(false);
+   return xml::element("sbendTrack")
+      .addAttribute("align", axis == axis::X ? "x" : "y")
+      .addAttribute("offset", offset)
+      .addAttribute("straight", straight);
 }
 
 ITrackSegmentPtr makeSBend(track::Direction dir, int straight, int off)

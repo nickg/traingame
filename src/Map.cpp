@@ -1452,6 +1452,8 @@ public:
          handlePoints(attrs);
       else if (localName == "slopeTrack")
          handleSlopeTrack(attrs);
+      else if (localName == "sbendTrack")
+         handleSBendTrack(attrs);
       else if (localName == "stationPart")
          handleStationPart(attrs);
       else if (localName == "station")
@@ -1570,6 +1572,20 @@ private:
          makeSlopeTrack(axis, slope, slopeBefore, slopeAfter));
    }
 
+   void handleSBendTrack(const AttributeSet attrs)
+   {
+      string align;
+      attrs.get("align", align);
+
+      track::Direction axis = align == "x" ? axis::X : axis::Y;
+
+      int offset, straight;
+      attrs.get("offset", offset);
+      attrs.get("straight", straight);
+
+      myMap->setTrackAt(tile, makeSBend(axis, straight, offset));
+   }
+   
    void handlePoints(const AttributeSet& attrs)
    {
       string align;

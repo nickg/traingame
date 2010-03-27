@@ -45,7 +45,19 @@
                     <xs:element name="slopeTrack" minOccurs="0">
                       <xs:complexType>
                         <xs:attribute name="align" use="required"
-                                      type="xs:string"/>  <!-- should be restricted -->                      </xs:complexType>
+                                      type="xs:string"/>  <!-- should be restricted -->
+                      </xs:complexType>
+                    </xs:element>
+
+                    <xs:element name="sbendTrack" minOccurs="0">
+                      <xs:complexType>
+                        <xs:attribute name="align" use="required"
+                                      type="xs:string"/>  <!-- should be restricted -->
+                        <xs:attribute name="offset" use="required"
+                                      type="xs:integer"/>
+                        <xs:attribute name="straight" use="required"
+                                      type="xs:integer"/>
+                      </xs:complexType>
                     </xs:element>
 
                     <xs:element name="points" minOccurs="0">
