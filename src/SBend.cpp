@@ -106,7 +106,12 @@ void SBend::render() const
    if (axis == axis::Y)
       glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
 
-   renderRailMesh(railMesh);
+   glPushMatrix();
+   
+   glTranslatef(-0.5f, 0.0f, 0.0f);
+   railMesh->render();
+   
+   glPopMatrix();
    
    for (float i = 0.1f; i < curve.length; i += 0.25f) {
       glPushMatrix();

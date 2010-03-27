@@ -106,6 +106,21 @@ struct BezierCurve {
           + p[3].z * 3 * t * t
           );
    }
+
+   // Value of the function at a constant radius in the Z-plane
+   Vector<T> offset(T t, T p) const
+   {
+      Vector<T> v = (*this)(t);
+      const Vector<T> d = deriv(t);
+
+      const T o =
+         p / sqrt((d.x * d.x) + (d.z * d.z));
+
+      v.x += o * d.z;
+      v.z -= o * d.x;
+
+      return v;
+   }
 };
 
 // Generate Bezier curves

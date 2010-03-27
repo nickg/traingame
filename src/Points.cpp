@@ -189,7 +189,10 @@ void Points::render() const
    else if (myAxis == axis::Y)
       glRotatef(270.0f, 0.0f, 1.0f, 0.0f);
 
-   renderRailMesh(reflected ? reflectMesh : railMesh);
+   glPushMatrix();
+   glTranslatef(-0.5f, 0.0f, 0.0f);
+   (reflected ? reflectMesh : railMesh)->render();
+   glPopMatrix();
 
    glPushMatrix();
    glRotatef(90.0f, 0.0f, 1.0f, 0.0f);

@@ -111,7 +111,10 @@ void SlopeTrack::render() const
    if (axis == axis::Y)
       glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
 
-   renderRailMesh(railMesh);
+   glPushMatrix();
+   glTranslatef(-0.5f, 0.0f, 0.0f);
+   railMesh->render();
+   glPopMatrix();
 
    // Draw the sleepers
    glTranslatef(-0.5f, 0.0f, 0.0f);

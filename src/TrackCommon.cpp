@@ -118,17 +118,16 @@ namespace {
       theRailMesh = makeMesh(buf);
    }
 
-   // Generate a rail mesh from a Bezier curve
-   IMeshPtr generateBezierRailMesh(const BezierCurve<float>& aFunc)
+   void buildOneBezierRail(const BezierCurve<float>& func,
+      IMeshBufferPtr buf, float p)
    {
-      IMeshBufferPtr buf = makeMeshBuffer();
-      
       const float step = 0.1f;
 
       for (float t = 0.0f; t < 1.0f; t += step) {
-         Vector<float> v1 = aFunc(t);
-         Vector<float> v2 = aFunc(t + step);
-         
+
+         Vector<float> v1 = func.offset(t, p);
+         Vector<float> v2 = func.offset(t + step, p);
+              
          v1.z -= RAIL_WIDTH / 2.0f;
          v2.z -= RAIL_WIDTH / 2.0f;
 
@@ -153,6 +152,15 @@ namespace {
             makeVector(v2.x, v2.y + track::RAIL_HEIGHT, v2.z + RAIL_WIDTH),
             METAL);
       }
+   }
+
+   // Generate a rail mesh from a Bezier curve
+   IMeshPtr generateBezierRailMesh(const BezierCurve<float>& func)
+   {
+      IMeshBufferPtr buf = makeMeshBuffer();
+      
+      buildOneBezierRail(func, buf, GAUGE/2.0f);
+      buildOneBezierRail(func, buf, -GAUGE/2.0f);
 
       return makeMesh(buf);
    }
