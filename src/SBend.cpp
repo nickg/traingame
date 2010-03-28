@@ -23,6 +23,8 @@
 #include "OpenGLHelper.hpp"
 
 #include <cassert>
+#include <map>
+
 #include <boost/lexical_cast.hpp>
 
 // Spline curves which start and finish in the same direction
@@ -60,16 +62,19 @@ private:
 
    BezierCurve<float> curve;
    IMeshPtr railMesh;
+
+   typedef tuple<int, int> Parameters;
+   typedef map<Parameters, IMeshPtr> MeshCache; 
+   static MeshCache meshCache;
 };
+
+SBend::MeshCache SBend::meshCache;
 
 SBend::SBend(track::Direction dir, int straight, int off)
    : straight(straight), offset(off),
      height(0.0f),
      axis(dir)
 {
-   debug() << "SBend axis=" << axis
-           << " straight=" << straight << " off=" << off;
-
    assert(straight > 0);
 
    const float pinch = static_cast<float>(straight) / 3.0f;
@@ -85,10 +90,15 @@ SBend::SBend(track::Direction dir, int straight, int off)
    Vector<float> p4 = makeVector(straightF, 0.0f, offsetF);
 
    curve = makeBezierCurve(p1, p2, p3, p4);
-   railMesh = makeBezierRailMesh(curve);
 
-   debug() << "f(0) = " << curve(0.0f)
-           << " f(1) = " << curve(1.0f);
+   Parameters parms = make_tuple(straight, offset * reflect);
+   MeshCache::iterator it = meshCache.find(parms);
+   if (it == meshCache.end()) {
+      railMesh = makeBezierRailMesh(curve);
+      meshCache[parms] = railMesh;
+   }
+   else
+      railMesh = (*it).second;
 }
 
 void SBend::setOrigin(int x, int y, float h)
