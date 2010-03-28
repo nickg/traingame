@@ -189,8 +189,11 @@ double Engine::brakeForce() const
       dir = -1.0;
    else
       dir = 1.0;
-   
-   return myMass * g * beta * dir;
+
+   if (abs(mySpeed) < STOP_SPEED)
+      return 0.0;
+   else 
+      return myMass * g * beta * dir;
 }
 
 // Compute the next state of the engine
@@ -222,16 +225,16 @@ void Engine::update(int delta, float gradient)
    const double deltaSeconds = delta / 1000.0f;
    const double a = ((netP - Q - B + G) / myMass) * deltaSeconds;
 
-   //   mySpeed = max(mySpeed + a, 0.0);
-   if (abs(mySpeed) < STOP_SPEED && myThrottle == 0 && isBrakeOn) {
-      mySpeed = 0.0;
+   if (abs(mySpeed) < STOP_SPEED && myThrottle == 0) {
+      if (isBrakeOn)
+         mySpeed = 0.0;
       haveStopped = true;
    }
-   else {
-      mySpeed += a;
+   else
       haveStopped = false;
-   }
-
+   
+   mySpeed += a;
+     
 #if 0
    debug() << "P=" << netP << ", Q=" << Q
            << ", B=" << B
