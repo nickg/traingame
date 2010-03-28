@@ -113,12 +113,12 @@ void SBend::render() const
    
    glPopMatrix();
    
-   for (float i = 0.1f; i < curve.length; i += 0.25f) {
+   for (float i = 0.2f; i < curve.length; i += 0.25f) {
       glPushMatrix();
       
       Vector<float> v = curve(i / curve.length);
 
-      glTranslatef(v.x - 0.4f, 0.0f, v.z);
+      glTranslatef(v.x - 0.5f, 0.0f, v.z);
       
       const Vector<float> deriv = curve.deriv(i / curve.length);
       const float angle =

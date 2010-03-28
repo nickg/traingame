@@ -107,7 +107,7 @@ struct BezierCurve {
           );
    }
 
-   // Value of the function at a constant radius in the Z-plane
+   // Value of the function at a constant radius in the XZ-plane
    Vector<T> offset(T t, T p) const
    {
       Vector<T> v = (*this)(t);

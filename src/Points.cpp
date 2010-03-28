@@ -210,7 +210,7 @@ void Points::render() const
       
       Vector<float> v = (reflected ? myReflectedCurve : myCurve)(i);
 
-      glTranslatef(v.x - 0.4f, 0.0f, v.z);
+      glTranslatef(v.x - 0.5f, 0.0f, v.z);
       
       const Vector<float> deriv =
          (reflected ? myReflectedCurve : myCurve).deriv(i);
