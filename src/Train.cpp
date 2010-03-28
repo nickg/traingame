@@ -47,9 +47,8 @@ public:
 private:
    // The different parts of the train are on different track segments
    struct Part : boost::equality_comparable<Part> {
-      explicit Part(IRollingStockPtr aVehicle, bool amDriving = false)
-         : vehicle(aVehicle), segmentDelta(0.0), isLeading(amDriving),
-           movementSign(1.0)
+      explicit Part(IRollingStockPtr aVehicle)
+         : vehicle(aVehicle), segmentDelta(0.0), movementSign(1.0)
       {}
       
       IRollingStockPtr vehicle;
@@ -64,9 +63,6 @@ private:
       // Direction train part is travelling along the track
       Vector<int> direction;
 
-      // True if this is driving the train
-      bool isLeading;
-
       // Handles reversal mid-segment
       float movementSign;
 
@@ -78,19 +74,15 @@ private:
    list<Part> parts;
 
    const Part& engine() const;
-   const Part& leading() const;
    Part& engine();
    void move(double aDistance);
    void addPart(IRollingStockPtr aVehicle);
    Vector<float> partPosition(const Part& aPart) const;
    void updateSmokePosition(int aDelta);
-   void flipLeader();
-   void eachPart(function<void (Part&)> callback);
    void movePart(Part& part, double distance);
 
    static track::Connection reverseToken(const track::TravelToken& token);
    static void transformToPart(const Part& p);
-   
    
    IMapPtr map;
    ISmokeTrailPtr smokeTrail;
@@ -109,7 +101,7 @@ const double Train::SEPARATION(0.15);
 Train::Train(IMapPtr aMap)
    : map(aMap), velocityVector(makeVector(0.0f, 0.0f, 0.0f))
 {
-   parts.push_front(Part(loadEngine("pclass"), true));
+   parts.push_front(Part(loadEngine("pclass")));
    
    enterSegment(engine(), aMap->start());
 
@@ -135,26 +127,6 @@ void Train::addPart(IRollingStockPtr aVehicle)
    parts.push_back(part);
 }
 
-// Return the part that is leading the train - i.e. the
-// first to encounter points, etc.
-const Train::Part& Train::leading() const
-{
-   Part const* p = NULL;
-
-   for (list<Part>::const_iterator it = parts.begin();
-        it != parts.end(); ++it) {
-      if ((*it).isLeading) {
-         if (p)
-            assert(false && "> 1 leading part!");
-         else
-            p = &(*it);
-      }
-   }
-
-   assert(p);
-   return *p;
-}
-
 Train::Part& Train::engine()
 {
    assert(parts.size() > 0);
@@ -165,45 +137,6 @@ const Train::Part& Train::engine() const
 {
    assert(parts.size() > 0);
    return parts.front();
-}
-
-// Change the leader part from the front to the back or vice
-// versa
-void Train::flipLeader()
-{
-   // TODO: Delete?
-   if (leading() == engine()) {
-      // Make the last waggon the leader
-      engine().isLeading = false;
-      parts.back().isLeading = true;
-   }
-   else {
-      // Make the engine the leader
-      parts.back().isLeading = false;
-      engine().isLeading = true;
-   }
-
-   // for (list<Part>::iterator it = parts.begin();
-   // 	 it != parts.end(); ++it) {
-   // 	while (!(*it).followQueue.empty())
-   // 	    (*it).followQueue.pop();
-   // }
-}
-
-// Iterate through the parts in order from the front of the
-// train to the back
-void Train::eachPart(function<void (Part&)> callback)
-{
-   if (parts.front().isLeading) {
-      for (list<Part>::iterator it = parts.begin();
-           it != parts.end(); ++it)
-         callback(*it);
-   }
-   else {
-      for (list<Part>::reverse_iterator it = parts.rbegin();
-           it != parts.rend(); ++it)
-         callback(*it);
-   }                                   
 }
 
 void Train::movePart(Part& part, double distance)
@@ -242,8 +175,10 @@ void Train::movePart(Part& part, double distance)
 void Train::move(double aDistance)
 {
    using namespace placeholders;
-
-   eachPart(bind(&Train::movePart, this, _1, aDistance));
+   
+   for (list<Part>::iterator it = parts.begin();
+        it != parts.end(); ++it)
+      movePart(*it, aDistance);
 }
 
 void Train::updateSmokePosition(int aDelta)
@@ -280,8 +215,6 @@ void Train::updateSmokePosition(int aDelta)
 
 void Train::update(int delta)
 {
-   int oldSpeedSign = engine().vehicle->speed() >= 0.0 ? 1 : 0;
-
    double gravitySum = 0.0;
    for (list<Part>::iterator it = parts.begin();
         it != parts.end(); ++it) {
@@ -300,11 +233,6 @@ void Train::update(int delta)
         it != parts.end(); ++it)
       (*it).vehicle->update(delta, gravitySum);
 
-   int newSpeedSign = engine().vehicle->speed() >= 0.0 ? 1 : 0;
-
-   if (oldSpeedSign != newSpeedSign)
-      flipLeader();
-   
    updateSmokePosition(delta);
    
    // How many metres does a tile correspond to?
@@ -336,25 +264,6 @@ void Train::enterSegment(Part& aPart, const track::Connection& aConnection)
    aPart.segmentDelta = 0.0;
    aPart.segment = map->trackAt(pos);
    aPart.travelToken = aPart.segment->getTravelToken(pos, aPart.direction);
-
-   /*if (aPart.travelToken.choices.size() > 1) {
-     track::Choice choice;
-      
-     if (aPart == leading()) {
-     // Need to make a choice: see what the controller has pre-set
-     choice = engine().vehicle->controller()->consumeChoice();
-     makeFollow(choice);
-     }
-     else {
-     // We're following another part so look in the follow queue
-     assert(!aPart.followQueue.empty());
-
-     choice = aPart.followQueue.front();
-     aPart.followQueue.pop();
-     }
-      
-     aPart.travelToken.activeChoice = choice;
-     }*/
 }
 
 void Train::transformToPart(const Part& p)
