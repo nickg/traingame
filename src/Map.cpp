@@ -27,6 +27,7 @@
 #include "IStation.hpp"
 #include "IResource.hpp"
 #include "IScenery.hpp"
+#include "IConfig.hpp"
 #include "OpenGLHelper.hpp"
 
 #include <stdexcept>
@@ -232,7 +233,7 @@ Map::Map(IResourcePtr aRes)
      resource(aRes), frameNum(0)
 {
    fog = makeFog(0.005f,            // Density
-      50.0f, 70.0f);     // Start and end distance
+      50.0f, getConfig()->get<float>("FarClip"));     // Start and end distance
 }
 
 Map::~Map()
