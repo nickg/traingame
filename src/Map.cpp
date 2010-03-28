@@ -232,8 +232,9 @@ Map::Map(IResourcePtr aRes)
      shouldDrawGridLines(false), inPickMode(false),
      resource(aRes), frameNum(0)
 {
+   const float farClip = getConfig()->get<float>("FarClip");
    fog = makeFog(0.005f,            // Density
-      50.0f, getConfig()->get<float>("FarClip"));     // Start and end distance
+      farClip / 2.0f, farClip);     // Start and end distance
 }
 
 Map::~Map()
