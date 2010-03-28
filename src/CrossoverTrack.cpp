@@ -18,6 +18,7 @@
 #include "ITrackSegment.hpp"
 #include "TrackCommon.hpp"
 #include "XMLBuilder.hpp"
+#include "ILogger.hpp"
 
 #include <stdexcept>
 #include <cassert>
@@ -72,8 +73,10 @@ void CrossoverTrack::render() const
       static_cast<float>(myX),
       height,
       static_cast<float>(myY));
-
+   
    // Render the y-going rails and sleepers
+   glPushMatrix();
+
    renderStraightRail();
    
    glRotated(90.0, 0.0, 1.0, 0.0);
@@ -100,6 +103,8 @@ void CrossoverTrack::render() const
       renderSleeper();
       glTranslated(0.25, 0.0, 0.0);
    }
+
+   glPopMatrix();
 
    glPopMatrix();
 }

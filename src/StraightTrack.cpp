@@ -129,15 +129,12 @@ void StraightTrack::transform(const track::TravelToken& aToken,
 ITrackSegmentPtr StraightTrack::mergeExit(Point<int> where,
    track::Direction dir)
 {
-#if 0
+#if 1
    debug() << "mergeExit where=" << where
            << " dir=" << dir
-           << " me=" << origin;
+           << " me=" << origin
+           << " mydir=" << direction;
 #endif
-
-   // See if this is already a valid exit
-   if (isValidDirection(dir) && where == origin)
-      return shared_from_this();
 
    // See if we can make this a crossover track
    if (direction != dir && where == origin)
