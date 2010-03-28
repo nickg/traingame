@@ -151,9 +151,6 @@ void Layout::startElement(const string& localName,
    parse_path.push(w);
 
    widgets[parse_path.str()] = w;
-   
-   debug() << "Add widget " << parse_path.str()
-           << " (" << localName << ")";
 }
 
 void Layout::endElement(const string& localName)

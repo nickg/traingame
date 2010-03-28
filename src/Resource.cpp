@@ -96,8 +96,6 @@ namespace {
 
    void addResourceDir(const char* aClass, const path& aPath)
    {
-      debug() << "Adding " <<  aPath << " to " << aClass << " class";
-
       const path xmlFile = aPath / (aPath.filename() + ".xml");
 
       if (!exists(xmlFile))
