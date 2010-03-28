@@ -176,7 +176,7 @@ namespace {
          - (type == OUTER_RAIL ? 0 : GAUGE);
       const float r = R - RAIL_WIDTH;
       
-      const float step = 0.2f;
+      const float step = M_PI / 2.0f / 10.0f;
       
       // Top of rail
       for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
