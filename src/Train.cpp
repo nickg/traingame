@@ -281,7 +281,8 @@ void Train::updateSmokePosition(int aDelta)
 void Train::update(int delta)
 {
    int oldSpeedSign = engine().vehicle->speed() >= 0.0 ? 1 : 0;
-   
+
+   double gravitySum = 0.0;
    for (list<Part>::iterator it = parts.begin();
         it != parts.end(); ++it) {
       float gradient = (*it).travelToken.gradient((*it).segmentDelta);
@@ -290,9 +291,14 @@ void Train::update(int delta)
          gradient *= -1.0f;
 
       gradient *= (*it).movementSign;
-      
-      (*it).vehicle->update(delta, gradient);
+
+      const double g = 9.78;
+      gravitySum += -g * gradient * (*it).vehicle->mass();
    }
+
+   for (list<Part>::iterator it = parts.begin();
+        it != parts.end(); ++it)
+      (*it).vehicle->update(delta, gravitySum);
 
    int newSpeedSign = engine().vehicle->speed() >= 0.0 ? 1 : 0;
 
@@ -310,8 +316,6 @@ void Train::update(int delta)
    move(engine().vehicle->speed() * deltaSeconds / M_PER_UNIT);
 
    velocityVector = partPosition(engine()) - oldPos;
-
-   //dumpFollowQueue();
 }
 
 // Called when the train enters a new segment

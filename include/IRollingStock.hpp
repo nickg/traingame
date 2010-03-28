@@ -27,7 +27,7 @@ struct IRollingStock {
    virtual ~IRollingStock() {}
 
    // Update speed, fuel, etc.
-   virtual void update(int delta, float gradient) = 0;
+   virtual void update(int delta, double gravity) = 0;
    
    // Display the model
    virtual void render() const = 0;
@@ -40,6 +40,9 @@ struct IRollingStock {
 
    // Return the length of the vehicle in game units
    virtual float length() const = 0;
+
+   // Return the mass of the vehicle in tons
+   virtual double mass() const = 0;
 };
 
 typedef shared_ptr<IRollingStock> IRollingStockPtr;

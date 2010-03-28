@@ -33,10 +33,11 @@ public:
    ~Waggon() {}
 
    // IRollingStock interface
-   void update(int delta, float gradient);
+   void update(int delta, double gravity);
    void render() const;
    IControllerPtr controller();
    double speed() const { return 0.0; }
+   double mass() const { return 1.0; }
    float length() const { return model->dimensions().x; }
 
    // IXMLCallback interface
@@ -65,7 +66,7 @@ void Waggon::text(const string& localName, const string& aString)
       model = loadModel(resource, aString, MODEL_SCALE);
 }
 
-void Waggon::update(int delta, float gradient)
+void Waggon::update(int delta, double gravity)
 {
    
 }

@@ -64,12 +64,13 @@ public:
 
    // IRollingStock interface
    void render() const;
-   void update(int delta, float gradient);
+   void update(int delta, double gravity);
    
    double speed() const { return mySpeed; }
+   double mass() const { return myMass; }
    IControllerPtr controller() { return shared_from_this(); }
    float length() const { return model->dimensions().x; }
-
+   
    // IController interface
    void actOn(Action anAction);
    int throttle() const { return myThrottle; }
@@ -85,7 +86,6 @@ private:
    double tractiveEffort() const;
    double resistance() const;
    double brakeForce() const;
-   double gravity(float gradient) const;
    
    IModelPtr model;
 
@@ -170,13 +170,6 @@ double Engine::resistance() const
    return sign * (a + b*absSpeed + c*absSpeed*absSpeed);
 }
 
-// Calculate the resistance due to gravity on a slope
-double Engine::gravity(float gradient) const
-{
-   const double g = 9.78;
-   return -g * gradient * myMass;
-}
-
 // Calculate the magnitude of the braking force
 double Engine::brakeForce() const
 {
@@ -197,7 +190,7 @@ double Engine::brakeForce() const
 }
 
 // Compute the next state of the engine
-void Engine::update(int delta, float gradient)
+void Engine::update(int delta, double gravity)
 {
    // Update the pressure of the boiler
    // The fire temperature is delayed and then used to increase it
@@ -207,17 +200,7 @@ void Engine::update(int delta, float gradient)
    const double P = tractiveEffort();
    const double Q = resistance();
    const double B = isBrakeOn ? brakeForce() : 0.0;
-   const double G = gravity(gradient);   
-
-#if 0
-   static float lastGradient = gradient;
-   if (abs(gradient - lastGradient) > 0.01f) {
-      error() << "too big gradient change "
-              << lastGradient << " -> "
-              << gradient;
-   }
-   lastGradient = gradient;
-#endif
+   const double G = gravity;   
    
    // The applied tractive effort is controlled by the throttle
    const double netP = P * static_cast<double>(myThrottle) / 10.0;
