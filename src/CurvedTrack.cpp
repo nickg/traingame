@@ -302,7 +302,10 @@ void CurvedTrack::render() const
 {
    glPushMatrix();
    
-   glTranslatef(0.0f, height, 0.0f);
+   glTranslatef(
+      static_cast<float>(origin.x),
+      height,
+      static_cast<float>(origin.y));
 
    renderCurvedTrack(baseRadius, startAngle, finishAngle);
 

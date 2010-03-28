@@ -757,12 +757,7 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
          // Draw the track, if any
          Tile& tile = tileAt(x, y);
          if (tile.track && tile.track->needsRendering(frameNum)) {
-            glPushMatrix();
-            glTranslated(static_cast<double>(tile.track->originX()), 0,
-               static_cast<double>(tile.track->originY()));
             tile.track->get()->render();
-            glPopMatrix();
-            
             tile.track->renderedOn(frameNum);
             
 #if 0

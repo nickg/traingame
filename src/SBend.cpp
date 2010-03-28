@@ -101,7 +101,10 @@ void SBend::render() const
 {
    glPushMatrix();
 
-   glTranslatef(0.0f, height, 0.0f);
+   glTranslatef(
+      static_cast<float>(origin.x),
+      height,
+      static_cast<float>(origin.y));
 
    if (axis == axis::Y)
       glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);

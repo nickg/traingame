@@ -212,8 +212,11 @@ Connection StraightTrack::nextPosition(const track::TravelToken& aToken) const
 void StraightTrack::render() const
 {
    glPushMatrix();
-
-   glTranslatef(0.0f, height, 0.0f);
+   
+   glTranslatef(
+      static_cast<float>(origin.x),
+      height,
+      static_cast<float>(origin.y));
 
    if (direction == axis::X)
       glRotated(90.0, 0.0, 1.0, 0.0);

@@ -66,11 +66,14 @@ private:
 
 void CrossoverTrack::render() const
 {
-   // Render the y-going rails and sleepers
    glPushMatrix();
 
-   glTranslatef(0.0f, height, 0.0f);
+   glTranslatef(
+      static_cast<float>(myX),
+      height,
+      static_cast<float>(myY));
 
+   // Render the y-going rails and sleepers
    renderStraightRail();
    
    glRotated(90.0, 0.0, 1.0, 0.0);

@@ -180,7 +180,10 @@ void Points::render() const
    
    glPushMatrix();
 
-   glTranslatef(0.0f, height, 0.0f);
+   glTranslatef(
+      static_cast<float>(myX),
+      height,
+      static_cast<float>(myY));
 
    if (myAxis == -axis::X)
       glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
