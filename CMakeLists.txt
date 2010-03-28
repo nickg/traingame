@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.6)
 project (TrainGame)
 
 set (${PROJECT_NAME}_MAJOR_VERSION 0)
-set (${PROJECT_NAME}_MINOR_VERSION 1)
+set (${PROJECT_NAME}_MINOR_VERSION 2)
 set (${PROJECT_NAME}_PATCH_LEVEL 0) 
 
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
@@ -40,7 +40,6 @@ include_directories (include ${OPENGL_INCLUDE_DIR})
 include_directories (include ${GLEW_INCLUDE_DIR})
 include_directories (include ${XERCES_INCLUDE_DIRS})
 include_directories (include ${FREETYPE_INCLUDE_DIRS})
-include_directories (include ${FLTK_INCLUDE_DIRS})
 include_directories (include ${CMAKE_CURRENT_BINARY_DIR})
 
 if (NOT WIN32) # Unix
@@ -54,7 +53,7 @@ add_executable (${PROJECT_NAME} WIN32 ${folder_source})
 
 target_link_libraries (${PROJECT_NAME} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY}
   ${OPENGL_LIBRARY} ${XERCES_LIBRARIES} ${Boost_LIBRARIES}
-  ${FREETYPE_LIBRARIES} ${GLEW_LIBRARY} ${FLTK_LIBRARIES})
+  ${FREETYPE_LIBRARIES} ${GLEW_LIBRARY})
 
 # Profiling
 if (PROFILE)

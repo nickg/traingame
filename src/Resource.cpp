@@ -20,6 +20,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <sstream>
 
 #include <boost/filesystem.hpp>
 
@@ -123,6 +124,19 @@ namespace {
 void initResources()
 {
    lookInDir(current_path());
+
+   ostringstream ss;
+   ss << "Found ";
+   
+   for (const char **it = classes; *it; ++it) {
+      const ResourceList& lst = resClassList(*it);
+
+      if (it != classes)
+         ss << ", ";
+      ss << lst.size() << " " << *it;
+   }
+
+   log() << ss.str();
 }
 
 // Find all the resources of the given type
