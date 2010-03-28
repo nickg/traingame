@@ -153,7 +153,7 @@ void Game::overlay() const
 
 void Game::stoppedAtStation()
 {
-   layout->get("/station").visible(true);
+   //layout->get("/station").visible(true);
 }
 
 void Game::update(IPickBufferPtr aPickBuffer, int aDelta)
@@ -206,7 +206,7 @@ void Game::nearStation(IStationPtr s)
       activeStation = s;
       s->setHighlightVisible(true);
 
-      gui::Widget& stationWnd = layout->get("/station");
+      //gui::Widget& stationWnd = layout->get("/station");
 
       layout->cast<gui::Label>("/station/name").text(s->name());
    }
@@ -219,7 +219,7 @@ void Game::leftStation()
       activeStation->setHighlightVisible(false);
       activeStation.reset();
 
-      layout->get("/station").visible(false);
+      //layout->get("/station").visible(false);
    }
 }
 
