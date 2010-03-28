@@ -161,9 +161,9 @@ double Engine::resistance() const
 {
    const double sign = mySpeed < 0.0 ? -1.0 : 1.0;
    
-   const double a = 0.0;
-   const double b = 0.1;
-   const double c = 0.05;
+   const double a = 4.0;
+   const double b = 0.05;
+   const double c = 0.006;
 
    const double absSpeed = abs(mySpeed);
    
@@ -185,9 +185,7 @@ double Engine::brakeForce() const
 
    // Brake always acts against direction of motion
    double dir;
-   /*if (abs(mySpeed) < STOP_SPEED)
-      dir = 0.0;
-      else*/ if (mySpeed < 0.0)
+   if (mySpeed < 0.0)
       dir = -1.0;
    else
       dir = 1.0;
@@ -225,7 +223,7 @@ void Engine::update(int delta, float gradient)
    const double a = ((netP - Q - B + G) / myMass) * deltaSeconds;
 
    //   mySpeed = max(mySpeed + a, 0.0);
-   if (abs(mySpeed) < STOP_SPEED && myThrottle == 0) {
+   if (abs(mySpeed) < STOP_SPEED && myThrottle == 0 && isBrakeOn) {
       mySpeed = 0.0;
       haveStopped = true;
    }
