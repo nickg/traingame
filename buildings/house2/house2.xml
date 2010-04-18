@@ -2,4 +2,5 @@
 <building>
   <name>House 2</name>
   <model>house2.obj</model>
+  <scale>0.8</scale>
 </building>
