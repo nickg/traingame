@@ -47,14 +47,28 @@ private:
    IResourcePtr resource;
    float angle;
    Vector<float> position;
+
+   struct ParserState {
+      string modelFile;
+      float scale;
+      IResourcePtr res;
+   } *parserState;
 };
 
 Building::Building(IResourcePtr aRes)
-   : name_("???"), resource(aRes), angle(0.0f)
+   : name_("???"), angle(0.0f)
 {
    static IXMLParserPtr parser = makeXMLParser("schemas/building.xsd");
 
+   parserState = new ParserState;
+   parserState->res = aRes;
+   parserState->scale = 1.0f;
+   
    parser->parse(aRes->xmlFileName(), *this);
+
+   model_ = loadModel(aRes, parserState->modelFile, parserState->scale);
+
+   delete parserState;
 }
 
 void Building::setPosition(float x, float y, float z)
@@ -77,8 +91,10 @@ void Building::text(const string& localName, const string& aString)
 {
    if (localName == "name")
       name_ = aString;
+   else if (localName == "scale")
+      parserState->scale = boost::lexical_cast<float>(aString);
    else if (localName == "model")
-      model_ = loadModel(resource, aString);
+      parserState->modelFile = aString;
 }
 
 xml::element Building::toXml() const

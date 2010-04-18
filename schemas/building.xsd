@@ -3,9 +3,9 @@
   <xs:element name="building">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="name" type="xs:string"/>
-        
+        <xs:element name="name" type="xs:string"/>      
         <xs:element name="model" type="xs:string"/>
+        <xs:element name="scale" type="xs:float" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
