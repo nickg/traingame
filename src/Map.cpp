@@ -233,8 +233,9 @@ Map::Map(IResourcePtr aRes)
      resource(aRes), frameNum(0)
 {
    const float farClip = getConfig()->get<float>("FarClip");
-   fog = makeFog(0.005f,            // Density
-      farClip / 2.0f, farClip);     // Start and end distance
+   fog = makeFog(0.005f,         // Density
+      3.0f * farClip / 4.0f,     // Start
+      farClip);                  // End distance
 }
 
 Map::~Map()
