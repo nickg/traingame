@@ -86,7 +86,7 @@ namespace {
          makeVector(-sleeperOff, 0.0f, -r),
          makeVector(-sleeperOff, 0.0f, r),
          brown);
-   
+
       theSleeperMesh = makeMesh(buf);
    }
 
@@ -268,9 +268,9 @@ IMeshPtr makeBezierRailMesh(const BezierCurve<float>& aFunc)
    return generateBezierRailMesh(aFunc);
 }
 
-// Draw a sleeper in the current maxtrix location
+// Draw a sleeper in the current matrix location
 void renderSleeper()
-{
+{   
    if (!theSleeperMesh)
       generateSleeperMesh();
    

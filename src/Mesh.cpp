@@ -228,7 +228,7 @@ Material::Material()
 }
 
 void Material::apply() const
-{  
+{
    if (texture) {
       glEnable(GL_TEXTURE_2D);
       texture->bind();
@@ -513,17 +513,13 @@ void VBOMesh::render() const
 {
    glPushAttrib(GL_ENABLE_BIT);
    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-      
+
    glBindBufferARB(GL_ARRAY_BUFFER, vboBuf);
    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, indexBuf);
-   
-   glDisable(GL_BLEND);
-   
-   if (hasTexture)
-      glEnable(GL_TEXTURE_2D);
-   else
-      glDisable(GL_TEXTURE_2D);
 
+   if (glIsEnabled(GL_BLEND))
+      glDisable(GL_BLEND);
+   
    if (hasMaterial)
       material.apply();
    else {
@@ -545,9 +541,6 @@ void VBOMesh::render() const
    
    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(myIndexCount),
       GL_UNSIGNED_SHORT, 0);
-
-   glBindBufferARB(GL_ARRAY_BUFFER, 0);
-   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
 
    glPopClientAttrib();
    glPopAttrib();
