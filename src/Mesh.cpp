@@ -65,7 +65,7 @@ struct MeshBuffer : IMeshBuffer {
 
    static bool mergeVector(const Vector<float>& v1, const Vector<float>& v2)
    {
-      const float tolerance = 0.0001f;
+      const float tolerance = 0.001f;
       
       return abs(v1.x - v2.x) < tolerance
 	 && abs(v1.y - v2.y) < tolerance

@@ -118,12 +118,12 @@ void Points::renderArrow() const
       const float step = 0.1f;
       const float arrowLen = 0.7f;
 
+      glDisable(GL_CULL_FACE);
+
       for (float t = 0.0f; t < arrowLen; t += step) {
 
          const Vector<float> v1 = curve(t);
          const Vector<float> v2 = curve(t + step);
-
-         glDisable(GL_CULL_FACE);
 
          if (t >= arrowLen - step) {
             // Arrow head
