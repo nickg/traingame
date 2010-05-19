@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -29,6 +29,11 @@
 #include <boost/static_assert.hpp>
 
 using namespace boost;
+
+namespace {
+   int frameCounter = 0;
+   int triangleCount = 0;
+}
 
 // Concrete implementation of mesh buffers
 struct MeshBuffer : IMeshBuffer {
@@ -544,6 +549,8 @@ void VBOMesh::render() const
 
    glPopClientAttrib();
    glPopAttrib();
+
+   ::triangleCount += myIndexCount / 3;
 }
 
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
@@ -560,4 +567,16 @@ IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 IMeshBufferPtr makeMeshBuffer()
 {
    return IMeshBufferPtr(new MeshBuffer);
+}
+
+void updateRenderStats()
+{
+   ::frameCounter++;
+}
+
+int getAverageTriangleCount()
+{
+   int avg = ::triangleCount / ::frameCounter;
+   ::triangleCount = ::frameCounter = 0;
+   return avg;
 }

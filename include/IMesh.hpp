@@ -77,5 +77,7 @@ typedef shared_ptr<IMesh> IMeshPtr;
 
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer);
 IMeshBufferPtr makeMeshBuffer();
+void updateRenderStats();
+int getAverageTriangleCount();
 
 #endif

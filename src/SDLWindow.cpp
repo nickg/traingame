@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "Maths.hpp"
 #include "OpenGLHelper.hpp"
 #include "IConfig.hpp"
+#include "IMesh.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -104,8 +105,12 @@ namespace {
       void updateTitle()
       {
          if (shouldUpdateTitle) {
+            int avgTriangles = getAverageTriangleCount();
+            
             const string title =
-               "Trains! @ " + lexical_cast<string>(theLastFPS) + " FPS";
+               "Trains! @ " + lexical_cast<string>(theLastFPS)
+               + " FPS [" + lexical_cast<string>(avgTriangles)
+               + " triangles]";
             SDL_WM_SetCaption(title.c_str(), title.c_str());
          }
       }
@@ -127,6 +132,8 @@ namespace {
    void frameComplete()
    {
       theFrameCounter++;
+
+      updateRenderStats();
    }
 }
 
