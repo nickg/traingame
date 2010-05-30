@@ -20,12 +20,11 @@
 #include "ILogger.hpp"
 #include "XMLBuilder.hpp"
 #include "Matrix.hpp"
+#include "OpenGLHelper.hpp"
 
 #include <cassert>
 #include <stdexcept>
 
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <boost/lexical_cast.hpp>
 
 using namespace placeholders;
@@ -41,7 +40,7 @@ public:
    StraightTrack(const Direction& aDirection);
    ~StraightTrack();
    
-   void render() const;
+   void render() const {}
    void merge(IMeshBufferPtr buf) const;
    
    void setOrigin(int x, int y, float h);
@@ -208,32 +207,6 @@ Connection StraightTrack::nextPosition(const track::TravelToken& aToken) const
       return make_pair(makePoint(origin.x, origin.y - 1), -axis::Y);
    else
       assert(false);
-}
-
-void StraightTrack::render() const
-{
-   glPushMatrix();
-   
-   glTranslatef(
-      static_cast<float>(origin.x),
-      height,
-      static_cast<float>(origin.y));
-
-   if (direction == axis::X)
-      glRotated(90.0, 0.0, 1.0, 0.0);
-   
-   renderStraightRail();
-   
-   // Draw the sleepers
-   glRotated(90.0, 0.0, 1.0, 0.0);
-   glTranslated(-0.4, 0.0, 0.0);
-
-   for (int i = 0; i < 4; i++) {
-      renderSleeper();
-      glTranslated(0.25, 0.0, 0.0);
-   }
-   
-   glPopMatrix();
 }
 
 void StraightTrack::merge(IMeshBufferPtr buf) const

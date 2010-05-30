@@ -19,12 +19,11 @@
 #include "TrackCommon.hpp"
 #include "XMLBuilder.hpp"
 #include "ILogger.hpp"
+#include "OpenGLHelper.hpp"
 
 #include <stdexcept>
 #include <cassert>
 
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <boost/lexical_cast.hpp>
 
 using namespace placeholders;
@@ -41,7 +40,7 @@ public:
 
    void setOrigin(int x, int y, float h);
    
-   void render() const;
+   void render() const {}
    void merge(IMeshBufferPtr buf) const;
    
    float segmentLength(const track::TravelToken& aToken) const;
@@ -102,50 +101,6 @@ void CrossoverTrack::merge(IMeshBufferPtr buf) const
          off += makeVector(0.25f, 0.0f, 0.0f);
       }
    }
-}
-
-void CrossoverTrack::render() const
-{
-   glPushMatrix();
-
-   glTranslatef(
-      static_cast<float>(myX),
-      height,
-      static_cast<float>(myY));
-   
-   // Render the y-going rails and sleepers
-   glPushMatrix();
-
-   renderStraightRail();
-   
-   glRotated(90.0, 0.0, 1.0, 0.0);
-   glTranslated(-0.4, 0.0, 0.0);
-
-   for (int i = 0; i < 4; i++) {
-      renderSleeper();
-      glTranslated(0.25, 0.0, 0.0);
-   }
-   
-   glPopMatrix();
-
-   // Render the x-going rails and sleepers
-   glPushMatrix();
-   
-   glRotated(90.0, 0.0, 1.0, 0.0);
-
-   renderStraightRail();
-   
-   glRotated(90.0, 0.0, 1.0, 0.0);
-   glTranslated(-0.4, 0.0, 0.0);
-
-   for (int i = 0; i < 4; i++) {
-      renderSleeper();
-      glTranslated(0.25, 0.0, 0.0);
-   }
-
-   glPopMatrix();
-
-   glPopMatrix();
 }
 
 void CrossoverTrack::setOrigin(int x, int y, float h )
