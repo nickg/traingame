@@ -90,7 +90,7 @@ void Building::render() const
 
 void Building::merge(IMeshBufferPtr buf)
 {
-   model_->merge(buf, position);
+   model_->merge(buf, position, angle);
 }
 
 void Building::text(const string& localName, const string& aString)

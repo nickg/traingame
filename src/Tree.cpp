@@ -109,7 +109,7 @@ void Tree::render() const
 
 void Tree::merge(IMeshBufferPtr buf)
 {
-   model->merge(buf, position);
+   model->merge(buf, position, angle);
 }
 
 xml::element Tree::toXml() const

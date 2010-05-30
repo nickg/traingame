@@ -63,7 +63,8 @@ struct IMeshBuffer {
    
    virtual void printStats() const = 0;
 
-   virtual void merge(shared_ptr<IMeshBuffer> other, Vector<float> off) = 0;
+   virtual void merge(shared_ptr<IMeshBuffer> other,
+      Vector<float> off, float yAngle=0.0f) = 0;
 };
 
 typedef shared_ptr<IMeshBuffer> IMeshBufferPtr;

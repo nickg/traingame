@@ -21,6 +21,7 @@
 #include "ITexture.hpp"
 #include "ILogger.hpp"
 #include "OpenGLHelper.hpp"
+#include "Matrix.hpp"
 
 #include <vector>
 #include <stdexcept>
@@ -55,7 +56,7 @@ struct MeshBuffer : IMeshBuffer {
       Colour colour);
       
    void bindMaterial(const Material& aMaterial);
-   void merge(IMeshBufferPtr other, Vector<float> off);
+   void merge(IMeshBufferPtr other, Vector<float> off, float yAngle);
    
    void printStats() const;
    
@@ -96,18 +97,25 @@ void MeshBuffer::bindMaterial(const Material& aMaterial)
    hasMaterial = true;
 }
 
-void MeshBuffer::merge(IMeshBufferPtr other, Vector<float> off)
+void MeshBuffer::merge(IMeshBufferPtr other, Vector<float> off, float yAngle)
 {
    const MeshBuffer& obuf = dynamic_cast<const MeshBuffer&>(*other);
    
    const size_t ibase = vertices.size();
+
+   const Matrix<float, 4> translate =
+      Matrix<float, 4>::translation(off.x, off.y, off.z);
+   const Matrix<float, 4> rotate =
+      Matrix<float, 4>::rotation(yAngle, 0.0f, 1.0f, 0.0f);
+
+   const Matrix<float, 4> compose = translate * rotate;
    
    for (size_t i = 0; i < obuf.vertices.size(); i++) {
       const Vertex& v = obuf.vertices[i];
       const Normal& n = obuf.normals[i];
       
-      vertices.push_back(v + off);
-      normals.push_back(n);
+      vertices.push_back(compose.transform(v));
+      normals.push_back(rotate.transform(n).normalise());
 
       if (obuf.hasTexture) {
          colours.push_back(colour::WHITE);

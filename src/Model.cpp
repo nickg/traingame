@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -34,8 +34,6 @@
 
 #include <boost/lexical_cast.hpp>
 
-using namespace std;
-using namespace std::tr1;
 using namespace boost;
 
 // Cache of already loaded models
@@ -126,7 +124,7 @@ public:
    // IModel interface
    void render() const;
    void cache();
-   void merge(IMeshBufferPtr into, Vector<float> off) const;
+   void merge(IMeshBufferPtr into, Vector<float> off, float yAngle) const;
    Vector<float> dimensions() const { return dimensions_; }
    
 private:
@@ -156,9 +154,9 @@ void Model::render() const
    mesh->render();
 }
 
-void Model::merge(IMeshBufferPtr into, Vector<float> off) const
+void Model::merge(IMeshBufferPtr into, Vector<float> off, float yAngle) const
 {
-   into->merge(buffer, off);
+   into->merge(buffer, off, yAngle);
 }   
 
 void Model::compileMesh() const
