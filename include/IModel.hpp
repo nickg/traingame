@@ -28,6 +28,7 @@ struct IModel {
    virtual ~IModel() {}
    
    virtual void render() const = 0;
+   virtual void cache() = 0;
    virtual Vector<float> dimensions() const = 0;
 };
 

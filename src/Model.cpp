@@ -56,7 +56,7 @@ private:
    MaterialSet myMaterials;
 };
 
-typedef tr1::shared_ptr<MaterialFile> MaterialFilePtr;
+typedef shared_ptr<MaterialFile> MaterialFilePtr;
 
 MaterialFile::MaterialFile(const string& aFileName, IResourcePtr aRes)
 {
@@ -116,19 +116,22 @@ const Material& MaterialFile::get(const string& aName) const
    return (*it).second;
 }
 
-// A model contains the display list to render it
 class Model : public IModel {
 public:
-   Model(const Vector<float>& dim, IMeshPtr m)
-      : dimensions_(dim), mesh(m)
+   Model(const Vector<float>& dim, const IMeshBufferPtr buf)
+      : dimensions_(dim), buffer(buf)
    {}
    ~Model();
    
    void render() const;
+   void cache();
    Vector<float> dimensions() const { return dimensions_; }
 private:
+   void compileMesh() const;
+   
    Vector<float> dimensions_;
-   IMeshPtr mesh;
+   mutable IMeshPtr mesh;
+   const IMeshBufferPtr buffer;
 };
 
 Model::~Model()
@@ -136,9 +139,24 @@ Model::~Model()
    
 }
 
+void Model::cache()
+{
+   if (!mesh)
+      compileMesh();
+}
+
 void Model::render() const
 {
+   if (!mesh)
+      compileMesh();
+   
    mesh->render();
+}
+
+void Model::compileMesh() const
+{
+   // Const as may be called during render
+   mesh = makeMesh(buffer);
 }
 
 // Load a model from a resource
@@ -300,16 +318,12 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
       getline(f, first);
    }
 
-   // Compile the mesh
-   IMeshPtr mesh = makeMesh(buffer);
-   buffer.reset();
-
    Vector<float> dim = makeVector(xmax - xmin, ymax - ymin, zmax - zmin);
    
    log() << "Model loaded: " << vertices.size() << " vertices, "
          << faceCount << " faces";
    
-   IModelPtr ptr(new Model(dim, mesh));
+   IModelPtr ptr(new Model(dim, buffer));
 
    theCache[cacheName] = ptr;
    return ptr;

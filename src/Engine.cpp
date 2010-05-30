@@ -133,8 +133,10 @@ Engine::Engine(IResourcePtr aRes)
 // Callback for loading elements from the XML file
 void Engine::text(const string& localName, const string& aString)
 {
-   if (localName == "model")
+   if (localName == "model") {
       model = loadModel(resource, aString, MODEL_SCALE);
+      model->cache();
+   }
 }
 
 // Draw the engine model
