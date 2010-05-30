@@ -245,8 +245,9 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
          // A group corresponds to meshes in the model
          if (buffer)
             meshes.push_back(makeMesh(buffer));
-         
-         buffer = makeMeshBuffer();
+
+         //if (!buffer)
+            buffer = makeMeshBuffer();
       }
       else if (first == "usemtl") {
          // Set the material for this group

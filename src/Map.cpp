@@ -487,9 +487,10 @@ void Map::render(IGraphicsPtr aContext) const
    quadTree->render(aContext);
    glPopMatrix();
    
-   glPopAttrib();
 
    renderHighlightedTiles();
+   
+   glPopAttrib();
 }
 
 // Draw an arrow on the start location

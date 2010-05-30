@@ -126,7 +126,11 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal)
    vertices.push_back(aVertex);
    normals.push_back(aNormal);
    indices.push_back(index);
-}
+   colours.push_back(
+      makeColour(material.diffuseR,
+         material.diffuseG,
+         material.diffuseB));
+}         
 
 void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal,
    const Colour& aColour)
@@ -360,8 +364,7 @@ namespace {
 	    vd->tx = buf->texCoords[i].x;
 	    vd->ty = 1.0f - buf->texCoords[i].y;
 	 }
-         
-	 if (!buf->hasMaterial) {
+         else {
 	    vd->r = buf->colours[i].r;
 	    vd->g = buf->colours[i].g;
 	    vd->b = buf->colours[i].b;
@@ -458,9 +461,8 @@ public:
    void render() const;
 private:
    GLuint vboBuf, indexBuf;
-   Material material;
-   bool hasTexture, hasMaterial;
-   size_t myIndexCount;
+   ITexturePtr texture;
+   size_t indexCount;
 };
 
 VBOMesh::VBOMesh(IMeshBufferPtr aBuffer)
@@ -468,9 +470,7 @@ VBOMesh::VBOMesh(IMeshBufferPtr aBuffer)
    // Get the data out of the buffer;
    const MeshBuffer* buf = MeshBuffer::get(aBuffer);
 
-   material = buf->material;
-   hasMaterial = buf->hasMaterial;
-   hasTexture = buf->hasTexture;
+   texture = buf->material.texture;
  
    const size_t vertexCount = buf->vertices.size();
    VertexData* pVertexData = new VertexData[vertexCount];
@@ -488,18 +488,18 @@ VBOMesh::VBOMesh(IMeshBufferPtr aBuffer)
       vertexCount * sizeof(VertexData), pVertexData);
 
    // Copy the indices into a temporary array
-   myIndexCount = buf->indices.size();
-   GLshort* pIndices = new GLshort[myIndexCount];
+   indexCount = buf->indices.size();
+   GLshort* pIndices = new GLshort[indexCount];
 
    copy(buf->indices.begin(), buf->indices.end(), pIndices);
    
    // Build the index buffer
    glGenBuffersARB(1, &indexBuf);
    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, indexBuf);
-   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER, myIndexCount * sizeof(GLushort),
+   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(GLushort),
       NULL, GL_STATIC_DRAW);
    glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER, 0,
-      myIndexCount * sizeof(GLushort), pIndices);
+      indexCount * sizeof(GLushort), pIndices);
 
    glBindBufferARB(GL_ARRAY_BUFFER, 0);
    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -519,16 +519,26 @@ void VBOMesh::render() const
    glPushAttrib(GL_ENABLE_BIT);
    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 
+   assert(glIsEnabled(GL_CULL_FACE));
+
    glBindBufferARB(GL_ARRAY_BUFFER, vboBuf);
    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, indexBuf);
 
    if (glIsEnabled(GL_BLEND))
       glDisable(GL_BLEND);
-   
-   if (hasMaterial)
-      material.apply();
-   else {
+
+   if (texture) {
+      glEnable(GL_TEXTURE_2D);
+      texture->bind();
+      
       glEnable(GL_COLOR_MATERIAL);
+      glColor3f(1.0f, 1.0f, 1.0f);
+   }
+   else {
+      glDisable(GL_TEXTURE_2D);
+      
+      glEnable(GL_COLOR_MATERIAL);
+      glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
       glEnableClientState(GL_COLOR_ARRAY);
       glColorPointer(3, GL_FLOAT, sizeof(VertexData),
@@ -544,20 +554,20 @@ void VBOMesh::render() const
    glVertexPointer(3, GL_FLOAT, sizeof(VertexData),
       reinterpret_cast<GLvoid*>(0));
    
-   glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(myIndexCount),
+   glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indexCount),
       GL_UNSIGNED_SHORT, 0);
 
    glPopClientAttrib();
    glPopAttrib();
 
-   ::triangleCount += myIndexCount / 3;
+   ::triangleCount += indexCount / 3;
 }
 
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 {
    //aBuffer->printStats();
    
-   // Prefer VBOs all meshes
+   // Prefer VBOs for all meshes
    if (GLEW_ARB_vertex_buffer_object)
       return IMeshPtr(new VBOMesh(aBuffer));
    else
