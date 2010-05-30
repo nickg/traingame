@@ -23,6 +23,7 @@
 #include "TrackCommon.hpp"
 #include "OpenGLHelper.hpp"
 #include "ILogger.hpp"
+#include "Matrix.hpp"
 
 #include <cassert>
 #include <stdexcept>
@@ -30,14 +31,16 @@
 #include <boost/cast.hpp>
 
 // Like StraightTrack but with a change of height
-class SlopeTrack : public ITrackSegment {
+class SlopeTrack : public ITrackSegment,
+                   public SleeperHelper,
+                   public BezierHelper {
 public:
    SlopeTrack(track::Direction axis, Vector<float> slope,
       Vector<float> slopeBefore, Vector<float> slopeAfter);
 
    // ITrackSegment interface
-   void render() const;
-   void merge(IMeshBufferPtr buf) const {}
+   void render() const {}
+   void merge(IMeshBufferPtr buf) const;
    void setOrigin(int x, int y, float h);
    float segmentLength(const track::TravelToken& token) const;
    track::TravelToken getTravelToken(track::Position pos,
@@ -63,7 +66,7 @@ private:
    
    Point<int> origin;
    float height;
-   IMeshPtr railMesh;
+   IMeshBufferPtr railBuf;
    track::Direction axis;
    float length, yOffset;
    BezierCurve<float> curve;
@@ -100,29 +103,23 @@ SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
    curve = makeBezierCurve(p1, p2, p3, p4);
    length = curve.length;
 
-   railMesh = makeBezierRailMesh(curve);
+   railBuf = makeBezierRailMesh(curve);
 }
 
-void SlopeTrack::render() const
+void SlopeTrack::merge(IMeshBufferPtr buf) const
 {
-   glPushMatrix();
-
-   glTranslatef(
+   Vector<float> off = makeVector(
       static_cast<float>(origin.x),
       height,
       static_cast<float>(origin.y));
 
-   if (axis == axis::Y)
-      glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
+   float yAngle = axis == axis::Y ? -90.0f : 0.0f;
 
-   glPushMatrix();
-   glTranslatef(-0.5f, 0.0f, 0.0f);
-   railMesh->render();
-   glPopMatrix();
-
+   off += rotateY(makeVector(-0.5f, 0.0f, 0.0f), yAngle);
+   
+   buf->merge(railBuf, off, yAngle);
+   
    // Draw the sleepers
-   glTranslatef(-0.5f, 0.0f, 0.0f);
-
    for (float t = 0.1f; t < 1.0f; t += 0.25f) {
       const Vector<float> curveValue = curve(t);
 
@@ -130,17 +127,10 @@ void SlopeTrack::render() const
       const float angle =
          radToDeg<float>(atanf(deriv.y / deriv.x));
 
-      glPushMatrix();
-      
-      glTranslatef(curveValue.x, curveValue.y, 0.0f);
-      glRotatef(angle, 0.0f, 0.0f, 1.0f);
-      
-      renderSleeper();
+      Vector<float> t = makeVector(curveValue.x, curveValue.y, 0.0f);
 
-      glPopMatrix();
+      mergeSleeper(buf, off + rotateY(t, yAngle), yAngle + angle);
    }
-      
-   glPopMatrix();
 }
 
 void SlopeTrack::setOrigin(int x, int y, float h)
