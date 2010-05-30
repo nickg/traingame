@@ -613,6 +613,16 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
       }			
    }
 
+   // Merge any static scenery
+   for (int x = topRight.x-1; x >= botLeft.x; x--) {
+      for (int y = botLeft.y; y < topRight.y; y++) {
+         Tile& tile = tileAt(x, y);
+         
+         if (tile.scenery)
+            tile.scenery->merge(buf);
+      }
+   }
+
    // Draw the sides of the map if this is an edge sector
    const float x1 = static_cast<float>(botLeft.x) - 0.5f;
    const float x2 = static_cast<float>(topRight.x) - 0.5f;
@@ -692,6 +702,7 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
       }
    }
 
+   buf->printStats();
    terrainMeshes[id] = makeMesh(buf);
 }
 
@@ -791,8 +802,8 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
             drawStartLocation();
 
          // Draw any scenery
-         if (tile.scenery)
-            tile.scenery->render();
+         //if (tile.scenery)
+         //   tile.scenery->render();
       }			
    }
 }

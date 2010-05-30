@@ -39,6 +39,7 @@ public:
    void setPosition(float x, float y, float z);
    void setAngle(float a) { angle = a; }
    const string& name() const { return name_; }
+   void merge(IMeshBufferPtr buf);
 
    // IXMLCallback interface
    void text(const string& localName, const string& content);
@@ -104,6 +105,11 @@ void Tree::render() const
    model->render();
    
    glPopMatrix();
+}
+
+void Tree::merge(IMeshBufferPtr buf)
+{
+   model->merge(buf, position);
 }
 
 xml::element Tree::toXml() const

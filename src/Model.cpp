@@ -56,7 +56,7 @@ private:
    MaterialSet myMaterials;
 };
 
-typedef shared_ptr<MaterialFile> MaterialFilePtr;
+typedef std::tr1::shared_ptr<MaterialFile> MaterialFilePtr;
 
 MaterialFile::MaterialFile(const string& aFileName, IResourcePtr aRes)
 {
@@ -122,10 +122,13 @@ public:
       : dimensions_(dim), buffer(buf)
    {}
    ~Model();
-   
+
+   // IModel interface
    void render() const;
    void cache();
+   void merge(IMeshBufferPtr into, Vector<float> off) const;
    Vector<float> dimensions() const { return dimensions_; }
+   
 private:
    void compileMesh() const;
    
@@ -152,6 +155,11 @@ void Model::render() const
    
    mesh->render();
 }
+
+void Model::merge(IMeshBufferPtr into, Vector<float> off) const
+{
+   into->merge(buffer, off);
+}   
 
 void Model::compileMesh() const
 {

@@ -21,6 +21,7 @@
 #include "Platform.hpp"
 #include "Maths.hpp"
 #include "IResource.hpp"
+#include "IMesh.hpp"
 
 #include <string>
 
@@ -29,6 +30,7 @@ struct IModel {
    
    virtual void render() const = 0;
    virtual void cache() = 0;
+   virtual void merge(IMeshBufferPtr buf, Vector<float> off) const = 0;
    virtual Vector<float> dimensions() const = 0;
 };
 
