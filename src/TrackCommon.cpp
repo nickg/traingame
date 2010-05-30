@@ -291,6 +291,17 @@ void SleeperHelper::mergeSleeper(IMeshBufferPtr buf,
    buf->merge(sleeperBuf, off, yAngle);
 }
 
+IMeshBufferPtr BezierHelper::makeBezierRailMesh(
+   const BezierCurve<float>& func) const
+{
+   IMeshBufferPtr buf = makeMeshBuffer();
+   
+   buildOneBezierRail(func, buf, GAUGE/2.0f);
+   buildOneBezierRail(func, buf, -GAUGE/2.0f);
+
+   return buf;
+}
+
 // Draw a sleeper in the current matrix location
 void renderSleeper()
 {   

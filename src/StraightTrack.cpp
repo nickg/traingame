@@ -249,13 +249,12 @@ void StraightTrack::merge(IMeshBufferPtr buf) const
 
    yAngle += 90.0f;
 
-   Matrix<float, 4> r = Matrix<float, 4>::rotation(yAngle, 0.0f, 1.0f, 0.0f);
-   off += r.transform(makeVector(-0.4f, 0.0f, 0.0f));
-
+   off += rotate(makeVector(-0.4f, 0.0f, 0.0f), yAngle, 0.0f, 1.0f, 0.0f);
+   
    for (int i = 0; i < 4; i++) {
       mergeSleeper(buf, off, yAngle);
 
-      off += r.transform(makeVector(0.25f, 0.0f, 0.0f));
+      off += rotate(makeVector(0.25f, 0.0f, 0.0f), yAngle, 0.0f, 1.0f, 0.0f);
    }  
 }
 

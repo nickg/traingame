@@ -20,6 +20,7 @@
 #include "XMLBuilder.hpp"
 #include "ILogger.hpp"
 #include "BezierCurve.hpp"
+#include "Matrix.hpp"
 
 #include <cassert>
 
@@ -27,13 +28,16 @@
 #include <boost/lexical_cast.hpp>
 
 // Forks in the track
-class Points : public ITrackSegment {
+class Points : public ITrackSegment,
+               private StraightTrackHelper,
+               private SleeperHelper,
+               private BezierHelper {
 public:
    Points(track::Direction aDirection, bool reflect);
 
    // ITrackSegment interface
    void render() const;
-   void merge(IMeshBufferPtr buf) const {}
+   void merge(IMeshBufferPtr buf) const;
    void setOrigin(int x, int y, float h) { myX = x; myY = y; height = h; }
    float segmentLength(const track::TravelToken& aToken) const;
    bool isValidDirection(const track::Direction& aDirection) const;
@@ -174,10 +178,69 @@ void Points::renderArrow() const
    glPopMatrix();
 }
 
+void Points::merge(IMeshBufferPtr buf) const
+{
+   static IMeshBufferPtr railBuf = makeBezierRailMesh(myCurve);
+   static IMeshBufferPtr reflectBuf = makeBezierRailMesh(myReflectedCurve);
+   
+   Vector<float> off = makeVector(
+      static_cast<float>(myX),
+      height,
+      static_cast<float>(myY));
+   
+   float yAngle = 0.0f;
+      
+   if (myAxis == -axis::X)
+      yAngle = 180.0f;
+   else if (myAxis == -axis::Y)
+      yAngle = 90.0f;
+   else if (myAxis == axis::Y)
+      yAngle = 270.0f;
+
+   // Render the rails
+   
+   buf->merge(reflected ? reflectBuf : railBuf,
+      off + rotateY(makeVector(-0.5f, 0.0f, 0.0f), yAngle),
+      yAngle);
+   
+   {
+      Vector<float> t = off;
+      
+      for (int i = 0; i < 3; i++) {
+         const float a = yAngle + 90.0f;
+         mergeStraightRail(buf, t, a);
+         
+         t += rotateY(makeVector(0.0f, 0.0f, 1.0f), a);
+      }
+   }
+
+   // Draw the curved sleepers
+   for (float i = 0.25f; i < 1.0f; i += 0.08f) {
+      Vector<float> v = (reflected ? myReflectedCurve : myCurve)(i);
+
+      Vector<float> t = makeVector(v.x - 0.5f, 0.0f, v.z);
+      Vector<float> soff = off + rotateY(t, yAngle);
+      const Vector<float> deriv =
+         (reflected ? myReflectedCurve : myCurve).deriv(i);
+      const float angle =
+         radToDeg<float>(atanf(deriv.z / deriv.x));
+
+      mergeSleeper(buf, soff, yAngle - angle);
+   }
+   
+   // Draw the straight sleepers
+   off -= rotateY(makeVector(0.4f, 0.0f, 0.0f), yAngle);
+   
+   for (int i = 0; i < 12; i++) {
+      mergeSleeper(buf, off, yAngle);
+      off += rotateY(makeVector(0.25f, 0.0f, 0.0f), yAngle);
+   }
+}
+
 void Points::render() const
 {
-   static IMeshPtr railMesh = makeBezierRailMesh(myCurve);
-   static IMeshPtr reflectMesh = makeBezierRailMesh(myReflectedCurve);
+   static IMeshPtr railMesh = ::makeBezierRailMesh(myCurve);
+   static IMeshPtr reflectMesh = ::makeBezierRailMesh(myReflectedCurve);
    
    glPushMatrix();
 

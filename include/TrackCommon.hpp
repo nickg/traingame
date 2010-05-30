@@ -43,6 +43,11 @@ private:
    static IMeshBufferPtr sleeperBuf;
 };
 
+class BezierHelper {
+public:
+   IMeshBufferPtr makeBezierRailMesh(const BezierCurve<float>& func) const;
+};
+
 // Common track rendering functions
 void renderSleeper();
 void renderStraightRail();
