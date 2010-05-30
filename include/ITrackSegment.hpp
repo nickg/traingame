@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "Platform.hpp"
 #include "Maths.hpp"
 #include "IXMLSerialisable.hpp"
+#include "IMesh.hpp"
 
 #include <vector>
 #include <set>
@@ -97,6 +98,9 @@ struct ITrackSegment : IXMLSerialisable {
 
    // Render the track with the origin in the centre
    virtual void render() const = 0;
+
+   // Merge this track segment's mesh into a scenery mesh buffer
+   virtual void merge(IMeshBufferPtr buf) const = 0;
 
    // Set the absolute position of the track in the world
    virtual void setOrigin(int x, int y, float height) = 0;

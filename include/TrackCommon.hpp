@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,9 +22,31 @@
 #include "IMesh.hpp"
 #include "BezierCurve.hpp"
 
+class StraightTrackHelper {
+public:
+   void mergeStraightRail(IMeshBufferPtr buf,
+      Vector<float> off, float yAngle) const;
+   
+private:
+   void mergeOneRail(IMeshBufferPtr buf,
+      Vector<float> off, float yAngle) const;
+      
+   static IMeshBufferPtr railBuf;
+};
+
+class SleeperHelper {
+public:
+   void mergeSleeper(IMeshBufferPtr buf,
+      Vector<float> off, float yAngle) const;
+   
+private:
+   static IMeshBufferPtr sleeperBuf;
+};
+
 // Common track rendering functions
 void renderSleeper();
 void renderStraightRail();
+
 void renderCurvedTrack(int baseRadius, track::Angle startAngle,
                        track::Angle endAngle);
 void renderRailMesh(IMeshPtr aMesh);

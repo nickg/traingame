@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #include "ILogger.hpp"
 #include "Maths.hpp"
 #include "IMesh.hpp"
+#include "Matrix.hpp"
 
 #include <cmath>
 #include <map>
@@ -40,7 +41,7 @@ namespace {
    
    const Colour METAL = makeColour(0.5f, 0.5f, 0.5f);
    
-   void generateSleeperMesh()
+   IMeshBufferPtr generateSleeperMeshBuffer()
    {
       IMeshBufferPtr buf = makeMeshBuffer();
 
@@ -87,10 +88,15 @@ namespace {
          makeVector(-sleeperOff, 0.0f, r),
          brown);
 
-      theSleeperMesh = makeMesh(buf);
+      return buf;
    }
 
-   void generateRailMesh()
+   void generateSleeperMesh()
+   {
+      theSleeperMesh = makeMesh(generateSleeperMeshBuffer());
+   }
+   
+   IMeshBufferPtr generateRailMeshBuffer()
    {
       IMeshBufferPtr buf = makeMeshBuffer();
 
@@ -113,9 +119,14 @@ namespace {
          makeVector(RAIL_WIDTH/2.0f, 0.0f, 1.0f),
          makeVector(RAIL_WIDTH/2.0f, 0.0f, 0.0f),
          makeVector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
-         METAL);   
-      
-      theRailMesh = makeMesh(buf);
+         METAL);
+
+      return buf;
+   }         
+
+   void generateRailMesh()
+   {
+      theRailMesh = makeMesh(generateRailMeshBuffer());
    }
 
    void buildOneBezierRail(const BezierCurve<float>& func,
@@ -261,11 +272,23 @@ namespace {
       
       theRailMesh->render();
    }
+
 }
 
 IMeshPtr makeBezierRailMesh(const BezierCurve<float>& aFunc)
 {
    return generateBezierRailMesh(aFunc);
+}
+
+IMeshBufferPtr SleeperHelper::sleeperBuf;
+
+void SleeperHelper::mergeSleeper(IMeshBufferPtr buf,
+   Vector<float> off, float yAngle) const
+{
+   if (!sleeperBuf)
+      sleeperBuf = generateSleeperMeshBuffer();
+
+   buf->merge(sleeperBuf, off, yAngle);
 }
 
 // Draw a sleeper in the current matrix location
@@ -302,6 +325,29 @@ void renderStraightRail()
    renderOneRail();
 
    glPopMatrix();
+}
+
+IMeshBufferPtr StraightTrackHelper::railBuf;
+
+void StraightTrackHelper::mergeOneRail(IMeshBufferPtr buf,
+   Vector<float> off, float yAngle) const
+{
+   if (!railBuf)
+      railBuf= generateRailMeshBuffer();
+   
+   buf->merge(railBuf, off, yAngle);
+}
+   
+void StraightTrackHelper::mergeStraightRail(IMeshBufferPtr buf,
+   Vector<float> off, float yAngle) const
+{
+   Matrix<float, 4> r = Matrix<float, 4>::rotation(yAngle, 0.0f, 1.0f, 0.0f);
+   
+   off += r.transform(makeVector(-GAUGE/2.0f, 0.0f, -0.5f));
+   mergeOneRail(buf, off, yAngle);
+
+   off += r.transform(makeVector(GAUGE, 0.0f, 0.0f));
+   mergeOneRail(buf, off, yAngle);
 }
 
 // Move to the origin of a curved section of track

@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #include "TrackCommon.hpp"
 #include "ILogger.hpp"
 #include "XMLBuilder.hpp"
+#include "Matrix.hpp"
 
 #include <cassert>
 #include <stdexcept>
@@ -33,12 +34,15 @@ using namespace track;
 
 // Concrete implementation of straight-line pieces of track
 class StraightTrack : public ITrackSegment,
-                      public enable_shared_from_this<StraightTrack> {
+                      public enable_shared_from_this<StraightTrack>,
+                      private StraightTrackHelper,
+                      private SleeperHelper {
 public:
    StraightTrack(const Direction& aDirection);
    ~StraightTrack();
    
    void render() const;
+   void merge(IMeshBufferPtr buf) const;
    
    void setOrigin(int x, int y, float h);
    float segmentLength(const track::TravelToken& token) const { return 1.0f; }
@@ -230,6 +234,29 @@ void StraightTrack::render() const
    }
    
    glPopMatrix();
+}
+
+void StraightTrack::merge(IMeshBufferPtr buf) const
+{
+   Vector<float> off = makeVector(
+      static_cast<float>(origin.x),
+      height,
+      static_cast<float>(origin.y));
+
+   float yAngle = direction == axis::X ? 90.0f : 0.0f;
+
+   mergeStraightRail(buf, off, yAngle);
+
+   yAngle += 90.0f;
+
+   Matrix<float, 4> r = Matrix<float, 4>::rotation(yAngle, 0.0f, 1.0f, 0.0f);
+   off += r.transform(makeVector(-0.4f, 0.0f, 0.0f));
+
+   for (int i = 0; i < 4; i++) {
+      mergeSleeper(buf, off, yAngle);
+
+      off += r.transform(makeVector(0.25f, 0.0f, 0.0f));
+   }  
 }
 
 xml::element StraightTrack::toXml() const

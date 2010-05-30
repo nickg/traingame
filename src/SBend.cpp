@@ -34,6 +34,7 @@ public:
 
    // ITrackSegment interface
    void render() const;
+   void merge(IMeshBufferPtr buf) const {}
    void setOrigin(int x, int y, float h);
    float segmentLength(const track::TravelToken& token) const;
    bool isValidDirection(const track::Direction& dir) const;

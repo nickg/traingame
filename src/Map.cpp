@@ -620,6 +620,15 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
          
          if (tile.scenery)
             tile.scenery->merge(buf);
+
+         // Draw the track, if any
+         if (tile.track && tile.track->needsRendering(frameNum)) {
+            // TODO: how will this work with track that spans
+            // multiple sectors?
+            tile.track->get()->merge(buf);
+            
+            tile.track->renderedOn(frameNum);
+         }
       }
    }
 
@@ -769,12 +778,9 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
             glEnd();
          }
 
-         // Draw the track, if any
          Tile& tile = tileAt(x, y);
+         
          if (tile.track && tile.track->needsRendering(frameNum)) {
-            tile.track->get()->render();
-            tile.track->renderedOn(frameNum);
-            
 #if 0
             // Draw the endpoints for debugging
             vector<Point<int> > tiles;

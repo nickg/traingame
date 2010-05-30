@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ public:
 
    // ITrackSegment interface
    void render() const;
+   void merge(IMeshBufferPtr buf) const {}
    void setOrigin(int x, int y, float h) { myX = x; myY = y; height = h; }
    float segmentLength(const track::TravelToken& aToken) const;
    bool isValidDirection(const track::Direction& aDirection) const;

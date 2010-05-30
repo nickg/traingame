@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -27,14 +27,14 @@
 #include <GL/glu.h>
 #include <boost/lexical_cast.hpp>
 
-using namespace std;
-using namespace std::tr1;
-using namespace std::tr1::placeholders;
+using namespace placeholders;
 using namespace boost;
 
 // A section of track that allows travelling along both axis
 class CrossoverTrack : public ITrackSegment,
-                       public enable_shared_from_this<CrossoverTrack> {
+                       public enable_shared_from_this<CrossoverTrack>,
+                       private StraightTrackHelper,
+                       private SleeperHelper {
 public:
    CrossoverTrack() : myX(0), myY(0), height(0.0f) {}
    ~CrossoverTrack() {}
@@ -42,6 +42,8 @@ public:
    void setOrigin(int x, int y, float h);
    
    void render() const;
+   void merge(IMeshBufferPtr buf) const;
+   
    float segmentLength(const track::TravelToken& aToken) const;
    bool isValidDirection(const track::Direction& aDirection) const;
    track::Connection nextPosition(const track::TravelToken& aToken) const;
@@ -64,6 +66,43 @@ private:
    int myX, myY;
    float height;
 };
+
+void CrossoverTrack::merge(IMeshBufferPtr buf) const
+{
+   // Render the y-going rails and sleepers
+   {    
+      Vector<float> off = makeVector(
+         static_cast<float>(myX),
+         height,
+         static_cast<float>(myY));
+      
+      mergeStraightRail(buf, off, 0.0f);
+
+      off += makeVector(0.0f, 0.0f, -0.4f);
+            
+      for (int i = 0; i < 4; i++) {
+         mergeSleeper(buf, off, 90.0f);
+         off += makeVector(0.0f, 0.0f, 0.25f);
+      }
+   }
+
+   // Render the x-going rails and sleepers
+   {
+      Vector<float> off = makeVector(
+         static_cast<float>(myX),
+         height,
+         static_cast<float>(myY));
+      
+      mergeStraightRail(buf, off, 90.0f);
+      
+      off += makeVector(-0.4f, 0.0f, 0.0f);
+            
+      for (int i = 0; i < 4; i++) {
+         mergeSleeper(buf, off, 0.0f);
+         off += makeVector(0.25f, 0.0f, 0.0f);
+      }
+   }
+}
 
 void CrossoverTrack::render() const
 {
