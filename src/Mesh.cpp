@@ -153,9 +153,16 @@ void MeshBuffer::add(const Vertex& vertex, const Normal& normal)
 	it != indices.end(); ++it) {
       if (mergeVector(vertex, vertices[*it])
 	 && mergeVector(normal, normals[*it])) {
-	 indices.push_back(*it);
-	 reused++;
-	 return;
+         
+	 const Colour& other = colours[*it];
+	 if (abs(other.r - material.diffuseR) < 0.01f
+	    && abs(other.g - material.diffuseG) < 0.01f
+	    && abs(other.b - material.diffuseB) < 0.01f) {
+         
+	    indices.push_back(*it);
+	    reused++;
+	    return;
+	 }
       }
    }
    
@@ -172,7 +179,6 @@ void MeshBuffer::add(const Vertex& vertex, const Normal& normal)
 void MeshBuffer::add(const Vertex& vertex, const Normal& normal,
    const Colour& colour)
 {
-   
    if (hasTexture)
       throw runtime_error("MeshBuffer::add called without texture coordinate "
 	 "on a mesh which has a texture");
