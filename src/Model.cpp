@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -34,8 +34,6 @@
 
 #include <boost/lexical_cast.hpp>
 
-using namespace std;
-using namespace std::tr1;
 using namespace boost;
 
 // Cache of already loaded models
@@ -56,7 +54,7 @@ private:
    MaterialSet myMaterials;
 };
 
-typedef tr1::shared_ptr<MaterialFile> MaterialFilePtr;
+typedef std::tr1::shared_ptr<MaterialFile> MaterialFilePtr;
 
 MaterialFile::MaterialFile(const string& aFileName, IResourcePtr aRes)
 {
@@ -116,23 +114,25 @@ const Material& MaterialFile::get(const string& aName) const
    return (*it).second;
 }
 
-// A model contains the display list to render it
 class Model : public IModel {
 public:
-   Model(const Vector<float>& aDim,
-         const list<IMeshPtr>& aMeshList)
-      : myDimensions(aDim)
-   {
-      copy(aMeshList.begin(), aMeshList.end(),
-           back_inserter(myMeshes));
-   }
+   Model(const Vector<float>& dim, const IMeshBufferPtr buf)
+      : dimensions_(dim), buffer(buf)
+   {}
    ~Model();
-   
+
+   // IModel interface
    void render() const;
-   Vector<float> dimensions() const { return myDimensions; }
+   void cache();
+   void merge(IMeshBufferPtr into, Vector<float> off, float yAngle) const;
+   Vector<float> dimensions() const { return dimensions_; }
+   
 private:
-   Vector<float> myDimensions;
-   list<IMeshPtr> myMeshes;
+   void compileMesh() const;
+   
+   Vector<float> dimensions_;
+   mutable IMeshPtr mesh;
+   const IMeshBufferPtr buffer;
 };
 
 Model::~Model()
@@ -140,11 +140,29 @@ Model::~Model()
    
 }
 
+void Model::cache()
+{
+   if (!mesh)
+      compileMesh();
+}
+
 void Model::render() const
 {
-   for (list<IMeshPtr>::const_iterator it = myMeshes.begin();
-        it != myMeshes.end(); ++it)
-      (*it)->render();
+   if (!mesh)
+      compileMesh();
+   
+   mesh->render();
+}
+
+void Model::merge(IMeshBufferPtr into, Vector<float> off, float yAngle) const
+{
+   into->merge(buffer, off, yAngle);
+}   
+
+void Model::compileMesh() const
+{
+   // Const as may be called during render
+   mesh = makeMesh(buffer);
 }
 
 // Load a model from a resource
@@ -166,8 +184,7 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
    vector<IMeshBuffer::Normal> normals;
    vector<IMeshBuffer::TexCoord> textureOffs;
 
-   IMeshBufferPtr buffer;
-   list<IMeshPtr> meshes;
+   IMeshBufferPtr buffer = makeMeshBuffer();
 
    bool foundVertex = false;
    float ymin = 0, ymax = 0, xmin = 0, xmax = 0,
@@ -242,11 +259,8 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
          textureOffs.push_back(makePoint(x, y));
       }
       else if (first == "g") {
-         // A group corresponds to meshes in the model
-         if (buffer)
-            meshes.push_back(makeMesh(buffer));
-         
-         buffer = makeMeshBuffer();
+         // Groups used to correspond to sub-meshes but now
+         // the whole model is compiled into a single mesh
       }
       else if (first == "usemtl") {
          // Set the material for this group
@@ -310,18 +324,12 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
       getline(f, first);
    }
 
-   // Don't forget to add the last mesh
-   if (buffer) {
-      meshes.push_back(makeMesh(buffer));
-      buffer.reset();
-   }      
-
    Vector<float> dim = makeVector(xmax - xmin, ymax - ymin, zmax - zmin);
    
    log() << "Model loaded: " << vertices.size() << " vertices, "
          << faceCount << " faces";
    
-   IModelPtr ptr(new Model(dim, meshes));
+   IModelPtr ptr(new Model(dim, buffer));
 
    theCache[cacheName] = ptr;
    return ptr;

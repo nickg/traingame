@@ -21,6 +21,7 @@
 #include "ITexture.hpp"
 #include "ILogger.hpp"
 #include "OpenGLHelper.hpp"
+#include "Matrix.hpp"
 
 #include <vector>
 #include <stdexcept>
@@ -42,19 +43,20 @@ struct MeshBuffer : IMeshBuffer {
 
    size_t vertexCount() const { return vertices.size(); }
    
-   void add(const Vertex& aVertex, const Normal& aNormal);
-   void add(const Vertex& aVertex, const Normal& aNormal,
+   void add(const Vertex& vertex, const Normal& normal);
+   void add(const Vertex& vertex, const Normal& normal,
       const TexCoord& aTexCoord);
-   void add(const Vertex& aVertex, const Normal& aNormal,
-      const Colour& aColour);
+   void add(const Vertex& vertex, const Normal& normal,
+      const Colour& colour);
 
    void addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
-      Colour aColour);
+      Colour colour);
    void addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
       Normal na, Normal nb, Normal nc, Normal nd,
-      Colour aColour);
+      Colour colour);
       
    void bindMaterial(const Material& aMaterial);
+   void merge(IMeshBufferPtr other, Vector<float> off, float yAngle);
    
    void printStats() const;
    
@@ -95,13 +97,48 @@ void MeshBuffer::bindMaterial(const Material& aMaterial)
    hasMaterial = true;
 }
 
+void MeshBuffer::merge(IMeshBufferPtr other, Vector<float> off, float yAngle)
+{
+   const MeshBuffer& obuf = dynamic_cast<const MeshBuffer&>(*other);
+   
+   const size_t ibase = vertices.size();
+
+   const Matrix<float, 4> translate =
+      Matrix<float, 4>::translation(off.x, off.y, off.z);
+   const Matrix<float, 4> rotate =
+      Matrix<float, 4>::rotation(yAngle, 0.0f, 1.0f, 0.0f);
+
+   const Matrix<float, 4> compose = translate * rotate;
+   
+   for (size_t i = 0; i < obuf.vertices.size(); i++) {
+      const Vertex& v = obuf.vertices[i];
+      const Normal& n = obuf.normals[i];
+      
+      vertices.push_back(compose.transform(v));
+      normals.push_back(rotate.transform(n).normalise());
+
+      if (obuf.hasTexture) {
+         colours.push_back(colour::WHITE);
+      }
+      else {
+         const Colour& c = obuf.colours[i];
+         colours.push_back(c);
+      }
+   }
+
+   for (size_t i = 0; i < obuf.indices.size(); i++) {
+      Index orig = obuf.indices[i];
+      indices.push_back(orig + ibase);
+   }
+}
+
 void MeshBuffer::printStats() const
 {
    debug() << "Mesh: " << vertices.size() << " vertices, "
 	   << reused << " reused";
 }
 
-void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal)
+void MeshBuffer::add(const Vertex& vertex, const Normal& normal)
 {
    if (hasTexture)
       throw runtime_error("MeshBuffer::add called without texture coordinate "
@@ -114,8 +151,8 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal)
    // See if this vertex has already been added
    for (vector<Index>::iterator it = indices.begin();
 	it != indices.end(); ++it) {
-      if (mergeVector(aVertex, vertices[*it])
-	 && mergeVector(aNormal, normals[*it])) {
+      if (mergeVector(vertex, vertices[*it])
+	 && mergeVector(normal, normals[*it])) {
 	 indices.push_back(*it);
 	 reused++;
 	 return;
@@ -123,13 +160,17 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal)
    }
    
    const size_t index = vertices.size();
-   vertices.push_back(aVertex);
-   normals.push_back(aNormal);
+   vertices.push_back(vertex);
+   normals.push_back(normal);
    indices.push_back(index);
-}
+   colours.push_back(
+      makeColour(material.diffuseR,
+         material.diffuseG,
+         material.diffuseB));
+}         
 
-void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal,
-   const Colour& aColour)
+void MeshBuffer::add(const Vertex& vertex, const Normal& normal,
+   const Colour& colour)
 {
    
    if (hasTexture)
@@ -143,13 +184,13 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal,
    // See if this vertex has already been added
    for (vector<Index>::iterator it = indices.begin();
 	it != indices.end(); ++it) {
-      if (mergeVector(aVertex, vertices[*it])
-	 && mergeVector(aNormal, normals[*it])) {
+      if (mergeVector(vertex, vertices[*it])
+	 && mergeVector(normal, normals[*it])) {
 
 	 const Colour& other = colours[*it];
-	 if (abs(other.r - aColour.r) < 0.01f
-	    && abs(other.g - aColour.g) < 0.01f
-	    && abs(other.b - aColour.b) < 0.01f) {
+	 if (abs(other.r - colour.r) < 0.01f
+	    && abs(other.g - colour.g) < 0.01f
+	    && abs(other.b - colour.b) < 0.01f) {
          
 	    indices.push_back(*it);
 	    reused++;
@@ -159,13 +200,13 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal,
    }
    
    const size_t index = vertices.size();
-   vertices.push_back(aVertex);
-   normals.push_back(aNormal);
-   colours.push_back(aColour);
+   vertices.push_back(vertex);
+   normals.push_back(normal);
+   colours.push_back(colour);
    indices.push_back(index);
 }
 
-void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal,
+void MeshBuffer::add(const Vertex& vertex, const Normal& normal,
    const TexCoord& aTexCoord)
 {
    if (!hasTexture)
@@ -176,8 +217,8 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal,
    // See if this vertex has already been added
    for (vector<Index>::iterator it = indices.begin();
 	it != indices.end(); ++it) {
-      if (mergeVector(aVertex, vertices[*it])
-	 && mergeVector(aNormal, normals[*it])) {
+      if (mergeVector(vertex, vertices[*it])
+	 && mergeVector(normal, normals[*it])) {
 	 TexCoord& tc = texCoords[*it];
 	 if (abs(tc.x - aTexCoord.x) < 0.001f
 	    && abs(tc.y - aTexCoord.y) < 0.001f) {
@@ -189,39 +230,39 @@ void MeshBuffer::add(const Vertex& aVertex, const Normal& aNormal,
    }
    
    const size_t index = vertices.size();
-   vertices.push_back(aVertex);
-   normals.push_back(aNormal);
+   vertices.push_back(vertex);
+   normals.push_back(normal);
    texCoords.push_back(aTexCoord);
    indices.push_back(index);
 }
 
 void MeshBuffer::addQuad(Vertex a, Vertex b, Vertex c,
-   Vertex d, Colour aColour)
+   Vertex d, Colour colour)
 {
    Vector<float> n1 = surfaceNormal(b, c, d);
    Vector<float> n2 = surfaceNormal(d, a, b);
 
-   add(b, n1, aColour);
-   add(c, n1, aColour);
-   add(d, n1, aColour);
+   add(b, n1, colour);
+   add(c, n1, colour);
+   add(d, n1, colour);
 
-   add(d, n2, aColour);
-   add(a, n2, aColour);
-   add(b, n2, aColour);
+   add(d, n2, colour);
+   add(a, n2, colour);
+   add(b, n2, colour);
 }
 
 void MeshBuffer::addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
    Normal na, Normal nb, Normal nc, Normal nd,
-   Colour aColour)
+   Colour colour)
 {
    
-   add(b, na, aColour);
-   add(c, nb, aColour);
-   add(d, nc, aColour);
+   add(b, na, colour);
+   add(c, nb, colour);
+   add(d, nc, colour);
 
-   add(d, nd, aColour);
-   add(a, na, aColour);
-   add(b, nb, aColour);
+   add(d, nd, colour);
+   add(a, na, colour);
+   add(b, nb, colour);
 }
 
 // Default material
@@ -360,8 +401,7 @@ namespace {
 	    vd->tx = buf->texCoords[i].x;
 	    vd->ty = 1.0f - buf->texCoords[i].y;
 	 }
-         
-	 if (!buf->hasMaterial) {
+         else {
 	    vd->r = buf->colours[i].r;
 	    vd->g = buf->colours[i].g;
 	    vd->b = buf->colours[i].b;
@@ -458,9 +498,8 @@ public:
    void render() const;
 private:
    GLuint vboBuf, indexBuf;
-   Material material;
-   bool hasTexture, hasMaterial;
-   size_t myIndexCount;
+   ITexturePtr texture;
+   size_t indexCount;
 };
 
 VBOMesh::VBOMesh(IMeshBufferPtr aBuffer)
@@ -468,9 +507,7 @@ VBOMesh::VBOMesh(IMeshBufferPtr aBuffer)
    // Get the data out of the buffer;
    const MeshBuffer* buf = MeshBuffer::get(aBuffer);
 
-   material = buf->material;
-   hasMaterial = buf->hasMaterial;
-   hasTexture = buf->hasTexture;
+   texture = buf->material.texture;
  
    const size_t vertexCount = buf->vertices.size();
    VertexData* pVertexData = new VertexData[vertexCount];
@@ -488,18 +525,18 @@ VBOMesh::VBOMesh(IMeshBufferPtr aBuffer)
       vertexCount * sizeof(VertexData), pVertexData);
 
    // Copy the indices into a temporary array
-   myIndexCount = buf->indices.size();
-   GLshort* pIndices = new GLshort[myIndexCount];
+   indexCount = buf->indices.size();
+   GLshort* pIndices = new GLshort[indexCount];
 
    copy(buf->indices.begin(), buf->indices.end(), pIndices);
    
    // Build the index buffer
    glGenBuffersARB(1, &indexBuf);
    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, indexBuf);
-   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER, myIndexCount * sizeof(GLushort),
+   glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(GLushort),
       NULL, GL_STATIC_DRAW);
    glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER, 0,
-      myIndexCount * sizeof(GLushort), pIndices);
+      indexCount * sizeof(GLushort), pIndices);
 
    glBindBufferARB(GL_ARRAY_BUFFER, 0);
    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -519,16 +556,27 @@ void VBOMesh::render() const
    glPushAttrib(GL_ENABLE_BIT);
    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 
+   if (!glIsEnabled(GL_CULL_FACE))
+      glEnable(GL_CULL_FACE);
+
    glBindBufferARB(GL_ARRAY_BUFFER, vboBuf);
    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, indexBuf);
 
    if (glIsEnabled(GL_BLEND))
       glDisable(GL_BLEND);
-   
-   if (hasMaterial)
-      material.apply();
-   else {
+
+   if (texture) {
+      glEnable(GL_TEXTURE_2D);
+      texture->bind();
+      
       glEnable(GL_COLOR_MATERIAL);
+      glColor3f(1.0f, 1.0f, 1.0f);
+   }
+   else {
+      glDisable(GL_TEXTURE_2D);
+      
+      glEnable(GL_COLOR_MATERIAL);
+      glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
       glEnableClientState(GL_COLOR_ARRAY);
       glColorPointer(3, GL_FLOAT, sizeof(VertexData),
@@ -544,20 +592,20 @@ void VBOMesh::render() const
    glVertexPointer(3, GL_FLOAT, sizeof(VertexData),
       reinterpret_cast<GLvoid*>(0));
    
-   glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(myIndexCount),
+   glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indexCount),
       GL_UNSIGNED_SHORT, 0);
 
    glPopClientAttrib();
    glPopAttrib();
 
-   ::triangleCount += myIndexCount / 3;
+   ::triangleCount += indexCount / 3;
 }
 
 IMeshPtr makeMesh(IMeshBufferPtr aBuffer)
 {
    //aBuffer->printStats();
    
-   // Prefer VBOs all meshes
+   // Prefer VBOs for all meshes
    if (GLEW_ARB_vertex_buffer_object)
       return IMeshPtr(new VBOMesh(aBuffer));
    else

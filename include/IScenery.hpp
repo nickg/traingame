@@ -20,6 +20,7 @@
 
 #include "Platform.hpp"
 #include "IXMLSerialisable.hpp"
+#include "IMesh.hpp"
 
 // Static scenery such as trees
 struct IScenery : IXMLSerialisable {
@@ -28,6 +29,7 @@ struct IScenery : IXMLSerialisable {
    virtual void render() const = 0;
    virtual void setPosition(float x, float y, float z) = 0;
    virtual void setAngle(float angle) = 0;
+   virtual void merge(IMeshBufferPtr buf) = 0;
    virtual const string& name() const = 0;
 };
 

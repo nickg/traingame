@@ -29,11 +29,12 @@ class Building : public IScenery, public IXMLCallback {
 public:
    Building(IResourcePtr aRes);
 
-   // IBuildingInterface
+   // ISceneryInterface
    const string& name() const { return name_; }
    void render() const;
    void setAngle(float a) { angle = a; }
    void setPosition(float x, float y, float z);
+   void merge(IMeshBufferPtr buf);
 
    // IXMLSerialisable interface
    xml::element toXml() const;
@@ -85,6 +86,11 @@ void Building::render() const
    model_->render();
    
    glPopMatrix();
+}
+
+void Building::merge(IMeshBufferPtr buf)
+{
+   model_->merge(buf, position, angle);
 }
 
 void Building::text(const string& localName, const string& aString)

@@ -62,8 +62,10 @@ Waggon::Waggon(IResourcePtr aRes)
 // Load information from the XML file
 void Waggon::text(const string& localName, const string& aString)
 {
-   if (localName == "model")
+   if (localName == "model") {
       model = loadModel(resource, aString, MODEL_SCALE);
+      model->cache();
+   }
 }
 
 void Waggon::update(int delta, double gravity)

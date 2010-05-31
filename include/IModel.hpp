@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "Platform.hpp"
 #include "Maths.hpp"
 #include "IResource.hpp"
+#include "IMesh.hpp"
 
 #include <string>
 
@@ -28,6 +29,9 @@ struct IModel {
    virtual ~IModel() {}
    
    virtual void render() const = 0;
+   virtual void cache() = 0;
+   virtual void merge(IMeshBufferPtr buf,
+      Vector<float> off, float yAngle=0.0f) const = 0;
    virtual Vector<float> dimensions() const = 0;
 };
 

@@ -46,22 +46,25 @@ struct IMeshBuffer {
 
    virtual size_t vertexCount() const = 0;
    
-   virtual void add(const Vertex& aVertex, const Normal& aNormal) = 0;
-   virtual void add(const Vertex& aVertex, const Normal& aNormal,
+   virtual void add(const Vertex& vertex, const Normal& normal) = 0;
+   virtual void add(const Vertex& vertex, const Normal& normal,
       const TexCoord& aTexCoord) = 0;
-   virtual void add(const Vertex& aVertex, const Normal& aNormal,
-      const Colour& aColour) = 0;
+   virtual void add(const Vertex& vertex, const Normal& normal,
+      const Colour& colour) = 0;
 
    // Convenience functions
    virtual void addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
-      Colour aColour) = 0;
+      Colour colour) = 0;
    virtual void addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
       Normal na, Normal nb, Normal nc, Normal nd,
-      Colour aColour) = 0;
+      Colour colour) = 0;
 
    virtual void bindMaterial(const Material& aMaterial) = 0;
    
    virtual void printStats() const = 0;
+
+   virtual void merge(shared_ptr<IMeshBuffer> other,
+      Vector<float> off, float yAngle=0.0f) = 0;
 };
 
 typedef shared_ptr<IMeshBuffer> IMeshBufferPtr;
