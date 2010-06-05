@@ -41,7 +41,7 @@ public:
       int aRadius);
    ~CurvedTrack();
 
-   void render() const;
+   void render() const {}
    void merge(IMeshBufferPtr buf) const;
 
    void setOrigin(int x, int y, float h);
@@ -65,6 +65,7 @@ public:
       
 private:
    void transform(const track::TravelToken& aToken, float delta) const;
+   void glTransformToOrigin() const;
    Vector<int> cwEntryVector() const;
    Vector<int> ccwEntryVector() const;
    void ensureValidDirection(const Direction& aDirection) const;
@@ -112,6 +113,21 @@ CurvedTrack::getTravelToken(track::Position aPosition,
    return tok;
 }
 
+void CurvedTrack::glTransformToOrigin() const
+{
+   glTranslatef((baseRadius-1)*-sin(degToRad(startAngle)) - 0.5f, 0.0f,
+      (baseRadius-1)*-cos(degToRad(startAngle)) - 0.5f);
+
+   // There *must* be a way to incorporate this in the above translation
+   // as a neat formula, but I really can't think of it
+   // This is a complete a hack, but whatever...
+   if (startAngle >= 90 && startAngle <= 180)
+      glTranslatef(0.0f, 0.0f, 1.0f);
+   
+   if (startAngle >= 180 && startAngle <= 270)
+      glTranslatef(1.0f, 0.0f, 0.0f);
+}
+
 void CurvedTrack::transform(const track::TravelToken& aToken, float delta) const
 {
    assert(delta < segmentLength(aToken));
@@ -120,7 +136,7 @@ void CurvedTrack::transform(const track::TravelToken& aToken, float delta) const
       height,
       static_cast<double>(origin.y));
 
-   ::transformToOrigin(baseRadius, startAngle);
+   glTransformToOrigin();
 
    bool backwards = aToken.direction == cwEntryVector();
    
@@ -308,20 +324,6 @@ void CurvedTrack::merge(IMeshBufferPtr buf) const
       static_cast<float>(origin.y));
 
    mergeCurvedTrack(buf, off, baseRadius, startAngle, finishAngle);
-}
-
-void CurvedTrack::render() const
-{
-   glPushMatrix();
-   
-   glTranslatef(
-      static_cast<float>(origin.x),
-      height,
-      static_cast<float>(origin.y));
-
-   renderCurvedTrack(baseRadius, startAngle, finishAngle);
-
-   glPopMatrix();
 }
 
 xml::element CurvedTrack::toXml() const

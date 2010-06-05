@@ -22,6 +22,8 @@
 #include "IMesh.hpp"
 #include "BezierCurve.hpp"
 
+#include <map>
+
 class StraightTrackHelper {
 public:
    void mergeStraightRail(IMeshBufferPtr buf,
@@ -30,6 +32,8 @@ public:
 private:
    void mergeOneRail(IMeshBufferPtr buf,
       Vector<float> off, float yAngle) const;
+   
+   static IMeshBufferPtr generateRailMeshBuffer();
       
    static IMeshBufferPtr railBuf;
 };
@@ -40,12 +44,18 @@ public:
       Vector<float> off, float yAngle) const;
    
 private:
+   static IMeshBufferPtr generateSleeperMeshBuffer();
+   
    static IMeshBufferPtr sleeperBuf;
 };
 
 class BezierHelper {
 public:
    IMeshBufferPtr makeBezierRailMesh(const BezierCurve<float>& func) const;
+
+private:
+   static void buildOneBezierRail(const BezierCurve<float>& func,
+      IMeshBufferPtr buf, float p);
 };
 
 class CurvedTrackHelper : private SleeperHelper {
@@ -56,18 +66,19 @@ public:
 private:
    void transformToOrigin(Vector<float>& off,
       int baseRadius, track::Angle startAngle) const;
+   
+   enum RailType {
+      INNER_RAIL, OUTER_RAIL
+   };
+   
+   static IMeshPtr generateCurvedRailMesh(IMeshBufferPtr buf,
+      int baseRadius, RailType type);
+   static void mergeCurvedRail(IMeshBufferPtr buf, int baseRadius,
+      Vector<float> off, float yAngle);
+
+   typedef map<int, IMeshBufferPtr> CurvedRailMeshMap;
+   static CurvedRailMeshMap curvedRailMeshes;
 };
-
-// Common track rendering functions
-void renderSleeper();
-void renderStraightRail();
-
-void renderCurvedTrack(int baseRadius, track::Angle startAngle,
-                       track::Angle endAngle);
-void renderRailMesh(IMeshPtr aMesh);
-void transformToOrigin(int baseRadius, track::Angle startAngle);
-IMeshPtr makeBezierRailMesh(const BezierCurve<float>& aFunc);
-
 
 // Track constants
 namespace track {

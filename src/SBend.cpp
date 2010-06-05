@@ -36,7 +36,7 @@ public:
    SBend(track::Direction dir, int straight, int off);
 
    // ITrackSegment interface
-   void render() const;
+   void render() const {}
    void merge(IMeshBufferPtr buf) const;
    void setOrigin(int x, int y, float h);
    float segmentLength(const track::TravelToken& token) const;
@@ -137,48 +137,6 @@ void SBend::merge(IMeshBufferPtr buf) const
 
       mergeSleeper(buf, off + rotateY(t, yAngle), yAngle - angle);
    }
-}
-
-void SBend::render() const
-{
-#if 0
-   glPushMatrix();
-
-   glTranslatef(
-      static_cast<float>(origin.x),
-      height,
-      static_cast<float>(origin.y));
-
-   if (axis == axis::Y)
-      glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
-
-   glPushMatrix();
-   
-   glTranslatef(-0.5f, 0.0f, 0.0f);
-   railMesh->render();
-   
-   glPopMatrix();
-   
-   for (float i = 0.2f; i < curve.length; i += 0.25f) {
-      glPushMatrix();
-      
-      Vector<float> v = curve(i / curve.length);
-
-      glTranslatef(v.x - 0.5f, 0.0f, v.z);
-      
-      const Vector<float> deriv = curve.deriv(i / curve.length);
-      const float angle =
-         radToDeg<float>(atanf(deriv.z / deriv.x));
-
-      glRotatef(-angle, 0.0f, 1.0f, 0.0f);
-
-      renderSleeper();
-      
-      glPopMatrix();
-   }
-   
-   glPopMatrix();
-#endif
 }
 
 float SBend::segmentLength(const track::TravelToken& token) const
