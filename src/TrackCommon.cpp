@@ -39,6 +39,9 @@ namespace {
    typedef map<int, IMeshPtr> CurvedRailMeshMap;
    CurvedRailMeshMap theCurvedRailMeshes;
    
+   typedef map<int, IMeshBufferPtr> CurvedRailMeshMap2;
+   CurvedRailMeshMap2 curvedRailMeshes;
+   
    const Colour METAL = makeColour(0.5f, 0.5f, 0.5f);
    
    IMeshBufferPtr generateSleeperMeshBuffer()
@@ -245,6 +248,26 @@ namespace {
       return makeMesh(buf);
    }
    
+   void mergeCurvedRail(IMeshBufferPtr buf, int baseRadius,
+      Vector<float> off, float yAngle)
+   {
+      IMeshBufferPtr railBuf;
+      
+      CurvedRailMeshMap2::iterator it = curvedRailMeshes.find(baseRadius);
+      if (it != curvedRailMeshes.end())
+         railBuf = (*it).second;
+      else {
+         railBuf = makeMeshBuffer();
+         
+         generateCurvedRailMesh(railBuf, baseRadius, INNER_RAIL);
+         generateCurvedRailMesh(railBuf, baseRadius, OUTER_RAIL);
+            
+         curvedRailMeshes[baseRadius] = railBuf;
+      }
+
+      buf->merge(railBuf, off, yAngle);
+   }
+   
    void renderCurvedRail(int baseRadius)
    {
       IMeshPtr ptr;
@@ -359,6 +382,57 @@ void StraightTrackHelper::mergeStraightRail(IMeshBufferPtr buf,
 
    off += r.transform(makeVector(GAUGE, 0.0f, 0.0f));
    mergeOneRail(buf, off, yAngle);
+}
+
+// Move to the origin of a curved section of track
+void CurvedTrackHelper::transformToOrigin(Vector<float>& off,
+   int baseRadius, track::Angle startAngle) const
+{
+   off += makeVector(
+      (baseRadius-1)*-sin(degToRad(startAngle)) - 0.5f,
+      0.0f,
+      (baseRadius-1)*-cos(degToRad(startAngle)) - 0.5f);
+
+   // There *must* be a way to incorporate this in the above translation
+   // as a neat formula, but I really can't think of it
+   // This is a complete a hack, but whatever...
+   if (startAngle >= 90 && startAngle <= 180)
+      off += makeVector(0.0f, 0.0f, 1.0f);
+   
+   if (startAngle >= 180 && startAngle <= 270)
+      off += makeVector(1.0f, 0.0f, 0.0f);
+}
+
+void CurvedTrackHelper::mergeCurvedTrack(IMeshBufferPtr buf, Vector<float> off,
+   int baseRadius, track::Angle startAngle, track::Angle endAngle) const
+{
+   transformToOrigin(off, baseRadius, startAngle);
+
+#if 0
+   glPushMatrix();
+   
+   glRotatef(static_cast<float>(startAngle), 0.0f, 1.0f, 0.0f);
+   renderCurvedRail(baseRadius);
+
+   glPopMatrix();
+#endif
+
+   mergeCurvedRail(buf, baseRadius, off, static_cast<float>(startAngle));
+
+   const float length =
+      degToRad(static_cast<float>(endAngle - startAngle)) * baseRadius;
+   const int numSleepers = static_cast<int>(length * SLEEPERS_PER_UNIT);
+   const float sleeperAngle =
+      static_cast<float>(endAngle - startAngle) / numSleepers;
+   
+   for (int i = 0; i < numSleepers; i++) {
+      
+      float yAngle = static_cast<float>(startAngle) + (i + 0.5f)*sleeperAngle;
+      Vector<float> t =
+         makeVector(0.0f, 0.0f, static_cast<float>(baseRadius) - 0.5f);
+
+      mergeSleeper(buf, off + rotateY(t, yAngle), yAngle);
+   }
 }
 
 // Move to the origin of a curved section of track

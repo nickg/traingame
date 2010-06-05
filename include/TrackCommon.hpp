@@ -48,6 +48,16 @@ public:
    IMeshBufferPtr makeBezierRailMesh(const BezierCurve<float>& func) const;
 };
 
+class CurvedTrackHelper : private SleeperHelper {
+public:
+   void mergeCurvedTrack(IMeshBufferPtr buf, Vector<float> off,
+      int baseRadius, track::Angle startAngle, track::Angle endAngle) const;
+   
+private:
+   void transformToOrigin(Vector<float>& off,
+      int baseRadius, track::Angle startAngle) const;
+};
+
 // Common track rendering functions
 void renderSleeper();
 void renderStraightRail();

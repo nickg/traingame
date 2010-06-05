@@ -34,14 +34,15 @@ using namespace boost;
 
 // Concrete implementation of curved pieces of track
 class CurvedTrack : public ITrackSegment,
-                    public enable_shared_from_this<CurvedTrack> {
+                    public enable_shared_from_this<CurvedTrack>,
+                    private CurvedTrackHelper {
 public:
    CurvedTrack(track::Angle aStartAngle, track::Angle aFinishAngle,
       int aRadius);
    ~CurvedTrack();
 
    void render() const;
-   void merge(IMeshBufferPtr buf) const {}
+   void merge(IMeshBufferPtr buf) const;
 
    void setOrigin(int x, int y, float h);
    float segmentLength(const track::TravelToken& aToken) const;
@@ -119,7 +120,7 @@ void CurvedTrack::transform(const track::TravelToken& aToken, float delta) const
       height,
       static_cast<double>(origin.y));
 
-   transformToOrigin(baseRadius, startAngle);
+   ::transformToOrigin(baseRadius, startAngle);
 
    bool backwards = aToken.direction == cwEntryVector();
    
@@ -297,6 +298,16 @@ ITrackSegmentPtr CurvedTrack::mergeExit(Point<int> where, track::Direction dir)
 
    // No way to merge this as an exit
    return ITrackSegmentPtr();
+}
+
+void CurvedTrack::merge(IMeshBufferPtr buf) const
+{
+   const Vector<float> off = makeVector(
+      static_cast<float>(origin.x),
+      height,
+      static_cast<float>(origin.y));
+
+   mergeCurvedTrack(buf, off, baseRadius, startAngle, finishAngle);
 }
 
 void CurvedTrack::render() const
