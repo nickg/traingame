@@ -32,8 +32,8 @@
 
 // Like StraightTrack but with a change of height
 class SlopeTrack : public ITrackSegment,
-                   public SleeperHelper,
-                   public BezierHelper {
+                   private SleeperHelper,
+                   private BezierHelper {
 public:
    SlopeTrack(track::Direction axis, Vector<float> slope,
       Vector<float> slopeBefore, Vector<float> slopeAfter);

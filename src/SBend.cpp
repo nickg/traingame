@@ -21,6 +21,7 @@
 #include "XMLBuilder.hpp"
 #include "BezierCurve.hpp"
 #include "OpenGLHelper.hpp"
+#include "Matrix.hpp"
 
 #include <cassert>
 #include <map>
@@ -28,13 +29,15 @@
 #include <boost/lexical_cast.hpp>
 
 // Spline curves which start and finish in the same direction
-class SBend : public ITrackSegment {
+class SBend : public ITrackSegment,
+              private SleeperHelper,
+              private BezierHelper {
 public:
    SBend(track::Direction dir, int straight, int off);
 
    // ITrackSegment interface
    void render() const;
-   void merge(IMeshBufferPtr buf) const {}
+   void merge(IMeshBufferPtr buf) const;
    void setOrigin(int x, int y, float h);
    float segmentLength(const track::TravelToken& token) const;
    bool isValidDirection(const track::Direction& dir) const;
@@ -62,10 +65,10 @@ private:
    track::Direction axis;
 
    BezierCurve<float> curve;
-   IMeshPtr railMesh;
+   IMeshBufferPtr railBuf;
 
    typedef tuple<int, int> Parameters;
-   typedef map<Parameters, IMeshPtr> MeshCache; 
+   typedef map<Parameters, IMeshBufferPtr> MeshCache; 
    static MeshCache meshCache;
 };
 
@@ -95,11 +98,11 @@ SBend::SBend(track::Direction dir, int straight, int off)
    Parameters parms = make_tuple(straight, offset * reflect);
    MeshCache::iterator it = meshCache.find(parms);
    if (it == meshCache.end()) {
-      railMesh = makeBezierRailMesh(curve);
-      meshCache[parms] = railMesh;
+      railBuf = makeBezierRailMesh(curve);
+      meshCache[parms] = railBuf;
    }
    else
-      railMesh = (*it).second;
+      railBuf = (*it).second;
 }
 
 void SBend::setOrigin(int x, int y, float h)
@@ -107,9 +110,38 @@ void SBend::setOrigin(int x, int y, float h)
    origin = makePoint(x, y);
    height = h;
 }
-   
+
+void SBend::merge(IMeshBufferPtr buf) const
+{
+   Vector<float> off = makeVector(
+      static_cast<float>(origin.x),
+      height,
+      static_cast<float>(origin.y));
+
+   float yAngle = axis == axis::Y ? -90.0f : 0.0f;
+
+   {
+      Vector<float> t = makeVector(-0.5f, 0.0f, 0.0f);
+      buf->merge(railBuf, off + rotateY(t, yAngle), yAngle);
+   }
+
+   // Draw the sleepers
+   for (float i = 0.2f; i < curve.length; i += 0.25f) {
+      Vector<float> v = curve(i / curve.length);
+
+      Vector<float> t = makeVector(v.x - 0.5f, 0.0f, v.z);
+      
+      const Vector<float> deriv = curve.deriv(i / curve.length);
+      const float angle =
+         radToDeg<float>(atanf(deriv.z / deriv.x));
+
+      mergeSleeper(buf, off + rotateY(t, yAngle), yAngle - angle);
+   }
+}
+
 void SBend::render() const
 {
+#if 0
    glPushMatrix();
 
    glTranslatef(
@@ -146,6 +178,7 @@ void SBend::render() const
    }
    
    glPopMatrix();
+#endif
 }
 
 float SBend::segmentLength(const track::TravelToken& token) const
