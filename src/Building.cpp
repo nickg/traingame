@@ -52,17 +52,15 @@ private:
    struct ParserState {
       string modelFile;
       float scale;
-      IResourcePtr res;
    } *parserState;
 };
 
 Building::Building(IResourcePtr aRes)
-   : name_("???"), angle(0.0f)
+   : name_("???"), resource(aRes), angle(0.0f)
 {
    static IXMLParserPtr parser = makeXMLParser("schemas/building.xsd");
 
    parserState = new ParserState;
-   parserState->res = aRes;
    parserState->scale = 1.0f;
    
    parser->parse(aRes->xmlFileName(), *this);
