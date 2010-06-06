@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -806,10 +806,6 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
          if (startLocation.x == x && startLocation.y == y
             && shouldDrawGridLines)
             drawStartLocation();
-
-         // Draw any scenery
-         //if (tile.scenery)
-         //   tile.scenery->render();
       }			
    }
 }
