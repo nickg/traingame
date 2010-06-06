@@ -37,8 +37,8 @@ enum PlaneData {
 static void normalisePlane(float frustum[6][4], int side)
 {
    float magnitude = (float)sqrtf(frustum[side][A]*frustum[side][A] + 
-                                  frustum[side][B]*frustum[side][B] + 
-                                  frustum[side][C]*frustum[side][C]);
+      frustum[side][B]*frustum[side][B] + 
+      frustum[side][C]*frustum[side][C]);
    
    frustum[side][A] /= magnitude;
    frustum[side][B] /= magnitude;
@@ -61,75 +61,75 @@ bool Frustum::pointInFrustum(float x, float y, float z)
 // Tests whether a sphere is inside the frustum or not
 bool Frustum::sphereInFrustum(float x, float y, float z, float radius)
 {
-	// Look through each plane
-	for (int i = 0; i < 6; i++) {
-		if (planes[i][A]*x + planes[i][B]*y + planes[i][C]*z + planes[i][D] <= -radius)
-			return false;
-	}
+   // Look through each plane
+   for (int i = 0; i < 6; i++) {
+      if (planes[i][A]*x + planes[i][B]*y + planes[i][C]*z + planes[i][D] <= -radius)
+         return false;
+   }
 
-	return true;
+   return true;
 }
 
 // Tests whether a cube is in the view frustum 
 bool Frustum::cubeInFrustum(float x, float y, float z, float size)
 {
-	// Look through each plane
-	for (int i = 0; i < 6; i++ ) {
-		if (planes[i][A]*(x - size) + planes[i][B]*(y - size) + planes[i][C]*(z - size) + planes[i][D] > 0.0)
-		   continue;
-		if(planes[i][A]*(x + size) + planes[i][B]*(y - size) + planes[i][C]*(z - size) + planes[i][D] > 0.0)
-		   continue;
-		if(planes[i][A]*(x - size) + planes[i][B]*(y + size) + planes[i][C]*(z - size) + planes[i][D] > 0.0)
-		   continue;
-		if(planes[i][A]*(x + size) + planes[i][B]*(y + size) + planes[i][C]*(z - size) + planes[i][D] > 0.0)
-		   continue;
-		if(planes[i][A]*(x - size) + planes[i][B]*(y - size) + planes[i][C]*(z + size) + planes[i][D] > 0.0)
-		   continue;
-		if(planes[i][A]*(x + size) + planes[i][B]*(y - size) + planes[i][C]*(z + size) + planes[i][D] > 0.0)
-		   continue;
-		if(planes[i][A]*(x - size) + planes[i][B]*(y + size) + planes[i][C]*(z + size) + planes[i][D] > 0.0)
-		   continue;
-		if(planes[i][A]*(x + size) + planes[i][B]*(y + size) + planes[i][C]*(z + size) + planes[i][D] > 0.0)
-		   continue;
+   // Look through each plane
+   for (int i = 0; i < 6; i++ ) {
+      if (planes[i][A]*(x - size) + planes[i][B]*(y - size) + planes[i][C]*(z - size) + planes[i][D] > 0.0)
+         continue;
+      if(planes[i][A]*(x + size) + planes[i][B]*(y - size) + planes[i][C]*(z - size) + planes[i][D] > 0.0)
+         continue;
+      if(planes[i][A]*(x - size) + planes[i][B]*(y + size) + planes[i][C]*(z - size) + planes[i][D] > 0.0)
+         continue;
+      if(planes[i][A]*(x + size) + planes[i][B]*(y + size) + planes[i][C]*(z - size) + planes[i][D] > 0.0)
+         continue;
+      if(planes[i][A]*(x - size) + planes[i][B]*(y - size) + planes[i][C]*(z + size) + planes[i][D] > 0.0)
+         continue;
+      if(planes[i][A]*(x + size) + planes[i][B]*(y - size) + planes[i][C]*(z + size) + planes[i][D] > 0.0)
+         continue;
+      if(planes[i][A]*(x - size) + planes[i][B]*(y + size) + planes[i][C]*(z + size) + planes[i][D] > 0.0)
+         continue;
+      if(planes[i][A]*(x + size) + planes[i][B]*(y + size) + planes[i][C]*(z + size) + planes[i][D] > 0.0)
+         continue;
 
-		// If we get here, it isn't in the frustum
-		return false;
-	}
+      // If we get here, it isn't in the frustum
+      return false;
+   }
 
-	return true;
+   return true;
 }
 
 // Works out whether a cuboid is contained in a frustum
 bool Frustum::cuboidInFrustum(float x,	  float y,	   float z,
-							  float sizeX, float sizeY, float sizeZ)
+   float sizeX, float sizeY, float sizeZ)
 {
-	int i;
+   int i;
 
-	// Look through each plane
-	for(i = 0; i < 6; i++ )
-	{
-		if(planes[i][A]*(x - sizeX) + planes[i][B]*(y - sizeY) + planes[i][C]*(z - sizeZ) + planes[i][D] > 0)
-		   continue;
-		if(planes[i][A]*(x + sizeX) + planes[i][B]*(y - sizeY) + planes[i][C]*(z - sizeZ) + planes[i][D] > 0)
-		   continue;
-		if(planes[i][A]*(x - sizeX) + planes[i][B]*(y + sizeY) + planes[i][C]*(z - sizeZ) + planes[i][D] > 0)
-		   continue;
-		if(planes[i][A]*(x + sizeX) + planes[i][B]*(y + sizeY) + planes[i][C]*(z - sizeZ) + planes[i][D] > 0)
-		   continue;
-		if(planes[i][A]*(x - sizeX) + planes[i][B]*(y - sizeY) + planes[i][C]*(z + sizeZ) + planes[i][D] > 0)
-		   continue;
-		if(planes[i][A]*(x + sizeX) + planes[i][B]*(y - sizeY) + planes[i][C]*(z + sizeZ) + planes[i][D] > 0)
-		   continue;
-		if(planes[i][A]*(x - sizeX) + planes[i][B]*(y + sizeY) + planes[i][C]*(z + sizeZ) + planes[i][D] > 0)
-		   continue;
-		if(planes[i][A]*(x + sizeX) + planes[i][B]*(y + sizeY) + planes[i][C]*(z + sizeZ) + planes[i][D] > 0)
-		   continue;
+   // Look through each plane
+   for(i = 0; i < 6; i++ )
+      {
+         if(planes[i][A]*(x - sizeX) + planes[i][B]*(y - sizeY) + planes[i][C]*(z - sizeZ) + planes[i][D] > 0)
+            continue;
+         if(planes[i][A]*(x + sizeX) + planes[i][B]*(y - sizeY) + planes[i][C]*(z - sizeZ) + planes[i][D] > 0)
+            continue;
+         if(planes[i][A]*(x - sizeX) + planes[i][B]*(y + sizeY) + planes[i][C]*(z - sizeZ) + planes[i][D] > 0)
+            continue;
+         if(planes[i][A]*(x + sizeX) + planes[i][B]*(y + sizeY) + planes[i][C]*(z - sizeZ) + planes[i][D] > 0)
+            continue;
+         if(planes[i][A]*(x - sizeX) + planes[i][B]*(y - sizeY) + planes[i][C]*(z + sizeZ) + planes[i][D] > 0)
+            continue;
+         if(planes[i][A]*(x + sizeX) + planes[i][B]*(y - sizeY) + planes[i][C]*(z + sizeZ) + planes[i][D] > 0)
+            continue;
+         if(planes[i][A]*(x - sizeX) + planes[i][B]*(y + sizeY) + planes[i][C]*(z + sizeZ) + planes[i][D] > 0)
+            continue;
+         if(planes[i][A]*(x + sizeX) + planes[i][B]*(y + sizeY) + planes[i][C]*(z + sizeZ) + planes[i][D] > 0)
+            continue;
 
-		// If we get here, it isn't in the frustum
-		return false;
-	}
+         // If we get here, it isn't in the frustum
+         return false;
+      }
 
-	return true;
+   return true;
 }
 
 // Extract the view frustum from OpenGL
