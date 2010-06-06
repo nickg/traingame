@@ -33,6 +33,7 @@ public:
    void buildTree(int width, int height);
    
    void render(IGraphicsPtr aContext);
+   int leafSize() const { return QT_LEAF_SIZE; }
 
 private:
    enum QuadType { QT_LEAF, QT_BRANCH };

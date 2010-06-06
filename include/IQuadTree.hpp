@@ -39,6 +39,7 @@ struct IQuadTree {
    virtual ~IQuadTree() {}
 
    virtual void render(IGraphicsPtr aContext) = 0;
+   virtual int leafSize() const = 0;
 };
 
 typedef shared_ptr<IQuadTree> IQuadTreePtr;
