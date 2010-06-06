@@ -229,6 +229,10 @@
 <tree angle="83.6383" name="pine"/>
 </tile>
 
+<tile x="5" y="59">
+<straightTrack align="y"/>
+</tile>
+
 <tile x="5" y="60">
 <curvedTrack startAngle="270" finishAngle="360" radius="3"/>
 </tile>
@@ -373,6 +377,10 @@
 <building angle="270" name="white_house"/>
 </tile>
 
+<tile x="8" y="55">
+<curvedTrack startAngle="180" finishAngle="270" radius="4"/>
+</tile>
+
 <tile x="8" y="60">
 <tree angle="146.369" name="apple"/>
 </tile>
@@ -418,7 +426,7 @@
 </tile>
 
 <tile x="9" y="55">
-<curvedTrack startAngle="180" finishAngle="270" radius="5"/>
+<straightTrack align="x"/>
 </tile>
 
 <tile x="9" y="62">
