@@ -24,47 +24,23 @@ ClipVolume::ClipVolume(float x, float w, float z, float d)
    {   
       glTranslatef(x - 0.05f, 0.0f, 0.0f);
       
-      glColor3f(1.0f, 0.0f, 0.0f);
-      glBegin(GL_LINES);
-      glVertex3f(0.0f, 0.0f, 0.0f);
-      glVertex3f(0.0f, 1.0f, 0.0f);
-      glEnd();
-      
       GLdouble eqn0[4] = { 1.0, 0.0, 0.0, 0.0 };
       glClipPlane(GL_CLIP_PLANE0, eqn0);
       glEnable(GL_CLIP_PLANE0);
       
       glTranslatef(w + 0.1f, 0.0f, 0.0f);
-      
-      glColor3f(0.0f, 1.0f, 0.0f);
-      glBegin(GL_LINES);
-      glVertex3f(0.0f, 0.0f, 0.0f);
-      glVertex3f(0.0f, 1.0f, 0.0f);
-      glEnd();
 
       GLdouble eqn1[4] = { -1.0, 0.0, 0.0, 0.0 };
       glClipPlane(GL_CLIP_PLANE1, eqn1);
       glEnable(GL_CLIP_PLANE1);
       
       glTranslatef(0.0f, 0.0f, z - 0.05f);
-
-      glColor3f(0.0f, 0.0f, 1.0f);
-      glBegin(GL_LINES);
-      glVertex3f(0.0f, 0.0f, 0.0f);
-      glVertex3f(0.0f, 1.0f, 0.0f);
-      glEnd();
-      
+   
       GLdouble eqn2[4] = { 0.0, 0.0, 1.0, 0.0 };
       glClipPlane(GL_CLIP_PLANE2, eqn2);
       glEnable(GL_CLIP_PLANE2);
       
       glTranslatef(0.0f, 0.0f, d + 0.1f);
-
-      glColor3f(0.0f, 1.0f, 1.0f);
-      glBegin(GL_LINES);
-      glVertex3f(0.0f, 0.0f, 0.0f);
-      glVertex3f(0.0f, 1.0f, 0.0f);
-      glEnd();
 
       GLdouble eqn3[4] = { 0.0, 0.0, -1.0, 0.0 };
       glClipPlane(GL_CLIP_PLANE3, eqn3);
