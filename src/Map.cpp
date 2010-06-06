@@ -596,6 +596,11 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
 
    IMeshBufferPtr buf = makeMeshBuffer();
    
+   // Incrementing the frame counter here ensures that any track which spans
+   // multiple sectors will be merged with each applicable mesh even when
+   // the meshes are built on the same frame
+   ++frameNum;
+
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
       for (int y = botLeft.y; y < topRight.y; y++) {
          int indexes[4];
@@ -748,11 +753,6 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
       seaSectors.resize(minSize);
    seaSectors.at(id) = belowSeaLevel;
    
-   // Incrementing the frame counter here ensures that any track which spans
-   // multiple sectors will be merged with each applicable mesh even when
-   // the meshes are built on the same frame
-   ++frameNum;
-
    // Make sure we don't rebuild this mesh if any of the tiles are dirty
    haveMesh(id, botLeft, topRight);
 }
@@ -848,6 +848,11 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
                     bind(&Map::highlightTile, this, placeholders::_1,
                           makeColour(0.4f, 0.7f, 0.1f)));
 #endif
+            
+            // Draw track highlights
+            tile.track->get()->render();
+            
+            tile.track->renderedOn(frameNum);
          }
 
          // Draw the station, if any

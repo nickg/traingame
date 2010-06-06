@@ -240,8 +240,24 @@ void Points::merge(IMeshBufferPtr buf) const
 void Points::render() const
 {
    if (stateRenderHint) {
+      glPushMatrix();
+      
+      glTranslatef(
+         static_cast<float>(myX),
+         height,
+         static_cast<float>(myY));
+
+      if (myAxis == -axis::X)
+         glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+      else if (myAxis == -axis::Y)
+         glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+      else if (myAxis == axis::Y)
+         glRotatef(270.0f, 0.0f, 1.0f, 0.0f);
+         
       renderArrow();
       stateRenderHint = false;
+      
+      glPopMatrix();
    }
 }
 
