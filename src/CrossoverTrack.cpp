@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,29 +19,30 @@
 #include "TrackCommon.hpp"
 #include "XMLBuilder.hpp"
 #include "ILogger.hpp"
+#include "OpenGLHelper.hpp"
 
 #include <stdexcept>
 #include <cassert>
 
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <boost/lexical_cast.hpp>
 
-using namespace std;
-using namespace std::tr1;
-using namespace std::tr1::placeholders;
+using namespace placeholders;
 using namespace boost;
 
 // A section of track that allows travelling along both axis
 class CrossoverTrack : public ITrackSegment,
-                       public enable_shared_from_this<CrossoverTrack> {
+                       public enable_shared_from_this<CrossoverTrack>,
+                       private StraightTrackHelper,
+                       private SleeperHelper {
 public:
    CrossoverTrack() : myX(0), myY(0), height(0.0f) {}
    ~CrossoverTrack() {}
 
    void setOrigin(int x, int y, float h);
    
-   void render() const;
+   void render() const {}
+   void merge(IMeshBufferPtr buf) const;
+   
    float segmentLength(const track::TravelToken& aToken) const;
    bool isValidDirection(const track::Direction& aDirection) const;
    track::Connection nextPosition(const track::TravelToken& aToken) const;
@@ -65,48 +66,41 @@ private:
    float height;
 };
 
-void CrossoverTrack::render() const
+void CrossoverTrack::merge(IMeshBufferPtr buf) const
 {
-   glPushMatrix();
-
-   glTranslatef(
-      static_cast<float>(myX),
-      height,
-      static_cast<float>(myY));
-   
    // Render the y-going rails and sleepers
-   glPushMatrix();
+   {    
+      Vector<float> off = makeVector(
+         static_cast<float>(myX),
+         height,
+         static_cast<float>(myY));
+      
+      mergeStraightRail(buf, off, 0.0f);
 
-   renderStraightRail();
-   
-   glRotated(90.0, 0.0, 1.0, 0.0);
-   glTranslated(-0.4, 0.0, 0.0);
-
-   for (int i = 0; i < 4; i++) {
-      renderSleeper();
-      glTranslated(0.25, 0.0, 0.0);
+      off += makeVector(0.0f, 0.0f, -0.4f);
+            
+      for (int i = 0; i < 4; i++) {
+         mergeSleeper(buf, off, 90.0f);
+         off += makeVector(0.0f, 0.0f, 0.25f);
+      }
    }
-   
-   glPopMatrix();
 
    // Render the x-going rails and sleepers
-   glPushMatrix();
-   
-   glRotated(90.0, 0.0, 1.0, 0.0);
-
-   renderStraightRail();
-   
-   glRotated(90.0, 0.0, 1.0, 0.0);
-   glTranslated(-0.4, 0.0, 0.0);
-
-   for (int i = 0; i < 4; i++) {
-      renderSleeper();
-      glTranslated(0.25, 0.0, 0.0);
+   {
+      Vector<float> off = makeVector(
+         static_cast<float>(myX),
+         height,
+         static_cast<float>(myY));
+      
+      mergeStraightRail(buf, off, 90.0f);
+      
+      off += makeVector(-0.4f, 0.0f, 0.0f);
+            
+      for (int i = 0; i < 4; i++) {
+         mergeSleeper(buf, off, 0.0f);
+         off += makeVector(0.25f, 0.0f, 0.0f);
+      }
    }
-
-   glPopMatrix();
-
-   glPopMatrix();
 }
 
 void CrossoverTrack::setOrigin(int x, int y, float h )

@@ -150,6 +150,31 @@ struct Matrix {
    T entries[N][N];  // Square matrices only
 };
 
+template <typename T>
+Vector<T> rotate(Vector<T> v, T a, T x, T y, T z)
+{
+   Matrix<T, 4> r = Matrix<T, 4>::rotation(a, x, y, z);
+   return r.transform(v);
+}
+
+template <typename T>
+inline Vector<T> rotateX(Vector<T> v, T a)
+{
+   return rotate(v, a, 1.0f, 0.0f, 0.0f);
+}
+
+template <typename T>
+inline Vector<T> rotateY(Vector<T> v, T a)
+{
+   return rotate(v, a, 0.0f, 1.0f, 0.0f);
+}
+
+template <typename T>
+inline Vector<T> rotateZ(Vector<T> v, T a)
+{
+   return rotate(v, a, 0.0f, 0.0f, 1.0f);
+}
+
 template <typename T, int N>
 ostream& operator<<(ostream& os, const Matrix<T, N>& m)
 {

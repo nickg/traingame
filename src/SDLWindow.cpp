@@ -237,9 +237,6 @@ void SDLWindow::run(IScreenPtr aScreen)
          willTakeScreenShot = false;
       }
 
-      // Release the CPU for a little while
-      SDL_Delay(1);
-
       frameComplete();
       fpsTimer.updateTitle();
       lastTick = tickStart;

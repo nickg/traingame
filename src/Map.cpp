@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include "IScenery.hpp"
 #include "IConfig.hpp"
 #include "OpenGLHelper.hpp"
+#include "ClipVolume.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -217,6 +218,7 @@ private:
    bool shouldDrawGridLines, inPickMode;
    list<Point<int> > dirtyTiles;
    IResourcePtr resource;
+   vector<bool> seaSectors;
 
    // Variables used during rendering
    mutable int frameNum;
@@ -287,6 +289,8 @@ void Map::eraseTile(int x, int y)
 
    if (tile.station)
       tile.station.reset();
+
+   dirtyTile(x, y);
 }
 
 bool Map::emptyTile(Point<int> point) const
@@ -318,6 +322,8 @@ void Map::setTrackAt(const Point<int>& where, ITrackSegmentPtr track)
         it != covers.end(); ++it) {
       tileAt((*it).x, (*it).y).track = node;
    }
+
+   dirtyTile(where.x, where.y);
 }
 
 bool Map::isValidTrack(const Point<int>& where) const
@@ -538,24 +544,28 @@ void Map::drawStartLocation() const
 // array is large enough to hold it
 bool Map::haveMesh(int id, Point<int> botLeft, Point<int> topRight)
 {
-   if (id >= static_cast<int>(terrainMeshes.size())) {
+   if (id >= static_cast<int>(terrainMeshes.size()))
       terrainMeshes.resize(id + 1);
-      return false;
-   }
-   else if (dirtyTiles.empty())
-      return terrainMeshes[id];
-   else {
-      bool ok = terrainMeshes[id];
-      for (list<Point<int> >::iterator it = dirtyTiles.begin();
-           it != dirtyTiles.end(); ++it) {
-         if ((*it).x >= botLeft.x && (*it).x <= topRight.x
-            && (*it).y >= botLeft.y && (*it).y <= topRight.y) {
-            ok = false;
-            it = dirtyTiles.erase(it);
-         }
+   
+   bool ok = terrainMeshes[id];
+   list<Point<int> >::iterator it = dirtyTiles.begin();
+
+   while (it != dirtyTiles.end()) {
+      bool covered =
+         (*it).x >= botLeft.x
+         && (*it).x <= topRight.x
+         && (*it).y >= botLeft.y
+         && (*it).y <= topRight.y;
+         
+      if (covered) {
+         ok = false;
+         it = dirtyTiles.erase(it);
       }
-      return ok;
+      else
+         ++it;
    }
+   
+   return ok;
 }
 
 // Record that the mesh containing a tile needs rebuilding
@@ -583,7 +593,7 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
       make_tuple(   -2.0f,     makeRGB(208, 207, 104)),
       make_tuple(   -1e10f,    makeRGB(177, 176, 96) )
    };
-   
+
    IMeshBufferPtr buf = makeMeshBuffer();
    
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
@@ -620,6 +630,15 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
          
          if (tile.scenery)
             tile.scenery->merge(buf);
+
+         // Draw the track, if any
+         if (tile.track && tile.track->needsRendering(frameNum)) {
+            // TODO: how will this work with track that spans
+            // multiple sectors?
+            tile.track->get()->merge(buf);
+            
+            tile.track->renderedOn(frameNum);
+         }
       }
    }
 
@@ -702,8 +721,40 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
       }
    }
 
-   buf->printStats();
    terrainMeshes[id] = makeMesh(buf);
+
+   // Check if this sector needs a sea quad drawn
+   bool belowSeaLevel = false;
+   for (int x = topRight.x-1; x >= botLeft.x; x--) {
+      for (int y = botLeft.y; y < topRight.y; y++) {
+         int index[4];
+         tileVertices(x, y, index);
+   
+         belowSeaLevel |=
+            heightAt(index[0]).pos.y < 0.0f
+            || heightAt(index[1]).pos.y < 0.0f
+            || heightAt(index[2]).pos.y < 0.0f
+            || heightAt(index[3]).pos.y < 0.0f;
+
+         if (belowSeaLevel)
+            goto belowSeaLevelOut;
+      }
+   }
+
+ belowSeaLevelOut:
+   
+   size_t minSize = id + 1;
+   if (seaSectors.size() < minSize)
+      seaSectors.resize(minSize);
+   seaSectors.at(id) = belowSeaLevel;
+   
+   // Incrementing the frame counter here ensures that any track which spans
+   // multiple sectors will be merged with each applicable mesh even when
+   // the meshes are built on the same frame
+   ++frameNum;
+
+   // Make sure we don't rebuild this mesh if any of the tiles are dirty
+   haveMesh(id, botLeft, topRight);
 }
 
 // A special rendering mode when selecting tiles
@@ -744,7 +795,18 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
    if (!haveMesh(id, botLeft, topRight))
       buildMesh(id, botLeft, topRight);
 
-   terrainMeshes[id]->render();
+   {
+      // Parts of track may extend outside the sector so these
+      // are clipped off
+      
+      const float x = botLeft.x - 0.5f;
+      const float w = quadTree->leafSize();
+      const float z = botLeft.y - 0.5f;
+      const float d = quadTree->leafSize();
+      ClipVolume clip(x, w, z, d);
+      
+      terrainMeshes[id]->render();
+   }
 
    // Draw the overlays
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
@@ -769,12 +831,9 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
             glEnd();
          }
 
-         // Draw the track, if any
          Tile& tile = tileAt(x, y);
+         
          if (tile.track && tile.track->needsRendering(frameNum)) {
-            tile.track->get()->render();
-            tile.track->renderedOn(frameNum);
-            
 #if 0
             // Draw the endpoints for debugging
             vector<Point<int> > tiles;
@@ -800,10 +859,6 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
          if (startLocation.x == x && startLocation.y == y
             && shouldDrawGridLines)
             drawStartLocation();
-
-         // Draw any scenery
-         //if (tile.scenery)
-         //   tile.scenery->render();
       }			
    }
 }
@@ -813,7 +868,7 @@ void Map::postRenderSector(IGraphicsPtr aContext, int id,
    Point<int> botLeft, Point<int> topRight)
 {
    // Draw the water
-   if (!inPickMode) {
+   if (!inPickMode && seaSectors.at(id)) {
       glPushAttrib(GL_ENABLE_BIT);
 
       glEnable(GL_BLEND);
@@ -1200,6 +1255,8 @@ void Map::addScenery(Point<int> where, ISceneryPtr s)
       s->setPosition(static_cast<float>(where.x),
          heightAt(where),
          static_cast<float>(where.y));
+
+      dirtyTile(where.x, where.y);
    }
 }
 

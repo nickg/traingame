@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,15 +22,63 @@
 #include "IMesh.hpp"
 #include "BezierCurve.hpp"
 
-// Common track rendering functions
-void renderSleeper();
-void renderStraightRail();
-void renderCurvedTrack(int baseRadius, track::Angle startAngle,
-                       track::Angle endAngle);
-void renderRailMesh(IMeshPtr aMesh);
-void transformToOrigin(int baseRadius, track::Angle startAngle);
-IMeshPtr makeBezierRailMesh(const BezierCurve<float>& aFunc);
+#include <map>
 
+class StraightTrackHelper {
+public:
+   void mergeStraightRail(IMeshBufferPtr buf,
+      Vector<float> off, float yAngle) const;
+   
+private:
+   void mergeOneRail(IMeshBufferPtr buf,
+      Vector<float> off, float yAngle) const;
+   
+   static IMeshBufferPtr generateRailMeshBuffer();
+      
+   static IMeshBufferPtr railBuf;
+};
+
+class SleeperHelper {
+public:
+   void mergeSleeper(IMeshBufferPtr buf,
+      Vector<float> off, float yAngle) const;
+   
+private:
+   static IMeshBufferPtr generateSleeperMeshBuffer();
+   
+   static IMeshBufferPtr sleeperBuf;
+};
+
+class BezierHelper {
+public:
+   IMeshBufferPtr makeBezierRailMesh(const BezierCurve<float>& func) const;
+
+private:
+   static void buildOneBezierRail(const BezierCurve<float>& func,
+      IMeshBufferPtr buf, float p);
+};
+
+class CurvedTrackHelper : private SleeperHelper {
+public:
+   void mergeCurvedTrack(IMeshBufferPtr buf, Vector<float> off,
+      int baseRadius, track::Angle startAngle, track::Angle endAngle) const;
+   
+private:
+   void transformToOrigin(Vector<float>& off,
+      int baseRadius, track::Angle startAngle) const;
+   
+   enum RailType {
+      INNER_RAIL, OUTER_RAIL
+   };
+   
+   static void generateCurvedRailMesh(IMeshBufferPtr buf,
+      int baseRadius, RailType type);
+   static void mergeCurvedRail(IMeshBufferPtr buf, int baseRadius,
+      Vector<float> off, float yAngle);
+
+   typedef map<int, IMeshBufferPtr> CurvedRailMeshMap;
+   static CurvedRailMeshMap curvedRailMeshes;
+};
 
 // Track constants
 namespace track {

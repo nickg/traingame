@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #include "XMLBuilder.hpp"
 #include "ILogger.hpp"
 #include "BezierCurve.hpp"
+#include "Matrix.hpp"
 
 #include <cassert>
 
@@ -27,12 +28,16 @@
 #include <boost/lexical_cast.hpp>
 
 // Forks in the track
-class Points : public ITrackSegment {
+class Points : public ITrackSegment,
+               private StraightTrackHelper,
+               private SleeperHelper,
+               private BezierHelper {
 public:
    Points(track::Direction aDirection, bool reflect);
 
    // ITrackSegment interface
    void render() const;
+   void merge(IMeshBufferPtr buf) const;
    void setOrigin(int x, int y, float h) { myX = x; myY = y; height = h; }
    float segmentLength(const track::TravelToken& aToken) const;
    bool isValidDirection(const track::Direction& aDirection) const;
@@ -173,76 +178,71 @@ void Points::renderArrow() const
    glPopMatrix();
 }
 
-void Points::render() const
+void Points::merge(IMeshBufferPtr buf) const
 {
-   static IMeshPtr railMesh = makeBezierRailMesh(myCurve);
-   static IMeshPtr reflectMesh = makeBezierRailMesh(myReflectedCurve);
+   static IMeshBufferPtr railBuf = makeBezierRailMesh(myCurve);
+   static IMeshBufferPtr reflectBuf = makeBezierRailMesh(myReflectedCurve);
    
-   glPushMatrix();
-
-   glTranslatef(
+   Vector<float> off = makeVector(
       static_cast<float>(myX),
       height,
       static_cast<float>(myY));
-
-   if (myAxis == -axis::X)
-      glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
-   else if (myAxis == -axis::Y)
-      glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-   else if (myAxis == axis::Y)
-      glRotatef(270.0f, 0.0f, 1.0f, 0.0f);
-
-   glPushMatrix();
-   glTranslatef(-0.5f, 0.0f, 0.0f);
-   (reflected ? reflectMesh : railMesh)->render();
-   glPopMatrix();
-
-   glPushMatrix();
-   glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-
-   for (int i = 0; i < 3; i++) {
-      renderStraightRail();
-      glTranslatef(0.0f, 0.0f, 1.0f);
-   }
    
-   glPopMatrix();
+   float yAngle = 0.0f;
+      
+   if (myAxis == -axis::X)
+      yAngle = 180.0f;
+   else if (myAxis == -axis::Y)
+      yAngle = 90.0f;
+   else if (myAxis == axis::Y)
+      yAngle = 270.0f;
+
+   // Render the rails
+   
+   buf->merge(reflected ? reflectBuf : railBuf,
+      off + rotateY(makeVector(-0.5f, 0.0f, 0.0f), yAngle),
+      yAngle);
+   
+   {
+      Vector<float> t = off;
+      
+      for (int i = 0; i < 3; i++) {
+         const float a = yAngle + 90.0f;
+         mergeStraightRail(buf, t, a);
+         
+         t += rotateY(makeVector(0.0f, 0.0f, 1.0f), a);
+      }
+   }
 
    // Draw the curved sleepers
-   for (float i = 0.2f; i < 0.95f; i += 0.08f) {
-      glPushMatrix();
-      
+   for (float i = 0.25f; i < 1.0f; i += 0.08f) {
       Vector<float> v = (reflected ? myReflectedCurve : myCurve)(i);
 
-      glTranslatef(v.x - 0.5f, 0.0f, v.z);
-      
+      Vector<float> t = makeVector(v.x - 0.5f, 0.0f, v.z);
+      Vector<float> soff = off + rotateY(t, yAngle);
       const Vector<float> deriv =
          (reflected ? myReflectedCurve : myCurve).deriv(i);
       const float angle =
          radToDeg<float>(atanf(deriv.z / deriv.x));
 
-      glRotatef(-angle, 0.0f, 1.0f, 0.0f);
-
-      renderSleeper();
-      
-      glPopMatrix();
+      mergeSleeper(buf, soff, yAngle - angle);
    }
    
    // Draw the straight sleepers
-   glPushMatrix();
-   glTranslatef(-0.4f, 0.0f, 0.0f);
+   off -= rotateY(makeVector(0.4f, 0.0f, 0.0f), yAngle);
    
    for (int i = 0; i < 12; i++) {
-      renderSleeper();
-      glTranslatef(0.25f, 0.0f, 0.0f);
+      mergeSleeper(buf, off, yAngle);
+      off += rotateY(makeVector(0.25f, 0.0f, 0.0f), yAngle);
    }
-   glPopMatrix();
+}
 
+void Points::render() const
+{
    if (stateRenderHint) {
       renderArrow();
       stateRenderHint = false;
    }
-
-   glPopMatrix();
 }
 
 float Points::segmentLength(const track::TravelToken& aToken) const
