@@ -544,24 +544,28 @@ void Map::drawStartLocation() const
 // array is large enough to hold it
 bool Map::haveMesh(int id, Point<int> botLeft, Point<int> topRight)
 {
-   if (id >= static_cast<int>(terrainMeshes.size())) {
+   if (id >= static_cast<int>(terrainMeshes.size()))
       terrainMeshes.resize(id + 1);
-      return false;
-   }
-   else if (dirtyTiles.empty())
-      return terrainMeshes[id];
-   else {
-      bool ok = terrainMeshes[id];
-      for (list<Point<int> >::iterator it = dirtyTiles.begin();
-           it != dirtyTiles.end(); ++it) {
-         if ((*it).x >= botLeft.x && (*it).x <= topRight.x
-            && (*it).y >= botLeft.y && (*it).y <= topRight.y) {
-            ok = false;
-            it = dirtyTiles.erase(it);
-         }
+   
+   bool ok = terrainMeshes[id];
+   list<Point<int> >::iterator it = dirtyTiles.begin();
+
+   while (it != dirtyTiles.end()) {
+      bool covered =
+         (*it).x >= botLeft.x
+         && (*it).x <= topRight.x
+         && (*it).y >= botLeft.y
+         && (*it).y <= topRight.y;
+         
+      if (covered) {
+         ok = false;
+         it = dirtyTiles.erase(it);
       }
-      return ok;
+      else
+         ++it;
    }
+   
+   return ok;
 }
 
 // Record that the mesh containing a tile needs rebuilding
@@ -589,7 +593,7 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
       make_tuple(   -2.0f,     makeRGB(208, 207, 104)),
       make_tuple(   -1e10f,    makeRGB(177, 176, 96) )
    };
-   
+
    IMeshBufferPtr buf = makeMeshBuffer();
    
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
@@ -717,7 +721,6 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
       }
    }
 
-   buf->printStats();
    terrainMeshes[id] = makeMesh(buf);
 
    // Check if this sector needs a sea quad drawn
@@ -749,6 +752,9 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
    // multiple sectors will be merged with each applicable mesh even when
    // the meshes are built on the same frame
    ++frameNum;
+
+   // Make sure we don't rebuild this mesh if any of the tiles are dirty
+   haveMesh(id, botLeft, topRight);
 }
 
 // A special rendering mode when selecting tiles

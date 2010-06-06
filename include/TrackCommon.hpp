@@ -71,7 +71,7 @@ private:
       INNER_RAIL, OUTER_RAIL
    };
    
-   static IMeshPtr generateCurvedRailMesh(IMeshBufferPtr buf,
+   static void generateCurvedRailMesh(IMeshBufferPtr buf,
       int baseRadius, RailType type);
    static void mergeCurvedRail(IMeshBufferPtr buf, int baseRadius,
       Vector<float> off, float yAngle);

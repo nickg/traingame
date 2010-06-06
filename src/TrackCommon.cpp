@@ -215,7 +215,7 @@ void CurvedTrackHelper::transformToOrigin(Vector<float>& off,
       off += makeVector(1.0f, 0.0f, 0.0f);
 }
 
-IMeshPtr CurvedTrackHelper::generateCurvedRailMesh(IMeshBufferPtr buf,
+void CurvedTrackHelper::generateCurvedRailMesh(IMeshBufferPtr buf,
    int baseRadius, RailType type)
 {
    const float edgeWidth = (1 - GAUGE - RAIL_WIDTH)/2.0f;
@@ -277,8 +277,6 @@ IMeshPtr CurvedTrackHelper::generateCurvedRailMesh(IMeshBufferPtr buf,
 
          METAL);
    }
-
-   return makeMesh(buf);
 }
    
 void CurvedTrackHelper::mergeCurvedRail(IMeshBufferPtr buf, int baseRadius,
