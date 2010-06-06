@@ -321,9 +321,9 @@ void Map::setTrackAt(const Point<int>& where, ITrackSegmentPtr track)
    for (vector<Point<int> >::iterator it = covers.begin();
         it != covers.end(); ++it) {
       tileAt((*it).x, (*it).y).track = node;
-   }
 
-   dirtyTile(where.x, where.y);
+      dirtyTile((*it).x, (*it).y);
+   }
 }
 
 bool Map::isValidTrack(const Point<int>& where) const
