@@ -218,6 +218,7 @@ private:
    bool shouldDrawGridLines, inPickMode;
    list<Point<int> > dirtyTiles;
    IResourcePtr resource;
+   vector<bool> seaSectors;
 
    // Variables used during rendering
    mutable int frameNum;
@@ -715,6 +716,31 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
    buf->printStats();
    terrainMeshes[id] = makeMesh(buf);
 
+   // Check if this sector needs a sea quad drawn
+   bool belowSeaLevel = false;
+   for (int x = topRight.x-1; x >= botLeft.x; x--) {
+      for (int y = botLeft.y; y < topRight.y; y++) {
+         int index[4];
+         tileVertices(x, y, index);
+   
+         belowSeaLevel |=
+            heightAt(index[0]).pos.y < 0.0f
+            || heightAt(index[1]).pos.y < 0.0f
+            || heightAt(index[2]).pos.y < 0.0f
+            || heightAt(index[3]).pos.y < 0.0f;
+
+         if (belowSeaLevel)
+            goto belowSeaLevelOut;
+      }
+   }
+
+ belowSeaLevelOut:
+   
+   size_t minSize = id + 1;
+   if (seaSectors.size() < minSize)
+      seaSectors.resize(minSize);
+   seaSectors.at(id) = belowSeaLevel;
+   
    // Incrementing the frame counter here ensures that any track which spans
    // multiple sectors will be merged with each applicable mesh even when
    // the meshes are built on the same frame
@@ -832,7 +858,7 @@ void Map::postRenderSector(IGraphicsPtr aContext, int id,
    Point<int> botLeft, Point<int> topRight)
 {
    // Draw the water
-   if (!inPickMode) {
+   if (!inPickMode && seaSectors.at(id)) {
       glPushAttrib(GL_ENABLE_BIT);
 
       glEnable(GL_BLEND);
