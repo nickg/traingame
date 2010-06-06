@@ -29,6 +29,7 @@
 #include "IScenery.hpp"
 #include "IConfig.hpp"
 #include "OpenGLHelper.hpp"
+#include "ClipVolume.hpp"
 
 #include <stdexcept>
 #include <sstream>
@@ -753,64 +754,18 @@ void Map::renderSector(IGraphicsPtr aContext, int id,
    if (!haveMesh(id, botLeft, topRight))
       buildMesh(id, botLeft, topRight);
 
-   //if (id != 7)
-   //   return;
-
-
-   glPushMatrix();
-   {   
-      glTranslatef(botLeft.x - 0.55f, 0.0f, 0.0f);
+   {
+      // Parts of track may extend outside the sector so these
+      // are clipped off
       
-      glColor3f(1.0f, 0.0f, 0.0f);
-      glBegin(GL_LINES);
-      glVertex3f(0.0f, 0.0f, 0.0f);
-      glVertex3f(0.0f, 1.0f, 0.0f);
-      glEnd();
+      const float x = botLeft.x - 0.5f;
+      const float w = quadTree->leafSize();
+      const float z = botLeft.y - 0.5f;
+      const float d = quadTree->leafSize();
+      ClipVolume clip(x, w, z, d);
       
-      GLdouble eqn0[4] = { 1.0, 0.0, 0.0, 0.0 };
-      glClipPlane(GL_CLIP_PLANE0, eqn0);
-      glEnable(GL_CLIP_PLANE0);
-      
-      glTranslatef(quadTree->leafSize() + 0.1f, 0.0f, 0.0f);
-      
-      glColor3f(0.0f, 1.0f, 0.0f);
-      glBegin(GL_LINES);
-      glVertex3f(0.0f, 0.0f, 0.0f);
-      glVertex3f(0.0f, 1.0f, 0.0f);
-      glEnd();
-
-      GLdouble eqn1[4] = { -1.0, 0.0, 0.0, 0.0 };
-      glClipPlane(GL_CLIP_PLANE1, eqn1);
-      glEnable(GL_CLIP_PLANE1);
-      
-      glTranslatef(0.0f, 0.0f, botLeft.y - 0.55f);
-
-      glColor3f(0.0f, 0.0f, 1.0f);
-      glBegin(GL_LINES);
-      glVertex3f(0.0f, 0.0f, 0.0f);
-      glVertex3f(0.0f, 1.0f, 0.0f);
-      glEnd();
-      
-      GLdouble eqn2[4] = { 0.0, 0.0, 1.0, 0.0 };
-      glClipPlane(GL_CLIP_PLANE2, eqn2);
-      glEnable(GL_CLIP_PLANE2);
-      
-      glTranslatef(0.0f, 0.0f, quadTree->leafSize() + 0.1f);
-
-      glColor3f(0.0f, 1.0f, 1.0f);
-      glBegin(GL_LINES);
-      glVertex3f(0.0f, 0.0f, 0.0f);
-      glVertex3f(0.0f, 1.0f, 0.0f);
-      glEnd();
-
-      GLdouble eqn3[4] = { 0.0, 0.0, -1.0, 0.0 };
-      glClipPlane(GL_CLIP_PLANE3, eqn3);
-      glEnable(GL_CLIP_PLANE3);
-      
+      terrainMeshes[id]->render();
    }
-   glPopMatrix();
-   
-   terrainMeshes[id]->render();
 
    // Draw the overlays
    for (int x = topRight.x-1; x >= botLeft.x; x--) {
