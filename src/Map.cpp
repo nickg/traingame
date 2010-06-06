@@ -714,6 +714,11 @@ void Map::buildMesh(int id, Point<int> botLeft, Point<int> topRight)
 
    buf->printStats();
    terrainMeshes[id] = makeMesh(buf);
+
+   // Incrementing the frame counter here ensures that any track which spans
+   // multiple sectors will be merged with each applicable mesh even when
+   // the meshes are built on the same frame
+   ++frameNum;
 }
 
 // A special rendering mode when selecting tiles
