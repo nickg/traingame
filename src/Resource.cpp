@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ public:
    {
 
    }
-
+   
    // IResource interface
    string name() const { return myPath.filename(); }
    string xmlFileName() const
@@ -55,23 +55,44 @@ private:
    const path myPath;
 };
 
-IResource::Handle::Handle(const string& aFileName, Mode aMode)
-   : myFileName(aFileName)
+IResource::Handle::Handle(const string& fileName, Mode mode)
+   : fileName_(fileName), mode_(mode), aborted(false)
 {
-   if (aMode == READ) {
-      myReadStream = shared_ptr<ifstream>(new ifstream(aFileName.c_str()));
+   if (mode == READ) {
+      readStream = shared_ptr<ifstream>(new ifstream(fileName.c_str()));
            
-      if (!myReadStream->good())
-         throw runtime_error("Failed to open resource file " + aFileName);
+      if (!readStream->good())
+         throw runtime_error("Failed to open resource file " + fileName);
    }
-   else if (aMode == WRITE) {
-      myWriteStream = shared_ptr<ofstream>(new ofstream(aFileName.c_str()));
+   else if (mode == WRITE) {
+      const string tmp = tmpFileName();   
+      writeStream = shared_ptr<ofstream>(new ofstream(tmp.c_str()));
            
-      if (!myWriteStream->good())
-         throw runtime_error("Failed to open resource file " + aFileName);
+      if (!writeStream->good())
+         throw runtime_error("Failed to open resource file " + fileName);
    }
    else
       throw runtime_error("Bad mode for Handle");
+}
+
+string IResource::Handle::tmpFileName() const
+{
+   return fileName() + ".tmp";
+}
+
+void IResource::Handle::rollback()
+{
+   remove(tmpFileName());
+   aborted = true;
+}
+
+void IResource::Handle::commit()
+{
+   if (mode() == WRITE && !aborted) {
+      remove(fileName());
+      rename(tmpFileName(), fileName());
+      remove(tmpFileName());
+   }
 }
 
 namespace {

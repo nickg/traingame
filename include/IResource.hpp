@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -40,16 +40,25 @@ struct IResource {
    public:
       enum Mode { READ, WRITE };
       
-      explicit Handle(const string& aFileName, Mode aMode = READ);
+      explicit Handle(const string& fileName, Mode mode = READ);
+      ~Handle() { commit(); }
       
-      ifstream& rstream() { return *myReadStream; }
-      ofstream& wstream() { return *myWriteStream; }
+      ifstream& rstream() { return *readStream; }
+      ofstream& wstream() { return *writeStream; }
       
-      string fileName() const { return myFileName; }
+      string fileName() const { return fileName_; }
+      Mode mode() const { return mode_; }
+      
+      void commit();
+      void rollback();
    private:
-      shared_ptr<ifstream> myReadStream;
-      shared_ptr<ofstream> myWriteStream;
-      const string myFileName;
+      string tmpFileName() const;
+      
+      shared_ptr<ifstream> readStream;
+      shared_ptr<ofstream> writeStream;
+      const string fileName_;
+      const Mode mode_;
+      bool aborted;
    };
 
    virtual Handle openFile(const string& aName) = 0;

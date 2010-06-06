@@ -190,6 +190,7 @@ private:
    }
 
    void writeHeightMap() const;
+   void saveTo(ostream& of);
    void readHeightMap(IResource::Handle aHandle);
    void tileVertices(int x, int y, int* indexes) const;
    void renderPickSector(Point<int> botLeft, Point<int> topRight);
@@ -1353,16 +1354,22 @@ void Map::writeHeightMap() const
 
    log() << "Writing terrain height map to " << h.fileName();
 
-   ofstream& of = h.wstream();
-   
-   const int32_t wl = static_cast<int32_t>(myWidth);
-   const int32_t dl = static_cast<int32_t>(myDepth);
-   of.write(reinterpret_cast<const char*>(&wl), sizeof(int32_t));
-   of.write(reinterpret_cast<const char*>(&dl), sizeof(int32_t));
-
-   for (int i = 0; i < (myWidth + 1) * (myDepth + 1); i++)
-      of.write(reinterpret_cast<const char*>(&heightMap[i].pos.y),
-         sizeof(float));
+   try {
+      ofstream& of = h.wstream();
+      
+      const int32_t wl = static_cast<int32_t>(myWidth);
+      const int32_t dl = static_cast<int32_t>(myDepth);
+      of.write(reinterpret_cast<const char*>(&wl), sizeof(int32_t));
+      of.write(reinterpret_cast<const char*>(&dl), sizeof(int32_t));
+      
+      for (int i = 0; i < (myWidth + 1) * (myDepth + 1); i++)
+         of.write(reinterpret_cast<const char*>(&heightMap[i].pos.y),
+            sizeof(float));
+   }
+   catch (std::exception& e) {
+      h.rollback();
+      throw e;
+   }
 }
 
 // Read the height data back out of a binary file
@@ -1396,17 +1403,8 @@ void Map::readHeightMap(IResource::Handle aHandle)
    }
 }
 
-// Turn the map into XML
-void Map::save()
+void Map::saveTo(ostream& of)
 {
-   using namespace boost::filesystem;
-
-   IResource::Handle h = resource->writeFile(resource->name() + ".xml");
-   
-   log() << "Saving map to " << h.fileName();
-
-   ofstream& of = h.wstream();
-   
    xml::element root("map");
    root.addAttribute("width", myWidth);
    root.addAttribute("height", myDepth);
@@ -1486,6 +1484,26 @@ void Map::save()
    root.addChild(tileset);
    
    of << xml::document(root);
+}
+
+// Turn the map into XML
+void Map::save()
+{
+   using namespace boost::filesystem;
+
+   IResource::Handle h = resource->writeFile(resource->name() + ".xml");
+   
+   log() << "Saving map to " << h.fileName();
+
+   ofstream& of = h.wstream();
+
+   try {
+      saveTo(of);
+   }
+   catch (exception& e) {
+      h.rollback();
+      throw e;
+   }
 }
 
 IMapPtr makeEmptyMap(const string& aResId, int aWidth, int aDepth)
