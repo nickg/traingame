@@ -289,6 +289,8 @@ void Map::eraseTile(int x, int y)
 
    if (tile.station)
       tile.station.reset();
+
+   dirtyTile(x, y);
 }
 
 bool Map::emptyTile(Point<int> point) const
@@ -320,6 +322,8 @@ void Map::setTrackAt(const Point<int>& where, ITrackSegmentPtr track)
         it != covers.end(); ++it) {
       tileAt((*it).x, (*it).y).track = node;
    }
+
+   dirtyTile(where.x, where.y);
 }
 
 bool Map::isValidTrack(const Point<int>& where) const
@@ -1245,6 +1249,8 @@ void Map::addScenery(Point<int> where, ISceneryPtr s)
       s->setPosition(static_cast<float>(where.x),
          heightAt(where),
          static_cast<float>(where.y));
+
+      dirtyTile(where.x, where.y);
    }
 }
 
