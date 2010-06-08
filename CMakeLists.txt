@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8)
 
 project (TrainGame)
 
@@ -24,12 +24,12 @@ find_package (SDL_image REQUIRED)
 find_package (OpenGL REQUIRED)
 find_package (GLEW REQUIRED)
 find_package (Boost 1.37 REQUIRED COMPONENTS filesystem signals program_options) 
+find_package (Freetype REQUIRED)
 
 if (NOT WIN32)
   include (FindPkgConfig)
 endif (NOT WIN32)
 
-find_package (FreeType REQUIRED)
 find_package (Xerces REQUIRED)
 
 include_directories (${CMAKE_SOURCE_DIR}/include)
