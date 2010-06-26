@@ -28,25 +28,25 @@ struct IBillboard {
 
    virtual void render() const = 0;
 
-   virtual void setPosition(float x, float y, float z) = 0;
-   virtual void setScale(float aScale) = 0;
-   virtual void setColour(float r, float g, float b, float a) = 0;
+   virtual void set_position(float x, float y, float z) = 0;
+   virtual void set_scale(float a_scale) = 0;
+   virtual void set_colour(float r, float g, float b, float a) = 0;
 };
 
 typedef std::tr1::shared_ptr<IBillboard> IBillboardPtr;
 
-IBillboardPtr makeCylindricalBillboard(ITexturePtr aTexture);
-IBillboardPtr makeSphericalBillboard(ITexturePtr aTexture);
+IBillboardPtr make_cylindrical_billboard(ITexturePtr a_texture);
+IBillboardPtr make_spherical_billboard(ITexturePtr a_texture);
 
 // This should be called once per frame to render all billboards
 // in the correct orientation
-void setBillboardCameraOrigin(Vector<float> aPosition);
+void set_billboard_cameraOrigin(Vector<float> a_position);
 
 // Billboards normally need to be depth sorted
 // This calculates the distance of a point to the camera
-float distanceToCamera(Vector<float> aPosition);
+float distance_to_camera(Vector<float> a_position);
 
 // Draw all billboards saved during this frame
-void renderBillboards();
+void render_billboards();
 
 #endif

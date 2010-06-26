@@ -39,32 +39,32 @@ using namespace boost;
 // Cache of already loaded models
 namespace {
    typedef map<string, IModelPtr> ModelCache;
-   ModelCache theCache;
+   ModelCache the_cache;
 }
 
 // Abstracts a WaveFront material file
 class MaterialFile {
 public:
-   MaterialFile(const string& aFileName, IResourcePtr aRes);
+   MaterialFile(const string& a_file_name, IResourcePtr a_res);
    ~MaterialFile() {}
 
-   const Material& get(const string& aName) const;
+   const Material& get(const string& a_name) const;
 private:
    typedef map<string, Material> MaterialSet;
-   MaterialSet myMaterials;
+   MaterialSet my_materials;
 };
 
 typedef std::tr1::shared_ptr<MaterialFile> MaterialFilePtr;
 
-MaterialFile::MaterialFile(const string& aFileName, IResourcePtr aRes)
+MaterialFile::MaterialFile(const string& a_file_name, IResourcePtr a_res)
 {
-   IResource::Handle h = aRes->openFile(aFileName);
+   IResource::Handle h = a_res->open_file(a_file_name);
    
-   log() << "Loading materials from " << h.fileName();
+   log() << "Loading materials from " << h.file_name();
 
    istream& is = h.rstream();
    
-   string activeMaterial;
+   string active_material;
    while (!is.eof()) {
       string word;
       is >> word;
@@ -74,28 +74,28 @@ MaterialFile::MaterialFile(const string& aFileName, IResourcePtr aRes)
          continue;
       }
       else if (word == "newmtl") {
-         is >> activeMaterial;
+         is >> active_material;
 
-         myMaterials[activeMaterial] = Material();
+         my_materials[active_material] = Material();
       }
       else if (word == "map_Kd") {
          // Texture
          is >> word;
-         myMaterials[activeMaterial].texture = loadTexture(aRes, word);
+         my_materials[active_material].texture = load_texture(a_res, word);
       }
       else if (word == "Kd") {
          // Diffuse colour
-         Material& m = myMaterials[activeMaterial];
+         Material& m = my_materials[active_material];
          is >> m.diffuseR >> m.diffuseG >> m.diffuseB;
       }
       else if (word == "Ka") {
          // Ambient colour
-         Material& m = myMaterials[activeMaterial];
+         Material& m = my_materials[active_material];
          is >> m.ambientR >> m.ambientG >> m.ambientB;
       }
       else if (word == "Ks") {
          // Specular colour
-         Material& m = myMaterials[activeMaterial];
+         Material& m = my_materials[active_material];
          is >> m.specularR >> m.specularG >> m.specularB;
       }
       else {
@@ -105,11 +105,11 @@ MaterialFile::MaterialFile(const string& aFileName, IResourcePtr aRes)
    }
 }
 
-const Material& MaterialFile::get(const string& aName) const
+const Material& MaterialFile::get(const string& a_name) const
 {
-   MaterialSet::const_iterator it = myMaterials.find(aName);
-   if (it == myMaterials.end())
-      throw runtime_error("No material named " + aName);
+   MaterialSet::const_iterator it = my_materials.find(a_name);
+   if (it == my_materials.end())
+      throw runtime_error("No material named " + a_name);
 
    return (*it).second;
 }
@@ -124,11 +124,11 @@ public:
    // IModel interface
    void render() const;
    void cache();
-   void merge(IMeshBufferPtr into, Vector<float> off, float yAngle) const;
+   void merge(IMeshBufferPtr into, Vector<float> off, float y_angle) const;
    Vector<float> dimensions() const { return dimensions_; }
    
 private:
-   void compileMesh() const;
+   void compile_mesh() const;
    
    Vector<float> dimensions_;
    mutable IMeshPtr mesh;
@@ -143,55 +143,55 @@ Model::~Model()
 void Model::cache()
 {
    if (!mesh)
-      compileMesh();
+      compile_mesh();
 }
 
 void Model::render() const
 {
    if (!mesh)
-      compileMesh();
+      compile_mesh();
    
    mesh->render();
 }
 
-void Model::merge(IMeshBufferPtr into, Vector<float> off, float yAngle) const
+void Model::merge(IMeshBufferPtr into, Vector<float> off, float y_angle) const
 {
-   into->merge(buffer, off, yAngle);
+   into->merge(buffer, off, y_angle);
 }   
 
-void Model::compileMesh() const
+void Model::compile_mesh() const
 {
    // Const as may be called during render
-   mesh = makeMesh(buffer);
+   mesh = make_mesh(buffer);
 }
 
 // Load a model from a resource
-IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
+IModelPtr load_model(IResourcePtr a_res, const string& a_file_name, float a_scale)
 {
    // Make a unique cache name
-   const string cacheName = aRes->name() + ":" + aFileName;
+   const string cache_name = a_res->name() + ":" + a_file_name;
 
    // Check the cache for the model
-   ModelCache::iterator it = theCache.find(cacheName);
-   if (it != theCache.end())
+   ModelCache::iterator it = the_cache.find(cache_name);
+   if (it != the_cache.end())
       return (*it).second;
 
    // Not in the cache, load it from the resource
-   IResource::Handle h = aRes->openFile(aFileName);
-   log() << "Loading model " << h.fileName();
+   IResource::Handle h = a_res->open_file(a_file_name);
+   log() << "Loading model " << h.file_name();
 
    vector<IMeshBuffer::Vertex> vertices;
    vector<IMeshBuffer::Normal> normals;
-   vector<IMeshBuffer::TexCoord> textureOffs;
+   vector<IMeshBuffer::TexCoord> texture_offs;
 
-   IMeshBufferPtr buffer = makeMeshBuffer();
+   IMeshBufferPtr buffer = make_mesh_buffer();
 
-   bool foundVertex = false;
+   bool found_vertex = false;
    float ymin = 0, ymax = 0, xmin = 0, xmax = 0,
       zmin = 0, zmax = 0;
-   int faceCount = 0;
+   int face_count = 0;
 
-   MaterialFilePtr materialFile;
+   MaterialFilePtr material_file;
 
    ifstream& f = h.rstream();
    
@@ -204,27 +204,27 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
       }
       else if (first == "o") {
          // New object
-         string objName;
-         f >> objName;
+         string obj_name;
+         f >> obj_name;
       }
       else if (first == "mtllib") {
          // Material file
-         string fileName;
-         f >> fileName;
+         string file_name;
+         f >> file_name;
          
-         materialFile =
-            MaterialFilePtr(new MaterialFile(fileName, aRes));
+         material_file =
+            MaterialFilePtr(new MaterialFile(file_name, a_res));
       }
       else if (first == "v") {
          // Vertex
          float x, y, z;
          f >> x >> y >> z;
 
-         x *= aScale;
-         y *= aScale;
-         z *= aScale;
+         x *= a_scale;
+         y *= a_scale;
+         z *= a_scale;
 
-         if (foundVertex) {
+         if (found_vertex) {
             xmin = min(x, xmin);
             xmax = max(x, xmax);
 
@@ -239,24 +239,24 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
             ymin = ymax = y;
             zmin = zmax = z;
 
-            foundVertex = true;
+            found_vertex = true;
          }
 
-         vertices.push_back(makeVector(x, y, z));
+         vertices.push_back(make_vector(x, y, z));
       }
       else if (first == "vn") {
          // Normal
          float x, y, z;
          f >> x >> y >> z;
          
-         normals.push_back(makeVector(x, y, z));
+         normals.push_back(make_vector(x, y, z));
       }
       else if (first == "vt") {
          // Texture coordinate
          float x, y;
          f >> x >> y;
 
-         textureOffs.push_back(makePoint(x, y));
+         texture_offs.push_back(make_point(x, y));
       }
       else if (first == "g") {
          // Groups used to correspond to sub-meshes but now
@@ -264,12 +264,12 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
       }
       else if (first == "usemtl") {
          // Set the material for this group
-         string materialName;
-         f >> materialName;
+         string material_name;
+         f >> material_name;
          
-         if (materialFile) {
+         if (material_file) {
             assert(buffer);
-            buffer->bindMaterial(materialFile->get(materialName));
+            buffer->bind_material(material_file->get(material_name));
          }
       }
       else if (first == "f") {
@@ -278,7 +278,7 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
          getline(f, line);
          istringstream ss(line);
 
-         int vInThisFace = 0;
+         int v_in_thisFace = 0;
          
          while (!ss.eof()) {
             char delim1, delim2;
@@ -287,9 +287,9 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
             if (ss.fail())
                break;
 
-            if (++vInThisFace > 3)
+            if (++v_in_thisFace > 3)
                warn () << "All model faces must be triangles "
-                       << "(face with " << vInThisFace << " vertices)";
+                       << "(face with " << v_in_thisFace << " vertices)";
 
             // Texture coordinate may be omitted
             ss >> vti;
@@ -306,15 +306,15 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
 
             assert(buffer);
             
-            if (vti - 1 < textureOffs.size()) {
-               Point<float>& vt = textureOffs[vti - 1];
+            if (vti - 1 < texture_offs.size()) {
+               Point<float>& vt = texture_offs[vti - 1];
                buffer->add(v, vn, vt);
             }
             else
                buffer->add(v, vn);
          }
 
-         faceCount++;
+         face_count++;
             
          // Don't discard the next line
          continue;
@@ -324,14 +324,14 @@ IModelPtr loadModel(IResourcePtr aRes, const string& aFileName, float aScale)
       getline(f, first);
    }
 
-   Vector<float> dim = makeVector(xmax - xmin, ymax - ymin, zmax - zmin);
+   Vector<float> dim = make_vector(xmax - xmin, ymax - ymin, zmax - zmin);
    
    log() << "Model loaded: " << vertices.size() << " vertices, "
-         << faceCount << " faces";
+         << face_count << " faces";
    
    IModelPtr ptr(new Model(dim, buffer));
 
-   theCache[cacheName] = ptr;
+   the_cache[cache_name] = ptr;
    return ptr;
 }
 

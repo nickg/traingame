@@ -25,7 +25,7 @@ namespace xml {
 struct IXMLSerialisable {
    virtual ~IXMLSerialisable() {}
 
-   virtual xml::element toXml() const = 0;
+   virtual xml::element to_xml() const = 0;
 };
 
 #endif

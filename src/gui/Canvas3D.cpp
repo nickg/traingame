@@ -41,7 +41,7 @@ void Canvas3D::render(RenderContext& rc) const
 
    int xo = x(), yo = y();
    rc.offset(xo, yo);
-   glViewport(xo, getGameWindow()->height() - yo - height(),
+   glViewport(xo, get_game_window()->height() - yo - height(),
       width(), height());
    
    glMatrixMode(GL_PROJECTION);

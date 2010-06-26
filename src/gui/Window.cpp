@@ -24,12 +24,12 @@ Window::Window(const AttributeSet& attrs)
    : ContainerWidget(attrs),
      title_(attrs.get<string>("title", ""))
 {
-   dynamicWidth = !attrs.has("width");
-   dynamicHeight = !attrs.has("height");
+   dynamic_width = !attrs.has("width");
+   dynamic_height = !attrs.has("height");
 
-   if (dynamicWidth)
+   if (dynamic_width)
       width(0);
-   if (dynamicHeight)
+   if (dynamic_height)
       height(0);
 }
 
@@ -40,21 +40,21 @@ void Window::render(RenderContext& rc) const
    rc.border(x(), y(), width(), height(),
       rc.theme().border());
 
-   rc.pushOrigin(this);
+   rc.push_origin(this);
 
    ContainerWidget::render(rc);
    
-   rc.popOrigin();
+   rc.pop_origin();
 }
 
-void Window::adjustForTheme(const Theme& theme)
+void Window::adjust_for_theme(const Theme& theme)
 {
-   ContainerWidget::adjustForTheme(theme);
+   ContainerWidget::adjust_for_theme(theme);
    
-   if (dynamicWidth) {
+   if (dynamic_width) {
       int maxW = 0;
-      for (ChildList::const_iterator it = constBegin();
-           it != constEnd(); ++it) {
+      for (ChildList::const_iterator it = const_begin();
+           it != const_end(); ++it) {
          int w = (*it)->width();
          int x = (*it)->x();
 
@@ -65,10 +65,10 @@ void Window::adjustForTheme(const Theme& theme)
       width(maxW);
    }
 
-   if (dynamicHeight) {
+   if (dynamic_height) {
       int maxH = 0;
-      for (ChildList::const_iterator it = constBegin();
-           it != constEnd(); ++it) {
+      for (ChildList::const_iterator it = const_begin();
+           it != const_end(); ++it) {
          int h = (*it)->height();
          int y = (*it)->y();
 

@@ -36,115 +36,115 @@ class SlopeTrack : public ITrackSegment,
                    private BezierHelper {
 public:
    SlopeTrack(track::Direction axis, Vector<float> slope,
-      Vector<float> slopeBefore, Vector<float> slopeAfter);
+      Vector<float> slope_before, Vector<float> slope_after);
 
    // ITrackSegment interface
    void render() const {}
    void merge(IMeshBufferPtr buf) const;
-   void setOrigin(int x, int y, float h);
-   float segmentLength(const track::TravelToken& token) const;
-   track::TravelToken getTravelToken(track::Position pos,
+   void set_origin(int x, int y, float h);
+   float segment_length(const track::TravelToken& token) const;
+   track::TravelToken get_travel_token(track::Position pos,
       track::Direction dir) const;
-   bool isValidDirection(const track::Direction& dir) const;
-   track::Connection nextPosition(const track::TravelToken& token) const;
-   void getEndpoints(vector<Point<int> >& output) const;
-   void getCovers(vector<Point<int> >& output) const {};
-   ITrackSegmentPtr mergeExit(Point<int> where, track::Direction dir);
+   bool is_valid_direction(const track::Direction& dir) const;
+   track::Connection next_position(const track::TravelToken& token) const;
+   void get_endpoints(vector<Point<int> >& output) const;
+   void get_covers(vector<Point<int> >& output) const {};
+   ITrackSegmentPtr merge_exit(Point<int> where, track::Direction dir);
    
-   bool hasMultipleStates() const { return false; }
-   void nextState() {}
-   void prevState() {}
-   void setStateRenderHint() {}
+   bool has_multiple_states() const { return false; }
+   void next_state() {}
+   void prev_state() {}
+   void set_state_renderHint() {}
 
    // IXMLSerialisable inteface
-   xml::element toXml() const;
+   xml::element to_xml() const;
 
 private:
-   void ensureValidDirection(const track::Direction& dir) const;
+   void ensure_valid_direction(const track::Direction& dir) const;
    void transform(const track::TravelToken& token, float delta) const;
    float gradient(const track::TravelToken& token, float delta) const;
    
    Point<int> origin;
    float height;
-   IMeshBufferPtr railBuf;
+   IMeshBufferPtr rail_buf;
    track::Direction axis;
-   float length, yOffset;
+   float length, y_offset;
    BezierCurve<float> curve;
 };
 
 SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
-   Vector<float> slopeBefore, Vector<float> slopeAfter)
-   : height(0.0f), axis(axis), yOffset(0.0f)
+   Vector<float> slope_before, Vector<float> slope_after)
+   : height(0.0f), axis(axis), y_offset(0.0f)
 {
    const float OFF = 0.1f;
 
    assert(axis == axis::X || axis == axis::Y);
    
-   const Vector<float> avgBefore = (slope + slopeBefore) / 2.0f;
-   const Vector<float> avgAfter = (slope + slopeAfter) / 2.0f;
+   const Vector<float> avg_before = (slope + slope_before) / 2.0f;
+   const Vector<float> avg_after = (slope + slope_after) / 2.0f;
 
    if (slope.y < 0.0f)
-      yOffset = abs(slope.y);
+      y_offset = abs(slope.y);
 
-   const float hFactor0 = sqrt(OFF / (1 + avgBefore.y * avgBefore.y));
-   const float hFactor1 = sqrt(OFF / (1 + avgAfter.y * avgAfter.y));
+   const float h_factor0 = sqrt(OFF / (1 + avg_before.y * avg_before.y));
+   const float h_factor1 = sqrt(OFF / (1 + avg_after.y * avg_after.y));
 
-   const float xDelta0 = hFactor0;
-   const float yDelta0 = hFactor0 * avgBefore.y;
+   const float x_delta0 = h_factor0;
+   const float y_delta0 = h_factor0 * avg_before.y;
 
-   const float xDelta1 = hFactor1;
-   const float yDelta1 = hFactor1 * avgAfter.y;
+   const float x_delta1 = h_factor1;
+   const float y_delta1 = h_factor1 * avg_after.y;
    
-   Vector<float> p1 = makeVector(0.0f, 0.0f, 0.0f);
-   Vector<float> p2 = makeVector(xDelta0, yDelta0, 0.0f);
-   Vector<float> p3 = makeVector(1.0f - xDelta1, slope.y - yDelta1, 0.0f);
-   Vector<float> p4 = makeVector(1.0f, slope.y, 0.0f);
+   Vector<float> p1 = make_vector(0.0f, 0.0f, 0.0f);
+   Vector<float> p2 = make_vector(x_delta0, y_delta0, 0.0f);
+   Vector<float> p3 = make_vector(1.0f - x_delta1, slope.y - y_delta1, 0.0f);
+   Vector<float> p4 = make_vector(1.0f, slope.y, 0.0f);
 
-   curve = makeBezierCurve(p1, p2, p3, p4);
+   curve = make_bezier_curve(p1, p2, p3, p4);
    length = curve.length;
 
-   railBuf = makeBezierRailMesh(curve);
+   rail_buf = make_bezier_railMesh(curve);
 }
 
 void SlopeTrack::merge(IMeshBufferPtr buf) const
 {
-   Vector<float> off = makeVector(
+   Vector<float> off = make_vector(
       static_cast<float>(origin.x),
       height,
       static_cast<float>(origin.y));
 
-   float yAngle = axis == axis::Y ? -90.0f : 0.0f;
+   float y_angle = axis == axis::Y ? -90.0f : 0.0f;
 
-   off += rotateY(makeVector(-0.5f, 0.0f, 0.0f), yAngle);
+   off += rotateY(make_vector(-0.5f, 0.0f, 0.0f), y_angle);
    
-   buf->merge(railBuf, off, yAngle);
+   buf->merge(rail_buf, off, y_angle);
    
    // Draw the sleepers
    for (float t = 0.1f; t < 1.0f; t += 0.25f) {
-      const Vector<float> curveValue = curve(t);
+      const Vector<float> curve_value = curve(t);
 
       const Vector<float> deriv = curve.deriv(t);
       const float angle =
-         radToDeg<float>(atanf(deriv.y / deriv.x));
+         rad_to_deg<float>(atanf(deriv.y / deriv.x));
 
-      Vector<float> t = makeVector(curveValue.x, curveValue.y, 0.0f);
+      Vector<float> t = make_vector(curve_value.x, curve_value.y, 0.0f);
 
-      mergeSleeper(buf, off + rotateY(t, yAngle), yAngle + angle);
+      merge_sleeper(buf, off + rotateY(t, y_angle), y_angle + angle);
    }
 }
 
-void SlopeTrack::setOrigin(int x, int y, float h)
+void SlopeTrack::set_origin(int x, int y, float h)
 {
-   origin = makePoint(x, y);
-   height = h + yOffset;
+   origin = make_point(x, y);
+   height = h + y_offset;
 }
 
-float SlopeTrack::segmentLength(const track::TravelToken& token) const
+float SlopeTrack::segment_length(const track::TravelToken& token) const
 {
    return length;
 }
 
-bool SlopeTrack::isValidDirection(const track::Direction& dir) const
+bool SlopeTrack::is_valid_direction(const track::Direction& dir) const
 {
    if (axis == axis::X)
       return dir == axis::X || -dir == axis::X;
@@ -152,9 +152,9 @@ bool SlopeTrack::isValidDirection(const track::Direction& dir) const
       return dir == axis::Y || -dir == axis::Y;
 }
 
-void SlopeTrack::ensureValidDirection(const track::Direction& dir) const
+void SlopeTrack::ensure_valid_direction(const track::Direction& dir) const
 {
-   if (!isValidDirection(dir))
+   if (!is_valid_direction(dir))
       throw runtime_error
          ("Invalid direction on straight track: "
             + boost::lexical_cast<string>(dir)
@@ -162,29 +162,29 @@ void SlopeTrack::ensureValidDirection(const track::Direction& dir) const
             + boost::lexical_cast<string>(axis) + ")");
 }
 
-track::Connection SlopeTrack::nextPosition(
+track::Connection SlopeTrack::next_position(
    const track::TravelToken& token) const
 {
-   ensureValidDirection(token.direction);
+   ensure_valid_direction(token.direction);
 
    if (token.direction == axis::X)
-      return make_pair(makePoint(origin.x + 1, origin.y), axis::X);
+      return make_pair(make_point(origin.x + 1, origin.y), axis::X);
    else if (token.direction == -axis::X)
-      return make_pair(makePoint(origin.x - 1, origin.y), -axis::X);
+      return make_pair(make_point(origin.x - 1, origin.y), -axis::X);
    else if (token.direction == axis::Y)
-      return make_pair(makePoint(origin.x, origin.y + 1), axis::Y);
+      return make_pair(make_point(origin.x, origin.y + 1), axis::Y);
    else if (token.direction == -axis::Y)
-      return make_pair(makePoint(origin.x, origin.y - 1), -axis::Y);
+      return make_pair(make_point(origin.x, origin.y - 1), -axis::Y);
    else
       assert(false);
 }
 
-track::TravelToken SlopeTrack::getTravelToken(track::Position pos,
+track::TravelToken SlopeTrack::get_travel_token(track::Position pos,
       track::Direction dir) const
 {
    using namespace placeholders;
    
-   ensureValidDirection(dir);
+   ensure_valid_direction(dir);
 
    track::TravelToken tok = {
       dir,
@@ -223,17 +223,17 @@ void SlopeTrack::transform(const track::TravelToken& token, float delta) const
    if (token.direction == -axis)
       delta = length - delta;
 
-   const float curveDelta = delta / length;
+   const float curve_delta = delta / length;
 
-   const Vector<float> curveValue = curve(curveDelta);
+   const Vector<float> curve_value = curve(curve_delta);
    
-   const float xTrans = axis == axis::X ? curveValue.x : 0.0f;
-   const float yTrans =curveValue.y;
-   const float zTrans = axis == axis::Y ? curveValue.x : 0.0f;
+   const float x_trans = axis == axis::X ? curve_value.x : 0.0f;
+   const float y_trans =curve_value.y;
+   const float z_trans = axis == axis::Y ? curve_value.x : 0.0f;
    
-   glTranslated(static_cast<double>(origin.x) + xTrans,
-      height + yTrans,
-      static_cast<double>(origin.y) + zTrans);
+   glTranslated(static_cast<double>(origin.x) + x_trans,
+      height + y_trans,
+      static_cast<double>(origin.y) + z_trans);
 
    if (axis == axis::Y)
       glRotated(-90.0, 0.0, 1.0, 0.0);
@@ -243,9 +243,9 @@ void SlopeTrack::transform(const track::TravelToken& token, float delta) const
    if (token.direction == -axis)
       glRotated(-180.0, 0.0, 1.0, 0.0);
 
-   const Vector<float> deriv = curve.deriv(curveDelta);
+   const Vector<float> deriv = curve.deriv(curve_delta);
    const float angle =
-      radToDeg<float>(atanf(deriv.y / deriv.x));
+      rad_to_deg<float>(atanf(deriv.y / deriv.x));
 
    if (token.direction == -axis)
       glRotatef(-angle, 0.0f, 0.0f, 1.0f);
@@ -253,25 +253,25 @@ void SlopeTrack::transform(const track::TravelToken& token, float delta) const
       glRotatef(angle, 0.0f, 0.0f, 1.0f);
 }
 
-void SlopeTrack::getEndpoints(vector<Point<int> >& output) const
+void SlopeTrack::get_endpoints(vector<Point<int> >& output) const
 {
    output.push_back(origin);
 }
 
-ITrackSegmentPtr SlopeTrack::mergeExit(Point<int> where, track::Direction dir)
+ITrackSegmentPtr SlopeTrack::merge_exit(Point<int> where, track::Direction dir)
 {
    return ITrackSegmentPtr();
 }
 
-xml::element SlopeTrack::toXml() const
+xml::element SlopeTrack::to_xml() const
 {
-   return xml::element("slopeTrack")
-      .addAttribute("align", axis == axis::X ? "x" : "y");
+   return xml::element("slope_track")
+      .add_attribute("align", axis == axis::X ? "x" : "y");
 }
 
-ITrackSegmentPtr makeSlopeTrack(track::Direction axis, Vector<float> slope,
-   Vector<float> slopeBefore, Vector<float> slopeAfter)
+ITrackSegmentPtr make_slope_track(track::Direction axis, Vector<float> slope,
+   Vector<float> slope_before, Vector<float> slope_after)
 {
    return ITrackSegmentPtr(
-      new SlopeTrack(axis, slope, slopeBefore, slopeAfter));
+      new SlopeTrack(axis, slope, slope_before, slope_after));
 }

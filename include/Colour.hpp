@@ -24,7 +24,7 @@ struct Colour {
    float r, g, b, a;
 };
 
-inline Colour makeColour(float r, float g, float b, float a=1.0f)
+inline Colour make_colour(float r, float g, float b, float a=1.0f)
 {
    Colour c = { r, g, b, a };
    return c;
@@ -32,7 +32,7 @@ inline Colour makeColour(float r, float g, float b, float a=1.0f)
 
 inline Colour makeRGB(int r, int g, int b, int a=255)
 {
-    return makeColour(
+    return make_colour(
 	static_cast<float>(r) / 255.0f,
 	static_cast<float>(g) / 255.0f,
 	static_cast<float>(b) / 255.0f,
@@ -40,7 +40,7 @@ inline Colour makeRGB(int r, int g, int b, int a=255)
 }
 
 namespace colour {
-   const Colour WHITE = makeColour(1.0f, 1.0f, 1.0f);
+   const Colour WHITE = make_colour(1.0f, 1.0f, 1.0f);
 }
 
 #endif

@@ -34,7 +34,7 @@ enum PlaneData {
 };
 
 // Normalise a plane's normal vector
-static void normalisePlane(float frustum[6][4], int side)
+static void normalise_plane(float frustum[6][4], int side)
 {
    float magnitude = (float)sqrtf(frustum[side][A]*frustum[side][A] + 
       frustum[side][B]*frustum[side][B] + 
@@ -47,7 +47,7 @@ static void normalisePlane(float frustum[6][4], int side)
 }
 
 // Tests whether a point is in the frustum or not
-bool Frustum::pointInFrustum(float x, float y, float z) 
+bool Frustum::point_in_frustum(float x, float y, float z) 
 {
    // Look through each plane...
    for (int i = 0; i < 6; i++) {
@@ -59,7 +59,7 @@ bool Frustum::pointInFrustum(float x, float y, float z)
 }
 
 // Tests whether a sphere is inside the frustum or not
-bool Frustum::sphereInFrustum(float x, float y, float z, float radius)
+bool Frustum::sphere_in_frustum(float x, float y, float z, float radius)
 {
    // Look through each plane
    for (int i = 0; i < 6; i++) {
@@ -71,7 +71,7 @@ bool Frustum::sphereInFrustum(float x, float y, float z, float radius)
 }
 
 // Tests whether a cube is in the view frustum 
-bool Frustum::cubeInFrustum(float x, float y, float z, float size)
+bool Frustum::cube_in_frustum(float x, float y, float z, float size)
 {
    // Look through each plane
    for (int i = 0; i < 6; i++ ) {
@@ -100,7 +100,7 @@ bool Frustum::cubeInFrustum(float x, float y, float z, float size)
 }
 
 // Works out whether a cuboid is contained in a frustum
-bool Frustum::cuboidInFrustum(float x,	  float y,	   float z,
+bool Frustum::cuboid_in_frustum(float x,	  float y,	   float z,
    float sizeX, float sizeY, float sizeZ)
 {
    int i;
@@ -133,7 +133,7 @@ bool Frustum::cuboidInFrustum(float x,	  float y,	   float z,
 }
 
 // Extract the view frustum from OpenGL
-Frustum getViewFrustum()
+Frustum get_view_frustum()
 {
    float proj[16];
    float modl[16];
@@ -175,7 +175,7 @@ Frustum getViewFrustum()
    f.planes[RIGHT][D] = clip[15] - clip[12];
 
    // Normalize the RIGHT plane
-   normalisePlane(f.planes, RIGHT);
+   normalise_plane(f.planes, RIGHT);
 
    // Extract the LEFT plane
    f.planes[LEFT][A] = clip[ 3] + clip[ 0];
@@ -184,7 +184,7 @@ Frustum getViewFrustum()
    f.planes[LEFT][D] = clip[15] + clip[12];
 
    // Normalize the LEFT plane
-   normalisePlane(f.planes, LEFT);
+   normalise_plane(f.planes, LEFT);
 
    // Extract the BOTTOM plane
    f.planes[BOTTOM][A] = clip[ 3] + clip[ 1];
@@ -193,7 +193,7 @@ Frustum getViewFrustum()
    f.planes[BOTTOM][D] = clip[15] + clip[13];
    
    // Normalize the BOTTOM plane
-   normalisePlane(f.planes, BOTTOM);
+   normalise_plane(f.planes, BOTTOM);
    
    // Extract TOP plane
    f.planes[TOP][A] = clip[ 3] - clip[ 1];
@@ -202,7 +202,7 @@ Frustum getViewFrustum()
    f.planes[TOP][D] = clip[15] - clip[13];
    
    // Normalize the TOP plane
-   normalisePlane(f.planes, TOP);
+   normalise_plane(f.planes, TOP);
    
    // Extract the BACK plane
    f.planes[BACK][A] = clip[ 3] - clip[ 2];
@@ -211,7 +211,7 @@ Frustum getViewFrustum()
    f.planes[BACK][D] = clip[15] - clip[14];
    
    // Normalize the BACK plane
-   normalisePlane(f.planes, BACK);
+   normalise_plane(f.planes, BACK);
    
    // Extract the FRONT plane
    f.planes[FRONT][A] = clip[ 3] + clip[ 2];
@@ -220,7 +220,7 @@ Frustum getViewFrustum()
    f.planes[FRONT][D] = clip[15] + clip[14];
 
    // Normalize the FRONT plane
-   normalisePlane(f.planes, FRONT);
+   normalise_plane(f.planes, FRONT);
 
    return f;
 }

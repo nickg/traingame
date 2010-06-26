@@ -30,7 +30,7 @@ namespace gui {
       ToggleButton(const AttributeSet& attrs);
 
       void render(RenderContext& rc) const;
-      bool handleClick(int x, int y);
+      bool handle_click(int x, int y);
 
       void on();
       void off();

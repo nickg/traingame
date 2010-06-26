@@ -34,23 +34,23 @@ struct IScreen {
    virtual ~IScreen() {}
 
    // Draw the 3D part of the screen
-   virtual void display(IGraphicsPtr aContext) const = 0;
+   virtual void display(IGraphicsPtr a_context) const = 0;
 
    // Draw the 2D part of the screen
    virtual void overlay() const = 0;
 
    // Update the state of the game
    // Delta delay is milliseconds since last frame
-   virtual void update(IPickBufferPtr aPickBuffer, int aDelta) = 0;
+   virtual void update(IPickBufferPtr a_pick_buffer, int a_delta) = 0;
    
-   virtual void onKeyDown(SDLKey aKey) = 0;
-   virtual void onKeyUp(SDLKey aKey) = 0;
-   virtual void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
+   virtual void on_key_down(SDLKey a_key) = 0;
+   virtual void on_key_up(SDLKey a_key) = 0;
+   virtual void on_mouse_move(IPickBufferPtr a_pick_buffer, int x, int y,
                             int xrel, int yrel) = 0;
-   virtual void onMouseClick(IPickBufferPtr aPickBuffer, int x, int y,
-                             MouseButton aButton) = 0;
-   virtual void onMouseRelease(IPickBufferPtr aPickBuffer, int x, int y,
-                               MouseButton aButton) = 0;
+   virtual void on_mouse_click(IPickBufferPtr a_pick_buffer, int x, int y,
+                             MouseButton a_button) = 0;
+   virtual void on_mouse_release(IPickBufferPtr a_pick_buffer, int x, int y,
+                               MouseButton a_button) = 0;
 };
 
 typedef shared_ptr<IScreen> IScreenPtr;

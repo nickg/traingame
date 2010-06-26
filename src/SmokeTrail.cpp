@@ -29,10 +29,10 @@ public:
 
    // ISmokeTrail interface
    void render() const;
-   void setPosition(float x, float y, float z);
-   void update(int aDelta);
-   void setDelay(int aDelay) { mySpawnDelay = aDelay; }
-   void setVelocity(float x, float y, float z);
+   void set_position(float x, float y, float z);
+   void update(int a_delta);
+   void set_delay(int a_delay) { my_spawn_delay = a_delay; }
+   void set_velocity(float x, float y, float z);
    
    // A single smoke particle
    struct Particle {
@@ -46,16 +46,16 @@ public:
    };
    
 private:
-   void newParticle();
-   bool moveParticle(Particle& aParticle, int aDelta);
+   void new_particle();
+   bool move_particle(Particle& a_particle, int a_delta);
    
    list<Particle> particles;
    float myX, myY, myZ;
 
-   ITexturePtr particleTex;
+   ITexturePtr particle_tex;
 
-   // New particles are created every `mySpawnDelay`
-   int mySpawnDelay, mySpawnCounter;
+   // New particles are created every `my_spawn_delay`
+   int my_spawn_delay, my_spawn_counter;
 
    // Velocity at which the emitter is moving
    float myXSpeed, myYSpeed, myZSpeed;
@@ -63,28 +63,28 @@ private:
 
 SmokeTrail::SmokeTrail()
    : myX(0.0f), myY(0.0f), myZ(0.0f),
-     mySpawnDelay(500), mySpawnCounter(0),
+     my_spawn_delay(500), my_spawn_counter(0),
      myXSpeed(0.0f), myYSpeed(0.0f), myZSpeed(0.0f)
 {
-   particleTex = loadTexture("images/smoke_particle.png");
+   particle_tex = load_texture("images/smoke_particle.png");
 }
 
 // Returns true if the particle is dead
-bool SmokeTrail::moveParticle(Particle& p, int aDelta)
+bool SmokeTrail::move_particle(Particle& p, int a_delta)
 {
-   const float ySpeed = 0.4f;
+   const float y_speed = 0.4f;
    const float growth = 0.3f;
    const float decay = 0.3f;
    const float appear = 4.0f;
    const float slowdown = 0.1f;
-   const float xWind = 0.02f;
-   const float zWind = 0.01f;
+   const float x_wind = 0.02f;
+   const float z_wind = 0.01f;
    
-   const float time = static_cast<float>(aDelta) / 1000.0f;
+   const float time = static_cast<float>(a_delta) / 1000.0f;
    
-   p.x += p.xv + (xWind * time);
-   p.y += p.yv + (ySpeed * time);
-   p.z += p.zv + (zWind * time);
+   p.x += p.xv + (x_wind * time);
+   p.y += p.yv + (y_speed * time);
+   p.z += p.zv + (z_wind * time);
 
    p.xv = max(p.xv - (slowdown * time), 0.0f);
    p.yv = max(p.yv - (slowdown * time), 0.0f);
@@ -92,9 +92,9 @@ bool SmokeTrail::moveParticle(Particle& p, int aDelta)
    
    p.scale += growth * time;
 
-   p.billboard->setPosition(p.x, p.y, p.z);
-   p.billboard->setColour(p.r, p.g, p.b, p.a);
-   p.billboard->setScale(p.scale);
+   p.billboard->set_position(p.x, p.y, p.z);
+   p.billboard->set_colour(p.r, p.g, p.b, p.a);
+   p.billboard->set_scale(p.scale);
    
    const float maxA = 0.8f;
    if (p.appearing) {
@@ -110,39 +110,39 @@ bool SmokeTrail::moveParticle(Particle& p, int aDelta)
    }
 }
 
-void SmokeTrail::update(int aDelta)
+void SmokeTrail::update(int a_delta)
 {
    // Move the existing particles
    list<Particle>::iterator it = particles.begin();
    while (it != particles.end()) {
-      if (moveParticle(*it, aDelta))
+      if (move_particle(*it, a_delta))
          it = particles.erase(it);
       else
          ++it;
    }
    
-   mySpawnCounter -= aDelta;
+   my_spawn_counter -= a_delta;
 
-   if (mySpawnCounter <= 0) {
+   if (my_spawn_counter <= 0) {
       // Generate a new particle
-      newParticle();
+      new_particle();
 
-      mySpawnCounter = mySpawnDelay;
+      my_spawn_counter = my_spawn_delay;
    }
 }
 
-void SmokeTrail::newParticle()
+void SmokeTrail::new_particle()
 {
    // Random number generator for colour variance
-   static Normal<float> colourRand(0.0f, 0.06f);
+   static Normal<float> colour_rand(0.0f, 0.06f);
 
    // Random number generator for position variance
-   static Normal<float> posRand(0.0f, 0.07f);
+   static Normal<float> pos_rand(0.0f, 0.07f);
 
-   const float col = 0.7f + colourRand();
+   const float col = 0.7f + colour_rand();
 
-   const float dx = posRand();
-   const float dz = posRand();
+   const float dx = pos_rand();
+   const float dz = pos_rand();
    
    Particle p = {
       myX + dx, myY, myZ + dz,      // Position
@@ -152,12 +152,12 @@ void SmokeTrail::newParticle()
       0.0f,                         // Alpha
       true,                         // Appearing
 
-      makeSphericalBillboard(particleTex)
+      make_spherical_billboard(particle_tex)
    };
 
-   p.billboard->setPosition(p.x, p.y, p.z);
-   p.billboard->setColour(p.r, p.g, p.b, p.a);
-   p.billboard->setScale(p.scale);
+   p.billboard->set_position(p.x, p.y, p.z);
+   p.billboard->set_colour(p.r, p.g, p.b, p.a);
+   p.billboard->set_scale(p.scale);
    
    particles.push_back(p);
 }
@@ -169,21 +169,21 @@ void SmokeTrail::render() const
       (*it).billboard->render();
 }
 
-void SmokeTrail::setPosition(float x, float y, float z)
+void SmokeTrail::set_position(float x, float y, float z)
 {
    myX = x;
    myY = y;
    myZ = z;
 }
 
-void SmokeTrail::setVelocity(float x, float y, float z)
+void SmokeTrail::set_velocity(float x, float y, float z)
 {   
    myXSpeed = x;
    myYSpeed = y + 0.02f;  // Make smoke shoot up
    myZSpeed = z;
 }
 
-ISmokeTrailPtr makeSmokeTrail()
+ISmokeTrailPtr make_smoke_trail()
 {
    return ISmokeTrailPtr(new SmokeTrail);
 }

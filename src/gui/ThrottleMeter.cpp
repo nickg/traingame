@@ -30,22 +30,22 @@ const int ThrottleMeter::METER_WIDTH(100);
 ThrottleMeter::ThrottleMeter(const AttributeSet& attrs)
    : Widget(attrs),
      value_(0),
-     minValue(THROTTLE_MIN),
-     maxValue(THROTTLE_MAX),
-     fontName(attrs.get<string>("font", ""))
+     min_value(THROTTLE_MIN),
+     max_value(THROTTLE_MAX),
+     font_name(attrs.get<string>("font", ""))
 {
 
 }
 
 void ThrottleMeter::range(int low, int high)
 {
-   minValue = low;
-   maxValue = high;
+   min_value = low;
+   max_value = high;
 }
 
 void ThrottleMeter::render(RenderContext& rc) const
 {
-   IFontPtr font = rc.theme().font(fontName);
+   IFontPtr font = rc.theme().font(font_name);
    
    int ox = x(), oy = y();
    rc.offset(ox, oy);
@@ -61,7 +61,7 @@ void ThrottleMeter::render(RenderContext& rc) const
    glTranslatef(ox + static_cast<float>(font->text_width(LABEL)),
                 static_cast<float>(oy + off), 0.0f);
 
-   const int unit = METER_WIDTH / (maxValue + 1);
+   const int unit = METER_WIDTH / (max_value + 1);
 
    // Neutral bit
    glColor3f(1.0f, 1.0f, 0.0f);
@@ -72,39 +72,39 @@ void ThrottleMeter::render(RenderContext& rc) const
    glVertex2i(unit, 0);
    glEnd();
 
-   int squareLen = value_ >= maxValue
-      ? (maxValue - 1) * unit
+   int square_len = value_ >= max_value
+      ? (max_value - 1) * unit
       : (value_ > 0 ? unit * (value_ - 1) : 0);
 
    glTranslatef(static_cast<float>(unit), 0.0f, 0.0f);
    glColor3f(0.0f, 1.0f, 0.0f);
    
    // Forwards bit
-   if (squareLen > 0) {
+   if (square_len > 0) {
       glBegin(GL_QUADS);
       glVertex2i(0, 0);
       glVertex2i(0, METER_HEIGHT);
-      glVertex2i(squareLen, METER_HEIGHT);
-      glVertex2i(squareLen, 0);
+      glVertex2i(square_len, METER_HEIGHT);
+      glVertex2i(square_len, 0);
       glEnd();
    }
    
-   const bool wantTriangle = value_ < maxValue && value_ > 0;
-   if (wantTriangle) {
+   const bool want_triangle = value_ < max_value && value_ > 0;
+   if (want_triangle) {
       // Triangle bit
       glBegin(GL_TRIANGLES);
-      glVertex2i(squareLen, 0);
-      glVertex2i(squareLen, METER_HEIGHT);
-      glVertex2i(squareLen + unit, METER_HEIGHT / 2);
+      glVertex2i(square_len, 0);
+      glVertex2i(square_len, METER_HEIGHT);
+      glVertex2i(square_len + unit, METER_HEIGHT / 2);
       glEnd();
    }   
    
    glPopMatrix();
 }
 
-void ThrottleMeter::adjustForTheme(const Theme& theme)
+void ThrottleMeter::adjust_for_theme(const Theme& theme)
 {
-   IFontPtr font = theme.font(fontName);
+   IFontPtr font = theme.font(font_name);
 
    width(font->text_width("Throttle: ") + METER_WIDTH);
    height(max(font->height(), METER_HEIGHT));

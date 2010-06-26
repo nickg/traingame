@@ -29,12 +29,12 @@ namespace gui {
       ToggleBar(const AttributeSet& attrs);
 
       void render(RenderContext& rc) const;
-      bool handleClick(int x, int y);
+      bool handle_click(int x, int y);
    private:
-      void childAdded(Widget* w);
+      void child_added(Widget* w);
 
       int nextX;
-      int buttonWidth, buttonHeight;
+      int button_width, button_height;
    };
    
 }

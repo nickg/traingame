@@ -39,9 +39,9 @@ private:
 
 void Fog::apply() const
 {
-   GLfloat fogColor[4] = { r, g, b, 1.0f };
+   GLfloat fog_color[4] = { r, g, b, 1.0f };
    glFogi(GL_FOG_MODE, GL_LINEAR);
-   glFogfv(GL_FOG_COLOR, fogColor);
+   glFogfv(GL_FOG_COLOR, fog_color);
    glFogf(GL_FOG_DENSITY, density);
    glHint(GL_FOG_HINT, GL_DONT_CARE);
    glFogf(GL_FOG_START, start);
@@ -49,18 +49,18 @@ void Fog::apply() const
    glEnable(GL_FOG);
 }
 
-IFogPtr makeFog(float r, float g, float b,
+IFogPtr make_fog(float r, float g, float b,
                 float density, float start, float end)
 {
    return IFogPtr(new Fog(r, g, b, density, start, end));
 }
 
-IFogPtr makeFog(float density, float start, float end)
+IFogPtr make_fog(float density, float start, float end)
 {
    float params[4];
    glGetFloatv(GL_COLOR_CLEAR_VALUE, params);
    
-   return makeFog(params[0], params[1], params[2],
+   return make_fog(params[0], params[1], params[2],
       density, start, end);
 }
 

@@ -48,56 +48,56 @@ public:
    ~Config();
 
    // IConfig interface
-   const IConfig::Option& get(const string& aKey) const;
-   void set(const string& aKey, const IConfig::Option& aValue);
+   const IConfig::Option& get(const string& a_key) const;
+   void set(const string& a_key, const IConfig::Option& a_value);
    void flush();
 
    // IXMLCallback interface
-   void startElement(const string& localName, const AttributeSet& attrs);
-   void text(const string& localName, const string& aString);
+   void start_element(const string& local_name, const AttributeSet& attrs);
+   void text(const string& local_name, const string& a_string);
    
 private:
-   static string configFileName();
+   static string config_file_name();
 
    template <class T>
-   void setFromString(const string& aKey, const string& aString);
+   void set_from_string(const string& a_key, const string& a_string);
    
    template <class T>
-   void bindNextOption(const AttributeSet& attrs);
+   void bind_next_option(const AttributeSet& attrs);
    
    typedef map<string, IConfig::Option> ConfigMap;
-   ConfigMap configMap;
+   ConfigMap config_map;
 
-   string configFile;
-   bool amDirty;
+   string config_file;
+   bool am_dirty;
 
    // Used by the XML parser
-   string myActiveOption;
+   string my_active_option;
 };
 
 // Read the config file from disk
 Config::Config()
-   : amDirty(false)
+   : am_dirty(false)
 {
    for (size_t i = 0; i < sizeof(::defaults)/sizeof(Default); i++)
-      configMap[::get<0>(::defaults[i])] = ::get<1>(::defaults[i]);
+      config_map[::get<0>(::defaults[i])] = ::get<1>(::defaults[i]);
 
-   configFile = configFileName();
+   config_file = config_file_name();
 
-   if (boost::filesystem::exists(configFile)) {
-      log() << "Reading config from " << configFile;
+   if (boost::filesystem::exists(config_file)) {
+      log() << "Reading config from " << config_file;
 
       IXMLParserPtr parser = makeXMLParser("schemas/config.xsd");
-      parser->parse(configFile, *this);
+      parser->parse(config_file, *this);
 
       // Ignore all the set() calls made by the XML parser
-      amDirty = false;
+      am_dirty = false;
    }
    else {
-      warn() << "Config file not present: " << configFile;
+      warn() << "Config file not present: " << config_file;
 
       // Write a default config file when we exit
-      amDirty = true;
+      am_dirty = true;
    }
 }
 
@@ -107,7 +107,7 @@ Config::~Config()
 }
 
 // Find the config file location on this platform
-string Config::configFileName()
+string Config::config_file_name()
 {   
 #ifdef WIN32
    throw runtime_error("TODO: find config dir on Win32");
@@ -139,28 +139,28 @@ string Config::configFileName()
 #endif // #ifdef WIN32
 }
 
-void Config::startElement(const string& localName, const AttributeSet& attrs)
+void Config::start_element(const string& local_name, const AttributeSet& attrs)
 {
-   if (localName == "option")
-      attrs.get("name", myActiveOption);
+   if (local_name == "option")
+      attrs.get("name", my_active_option);
 }
 
-void Config::text(const string& localName, const string& aString)
+void Config::text(const string& local_name, const string& a_string)
 {
-   if (localName == "string")
-      setFromString<string>(myActiveOption, aString);
-   else if (localName == "int")
-      setFromString<int>(myActiveOption, aString);
-   else if (localName == "bool")
-      setFromString<bool>(myActiveOption, aString);
-   else if (localName == "float")
-      setFromString<float>(myActiveOption, aString);
+   if (local_name == "string")
+      set_from_string<string>(my_active_option, a_string);
+   else if (local_name == "int")
+      set_from_string<int>(my_active_option, a_string);
+   else if (local_name == "bool")
+      set_from_string<bool>(my_active_option, a_string);
+   else if (local_name == "float")
+      set_from_string<float>(my_active_option, a_string);
 }
 
 template <class T>
-void Config::setFromString(const string& aKey, const string& aString)
+void Config::set_from_string(const string& a_key, const string& a_string)
 {
-   configMap[aKey] = boost::lexical_cast<T>(aString);
+   config_map[a_key] = boost::lexical_cast<T>(a_string);
 }
 
 // Write the config file back to disk
@@ -169,39 +169,39 @@ void Config::flush()
    using namespace boost::filesystem;
    using namespace boost;
    
-   if (!amDirty)
+   if (!am_dirty)
       return;
    
-   log() << "Saving config to " << configFile;
+   log() << "Saving config to " << config_file;
 
-   create_directories(path(configFile).remove_filename());
+   create_directories(path(config_file).remove_filename());
 
-   ofstream ofs(configFile.c_str());
+   ofstream ofs(config_file.c_str());
    if (!ofs.good())
       throw runtime_error("Failed to write to config file");
 
    xml::element root("config");
-   for (ConfigMap::const_iterator it = configMap.begin();
-        it != configMap.end(); ++it) {
+   for (ConfigMap::const_iterator it = config_map.begin();
+        it != config_map.end(); ++it) {
 
       // We can only serialize some types
       const any& a = (*it).second;
       const type_info& t = a.type();
-      string text, typeName;
+      string text, type_name;
       if (t == typeid(string)) {
-         typeName = "string";
+         type_name = "string";
          text = any_cast<string>(a);
       }
       else if (t == typeid(int)) {
-         typeName = "int";
+         type_name = "int";
          text = lexical_cast<string>(any_cast<int>(a));
       }
       else if (t == typeid(float)) {
-         typeName = "float";
+         type_name = "float";
          text = lexical_cast<string>(any_cast<float>(a));
       }
       else if (t == typeid(bool)) {
-         typeName = "bool";
+         type_name = "bool";
          text = lexical_cast<string>(any_cast<bool>(a));
       }
       else
@@ -210,38 +210,38 @@ void Config::flush()
             + boost::lexical_cast<string>(t.name()));
 
       xml::element option("option");
-      option.addAttribute("name", (*it).first);
+      option.add_attribute("name", (*it).first);
 
-      xml::element type(typeName);
-      type.addText(text);
-      option.addChild(type);
+      xml::element type(type_name);
+      type.add_text(text);
+      option.add_child(type);
       
-      root.addChild(option);
+      root.add_child(option);
    }
    
    ofs << xml::document(root);
 
-   amDirty = false;
+   am_dirty = false;
 }
 
 // Read a single option
-const IConfig::Option& Config::get(const string& aKey) const
+const IConfig::Option& Config::get(const string& a_key) const
 {
-   ConfigMap::const_iterator it = configMap.find(aKey);
-   if (it != configMap.end())
+   ConfigMap::const_iterator it = config_map.find(a_key);
+   if (it != config_map.end())
       return (*it).second;
    else
-      throw runtime_error("Bad config key " + aKey);
+      throw runtime_error("Bad config key " + a_key);
 }
 
-void Config::set(const string& aKey, const IConfig::Option& aValue)
+void Config::set(const string& a_key, const IConfig::Option& a_value)
 {
-   configMap[aKey] = aValue;
-   amDirty = true;
+   config_map[a_key] = a_value;
+   am_dirty = true;
 }
 
 // Return the single config file instance
-IConfigPtr getConfig()
+IConfigPtr get_config()
 {
    static IConfigPtr cfg(new Config);
 

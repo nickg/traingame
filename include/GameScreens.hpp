@@ -24,15 +24,15 @@
 
 // Create the various screens
 // These may be called multiple times
-IScreenPtr makeEditorScreen(IMapPtr aMap);
-IScreenPtr makeGameScreen(IMapPtr aMap);
+IScreenPtr make_editor_screen(IMapPtr a_map);
+IScreenPtr make_game_screen(IMapPtr a_map);
 IScreenPtr makeUIDemo();
 IScreenPtr makeLTreeDemo();
 
 // Access to the window the game is running in
-IWindowPtr getGameWindow();
+IWindowPtr get_game_window();
 
 // Add editor GUI controls
-void addEditorGUI();
+void add_editorGUI();
 
 #endif

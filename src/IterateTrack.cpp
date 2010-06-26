@@ -27,22 +27,22 @@ TrackIterator TrackIterator::next() const
    
    track::Direction dir;
    track::Position pos;
-   tie(pos, dir) = track->nextPosition(token);
+   tie(pos, dir) = track->next_position(token);
 
-   return iterateTrack(map, pos, dir);   
+   return iterate_track(map, pos, dir);   
 }
 
 // Build an iterator object for a given track segment
-TrackIterator iterateTrack(IMapPtr aMap, track::Position aPosition,
-                           track::Direction aDirection)
+TrackIterator iterate_track(IMapPtr a_map, track::Position a_position,
+                           track::Direction a_direction)
 {
    TrackIterator it;
-   it.map = aMap;
+   it.map = a_map;
    it.status = TRACK_OK ;
    
-   if (aMap->isValidTrack(aPosition)) {
-      it.track = aMap->trackAt(aPosition);
-      it.token = it.track->getTravelToken(aPosition, aDirection);
+   if (a_map->is_valid_track(a_position)) {
+      it.track = a_map->track_at(a_position);
+      it.token = it.track->get_travel_token(a_position, a_direction);
    }
    else {
       // Fell off the end
@@ -54,22 +54,22 @@ TrackIterator iterateTrack(IMapPtr aMap, track::Position aPosition,
    // Are we sitting on a station?
    typedef vector<Point<int> > PointList;
    PointList endpoints;
-   it.track->getEndpoints(endpoints);
+   it.track->get_endpoints(endpoints);
 
    IStationPtr station;
    for (PointList::const_iterator p = endpoints.begin();
         p != endpoints.end(); ++p)
-      if ((it.station = aMap->stationAt(makePoint((*p).x, (*p).y)))) {
+      if ((it.station = a_map->station_at(make_point((*p).x, (*p).y)))) {
          it.status = TRACK_STATION;
          break;
       }
 
-   if (it.token.numExits > 1) {
-       assert(it.track->hasMultipleStates());
+   if (it.token.num_exits > 1) {
+       assert(it.track->has_multiple_states());
        it.status = TRACK_CHOICE;
    }
    else
-       assert(it.token.numExits == 1);
+       assert(it.token.num_exits == 1);
    
    return it;   
 }

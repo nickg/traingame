@@ -27,16 +27,16 @@ public:
     UIDemo();
 
     // IScreen interface
-    void display(IGraphicsPtr aContext) const {}
+    void display(IGraphicsPtr a_context) const {}
     void overlay() const;
-    void update(IPickBufferPtr aPickBuffer, int aDelta) {}
-    void onKeyDown(SDLKey aKey) {}
-    void onKeyUp(SDLKey aKey) {}
-    void onMouseMove(IPickBufferPtr aPickBuffer, int x, int y,
+    void update(IPickBufferPtr a_pick_buffer, int a_delta) {}
+    void on_key_down(SDLKey a_key) {}
+    void on_key_up(SDLKey a_key) {}
+    void on_mouse_move(IPickBufferPtr a_pick_buffer, int x, int y,
 	int xrel, int yrel) {}
-    void onMouseClick(IPickBufferPtr pick_buffer, int x, int y,
+    void on_mouse_click(IPickBufferPtr pick_buffer, int x, int y,
 	MouseButton button);
-    void onMouseRelease(IPickBufferPtr pick_buffer, int x, int y,
+    void on_mouse_release(IPickBufferPtr pick_buffer, int x, int y,
 	MouseButton button) {}
    
 private:
@@ -49,7 +49,7 @@ UIDemo::UIDemo()
 {
     using namespace placeholders;
    
-    layout = gui::makeLayout("layouts/demo.xml");
+    layout = gui::make_layout("layouts/demo.xml");
 
     layout->get("/wnd1/btn1").connect(gui::Widget::SIG_CLICK,
 	bind(&UIDemo::btn1Click, this, _1));
@@ -69,7 +69,7 @@ void UIDemo::overlay() const
     layout->render();
 }
 
-void UIDemo::onMouseClick(IPickBufferPtr pick_buffer, int x, int y,
+void UIDemo::on_mouse_click(IPickBufferPtr pick_buffer, int x, int y,
     MouseButton button)
 {
     layout->click(x, y);

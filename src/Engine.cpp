@@ -60,44 +60,44 @@ class Engine : public IRollingStock,
                public IXMLCallback,
                public enable_shared_from_this<Engine> {
 public:
-   Engine(IResourcePtr aRes);
+   Engine(IResourcePtr a_res);
 
    // IRollingStock interface
    void render() const;
    void update(int delta, double gravity);
    
-   double speed() const { return mySpeed; }
-   double mass() const { return myMass; }
+   double speed() const { return my_speed; }
+   double mass() const { return my_mass; }
    IControllerPtr controller() { return shared_from_this(); }
    float length() const { return model->dimensions().x; }
    
    // IController interface
-   void actOn(Action anAction);
-   int throttle() const { return myThrottle; }
-   bool brakeOn() const { return isBrakeOn; }
-   bool reverseOn() const { return reverse; }
-   double pressure() const { return myBoilerPressure; }
-   double temp() const { return myFireTemp; }
-   bool stopped() const { return haveStopped; }
+   void act_on(Action an_action);
+   int throttle() const { return my_throttle; }
+   bool brake_on() const { return is_brake_on; }
+   bool reverse_on() const { return reverse; }
+   double pressure() const { return my_boiler_pressure; }
+   double temp() const { return my_fire_temp; }
+   bool stopped() const { return have_stopped; }
 
    // IXMLCallback interface
-   void text(const string& localName, const string& aString);
+   void text(const string& local_name, const string& a_string);
 private:
-   double tractiveEffort() const;
+   double tractive_effort() const;
    double resistance() const;
-   double brakeForce() const;
+   double brake_force() const;
    
    IModelPtr model;
 
-   double mySpeed, myMass, myBoilerPressure, myFireTemp;
-   double statTractiveEffort;
-   bool isBrakeOn;
-   int myThrottle;     // Ratio measured in tenths
+   double my_speed, my_mass, my_boiler_pressure, my_fire_temp;
+   double stat_tractive_effort;
+   bool is_brake_on;
+   int my_throttle;     // Ratio measured in tenths
    bool reverse;
-   bool haveStopped;
+   bool have_stopped;
 
    // Boiler pressure lags behind temperature
-   MovingAverage<double, 1000> myBoilerDelay;
+   MovingAverage<double, 1000> my_boiler_delay;
 
    IResourcePtr resource;
    
@@ -115,26 +115,26 @@ const double Engine::INIT_PRESSURE(0.2);
 const double Engine::INIT_TEMP(50.0);
 const double Engine::STOP_SPEED(0.01);
 
-Engine::Engine(IResourcePtr aRes)
-   : mySpeed(0.0), myMass(29.0),
-     myBoilerPressure(INIT_PRESSURE),
-     myFireTemp(INIT_TEMP),
-     statTractiveEffort(34.7),
-     isBrakeOn(true), myThrottle(0),
+Engine::Engine(IResourcePtr a_res)
+   : my_speed(0.0), my_mass(29.0),
+     my_boiler_pressure(INIT_PRESSURE),
+     my_fire_temp(INIT_TEMP),
+     stat_tractive_effort(34.7),
+     is_brake_on(true), my_throttle(0),
      reverse(false),
-     haveStopped(true),
-     resource(aRes)
+     have_stopped(true),
+     resource(a_res)
 {
    static IXMLParserPtr parser = makeXMLParser("schemas/engine.xsd");
 
-   parser->parse(resource->xmlFileName(), *this);
+   parser->parse(resource->xml_file_name(), *this);
 }
 
 // Callback for loading elements from the XML file
-void Engine::text(const string& localName, const string& aString)
+void Engine::text(const string& local_name, const string& a_string)
 {
-   if (localName == "model") {
-      model = loadModel(resource, aString, MODEL_SCALE);
+   if (local_name == "model") {
+      model = load_model(resource, a_string, MODEL_SCALE);
       model->cache();
    }
 }
@@ -146,49 +146,49 @@ void Engine::render() const
 }
 
 // Calculate the current tractive effort
-double Engine::tractiveEffort() const
+double Engine::tractive_effort() const
 {
    const double dir = reverse ? -1.0 : 1.0;
    
-   if (abs(mySpeed) < TRACTIVE_EFFORT_KNEE)
-      return statTractiveEffort * dir;
+   if (abs(my_speed) < TRACTIVE_EFFORT_KNEE)
+      return stat_tractive_effort * dir;
    else
-      return (statTractiveEffort * TRACTIVE_EFFORT_KNEE)
-         / abs(mySpeed)
+      return (stat_tractive_effort * TRACTIVE_EFFORT_KNEE)
+         / abs(my_speed)
          * dir;
 }
 
 // Calculate the magnitude of the resistance on the train
 double Engine::resistance() const
 {
-   const double sign = mySpeed < 0.0 ? -1.0 : 1.0;
+   const double sign = my_speed < 0.0 ? -1.0 : 1.0;
    
    const double a = 4.0;
    const double b = 0.05;
    const double c = 0.006;
 
-   const double absSpeed = abs(mySpeed);
+   const double abs_speed = abs(my_speed);
    
-   return sign * (a + b*absSpeed + c*absSpeed*absSpeed);
+   return sign * (a + b*abs_speed + c*abs_speed*abs_speed);
 }
 
 // Calculate the magnitude of the braking force
-double Engine::brakeForce() const
+double Engine::brake_force() const
 {
    const double beta = 0.09;
    const double g = 9.78;
 
    // Brake always acts against direction of motion
    double dir;
-   if (mySpeed < 0.0)
+   if (my_speed < 0.0)
       dir = -1.0;
    else
       dir = 1.0;
 
-   if (abs(mySpeed) < STOP_SPEED)
+   if (abs(my_speed) < STOP_SPEED)
       return 0.0;
    else 
-      return myMass * g * beta * dir;
+      return my_mass * g * beta * dir;
 }
 
 // Compute the next state of the engine
@@ -196,54 +196,54 @@ void Engine::update(int delta, double gravity)
 {
    // Update the pressure of the boiler
    // The fire temperature is delayed and then used to increase it
-   myBoilerDelay << myFireTemp;
-   myBoilerPressure = myBoilerDelay.value();
+   my_boiler_delay << my_fire_temp;
+   my_boiler_pressure = my_boiler_delay.value();
    
-   const double P = tractiveEffort();
+   const double P = tractive_effort();
    const double Q = resistance();
-   const double B = isBrakeOn ? brakeForce() : 0.0;
+   const double B = is_brake_on ? brake_force() : 0.0;
    const double G = gravity;   
    
    // The applied tractive effort is controlled by the throttle
-   const double netP = P * static_cast<double>(myThrottle) / 10.0;
+   const double netP = P * static_cast<double>(my_throttle) / 10.0;
 
-   const double deltaSeconds = delta / 1000.0f;
-   const double a = ((netP - Q - B + G) / myMass) * deltaSeconds;
+   const double delta_seconds = delta / 1000.0f;
+   const double a = ((netP - Q - B + G) / my_mass) * delta_seconds;
 
-   if (abs(mySpeed) < STOP_SPEED && myThrottle == 0) {
-      if (isBrakeOn)
-         mySpeed = 0.0;
-      haveStopped = true;
+   if (abs(my_speed) < STOP_SPEED && my_throttle == 0) {
+      if (is_brake_on)
+         my_speed = 0.0;
+      have_stopped = true;
    }
    else
-      haveStopped = false;
+      have_stopped = false;
    
-   mySpeed += a;
+   my_speed += a;
      
 #if 0
    debug() << "P=" << netP << ", Q=" << Q
            << ", B=" << B
            << ", G=" << G
-           << ", a=" << a << ", v=" << mySpeed
+           << ", a=" << a << ", v=" << my_speed
            << " (delta=" << delta << " grad=" << gradient << ")";
 #endif
 }
 
 // User interface to the engine
-void Engine::actOn(Action anAction)
+void Engine::act_on(Action an_action)
 {
-   switch (anAction) {
+   switch (an_action) {
    case BRAKE_TOGGLE:
-      isBrakeOn = !isBrakeOn;
+      is_brake_on = !is_brake_on;
       break;
    case SHOVEL_COAL:
-      myFireTemp += 10.0;
+      my_fire_temp += 10.0;
       break;
    case THROTTLE_UP:
-      myThrottle = min(myThrottle + 1, 10);
+      my_throttle = min(my_throttle + 1, 10);
       break;
    case THROTTLE_DOWN:
-      myThrottle = max(myThrottle - 1, 0);
+      my_throttle = max(my_throttle - 1, 0);
       break;
    case TOGGLE_REVERSE:
       reverse = !reverse;
@@ -254,17 +254,17 @@ void Engine::actOn(Action anAction)
 }
 
 namespace {
-   Engine* loadEngineXml(IResourcePtr aRes)
+   Engine* load_engine_xml(IResourcePtr a_res)
    {
-      log() << "Loading engine from " << aRes->xmlFileName();
+      log() << "Loading engine from " << a_res->xml_file_name();
 
-      return new Engine(aRes);
+      return new Engine(a_res);
    }
 }
 
 // Load an engine from a resource file
-IRollingStockPtr loadEngine(const string& aResId)
+IRollingStockPtr load_engine(const string& a_res_id)
 {
-   static ResourceCache<Engine> cache(loadEngineXml, "engines");
-   return cache.loadCopy(aResId);
+   static ResourceCache<Engine> cache(load_engine_xml, "engines");
+   return cache.load_copy(a_res_id);
 }

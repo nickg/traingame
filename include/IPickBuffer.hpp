@@ -25,8 +25,8 @@
 struct IPickBuffer {
    virtual ~IPickBuffer() {}
 
-   virtual IGraphicsPtr beginPick(int x, int y) = 0;
-   virtual unsigned endPick() = 0;
+   virtual IGraphicsPtr begin_pick(int x, int y) = 0;
+   virtual unsigned end_pick() = 0;
 };
 
 typedef shared_ptr<IPickBuffer> IPickBufferPtr;

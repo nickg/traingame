@@ -26,7 +26,7 @@ using namespace gui;
 Label::Label(const AttributeSet& attrs)
    : Widget(attrs),
      text_(attrs.get<string>("text")),
-     fontName(attrs.get<string>("font", "")),
+     font_name(attrs.get<string>("font", "")),
      colour_(attrs.get<Colour>("colour", colour::WHITE)),
      dirty(true)
 {
@@ -43,12 +43,12 @@ void Label::text(const string& t)
 
 void Label::render(RenderContext& rc) const
 {
-   rc.print(rc.theme().font(fontName), x(), y(), text_, colour_);
+   rc.print(rc.theme().font(font_name), x(), y(), text_, colour_);
 }
 
-void Label::adjustForTheme(const Theme& theme)
+void Label::adjust_for_theme(const Theme& theme)
 {
-   IFontPtr font = theme.font(fontName);
+   IFontPtr font = theme.font(font_name);
 
    if (dirty) {
       width(font->text_width(text_));

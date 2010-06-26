@@ -29,7 +29,7 @@ using namespace std;
 // All cargo waggons
 class Waggon : public IRollingStock, public IXMLCallback {
 public:
-   Waggon(IResourcePtr aRes);
+   Waggon(IResourcePtr a_res);
    ~Waggon() {}
 
    // IRollingStock interface
@@ -41,7 +41,7 @@ public:
    float length() const { return model->dimensions().x; }
 
    // IXMLCallback interface
-   void text(const string& localName, const string& aString);
+   void text(const string& local_name, const string& a_string);
 private:
    IModelPtr model;
    IResourcePtr resource;
@@ -51,19 +51,19 @@ private:
 
 const float Waggon::MODEL_SCALE(0.4f);
 
-Waggon::Waggon(IResourcePtr aRes)
-   : resource(aRes)
+Waggon::Waggon(IResourcePtr a_res)
+   : resource(a_res)
 {
    static IXMLParserPtr parser = makeXMLParser("schemas/waggon.xsd");
 
-   parser->parse(resource->xmlFileName(), *this);
+   parser->parse(resource->xml_file_name(), *this);
 }
 
 // Load information from the XML file
-void Waggon::text(const string& localName, const string& aString)
+void Waggon::text(const string& local_name, const string& a_string)
 {
-   if (localName == "model") {
-      model = loadModel(resource, aString, MODEL_SCALE);
+   if (local_name == "model") {
+      model = load_model(resource, a_string, MODEL_SCALE);
       model->cache();
    }
 }
@@ -84,18 +84,18 @@ IControllerPtr Waggon::controller()
 }
 
 namespace {
-   Waggon* loadWaggonXml(IResourcePtr aRes)
+   Waggon* load_waggon_xml(IResourcePtr a_res)
    {
-      log() << "Loading waggon from " << aRes->xmlFileName();
+      log() << "Loading waggon from " << a_res->xml_file_name();
 
-      return new Waggon(aRes);
+      return new Waggon(a_res);
    }
 }
 
 // Load a waggon from a resource file
-IRollingStockPtr loadWaggon(const string& aResId)
+IRollingStockPtr load_waggon(const string& a_res_id)
 {
-   static ResourceCache<Waggon> cache(loadWaggonXml, "waggons");
-   return cache.loadCopy(aResId);
+   static ResourceCache<Waggon> cache(load_waggon_xml, "waggons");
+   return cache.load_copy(a_res_id);
 }
 

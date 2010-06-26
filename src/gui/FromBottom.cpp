@@ -27,21 +27,21 @@ FromBottom::FromBottom(const AttributeSet& attrs)
      offset(attrs.get<int>("offset"))
 {
    // It would be nice if this worked inside other widgets
-   int sh = getGameWindow()->height();
-   int sw = getGameWindow()->width();
+   int sh = get_game_window()->height();
+   int sw = get_game_window()->width();
 
    x(0);
    width(sw);
    height(offset);
    y(sh - offset);
 
-   dumpLocation();
+   dump_location();
 }
 
 void FromBottom::render(RenderContext& rc) const
 {   
-   rc.pushOrigin(this);
+   rc.push_origin(this);
    ContainerWidget::render(rc);
-   rc.popOrigin();
+   rc.pop_origin();
 }
 

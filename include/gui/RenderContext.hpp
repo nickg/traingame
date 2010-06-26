@@ -37,8 +37,8 @@ namespace gui {
       RenderContext(const Theme& theme);
       ~RenderContext();
 
-      void pushOrigin(const Widget* w);
-      void popOrigin();
+      void push_origin(const Widget* w);
+      void pop_origin();
 
       void scissor(Widget* w);
       

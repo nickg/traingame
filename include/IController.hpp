@@ -34,12 +34,12 @@ enum Action {
 struct IController {
    virtual ~IController() {}
 
-   virtual void actOn(Action anAction) = 0;
+   virtual void act_on(Action an_action) = 0;
    
    // Get current values for the display
    virtual int throttle() const = 0;
-   virtual bool brakeOn() const = 0;
-   virtual bool reverseOn() const = 0;
+   virtual bool brake_on() const = 0;
+   virtual bool reverse_on() const = 0;
    virtual double pressure() const = 0;
    virtual double temp() const = 0;
 

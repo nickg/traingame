@@ -24,38 +24,38 @@
 // Concrete implementation of skyboxes
 class SkyBox : public ISkyBox {
 public:
-   SkyBox(const string& aBaseName);
+   SkyBox(const string& a_base_name);
 
    // ISkyBox interface
-   void apply(float anAngle) const;
+   void apply(float an_angle) const;
    
 private:
-   void loadSkyTexture(int anIndex, const string& aSuffix);
+   void load_sky_texture(int an_index, const string& a_suffix);
    
    ITexturePtr textures[6];
-   const string baseName;
+   const string base_name;
 };
 
 // The base name is used to generate the file names of all six
 // textures
-SkyBox::SkyBox(const string& aBaseName)
-   : baseName(aBaseName)
+SkyBox::SkyBox(const string& a_base_name)
+   : base_name(a_base_name)
 {
-   loadSkyTexture(0, "bottom");
-   loadSkyTexture(1, "top");
-   loadSkyTexture(2, "front");
-   loadSkyTexture(3, "front");
-   loadSkyTexture(4, "front");
-   loadSkyTexture(5, "front");
+   load_sky_texture(0, "bottom");
+   load_sky_texture(1, "top");
+   load_sky_texture(2, "front");
+   load_sky_texture(3, "front");
+   load_sky_texture(4, "front");
+   load_sky_texture(5, "front");
 }
 
-void SkyBox::loadSkyTexture(int anIndex, const string& aSuffix)
+void SkyBox::load_sky_texture(int an_index, const string& a_suffix)
 {
-   textures[anIndex] =
-      loadTexture("images/" + baseName + "_" + aSuffix + ".png");
+   textures[an_index] =
+      load_texture("images/" + base_name + "_" + a_suffix + ".png");
 }
 
-void SkyBox::apply(float anAngle) const
+void SkyBox::apply(float an_angle) const
 {
    glColor3f(1.0f, 1.0f, 1.0f);
 
@@ -70,7 +70,7 @@ void SkyBox::apply(float anAngle) const
    glPushMatrix();
    glLoadIdentity();
 
-   glRotatef(radToDeg<float>(anAngle), 0.0f, 1.0f, 0.0f);
+   glRotatef(rad_to_deg<float>(an_angle), 0.0f, 1.0f, 0.0f);
    
    // Bottom
    textures[0]->bind();
@@ -130,7 +130,7 @@ void SkyBox::apply(float anAngle) const
    glPopAttrib();
 }
 
-ISkyBoxPtr makeSkyBox(const string& aBaseName)
+ISkyBoxPtr make_sky_box(const string& a_base_name)
 {
-   return ISkyBoxPtr(new SkyBox(aBaseName));
+   return ISkyBoxPtr(new SkyBox(a_base_name));
 }

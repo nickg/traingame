@@ -44,27 +44,27 @@ struct IMeshBuffer {
 
    virtual ~IMeshBuffer() {}
 
-   virtual size_t vertexCount() const = 0;
+   virtual size_t vertex_count() const = 0;
    
    virtual void add(const Vertex& vertex, const Normal& normal) = 0;
    virtual void add(const Vertex& vertex, const Normal& normal,
-      const TexCoord& aTexCoord) = 0;
+      const TexCoord& a_tex_coord) = 0;
    virtual void add(const Vertex& vertex, const Normal& normal,
       const Colour& colour) = 0;
 
    // Convenience functions
-   virtual void addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
+   virtual void add_quad(Vertex a, Vertex b, Vertex c, Vertex d,
       Colour colour) = 0;
-   virtual void addQuad(Vertex a, Vertex b, Vertex c, Vertex d,
+   virtual void add_quad(Vertex a, Vertex b, Vertex c, Vertex d,
       Normal na, Normal nb, Normal nc, Normal nd,
       Colour colour) = 0;
 
-   virtual void bindMaterial(const Material& aMaterial) = 0;
+   virtual void bind_material(const Material& a_material) = 0;
    
-   virtual void printStats() const = 0;
+   virtual void print_stats() const = 0;
 
    virtual void merge(shared_ptr<IMeshBuffer> other,
-      Vector<float> off, float yAngle=0.0f) = 0;
+      Vector<float> off, float y_angle=0.0f) = 0;
 };
 
 typedef shared_ptr<IMeshBuffer> IMeshBufferPtr;
@@ -78,9 +78,9 @@ struct IMesh {
 
 typedef shared_ptr<IMesh> IMeshPtr;
 
-IMeshPtr makeMesh(IMeshBufferPtr aBuffer);
-IMeshBufferPtr makeMeshBuffer();
-void updateRenderStats();
-int getAverageTriangleCount();
+IMeshPtr make_mesh(IMeshBufferPtr a_buffer);
+IMeshBufferPtr make_mesh_buffer();
+void update_render_stats();
+int get_average_triangleCount();
 
 #endif

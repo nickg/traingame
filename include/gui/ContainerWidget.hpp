@@ -31,24 +31,24 @@ namespace gui {
       ContainerWidget(const AttributeSet& attrs);
 
       virtual void render(RenderContext& rc) const;
-      virtual void adjustForTheme(const Theme& theme);
+      virtual void adjust_for_theme(const Theme& theme);
 
-      void addChild(Widget* w);
+      void add_child(Widget* w);
       
-      virtual bool handleClick(int x, int y);
+      virtual bool handle_click(int x, int y);
       
    protected:
-      virtual void childAdded(Widget* w) {};
-      int countChildren();
+      virtual void child_added(Widget* w) {};
+      int count_children();
 
       typedef vector<Widget*> ChildList;
       
       ChildList::iterator begin() { return children.begin(); }
       ChildList::iterator end() { return children.end(); }
 
-      ChildList::const_iterator constBegin() const
+      ChildList::const_iterator const_begin() const
       { return children.begin(); }
-      ChildList::const_iterator constEnd() const
+      ChildList::const_iterator const_end() const
       { return children.end(); }
       
    private:

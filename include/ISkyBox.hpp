@@ -24,11 +24,11 @@
 struct ISkyBox {
    virtual ~ISkyBox() {}
 
-   virtual void apply(float anAngle=0.0f) const = 0;
+   virtual void apply(float an_angle=0.0f) const = 0;
 };
 
 typedef shared_ptr<ISkyBox> ISkyBoxPtr;
 
-ISkyBoxPtr makeSkyBox(const string& aBaseName);
+ISkyBoxPtr make_sky_box(const string& a_base_name);
 
 #endif

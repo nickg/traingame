@@ -33,77 +33,77 @@ class Points : public ITrackSegment,
                private SleeperHelper,
                private BezierHelper {
 public:
-   Points(track::Direction aDirection, bool reflect);
+   Points(track::Direction a_direction, bool reflect);
 
    // ITrackSegment interface
    void render() const;
    void merge(IMeshBufferPtr buf) const;
-   void setOrigin(int x, int y, float h) { myX = x; myY = y; height = h; }
-   float segmentLength(const track::TravelToken& aToken) const;
-   bool isValidDirection(const track::Direction& aDirection) const;
-   track::Connection nextPosition(const track::TravelToken& aToken) const;
-   void getEndpoints(vector<Point<int> >& aList) const;
-   void getCovers(vector<Point<int> >& output) const;
-   ITrackSegmentPtr mergeExit(Point<int> where, track::Direction dir);
-   track::TravelToken getTravelToken(track::Position aPosition,
-      track::Direction aDirection) const;
-   void nextState();
-   void prevState();
-   bool hasMultipleStates() const { return true; }
-   void setStateRenderHint();
+   void set_origin(int x, int y, float h) { myX = x; myY = y; height = h; }
+   float segment_length(const track::TravelToken& a_token) const;
+   bool is_valid_direction(const track::Direction& a_direction) const;
+   track::Connection next_position(const track::TravelToken& a_token) const;
+   void get_endpoints(vector<Point<int> >& a_list) const;
+   void get_covers(vector<Point<int> >& output) const;
+   ITrackSegmentPtr merge_exit(Point<int> where, track::Direction dir);
+   track::TravelToken get_travel_token(track::Position a_position,
+      track::Direction a_direction) const;
+   void next_state();
+   void prev_state();
+   bool has_multiple_states() const { return true; }
+   void set_state_renderHint();
 
    // IXMLSerialisable interface
-   xml::element toXml() const;
+   xml::element to_xml() const;
 private:
-   void transform(const track::TravelToken& aToken, float aDelta) const;
-   void ensureValidDirection(track::Direction aDirection) const;
-   void renderArrow() const;
+   void transform(const track::TravelToken& a_token, float a_delta) const;
+   void ensure_valid_direction(track::Direction a_direction) const;
+   void render_arrow() const;
 
-   Point<int> displacedEndpoint() const;
-   Point<int> straightEndpoint() const;
+   Point<int> displaced_endpoint() const;
+   Point<int> straight_endpoint() const;
 
    enum State { TAKEN, NOT_TAKEN };
    
    int myX, myY;
-   track::Direction myAxis;
+   track::Direction my_axis;
    bool reflected;
    State state;
    float height;
 
    // Draw the arrow over the points if true
-   mutable bool stateRenderHint;
+   mutable bool state_render_hint;
 
-   static const BezierCurve<float> myCurve, myReflectedCurve;
+   static const BezierCurve<float> my_curve, my_reflected_curve;
 };
 
-const BezierCurve<float> Points::myCurve = makeBezierCurve
-   (makeVector(0.0f, 0.0f, 0.0f),
-      makeVector(1.0f, 0.0f, 0.0f),
-      makeVector(2.0f, 0.0f, 1.0f),
-      makeVector(3.0f, 0.0f, 1.0f));
+const BezierCurve<float> Points::my_curve = make_bezier_curve
+   (make_vector(0.0f, 0.0f, 0.0f),
+      make_vector(1.0f, 0.0f, 0.0f),
+      make_vector(2.0f, 0.0f, 1.0f),
+      make_vector(3.0f, 0.0f, 1.0f));
 
-const BezierCurve<float> Points::myReflectedCurve = makeBezierCurve
-   (makeVector(0.0f, 0.0f, 0.0f),
-      makeVector(1.0f, 0.0f, 0.0f),
-      makeVector(2.0f, 0.0f, -1.0f),
-      makeVector(3.0f, 0.0f, -1.0f));
+const BezierCurve<float> Points::my_reflected_curve = make_bezier_curve
+   (make_vector(0.0f, 0.0f, 0.0f),
+      make_vector(1.0f, 0.0f, 0.0f),
+      make_vector(2.0f, 0.0f, -1.0f),
+      make_vector(3.0f, 0.0f, -1.0f));
       
-Points::Points(track::Direction aDirection, bool reflect)
+Points::Points(track::Direction a_direction, bool reflect)
    : myX(0), myY(0),
-     myAxis(aDirection), reflected(reflect),
+     my_axis(a_direction), reflected(reflect),
      state(NOT_TAKEN),
      height(0.0f),
-     stateRenderHint(false)
+     state_render_hint(false)
 {
    
 }
 
-void Points::setStateRenderHint() 
+void Points::set_state_renderHint() 
 {
-   stateRenderHint = true;
+   state_render_hint = true;
 }
 
-void Points::renderArrow() const
+void Points::render_arrow() const
 {
    glPushMatrix();
    glPushAttrib(GL_ENABLE_BIT);
@@ -113,30 +113,30 @@ void Points::renderArrow() const
    glTranslatef(-0.5f, 0.11f, 0.0f);
    glColor4f(0.2f, 0.1f, 0.9f, 0.7f);
 
-   const float headWidth = 0.25f;
+   const float head_width = 0.25f;
     
    if (state == TAKEN) {
 	
       const BezierCurve<float>& curve =
-         reflected ? myReflectedCurve : myCurve;
+         reflected ? my_reflected_curve : my_curve;
 
       const float step = 0.1f;
-      const float arrowLen = 0.7f;
+      const float arrow_len = 0.7f;
 
       glDisable(GL_CULL_FACE);
 
-      for (float t = 0.0f; t < arrowLen; t += step) {
+      for (float t = 0.0f; t < arrow_len; t += step) {
 
          const Vector<float> v1 = curve(t);
          const Vector<float> v2 = curve(t + step);
 
-         if (t >= arrowLen - step) {
+         if (t >= arrow_len - step) {
             // Arrow head
             glBegin(GL_TRIANGLES);
             {
-               glVertex3f(v1.x, 0.0f, v1.z - headWidth);
+               glVertex3f(v1.x, 0.0f, v1.z - head_width);
                glVertex3f(v2.x, 0.0f, v2.z);
-               glVertex3f(v1.x, 0.0f, v1.z + headWidth);
+               glVertex3f(v1.x, 0.0f, v1.z + head_width);
             }
             glEnd();
          }
@@ -153,13 +153,13 @@ void Points::renderArrow() const
       }
    }
    else {
-      const float headLength = 0.3f;
+      const float head_length = 0.3f;
 	
       glBegin(GL_QUADS);
       {
          glVertex3f(0.0f, 0.0f, 0.1f);
-         glVertex3f(2.0f - headLength, 0.0f, 0.1f);
-         glVertex3f(2.0f - headLength, 0.0f, -0.1f);
+         glVertex3f(2.0f - head_length, 0.0f, 0.1f);
+         glVertex3f(2.0f - head_length, 0.0f, -0.1f);
          glVertex3f(0.0f, 0.0f, -0.1f);
       }
       glEnd();
@@ -167,9 +167,9 @@ void Points::renderArrow() const
       // Draw the arrow head
       glBegin(GL_TRIANGLES);
       {
-         glVertex3f(2.0f - headLength, 0.0f, headWidth);
+         glVertex3f(2.0f - head_length, 0.0f, head_width);
          glVertex3f(2.0f, 0.0f, 0.0f);
-         glVertex3f(2.0f - headLength, 0.0f, -headWidth);
+         glVertex3f(2.0f - head_length, 0.0f, -head_width);
       }
       glEnd();
    }
@@ -180,66 +180,66 @@ void Points::renderArrow() const
 
 void Points::merge(IMeshBufferPtr buf) const
 {
-   static IMeshBufferPtr railBuf = makeBezierRailMesh(myCurve);
-   static IMeshBufferPtr reflectBuf = makeBezierRailMesh(myReflectedCurve);
+   static IMeshBufferPtr rail_buf = make_bezier_railMesh(my_curve);
+   static IMeshBufferPtr reflect_buf = make_bezier_railMesh(my_reflected_curve);
    
-   Vector<float> off = makeVector(
+   Vector<float> off = make_vector(
       static_cast<float>(myX),
       height,
       static_cast<float>(myY));
    
-   float yAngle = 0.0f;
+   float y_angle = 0.0f;
       
-   if (myAxis == -axis::X)
-      yAngle = 180.0f;
-   else if (myAxis == -axis::Y)
-      yAngle = 90.0f;
-   else if (myAxis == axis::Y)
-      yAngle = 270.0f;
+   if (my_axis == -axis::X)
+      y_angle = 180.0f;
+   else if (my_axis == -axis::Y)
+      y_angle = 90.0f;
+   else if (my_axis == axis::Y)
+      y_angle = 270.0f;
 
    // Render the rails
    
-   buf->merge(reflected ? reflectBuf : railBuf,
-      off + rotateY(makeVector(-0.5f, 0.0f, 0.0f), yAngle),
-      yAngle);
+   buf->merge(reflected ? reflect_buf : rail_buf,
+      off + rotateY(make_vector(-0.5f, 0.0f, 0.0f), y_angle),
+      y_angle);
    
    {
       Vector<float> t = off;
       
       for (int i = 0; i < 3; i++) {
-         const float a = yAngle + 90.0f;
-         mergeStraightRail(buf, t, a);
+         const float a = y_angle + 90.0f;
+         merge_straight_rail(buf, t, a);
          
-         t += rotateY(makeVector(0.0f, 0.0f, 1.0f), a);
+         t += rotateY(make_vector(0.0f, 0.0f, 1.0f), a);
       }
    }
 
    // Draw the curved sleepers
    for (float i = 0.25f; i < 1.0f; i += 0.08f) {
-      Vector<float> v = (reflected ? myReflectedCurve : myCurve)(i);
+      Vector<float> v = (reflected ? my_reflected_curve : my_curve)(i);
 
-      Vector<float> t = makeVector(v.x - 0.5f, 0.0f, v.z);
-      Vector<float> soff = off + rotateY(t, yAngle);
+      Vector<float> t = make_vector(v.x - 0.5f, 0.0f, v.z);
+      Vector<float> soff = off + rotateY(t, y_angle);
       const Vector<float> deriv =
-         (reflected ? myReflectedCurve : myCurve).deriv(i);
+         (reflected ? my_reflected_curve : my_curve).deriv(i);
       const float angle =
-         radToDeg<float>(atanf(deriv.z / deriv.x));
+         rad_to_deg<float>(atanf(deriv.z / deriv.x));
 
-      mergeSleeper(buf, soff, yAngle - angle);
+      merge_sleeper(buf, soff, y_angle - angle);
    }
    
    // Draw the straight sleepers
-   off -= rotateY(makeVector(0.4f, 0.0f, 0.0f), yAngle);
+   off -= rotateY(make_vector(0.4f, 0.0f, 0.0f), y_angle);
    
    for (int i = 0; i < 12; i++) {
-      mergeSleeper(buf, off, yAngle);
-      off += rotateY(makeVector(0.25f, 0.0f, 0.0f), yAngle);
+      merge_sleeper(buf, off, y_angle);
+      off += rotateY(make_vector(0.25f, 0.0f, 0.0f), y_angle);
    }
 }
 
 void Points::render() const
 {
-   if (stateRenderHint) {
+   if (state_render_hint) {
       glPushMatrix();
       
       glTranslatef(
@@ -247,149 +247,149 @@ void Points::render() const
          height,
          static_cast<float>(myY));
 
-      if (myAxis == -axis::X)
+      if (my_axis == -axis::X)
          glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
-      else if (myAxis == -axis::Y)
+      else if (my_axis == -axis::Y)
          glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-      else if (myAxis == axis::Y)
+      else if (my_axis == axis::Y)
          glRotatef(270.0f, 0.0f, 1.0f, 0.0f);
          
-      renderArrow();
-      stateRenderHint = false;
+      render_arrow();
+      state_render_hint = false;
       
       glPopMatrix();
    }
 }
 
-float Points::segmentLength(const track::TravelToken& aToken) const
+float Points::segment_length(const track::TravelToken& a_token) const
 {
-   if (aToken.position == displacedEndpoint())
-      return myCurve.length;
+   if (a_token.position == displaced_endpoint())
+      return my_curve.length;
    else
       return 3.0f;
 }
 
-track::TravelToken Points::getTravelToken(track::Position position,
+track::TravelToken Points::get_travel_token(track::Position position,
    track::Direction direction) const
 {
    using namespace placeholders;
    
-   ensureValidDirection(direction);
+   ensure_valid_direction(direction);
 
-   const int nExits = position.x == myX && position.y == myY ? 2 : 1;
+   const int n_exits = position.x == myX && position.y == myY ? 2 : 1;
     
    track::TravelToken tok = {
       direction,
       position,
       bind(&Points::transform, this, _1, _2),
-      track::flatGradientFunc,
-      nExits
+      track::flat_gradient_func,
+      n_exits
    };
     
    return tok;
 }
 
-void Points::transform(const track::TravelToken& aToken, float delta) const
+void Points::transform(const track::TravelToken& a_token, float delta) const
 {
-   const float len = segmentLength(aToken);
+   const float len = segment_length(a_token);
    
    assert(delta < len);
 
-   if (myX == aToken.position.x && myY == aToken.position.y
+   if (myX == a_token.position.x && myY == a_token.position.y
       && state == NOT_TAKEN) {
 
-      if (aToken.direction == myAxis
-         && (myAxis == -axis::X || myAxis == -axis::Y))
+      if (a_token.direction == my_axis
+         && (my_axis == -axis::X || my_axis == -axis::Y))
          delta -= 1.0f;
       
-      const float xTrans =
-         myAxis == axis::X ? delta
-         : (myAxis == -axis::X ? -delta : 0.0f);
-      const float yTrans =
-         myAxis == axis::Y ? delta
-         : (myAxis == -axis::Y ? -delta : 0.0f);
+      const float x_trans =
+         my_axis == axis::X ? delta
+         : (my_axis == -axis::X ? -delta : 0.0f);
+      const float y_trans =
+         my_axis == axis::Y ? delta
+         : (my_axis == -axis::Y ? -delta : 0.0f);
       
-      glTranslatef(static_cast<float>(myX) + xTrans,
+      glTranslatef(static_cast<float>(myX) + x_trans,
          height,
-         static_cast<float>(myY) + yTrans);
+         static_cast<float>(myY) + y_trans);
       
-      if (myAxis == axis::Y || myAxis == -axis::Y)
+      if (my_axis == axis::Y || my_axis == -axis::Y)
          glRotated(-90.0, 0.0, 1.0, 0.0);
       
       glTranslated(-0.5, 0.0, 0.0);
    }
-   else if (aToken.position == straightEndpoint()) {
+   else if (a_token.position == straight_endpoint()) {
       delta = 2.0f - delta;
 
-      if (aToken.direction == -myAxis
-         && (myAxis == axis::X || myAxis == axis::Y))
+      if (a_token.direction == -my_axis
+         && (my_axis == axis::X || my_axis == axis::Y))
          delta += 1.0f;
       
-      const float xTrans =
-         myAxis == axis::X ? delta
-         : (myAxis == -axis::X ? -delta : 0.0f);
-      const float yTrans =
-         myAxis == axis::Y ? delta
-         : (myAxis == -axis::Y ? -delta : 0.0f);
+      const float x_trans =
+         my_axis == axis::X ? delta
+         : (my_axis == -axis::X ? -delta : 0.0f);
+      const float y_trans =
+         my_axis == axis::Y ? delta
+         : (my_axis == -axis::Y ? -delta : 0.0f);
       
-      glTranslatef(static_cast<float>(myX) + xTrans,
+      glTranslatef(static_cast<float>(myX) + x_trans,
          height,
-         static_cast<float>(myY) + yTrans);
+         static_cast<float>(myY) + y_trans);
       
-      if (myAxis == axis::Y || myAxis == -axis::Y)
+      if (my_axis == axis::Y || my_axis == -axis::Y)
          glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
       
       glTranslatef(-0.5f, 0.0f, 0.0f);
    }
-   else if (aToken.position == displacedEndpoint() || state == TAKEN) {
+   else if (a_token.position == displaced_endpoint() || state == TAKEN) {
       // Curving onto the straight section
-      float xTrans, yTrans, rotate;
+      float x_trans, y_trans, rotate;
 
       // We have a slight problem in that the domain of the curve
       // function is [0,1] but the delta is in [0,len] so we have
       // to compress the delta into [0,1] here
-      const float curveDelta = delta / len;
+      const float curve_delta = delta / len;
 
-      bool backwards = aToken.position == displacedEndpoint();
+      bool backwards = a_token.position == displaced_endpoint();
       
-      const float fValue = backwards ? 1.0f - curveDelta : curveDelta;
-      const Vector<float> curveValue = myCurve(fValue);
+      const float f_value = backwards ? 1.0f - curve_delta : curve_delta;
+      const Vector<float> curve_value = my_curve(f_value);
       
       // Calculate the angle that the tangent to the curve at this
       // point makes to (one of) the axis at this point
-      const Vector<float> deriv = myCurve.deriv(fValue);
+      const Vector<float> deriv = my_curve.deriv(f_value);
       const float angle =
-         radToDeg<float>(atanf(deriv.z / deriv.x));
+         rad_to_deg<float>(atanf(deriv.z / deriv.x));
 
-      if (myAxis == -axis::X) {
-         xTrans = 1.0f - curveValue.x;
-         yTrans = reflected ? curveValue.z : -curveValue.z;
+      if (my_axis == -axis::X) {
+         x_trans = 1.0f - curve_value.x;
+         y_trans = reflected ? curve_value.z : -curve_value.z;
          rotate = reflected ? angle : -angle;
       }
-      else if (myAxis == axis::X) {
-         xTrans = curveValue.x;
-         yTrans = reflected ? -curveValue.z : curveValue.z;
+      else if (my_axis == axis::X) {
+         x_trans = curve_value.x;
+         y_trans = reflected ? -curve_value.z : curve_value.z;
          rotate = reflected ? angle : -angle;
       }
-      else if (myAxis == -axis::Y) {
-         xTrans = reflected ? -curveValue.z : curveValue.z;
-         yTrans = 1.0f - curveValue.x;
+      else if (my_axis == -axis::Y) {
+         x_trans = reflected ? -curve_value.z : curve_value.z;
+         y_trans = 1.0f - curve_value.x;
          rotate = reflected ? angle : -angle;
       }
-      else if (myAxis == axis::Y) {
-         xTrans = reflected ? curveValue.z: -curveValue.z;
-         yTrans = curveValue.x;
+      else if (my_axis == axis::Y) {
+         x_trans = reflected ? curve_value.z: -curve_value.z;
+         y_trans = curve_value.x;
          rotate = reflected ? angle : -angle;
       }
       else
          assert(false);
 
       glTranslatef(
-         static_cast<float>(myX) + xTrans,
+         static_cast<float>(myX) + x_trans,
          height,
-         static_cast<float>(myY) + yTrans);
+         static_cast<float>(myY) + y_trans);
       
-      if (myAxis == axis::Y || myAxis == -axis::Y)
+      if (my_axis == axis::Y || my_axis == -axis::Y)
          glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
       
       glTranslatef(-0.5f, 0.0f, 0.0f);
@@ -399,98 +399,98 @@ void Points::transform(const track::TravelToken& aToken, float delta) const
    else
       assert(false);
    
-   if (aToken.direction == -axis::X || aToken.direction == -axis::Y)
+   if (a_token.direction == -axis::X || a_token.direction == -axis::Y)
       glRotated(-180.0, 0.0, 1.0, 0.0);
 }
 
-void Points::ensureValidDirection(track::Direction aDirection) const
+void Points::ensure_valid_direction(track::Direction a_direction) const
 {
-   if (!isValidDirection(aDirection))
+   if (!is_valid_direction(a_direction))
       throw runtime_error
          ("Invalid direction on points: "
-            + boost::lexical_cast<string>(aDirection)
+            + boost::lexical_cast<string>(a_direction)
             + " (should be parallel to "
-            + boost::lexical_cast<string>(myAxis) + ")");
+            + boost::lexical_cast<string>(my_axis) + ")");
 }
 
-bool Points::isValidDirection(const track::Direction& aDirection) const
+bool Points::is_valid_direction(const track::Direction& a_direction) const
 {
-   if (myAxis == axis::X || myAxis == -axis::X)
-      return aDirection == axis::X || -aDirection == axis::X;
+   if (my_axis == axis::X || my_axis == -axis::X)
+      return a_direction == axis::X || -a_direction == axis::X;
    else
-      return aDirection == axis::Y || -aDirection == axis::Y;
+      return a_direction == axis::Y || -a_direction == axis::Y;
 }
 
-track::Connection Points::nextPosition(const track::TravelToken& aToken) const
+track::Connection Points::next_position(const track::TravelToken& a_token) const
 {
    const bool branching = state == TAKEN;
          
-   if (myAxis == axis::X) {
-      if (aToken.direction == -axis::X) {
+   if (my_axis == axis::X) {
+      if (a_token.direction == -axis::X) {
          // Two possible entry points
-         return make_pair(makePoint(myX - 1, myY), -axis::X);
+         return make_pair(make_point(myX - 1, myY), -axis::X);
       }
       else {
          // Two possible exits
          if (branching) {
             if (reflected)
-               return make_pair(makePoint(myX + 3, myY - 1), axis::X);
+               return make_pair(make_point(myX + 3, myY - 1), axis::X);
             else
-               return make_pair(makePoint(myX + 3, myY + 1), axis::X);
+               return make_pair(make_point(myX + 3, myY + 1), axis::X);
          }
          else
-            return make_pair(makePoint(myX + 3, myY), axis::X);
+            return make_pair(make_point(myX + 3, myY), axis::X);
       }
    }
-   else if (myAxis == -axis::X) {
-      if (aToken.direction == -axis::X) {
+   else if (my_axis == -axis::X) {
+      if (a_token.direction == -axis::X) {
          // Two possible exits
          if (branching) {
             if (reflected)
-               return make_pair(makePoint(myX - 3, myY + 1), -axis::X);
+               return make_pair(make_point(myX - 3, myY + 1), -axis::X);
             else
-               return make_pair(makePoint(myX - 3, myY - 1), -axis::X);
+               return make_pair(make_point(myX - 3, myY - 1), -axis::X);
          }
          else
-            return make_pair(makePoint(myX - 3, myY), -axis::X);
+            return make_pair(make_point(myX - 3, myY), -axis::X);
       }
       else {
          // Two possible entry points
-         return make_pair(makePoint(myX + 1, myY), axis::X);
+         return make_pair(make_point(myX + 1, myY), axis::X);
       }
    }
-   else if (myAxis == axis::Y) {
-      if (aToken.direction == -axis::Y) {
+   else if (my_axis == axis::Y) {
+      if (a_token.direction == -axis::Y) {
          // Two possible entry points
-         return make_pair(makePoint(myX, myY - 1), -axis::Y);
+         return make_pair(make_point(myX, myY - 1), -axis::Y);
       }
       else {
          // Two possible exits
          if (branching) {
             if (reflected)
-               return make_pair(makePoint(myX + 1, myY + 3), axis::Y);
+               return make_pair(make_point(myX + 1, myY + 3), axis::Y);
             else
-               return make_pair(makePoint(myX - 1, myY + 3), axis::Y);
+               return make_pair(make_point(myX - 1, myY + 3), axis::Y);
          }
          else
-            return make_pair(makePoint(myX, myY + 3), axis::Y);
+            return make_pair(make_point(myX, myY + 3), axis::Y);
       }
    }
-   else if (myAxis == -axis::Y) {
-      if (aToken.direction == -axis::Y) {
+   else if (my_axis == -axis::Y) {
+      if (a_token.direction == -axis::Y) {
          // Two possible exits
          if (branching) {
             if (reflected)
-               return make_pair(makePoint(myX - 1, myY - 3), -axis::Y);
+               return make_pair(make_point(myX - 1, myY - 3), -axis::Y);
             else
-               return make_pair(makePoint(myX + 1, myY - 3), -axis::Y);
+               return make_pair(make_point(myX + 1, myY - 3), -axis::Y);
          }
          else
-            return make_pair(makePoint(myX, myY - 3), -axis::Y);
+            return make_pair(make_point(myX, myY - 3), -axis::Y);
       }
       else {
          // Two possible entry points
-         return make_pair(makePoint(myX, myY + 1), axis::Y);
+         return make_pair(make_point(myX, myY + 1), axis::Y);
       }
    }
    else
@@ -498,96 +498,96 @@ track::Connection Points::nextPosition(const track::TravelToken& aToken) const
 }
 
 // Get the endpoint that follows the curve
-Point<int> Points::displacedEndpoint() const
+Point<int> Points::displaced_endpoint() const
 {
    const int reflect = reflected ? -1 : 1;
 
-   if (myAxis == axis::X)
-      return makePoint(myX + 2, myY + 1*reflect);
-   else if (myAxis == -axis::X)
-      return makePoint(myX - 2, myY - 1*reflect);
-   else if (myAxis == axis::Y)
-      return makePoint(myX - 1*reflect, myY + 2);
-   else if (myAxis == -axis::Y)
-      return makePoint(myX + 1*reflect, myY - 2);
+   if (my_axis == axis::X)
+      return make_point(myX + 2, myY + 1*reflect);
+   else if (my_axis == -axis::X)
+      return make_point(myX - 2, myY - 1*reflect);
+   else if (my_axis == axis::Y)
+      return make_point(myX - 1*reflect, myY + 2);
+   else if (my_axis == -axis::Y)
+      return make_point(myX + 1*reflect, myY - 2);
    else
       assert(false);
 }
 
 // Get the endpoint that follows the straight track
-Point<int> Points::straightEndpoint() const
+Point<int> Points::straight_endpoint() const
 {
-   if (myAxis == axis::X)
-      return makePoint(myX + 2, myY);
-   else if (myAxis == -axis::X)
-      return makePoint(myX - 2, myY);
-   else if (myAxis == axis::Y)
-      return makePoint(myX, myY + 2);
-   else if (myAxis == -axis::Y)
-      return makePoint(myX, myY - 2);
+   if (my_axis == axis::X)
+      return make_point(myX + 2, myY);
+   else if (my_axis == -axis::X)
+      return make_point(myX - 2, myY);
+   else if (my_axis == axis::Y)
+      return make_point(myX, myY + 2);
+   else if (my_axis == -axis::Y)
+      return make_point(myX, myY - 2);
    else
       assert(false);
 }
 
-void Points::getEndpoints(vector<Point<int> >& aList) const
+void Points::get_endpoints(vector<Point<int> >& a_list) const
 {
-   aList.push_back(makePoint(myX, myY));
-   aList.push_back(straightEndpoint());
-   aList.push_back(displacedEndpoint());
+   a_list.push_back(make_point(myX, myY));
+   a_list.push_back(straight_endpoint());
+   a_list.push_back(displaced_endpoint());
 }
 
-void Points::getCovers(vector<Point<int> >& output) const
+void Points::get_covers(vector<Point<int> >& output) const
 {
    const int reflect = reflected ? -1 : 1;
 
-   if (myAxis == axis::X) {
-      output.push_back(makePoint(myX + 1, myY + 1*reflect));
-      output.push_back(makePoint(myX + 1, myY));
+   if (my_axis == axis::X) {
+      output.push_back(make_point(myX + 1, myY + 1*reflect));
+      output.push_back(make_point(myX + 1, myY));
    }
-   else if (myAxis == -axis::X) {
-      output.push_back(makePoint(myX - 1, myY - 1*reflect));
-      output.push_back(makePoint(myX - 1, myY));
+   else if (my_axis == -axis::X) {
+      output.push_back(make_point(myX - 1, myY - 1*reflect));
+      output.push_back(make_point(myX - 1, myY));
    }
-   else if (myAxis == axis::Y) {
-      output.push_back(makePoint(myX - 1*reflect, myY + 1));
-      output.push_back(makePoint(myX, myY + 1));
+   else if (my_axis == axis::Y) {
+      output.push_back(make_point(myX - 1*reflect, myY + 1));
+      output.push_back(make_point(myX, myY + 1));
    }
-   else if (myAxis == -axis::Y) {
-      output.push_back(makePoint(myX + 1*reflect, myY - 1));
-      output.push_back(makePoint(myX, myY - 1));
+   else if (my_axis == -axis::Y) {
+      output.push_back(make_point(myX + 1*reflect, myY - 1));
+      output.push_back(make_point(myX, myY - 1));
    }
    else
       assert(false);
 }
 
-ITrackSegmentPtr Points::mergeExit(Point<int> where, track::Direction dir)
+ITrackSegmentPtr Points::merge_exit(Point<int> where, track::Direction dir)
 {
    // Cant merge with anything
    return ITrackSegmentPtr();
 }
 
-xml::element Points::toXml() const
+xml::element Points::to_xml() const
 { 
    return xml::element("points")
-      .addAttribute("align",
-         myAxis == axis::X ? "x"
-         : (myAxis == -axis::X ? "-x"
-            : (myAxis == axis::Y ? "y"
-               : (myAxis == -axis::Y ? "-y" : "?"))))
-      .addAttribute("reflect", reflected);
+      .add_attribute("align",
+         my_axis == axis::X ? "x"
+         : (my_axis == -axis::X ? "-x"
+            : (my_axis == axis::Y ? "y"
+               : (my_axis == -axis::Y ? "-y" : "?"))))
+      .add_attribute("reflect", reflected);
 }
 
-void Points::nextState()
+void Points::next_state()
 {
    state = reflected ? NOT_TAKEN : TAKEN;
 }
 
-void Points::prevState()
+void Points::prev_state()
 {
    state = reflected ? TAKEN : NOT_TAKEN;
 }
 
-ITrackSegmentPtr makePoints(track::Direction aDirection, bool reflect)
+ITrackSegmentPtr make_points(track::Direction a_direction, bool reflect)
 {
-   return ITrackSegmentPtr(new Points(aDirection, reflect));
+   return ITrackSegmentPtr(new Points(a_direction, reflect));
 }

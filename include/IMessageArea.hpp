@@ -38,6 +38,6 @@ struct IMessageArea {
 
 typedef shared_ptr<IMessageArea> IMessageAreaPtr;
 
-IMessageAreaPtr makeMessageArea();
+IMessageAreaPtr make_message_area();
 
 #endif

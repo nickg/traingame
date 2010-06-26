@@ -46,8 +46,8 @@ namespace gui {
 
    typedef shared_ptr<ILayout> ILayoutPtr;
 
-   ILayoutPtr makeLayout(const string& file_name);
-   string parentPath(const string& path);
+   ILayoutPtr make_layout(const string& file_name);
+   string parent_path(const string& path);
    
 }
 

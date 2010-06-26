@@ -26,58 +26,58 @@
 
 class StraightTrackHelper {
 public:
-   void mergeStraightRail(IMeshBufferPtr buf,
-      Vector<float> off, float yAngle) const;
+   void merge_straight_rail(IMeshBufferPtr buf,
+      Vector<float> off, float y_angle) const;
    
 private:
-   void mergeOneRail(IMeshBufferPtr buf,
-      Vector<float> off, float yAngle) const;
+   void merge_one_rail(IMeshBufferPtr buf,
+      Vector<float> off, float y_angle) const;
    
-   static IMeshBufferPtr generateRailMeshBuffer();
+   static IMeshBufferPtr generate_rail_meshBuffer();
       
-   static IMeshBufferPtr railBuf;
+   static IMeshBufferPtr rail_buf;
 };
 
 class SleeperHelper {
 public:
-   void mergeSleeper(IMeshBufferPtr buf,
-      Vector<float> off, float yAngle) const;
+   void merge_sleeper(IMeshBufferPtr buf,
+      Vector<float> off, float y_angle) const;
    
 private:
-   static IMeshBufferPtr generateSleeperMeshBuffer();
+   static IMeshBufferPtr generate_sleeper_meshBuffer();
    
-   static IMeshBufferPtr sleeperBuf;
+   static IMeshBufferPtr sleeper_buf;
 };
 
 class BezierHelper {
 public:
-   IMeshBufferPtr makeBezierRailMesh(const BezierCurve<float>& func) const;
+   IMeshBufferPtr make_bezier_railMesh(const BezierCurve<float>& func) const;
 
 private:
-   static void buildOneBezierRail(const BezierCurve<float>& func,
+   static void build_one_bezierRail(const BezierCurve<float>& func,
       IMeshBufferPtr buf, float p);
 };
 
 class CurvedTrackHelper : private SleeperHelper {
 public:
-   void mergeCurvedTrack(IMeshBufferPtr buf, Vector<float> off,
-      int baseRadius, track::Angle startAngle, track::Angle endAngle) const;
+   void merge_curved_track(IMeshBufferPtr buf, Vector<float> off,
+      int base_radius, track::Angle start_angle, track::Angle end_angle) const;
    
 private:
-   void transformToOrigin(Vector<float>& off,
-      int baseRadius, track::Angle startAngle) const;
+   void transform_to_origin(Vector<float>& off,
+      int base_radius, track::Angle start_angle) const;
    
    enum RailType {
       INNER_RAIL, OUTER_RAIL
    };
    
-   static void generateCurvedRailMesh(IMeshBufferPtr buf,
-      int baseRadius, RailType type);
-   static void mergeCurvedRail(IMeshBufferPtr buf, int baseRadius,
-      Vector<float> off, float yAngle);
+   static void generate_curved_railMesh(IMeshBufferPtr buf,
+      int base_radius, RailType type);
+   static void merge_curved_rail(IMeshBufferPtr buf, int base_radius,
+      Vector<float> off, float y_angle);
 
    typedef map<int, IMeshBufferPtr> CurvedRailMeshMap;
-   static CurvedRailMeshMap curvedRailMeshes;
+   static CurvedRailMeshMap curved_rail_meshes;
 };
 
 // Track constants

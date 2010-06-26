@@ -27,7 +27,7 @@
 
 using namespace gui;
 
-IWindowPtr getGameWindow();
+IWindowPtr get_game_window();
 
 RenderContext::RenderContext(const Theme& theme)
    : theme_(theme), origin_x(0), origin_y(0)
@@ -42,18 +42,18 @@ RenderContext::~RenderContext()
 
    assert(origin_stack.empty());
    
-   IWindowPtr wnd = getGameWindow();
+   IWindowPtr wnd = get_game_window();
    glScissor(0, 0, wnd->width(), wnd->height());
 }
 
-void RenderContext::pushOrigin(const Widget* w)
+void RenderContext::push_origin(const Widget* w)
 {
    origin_x += w->x() + w->border();
    origin_y += w->y() + w->border();
    origin_stack.push(w);
 }
 
-void RenderContext::popOrigin()
+void RenderContext::pop_origin()
 {
    assert(!origin_stack.empty());
    
@@ -130,7 +130,7 @@ void RenderContext::print(IFontPtr font, int x, int y,
 
 void RenderContext::scissor(Widget* w)
 {
-   int wh = getGameWindow()->height();
+   int wh = get_game_window()->height();
 
    const Widget* parent = origin_stack.empty() ? NULL : origin_stack.top();
    int max_w, max_h;
@@ -154,11 +154,11 @@ void RenderContext::scissor(Widget* w)
    int height = min(w->height(), max_h);
 
    if (width <= 0 || height <= 0) {
-      static bool haveWarned = false;
+      static bool have_warned = false;
 
-      if (!haveWarned) {
+      if (!have_warned) {
          warn() << "Widget " << w->name() << " is out of bounds";
-         haveWarned = true;
+         have_warned = true;
       }
    }
    else

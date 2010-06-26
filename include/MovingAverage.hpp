@@ -25,27 +25,27 @@ public:
    MovingAverage()
    {
       for (int i = 0; i < N; i++)
-         mySamples[i] = static_cast<T>(0);
+         my_samples[i] = static_cast<T>(0);
    }
 
    T value() const
    {
       T sum = static_cast<T>(0);
       for (int i = 0; i < N; i++)
-         sum += mySamples[i];
+         sum += my_samples[i];
       
       return sum / static_cast<T>(N);
    }
 
-   void operator<<(T aValue)
+   void operator<<(T a_value)
    {
       for (int i = N - 1; i > 0; i--)
-         mySamples[i] = mySamples[i-1];
-      mySamples[0] = aValue;
+         my_samples[i] = my_samples[i-1];
+      my_samples[0] = a_value;
    }
    
 private:
-   T mySamples[N];
+   T my_samples[N];
 };
 
 #endif

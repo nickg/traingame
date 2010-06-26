@@ -26,10 +26,10 @@
 struct ISectorRenderable {
    virtual ~ISectorRenderable() {}
 
-   virtual void renderSector(IGraphicsPtr aContext, int id,
-                             Point<int> botLeft, Point<int> topRight) = 0;
-   virtual void postRenderSector(IGraphicsPtr aContext, int id,
-                                 Point<int> botLeft, Point<int> topRight) = 0;
+   virtual void render_sector(IGraphicsPtr a_context, int id,
+                             Point<int> bot_left, Point<int> top_right) = 0;
+   virtual void post_render_sector(IGraphicsPtr a_context, int id,
+                                 Point<int> bot_left, Point<int> top_right) = 0;
 };
 
 typedef shared_ptr<ISectorRenderable> ISectorRenderablePtr;
@@ -38,14 +38,14 @@ typedef shared_ptr<ISectorRenderable> ISectorRenderablePtr;
 struct IQuadTree {
    virtual ~IQuadTree() {}
 
-   virtual void render(IGraphicsPtr aContext) = 0;
-   virtual int leafSize() const = 0;
+   virtual void render(IGraphicsPtr a_context) = 0;
+   virtual int leaf_size() const = 0;
 };
 
 typedef shared_ptr<IQuadTree> IQuadTreePtr;
 
 // Produce a quad tree of given square dimension
-IQuadTreePtr makeQuadTree(ISectorRenderablePtr aRenderable,
+IQuadTreePtr make_quad_tree(ISectorRenderablePtr a_renderable,
    int width, int height);
 
 #endif

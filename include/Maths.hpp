@@ -113,7 +113,7 @@ struct Vector {
       return !(v == *this);
    }
 
-   bool approxEqual(const Vector<T>& rhs, T delta) const
+   bool approx_equal(const Vector<T>& rhs, T delta) const
    {
       return (abs(rhs.x - x) < delta)
          && (abs(rhs.y - y) < delta)
@@ -124,21 +124,21 @@ struct Vector {
 };
 
 template <typename T>
-std::ostream& operator<<(std::ostream& aStream, const Vector<T>& aVector)
+std::ostream& operator<<(std::ostream& a_stream, const Vector<T>& a_vector)
 {
-   return aStream << "[" << aVector.x << " " << aVector.y
-                  << " " << aVector.z << "]";
+   return a_stream << "[" << a_vector.x << " " << a_vector.y
+                  << " " << a_vector.z << "]";
 }
 
 template <typename T>
-Vector<T> makeVector(T x, T y, T z)
+Vector<T> make_vector(T x, T y, T z)
 {
    return Vector<T>(x, y, z);
 }
 
 // Find a surface normal
 template <typename T>
-Vector<T> surfaceNormal(const Vector<T>& a, const Vector<T>& b,
+Vector<T> surface_normal(const Vector<T>& a, const Vector<T>& b,
    const Vector<T>& c)
 {
    Vector<T> v1 = b - a;
@@ -149,8 +149,8 @@ Vector<T> surfaceNormal(const Vector<T>& a, const Vector<T>& b,
 }
 
 // Useful debugging function
-void drawNormal(const Vector<float>& aPosition,
-   const Vector<float>& aNormal);
+void draw_normal(const Vector<float>& a_position,
+   const Vector<float>& a_normal);
 
 // A 2D point in space
 template <typename T>
@@ -163,9 +163,9 @@ struct Point {
    Point up() const { return Point(x, y + 1); }
    Point down() const { return Point(x, y - 1); }
 
-   bool operator==(const Point<T>& aPoint) const
+   bool operator==(const Point<T>& a_point) const
    {
-      return aPoint.x == x && aPoint.y == y;
+      return a_point.x == x && a_point.y == y;
    }
 
    bool operator!=(const Point<T>& rhs) const
@@ -194,43 +194,43 @@ struct Point {
 };
 
 template <typename T>
-std::ostream& operator<<(std::ostream& aStream, const Point<T>& aPoint)
+std::ostream& operator<<(std::ostream& a_stream, const Point<T>& a_point)
 {
-   return aStream << "(" << aPoint.x << ", " << aPoint.y << ")";
+   return a_stream << "(" << a_point.x << ", " << a_point.y << ")";
 }
 
 template <typename T>
-Point<T> makePoint(T x, T y)
+Point<T> make_point(T x, T y)
 {
    return Point<T>(x, y);
 }
 
 // A frustum
 struct Frustum {
-   bool pointInFrustum(float x, float y, float z);
-   bool sphereInFrustum(float x, float y, float z, float radius);
-   bool cubeInFrustum(float x, float y, float z, float size);	// size = 0.5*side_length
-   bool cuboidInFrustum(float x,	  float y,	   float z,
+   bool point_in_frustum(float x, float y, float z);
+   bool sphere_in_frustum(float x, float y, float z, float radius);
+   bool cube_in_frustum(float x, float y, float z, float size);	// size = 0.5*side_length
+   bool cuboid_in_frustum(float x,	  float y,	   float z,
       float sizeX, float sizeY, float sizeZ);
    
    float planes[6][4];
 };
 
-Frustum getViewFrustum();
+Frustum get_view_frustum();
 
 // A rough guess at the gradient at a point on a curve
-float approxGradient(function<float (float)> aFunc, float x);
+float approx_gradient(function<float (float)> a_func, float x);
 
 // Useful functions for converting to/from radians
 
 template <typename T>
-inline float degToRad(T t)
+inline float deg_to_rad(T t)
 {
    return static_cast<float>(t) * M_PI / 180.0;
 }
 
 template <typename T>
-inline T radToDeg(float r)
+inline T rad_to_deg(float r)
 {
    return static_cast<T>(r * 180.0 / M_PI);
 }

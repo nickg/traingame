@@ -32,27 +32,27 @@ class LoggerImpl : public ILogger {
 public:
    LoggerImpl();
    
-   PrintLinePtr writeMsg(LogMsgType type);
+   PrintLinePtr write_msg(LogMsgType type);
 };
 
 namespace {
-   bool isStdoutTTY;
+   bool is_stdoutTTY;
 }
 
 LoggerImpl::LoggerImpl()
 {
 #ifdef WIN32
-   isStdoutTTY = (_isatty(_fileno(stdout)) != 0);
+   is_stdoutTTY = (_isatty(_fileno(stdout)) != 0);
 #else
-   isStdoutTTY = (isatty(fileno(stdout)) != 0);
+   is_stdoutTTY = (isatty(fileno(stdout)) != 0);
 #endif
 
    cout.precision(3);
 }
 
-PrintLinePtr LoggerImpl::writeMsg(LogMsgType type)
+PrintLinePtr LoggerImpl::write_msg(LogMsgType type)
 {
-   if (isStdoutTTY)
+   if (is_stdoutTTY)
       cout << "\x1B[1m";
    
    switch (type) {
@@ -60,17 +60,17 @@ PrintLinePtr LoggerImpl::writeMsg(LogMsgType type)
       cout << "[INFO ] ";
       break;
    case LOG_DEBUG:
-      if (isStdoutTTY)
+      if (is_stdoutTTY)
          cout << "\x1B[36m";
       cout << "[DEBUG] ";
       break;
    case LOG_WARN:
-      if (isStdoutTTY)
+      if (is_stdoutTTY)
          cout << "\x1B[33m";
       cout << "[WARN ] ";
       break;
    case LOG_ERROR:
-      if (isStdoutTTY)
+      if (is_stdoutTTY)
          cout << "\x1B[31m";
       cout << "[ERROR] ";
       break;
@@ -78,22 +78,22 @@ PrintLinePtr LoggerImpl::writeMsg(LogMsgType type)
    return PrintLinePtr(new PrintLine(cout));
 }
 
-PrintLine::PrintLine(ostream& aStream)
-   : stream(aStream)
+PrintLine::PrintLine(ostream& a_stream)
+   : stream(a_stream)
 {
    
 }
 
 PrintLine::~PrintLine()
 {
-   if (isStdoutTTY)
+   if (is_stdoutTTY)
       cout << "\x1B[0m";
    
    stream << endl;
 }
 
 // Return the single instance of Logger
-ILoggerPtr getLogger()
+ILoggerPtr get_logger()
 {
    static ILoggerPtr logger(new LoggerImpl);
    return logger;

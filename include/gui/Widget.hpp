@@ -57,17 +57,17 @@ namespace gui {
       void connect(Signal sig, SignalHandler handler);
 
       virtual void render(RenderContext& rc) const = 0;
-      virtual void adjustForTheme(const Theme& theme) {}
+      virtual void adjust_for_theme(const Theme& theme) {}
       
-      virtual bool handleClick(int x, int y);
+      virtual bool handle_click(int x, int y);
 
-      void dumpLocation() const;
+      void dump_location() const;
       
    protected:
       void raise(Signal sig);
 
    private:
-      static string uniqueName();
+      static string unique_name();
       
       string name_;
       int x_, y_, width_, height_;
@@ -76,7 +76,7 @@ namespace gui {
 
       map<Signal, SignalHandler> handlers;
             
-      static int ourUniqueId;
+      static int our_unique_id;
    };
  
 }

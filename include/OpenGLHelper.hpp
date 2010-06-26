@@ -28,14 +28,14 @@
 
 // Helper functions used by the different IWindow implementations
 void initGL();
-void drawGLScene(IWindowPtr aWindow, IGraphicsPtr aContext, IScreenPtr aScreen);
-void resizeGLScene(IWindowPtr aWindow);
+void drawGLScene(IWindowPtr a_window, IGraphicsPtr a_context, IScreenPtr a_screen);
+void resizeGLScene(IWindowPtr a_window);
 void printGLVersion();
 void checkGLError();
 
 // Wrappers for OpenGL picking features
-void beginPick(IWindowPtr aWindow, unsigned* aBuffer, int x, int y);
-unsigned endPick(unsigned* aBuffer);
+void begin_pick(IWindowPtr a_window, unsigned* a_buffer, int x, int y);
+unsigned end_pick(unsigned* a_buffer);
 
 // Helper functions for using our Vector and Colour objects
 // as OpenGL types

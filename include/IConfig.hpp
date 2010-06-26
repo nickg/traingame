@@ -28,24 +28,24 @@ struct IConfig {
 
    typedef boost::any Option;
 
-   virtual const Option& get(const string& aKey) const = 0;
+   virtual const Option& get(const string& a_key) const = 0;
    virtual void flush() = 0;
  
    template <class T>
-   T get(const string& aKey) const
+   T get(const string& a_key) const
    {
-      return boost::any_cast<T>(get(aKey));
+      return boost::any_cast<T>(get(a_key));
    }
 
    template <class T>
-   void get(const string& aKey, T& t) const
+   void get(const string& a_key, T& t) const
    {
-      t = boost::any_cast<T>(get(aKey));
+      t = boost::any_cast<T>(get(a_key));
    }
 };
 
 typedef shared_ptr<IConfig> IConfigPtr;
 
-IConfigPtr getConfig();
+IConfigPtr get_config();
 
 #endif

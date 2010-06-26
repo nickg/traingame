@@ -32,37 +32,37 @@ struct IResource {
    virtual ~IResource() {}
 
    virtual string name() const = 0;
-   virtual string xmlFileName() const = 0;  // REMOVE
-   // (Should be replaced by Handle openXmlFile()
+   virtual string xml_file_name() const = 0;  // REMOVE
+   // (Should be replaced by Handle open_xml_file()
    
    // A handle for reading data out of files in resources
    class Handle {
    public:
       enum Mode { READ, WRITE };
       
-      explicit Handle(const string& fileName, Mode mode = READ);
+      explicit Handle(const string& file_name, Mode mode = READ);
       ~Handle() { commit(); }
       
-      ifstream& rstream() { return *readStream; }
-      ofstream& wstream() { return *writeStream; }
+      ifstream& rstream() { return *read_stream; }
+      ofstream& wstream() { return *write_stream; }
       
-      string fileName() const { return fileName_; }
+      string file_name() const { return file_name_; }
       Mode mode() const { return mode_; }
       
       void commit();
       void rollback();
    private:
-      string tmpFileName() const;
+      string tmp_file_name() const;
       
-      shared_ptr<ifstream> readStream;
-      shared_ptr<ofstream> writeStream;
-      const string fileName_;
+      shared_ptr<ifstream> read_stream;
+      shared_ptr<ofstream> write_stream;
+      const string file_name_;
       const Mode mode_;
       bool aborted;
    };
 
-   virtual Handle openFile(const string& aName) = 0;
-   virtual Handle writeFile(const string& aName) = 0;
+   virtual Handle open_file(const string& a_name) = 0;
+   virtual Handle write_file(const string& a_name) = 0;
 };
 
 typedef shared_ptr<IResource> IResourcePtr;
@@ -71,10 +71,10 @@ typedef list<IResourcePtr> ResourceList;
 typedef ResourceList::iterator ResourceListIt;
 
 // Generic interface to game resources
-void initResources();
-void enumResources(const string& aClass, ResourceList& aList);
-IResourcePtr findResource(const string& aResId, const string& aClass);
-IResourcePtr makeNewResource(const string& aResId, const string& aClass);
-bool resourceExists(const string& aResId, const string& aClass);
+void init_resources();
+void enum_resources(const string& a_class, ResourceList& a_list);
+IResourcePtr find_resource(const string& a_res_id, const string& a_class);
+IResourcePtr make_new_resource(const string& a_res_id, const string& a_class);
+bool resource_exists(const string& a_res_id, const string& a_class);
 
 #endif

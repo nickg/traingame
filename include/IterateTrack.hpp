@@ -47,7 +47,7 @@ struct TrackIterator {
 };
 
 // Kick off the iteration at an initial track segment
-TrackIterator iterateTrack(IMapPtr aMap, track::Position aPosition,
-                           track::Direction aDirection);
+TrackIterator iterate_track(IMapPtr a_map, track::Position a_position,
+                           track::Direction a_direction);
 
 #endif

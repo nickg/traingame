@@ -47,7 +47,7 @@ private:
 
 MessageArea::MessageArea()
 {
-   font = gui::loadFont("fonts/Vera.ttf", 18);
+   font = gui::load_font("fonts/Vera.ttf", 18);
 }
 
 void MessageArea::render() const
@@ -55,8 +55,8 @@ void MessageArea::render() const
    if (active) {
       const string& text = active.get().text;
 
-      const int screenH = getGameWindow()->height();
-      const int screenW = getGameWindow()->width();
+      const int screenH = get_game_window()->height();
+      const int screenW = get_game_window()->width();
       const int len = font->text_width(text);
 
       float alpha = 1.0f;
@@ -67,7 +67,7 @@ void MessageArea::render() const
          alpha = 1.0f - (static_cast<float>(-delay) / FADE_OUT_TIME);
       }
 
-      const Colour col = makeColour(1.0f, 1.0f, 1.0f, alpha);
+      const Colour col = make_colour(1.0f, 1.0f, 1.0f, alpha);
       
       font->print((screenW - len)/2, screenH - 50, col, text);
    }
@@ -93,7 +93,7 @@ void MessageArea::post(const string& mess, int priority, int delay)
       active = m;
 }
 
-IMessageAreaPtr makeMessageArea()
+IMessageAreaPtr make_message_area()
 {
    return IMessageAreaPtr(new MessageArea);
 }

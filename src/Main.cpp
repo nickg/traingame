@@ -34,22 +34,22 @@ namespace {
    IWindowPtr window;
 
    // Options set from command line
-   int newMapWidth = 32;
-   int newMapHeight = 32;
-   string mapFile;
+   int new_map_width = 32;
+   int new_map_height = 32;
+   string map_file;
    string action;
 
-   void parseOptions(int argc, char** argv)
+   void parse_options(int argc, char** argv)
    {
       using namespace boost::program_options;
 
       options_description desc("Allowed options");
       desc.add_options()
          ("help", "Display this help message")
-         ("width", value<int>(&newMapWidth), "Set new map width")
-         ("height", value<int>(&newMapHeight), "Set new map height")
+         ("width", value<int>(&new_map_width), "Set new map width")
+         ("height", value<int>(&new_map_height), "Set new map height")
          ("action", value<string>(&action), "Either `play' or `edit'")
-         ("map", value<string>(&mapFile), "Name of map to load or create")
+         ("map", value<string>(&map_file), "Name of map to load or create")
          ;
 
       positional_options_description p;
@@ -75,14 +75,14 @@ namespace {
    }
 }
 
-IWindowPtr getGameWindow()
+IWindowPtr get_game_window()
 {
    return ::window;
 }
 
 int main(int argc, char** argv)
 {
-   parseOptions(argc, argv);
+   parse_options(argc, argv);
    
    cout << PACKAGE << " " << VERSION << "." << PATCH << endl << endl
         << "Copyright (C) 2009-2010  Nick Gasson" << endl
@@ -95,26 +95,26 @@ int main(int argc, char** argv)
    log() << "Program started";
 
    try {
-      if (::action == "" || ::mapFile == "")
+      if (::action == "" || ::map_file == "")
          throw runtime_error("Usage: TrainGame (edit|play) [map]");
       
-      initResources();
+      init_resources();
       
-      IConfigPtr cfg = getConfig();
+      IConfigPtr cfg = get_config();
       
       ::window = makeSDLWindow();
       
       IScreenPtr screen;
       if (::action == "edit") {
-         if (resourceExists(mapFile, "maps"))
-            screen = makeEditorScreen(loadMap(::mapFile));
+         if (resource_exists(map_file, "maps"))
+            screen = make_editor_screen(load_map(::map_file));
          else {
-            screen = makeEditorScreen(
-               makeEmptyMap(::mapFile, ::newMapWidth, ::newMapHeight));
+            screen = make_editor_screen(
+               make_empty_map(::map_file, ::new_map_width, ::new_map_height));
          }
       }
       else if (::action == "play") {
-         screen = makeGameScreen(loadMap(::mapFile));
+         screen = make_game_screen(load_map(::map_file));
       }
       else if (::action == "uidemo") {
          screen = makeUIDemo();

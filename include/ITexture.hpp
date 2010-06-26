@@ -39,9 +39,9 @@ typedef shared_ptr<ITexture> ITexturePtr;
 // Load a texture and return a pointer to
 // A texture will only be loaded at most once no matter how many
 // times this is called
-ITexturePtr loadTexture(const string& aFileName);
+ITexturePtr load_texture(const string& a_file_name);
 
 // Load a texture from a resource
-ITexturePtr loadTexture(IResourcePtr aRes, const string& aFileName);
+ITexturePtr load_texture(IResourcePtr a_res, const string& a_file_name);
 
 #endif

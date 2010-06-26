@@ -24,7 +24,7 @@ ToggleButton::ToggleButton(const AttributeSet& attrs)
    : Widget(attrs),
      enabled(false)
 {
-   texture = loadTexture(attrs.get<string>("image"));
+   texture = load_texture(attrs.get<string>("image"));
 }
 
 void ToggleButton::render(RenderContext& rc) const
@@ -35,10 +35,10 @@ void ToggleButton::render(RenderContext& rc) const
       rc.border(x(), y(), width(), height(), colour::WHITE);
 }
 
-bool ToggleButton::handleClick(int x, int y)
+bool ToggleButton::handle_click(int x, int y)
 {
    on();
-   return Widget::handleClick(x, y);
+   return Widget::handle_click(x, y);
 }
 
 void ToggleButton::on()

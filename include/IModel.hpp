@@ -31,14 +31,14 @@ struct IModel {
    virtual void render() const = 0;
    virtual void cache() = 0;
    virtual void merge(IMeshBufferPtr buf,
-      Vector<float> off, float yAngle=0.0f) const = 0;
+      Vector<float> off, float y_angle=0.0f) const = 0;
    virtual Vector<float> dimensions() const = 0;
 };
 
 typedef shared_ptr<IModel> IModelPtr;
 
 // Load a model from a WaveFront .obj file
-IModelPtr loadModel(IResourcePtr aRes, const string& aFileName,
-                    float aScale = 1.0f);
+IModelPtr load_model(IResourcePtr a_res, const string& a_file_name,
+                    float a_scale = 1.0f);
 
 #endif

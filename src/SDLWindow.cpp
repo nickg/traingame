@@ -43,106 +43,106 @@ public:
    ~SDLWindow();
 
    // IWindow interface
-   void run(IScreenPtr aScreen);
-   void switchScreen(IScreenPtr aScreen);
+   void run(IScreenPtr a_screen);
+   void switch_screen(IScreenPtr a_screen);
    void quit();
-   void takeScreenShot();
+   void take_screen_shot();
    int width() const { return width_; }
    int height() const { return height_; }
-   void redrawHint() {}
+   void redraw_hint() {}
 
    // IGraphics interface
-   bool cuboidInViewFrustum(float x, float y, float z,
+   bool cuboid_in_viewFrustum(float x, float y, float z,
                             float sizeX, float sizeY, float sizeZ);
-   bool cubeInViewFrustum(float x, float y, float z, float size);
-   bool pointInViewFrustum(float x, float y, float z);
-   void setCamera(const Vector<float>& aPos,
-                  const Vector<float>& aRotation);
-   void lookAt(const Vector<float> anEyePoint,
-               const Vector<float> aTargetPoint);
+   bool cube_in_viewFrustum(float x, float y, float z, float size);
+   bool point_in_viewFrustum(float x, float y, float z);
+   void set_camera(const Vector<float>& a_pos,
+                  const Vector<float>& a_rotation);
+   void look_at(const Vector<float> an_eye_point,
+               const Vector<float> a_target_point);
 
    // IPickBuffer interface
-   IGraphicsPtr beginPick(int x, int y);
-   unsigned endPick();
+   IGraphicsPtr begin_pick(int x, int y);
+   unsigned end_pick();
 private:
-   void processInput();
+   void process_input();
    MouseButton fromSDLButton(Uint8 aSDLButton) const;
-   void captureFrame() const;
+   void capture_frame() const;
    
-   bool amRunning;
+   bool am_running;
    int width_, height_;
    IScreenPtr screen;
-   bool willSkipNextFrame;
-   bool willTakeScreenShot;
-   Frustum viewFrustum;
+   bool will_skip_nextFrame;
+   bool will_take_screenShot;
+   Frustum view_frustum;
 
    // Picking data
    static const int SELECT_BUFFER_SZ = 128;
-   GLuint mySelectBuffer[SELECT_BUFFER_SZ];
+   GLuint my_select_buffer[SELECT_BUFFER_SZ];
 };
 
 // Calculation and display of the FPS rate
 namespace {
-   int theFrameCounter = 0;
-   int theLastFPS = 0;
+   int the_frame_counter = 0;
+   int the_lastFPS = 0;
 
-   Uint32 updateFPS(Uint32 anInterval, void* thread);
+   Uint32 updateFPS(Uint32 an_interval, void* thread);
 
    // A wrapper around SDL times
    struct FrameTimerThread {
       FrameTimerThread()
       {
-         myTimer = SDL_AddTimer(1000, updateFPS, this);
+         my_timer = SDL_AddTimer(1000, updateFPS, this);
       }
 
       ~FrameTimerThread()
       {
          // Finalise properly when an exception is thrown
-         SDL_RemoveTimer(myTimer);
+         SDL_RemoveTimer(my_timer);
       }
 
       // Should be called from the main thread
-      void updateTitle()
+      void update_title()
       {
-         if (shouldUpdateTitle) {
-            int avgTriangles = getAverageTriangleCount();
+         if (should_update_title) {
+            int avg_triangles = get_average_triangleCount();
             
             const string title =
-               "Trains! @ " + lexical_cast<string>(theLastFPS)
-               + " FPS [" + lexical_cast<string>(avgTriangles)
+               "Trains! @ " + lexical_cast<string>(the_lastFPS)
+               + " FPS [" + lexical_cast<string>(avg_triangles)
                + " triangles]";
             SDL_WM_SetCaption(title.c_str(), title.c_str());
          }
       }
 
-      SDL_TimerID myTimer;
-      bool shouldUpdateTitle;
+      SDL_TimerID my_timer;
+      bool should_update_title;
    };
 
-   Uint32 updateFPS(Uint32 anInterval, void* thread)
+   Uint32 updateFPS(Uint32 an_interval, void* thread)
    {
-      theLastFPS = theFrameCounter;
-      theFrameCounter = 0;
+      the_lastFPS = the_frame_counter;
+      the_frame_counter = 0;
 
-      static_cast<FrameTimerThread*>(thread)->shouldUpdateTitle = true;
+      static_cast<FrameTimerThread*>(thread)->should_update_title = true;
       
-      return anInterval;
+      return an_interval;
    }
 
-   void frameComplete()
+   void frame_complete()
    {
-      theFrameCounter++;
+      the_frame_counter++;
 
-      updateRenderStats();
+      update_render_stats();
    }
 }
 
 // Create the game window
 SDLWindow::SDLWindow()
-   : amRunning(false), willSkipNextFrame(false),
-     willTakeScreenShot(false)
+   : am_running(false), will_skip_nextFrame(false),
+     will_take_screenShot(false)
 {
-   IConfigPtr cfg = getConfig();
+   IConfigPtr cfg = get_config();
       
    // Start SDL
    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
@@ -183,64 +183,64 @@ SDLWindow::~SDLWindow()
 }
 
 // Make a screen capture at the end of this frame
-void SDLWindow::takeScreenShot()
+void SDLWindow::take_screen_shot()
 {
-   willTakeScreenShot = true;
+   will_take_screenShot = true;
 }
 
 // Change the active screen while the game is running
-void SDLWindow::switchScreen(IScreenPtr aScreen)
+void SDLWindow::switch_screen(IScreenPtr a_screen)
 {
-   assert(amRunning);
+   assert(am_running);
 
-   screen = aScreen;
-   willSkipNextFrame = true;
+   screen = a_screen;
+   will_skip_nextFrame = true;
 }
 
 // Run the game until the user quits
-void SDLWindow::run(IScreenPtr aScreen)
+void SDLWindow::run(IScreenPtr a_screen)
 {
-   assert(!amRunning);
+   assert(!am_running);
    
-   screen = aScreen;
+   screen = a_screen;
 
-   FrameTimerThread fpsTimer;
+   FrameTimerThread fps_timer;
 
-   unsigned lastTick = SDL_GetTicks();
+   unsigned last_tick = SDL_GetTicks();
 
    // Wait a few milliseconds to get a reasonable tick delta
    SDL_Delay(1);
    
-   amRunning = true;
+   am_running = true;
    do {
-      unsigned tickStart = SDL_GetTicks();
-      int delta = static_cast<int>(tickStart - lastTick);
+      unsigned tick_start = SDL_GetTicks();
+      int delta = static_cast<int>(tick_start - last_tick);
 
       try {
-         processInput();
+         process_input();
          screen->update(shared_from_this(), delta);
          
-         if (!willSkipNextFrame) {
+         if (!will_skip_nextFrame) {
             drawGLScene(shared_from_this(), shared_from_this(), screen);
             SDL_GL_SwapBuffers();
          }
          else
-            willSkipNextFrame = false;
+            will_skip_nextFrame = false;
       }
       catch (runtime_error& e) {
          error() << "Caught exception: " << e.what();
-         amRunning = false;
+         am_running = false;
       }
 
-      if (willTakeScreenShot) {
-         captureFrame();
-         willTakeScreenShot = false;
+      if (will_take_screenShot) {
+         capture_frame();
+         will_take_screenShot = false;
       }
 
-      frameComplete();
-      fpsTimer.updateTitle();
-      lastTick = tickStart;
-   } while (amRunning);
+      frame_complete();
+      fps_timer.update_title();
+      last_tick = tick_start;
+   } while (am_running);
    
    screen.reset();
 }
@@ -248,7 +248,7 @@ void SDLWindow::run(IScreenPtr aScreen)
 // Stop the game cleanly
 void SDLWindow::quit()
 {
-   amRunning = false;
+   am_running = false;
 }
 
 // Convert an SDL button constant to a MouseButton
@@ -266,12 +266,12 @@ MouseButton SDLWindow::fromSDLButton(Uint8 aSDLButton) const
 }
 
 // Check for SDL input events
-void SDLWindow::processInput()
+void SDLWindow::process_input()
 {
    SDL_Event e;
 
    // Send only one mouse motion event per frame
-   bool haveSentMouseMotion = false;
+   bool have_sent_mouseMotion = false;
 
    while (SDL_PollEvent(&e)) {
       switch (e.type) {
@@ -282,30 +282,30 @@ void SDLWindow::processInput()
          break;
          
       case SDL_KEYDOWN:
-         screen->onKeyDown(e.key.keysym.sym);
+         screen->on_key_down(e.key.keysym.sym);
          break;
 
       case SDL_KEYUP:
-         screen->onKeyUp(e.key.keysym.sym);
+         screen->on_key_up(e.key.keysym.sym);
          break;
 
       case SDL_MOUSEMOTION:
-         if (!haveSentMouseMotion) {
-            screen->onMouseMove(shared_from_this(),
+         if (!have_sent_mouseMotion) {
+            screen->on_mouse_move(shared_from_this(),
                                   e.motion.x, e.motion.y,
                                   e.motion.xrel, e.motion.yrel);
-            haveSentMouseMotion = true;
+            have_sent_mouseMotion = true;
          }
          break;
          
       case SDL_MOUSEBUTTONDOWN:
-         screen->onMouseClick(shared_from_this(),
+         screen->on_mouse_click(shared_from_this(),
                                 e.button.x, e.button.y,
                                 fromSDLButton(e.button.button));
          break;
 
       case SDL_MOUSEBUTTONUP:
-         screen->onMouseRelease(shared_from_this(),
+         screen->on_mouse_release(shared_from_this(),
                                   e.button.x, e.button.y,
                                   fromSDLButton(e.button.button));
          break;
@@ -321,69 +321,69 @@ void SDLWindow::processInput()
 }
 
 // Set up OpenGL to pick out objects
-IGraphicsPtr SDLWindow::beginPick(int x, int y)
+IGraphicsPtr SDLWindow::begin_pick(int x, int y)
 {
-   ::beginPick(shared_from_this(), mySelectBuffer, x, y);
+   ::begin_pick(shared_from_this(), my_select_buffer, x, y);
    return shared_from_this();
 }
 
 // Finish picking and return the name of the clicked object or zero
 // It's *very* important that this is called exactly once for every
-// beginPick or things will get very messed up
-unsigned SDLWindow::endPick()
+// begin_pick or things will get very messed up
+unsigned SDLWindow::end_pick()
 {
-   return ::endPick(mySelectBuffer);
+   return ::end_pick(my_select_buffer);
 }
 
 // Called to set the camera position
-void SDLWindow::setCamera(const Vector<float>& aPos,
-                          const Vector<float>& aRotation)
+void SDLWindow::set_camera(const Vector<float>& a_pos,
+                          const Vector<float>& a_rotation)
 {
-   glRotatef(aRotation.x, 1.0f, 0.0f, 0.0f);
-   glRotatef(aRotation.y, 0.0f, 1.0f, 0.0f);
-   glRotatef(aRotation.z, 0.0f, 0.0f, 1.0f);
-   glTranslatef(aPos.x, aPos.y, aPos.z);
+   glRotatef(a_rotation.x, 1.0f, 0.0f, 0.0f);
+   glRotatef(a_rotation.y, 0.0f, 1.0f, 0.0f);
+   glRotatef(a_rotation.z, 0.0f, 0.0f, 1.0f);
+   glTranslatef(a_pos.x, a_pos.y, a_pos.z);
 
-   viewFrustum = getViewFrustum();
+   view_frustum = get_view_frustum();
 }
 
-// A wrapper around gluLookAt
-void SDLWindow::lookAt(const Vector<float> anEyePoint,
-                       const Vector<float> aTargetPoint)
+// A wrapper around glu_look_at
+void SDLWindow::look_at(const Vector<float> an_eye_point,
+                        const Vector<float> a_target_point)
 {
-   gluLookAt(anEyePoint.x, anEyePoint.y, anEyePoint.z,
-             aTargetPoint.x, aTargetPoint.y, aTargetPoint.z,
+   gluLookAt(an_eye_point.x, an_eye_point.y, an_eye_point.z,
+             a_target_point.x, a_target_point.y, a_target_point.z,
              0, 1, 0);
 
-   viewFrustum = getViewFrustum();
+   view_frustum = get_view_frustum();
 }
 
 // Intersect a cuboid with the current view frustum
-bool SDLWindow::cuboidInViewFrustum(float x, float y, float z,
+bool SDLWindow::cuboid_in_viewFrustum(float x, float y, float z,
                                     float sizeX, float sizeY, float sizeZ)
 {
-   return viewFrustum.cuboidInFrustum(x, y, z, sizeX, sizeY, sizeZ);
+   return view_frustum.cuboid_in_frustum(x, y, z, sizeX, sizeY, sizeZ);
 }
 
 // Intersect a cube with the current view frustum
-bool SDLWindow::cubeInViewFrustum(float x, float y, float z, float size)
+bool SDLWindow::cube_in_viewFrustum(float x, float y, float z, float size)
 {
-   return viewFrustum.cubeInFrustum(x, y, z, size);
+   return view_frustum.cube_in_frustum(x, y, z, size);
 }
 
 // True if the point is contained within the view frustum
-bool SDLWindow::pointInViewFrustum(float x, float y, float z)
+bool SDLWindow::point_in_viewFrustum(float x, float y, float z)
 {
-   return viewFrustum.pointInFrustum(x, y, z);
+   return view_frustum.point_in_frustum(x, y, z);
 }
 
 // Capture the OpenGL pixels and save them to a file
-void SDLWindow::captureFrame() const
+void SDLWindow::capture_frame() const
 {
-   static int fileNumber = 1;
+   static int file_number = 1;
    
-   const string fileName
-      ("screenshot" + lexical_cast<string>(fileNumber++) + ".bmp");
+   const string file_name
+      ("screenshot" + lexical_cast<string>(file_number++) + ".bmp");
 
    SDL_Surface* temp = SDL_CreateRGBSurface
       (SDL_SWSURFACE, width_, height_, 24,
@@ -405,10 +405,10 @@ void SDLWindow::captureFrame() const
       memcpy(((char*)temp->pixels) + temp->pitch * i, pixels + 3*w * (h-i-1), w*3);
    delete[] pixels;
 
-   SDL_SaveBMP(temp, fileName.c_str());
+   SDL_SaveBMP(temp, file_name.c_str());
    SDL_FreeSurface(temp);
 
-   log() << "Wrote screen shot to " << fileName;
+   log() << "Wrote screen shot to " << file_name;
 }
 
 // Construct and initialise an OpenGL SDL window

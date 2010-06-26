@@ -32,15 +32,15 @@ namespace xml {
 
    struct element {
       element(const string& name)
-         : hasChildren(false), name(name)
+         : has_children(false), name(name)
       {
          str = "<" + name;
       }
       
       template <class T>
-      element& addAttribute(const string& name, T t)
+      element& add_attribute(const string& name, T t)
       {
-         if (hasChildren)
+         if (has_children)
             throw runtime_error(
                "Cannot add XML attributes after children");
          else {
@@ -54,35 +54,35 @@ namespace xml {
          return *this;
       }
 
-      element& addChild(const element& e)
+      element& add_child(const element& e)
       {
-         if (!hasChildren)
+         if (!has_children)
             str += ">";
          
          str += "\n" + e.finish();
-         hasChildren = true;
+         has_children = true;
          return *this;
       }
 
-      element& addText(const string& text)
+      element& add_text(const string& text)
       {
-         if (!hasChildren)
+         if (!has_children)
             str += ">";
 
          str += text;
-         hasChildren = true;
+         has_children = true;
          return *this;
       }
 
       string finish() const
       {
-         if (hasChildren)
+         if (has_children)
             return str + "</" + name + ">\n";
          else
             return str + "/>\n";
       }
 
-      bool hasChildren;
+      bool has_children;
       string str, name;
    };
 

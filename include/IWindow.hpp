@@ -26,10 +26,10 @@ class IWindow {
 public:
    virtual ~IWindow() {}
    
-   virtual void run(IScreenPtr aScreen) = 0;
-   virtual void switchScreen(IScreenPtr aScreen) = 0;
+   virtual void run(IScreenPtr a_screen) = 0;
+   virtual void switch_screen(IScreenPtr a_screen) = 0;
    virtual void quit() = 0;
-   virtual void takeScreenShot() = 0;
+   virtual void take_screen_shot() = 0;
    virtual int width() const = 0;
    virtual int height() const = 0;
 };

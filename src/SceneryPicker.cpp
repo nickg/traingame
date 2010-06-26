@@ -26,101 +26,101 @@
 class SceneryPicker : public ISceneryPicker {
 public:
    SceneryPicker(gui::ILayoutPtr l,
-      const string& resourceClass, const string& guiPath,
-      const string& btnGuiPath);
+      const string& resource_class, const string& gui_path,
+      const string& btn_gui_path);
 
 protected: 
    void next();   
    void prev();
    void rotate();
-   void renderPreview(gui::Widget& canvas);
+   void render_preview(gui::Widget& canvas);
    void show();
    void hide();
 
-   void changeActive(const string& newResName);
-   void selectFirstItem();
+   void change_active(const string& new_res_name);
+   void select_first_item();
    
-   ResourceList resourceList;
-   ResourceList::const_iterator resourceIt;
-   ISceneryPtr activeItem;
+   ResourceList resource_list;
+   ResourceList::const_iterator resource_it;
+   ISceneryPtr active_item;
    gui::ILayoutPtr layout;
    float rotation;
-   string resName, guiPath, resClass;
+   string res_name, gui_path, res_class;
 };
 
 SceneryPicker::SceneryPicker(gui::ILayoutPtr l,
-   const string& resourceClass, const string& guiPath,
-   const string& btnGuiPath)
+   const string& resource_class, const string& gui_path,
+   const string& btn_gui_path)
    : layout(l),
      rotation(0.0f),
-     guiPath(guiPath),
-     resClass(resourceClass)
+     gui_path(gui_path),
+     res_class(resource_class)
 {
    using namespace placeholders;
    
-   enumResources(resourceClass, resourceList);
+   enum_resources(resource_class, resource_list);
    
-   layout->get(guiPath + "/preview").connect(gui::Widget::SIG_RENDER,
-      bind(&SceneryPicker::renderPreview, this, _1));
-   layout->get(guiPath + "/next").connect(gui::Widget::SIG_CLICK,
+   layout->get(gui_path + "/preview").connect(gui::Widget::SIG_RENDER,
+      bind(&SceneryPicker::render_preview, this, _1));
+   layout->get(gui_path + "/next").connect(gui::Widget::SIG_CLICK,
       bind(&SceneryPicker::next, this));
-   layout->get(guiPath + "/prev").connect(gui::Widget::SIG_CLICK,
+   layout->get(gui_path + "/prev").connect(gui::Widget::SIG_CLICK,
       bind(&SceneryPicker::prev, this));
 
-   if (layout->exists(guiPath + "/rotate"))
-      layout->get(guiPath + "/rotate").connect(gui::Widget::SIG_CLICK,
+   if (layout->exists(gui_path + "/rotate"))
+      layout->get(gui_path + "/rotate").connect(gui::Widget::SIG_CLICK,
          bind(&SceneryPicker::rotate, this));
 
-   layout->get(btnGuiPath).connect(gui::Widget::SIG_ENTER,
+   layout->get(btn_gui_path).connect(gui::Widget::SIG_ENTER,
       bind(&SceneryPicker::show, this));
-   layout->get(btnGuiPath).connect(gui::Widget::SIG_LEAVE,
+   layout->get(btn_gui_path).connect(gui::Widget::SIG_LEAVE,
       bind(&SceneryPicker::hide, this));
 
    hide();
 }
 
-void SceneryPicker::selectFirstItem()
+void SceneryPicker::select_first_item()
 {
    // A kludge to avoid calling the pure virtual get() in constructor
    
-   if (resourceList.empty())
-      warn() << "No scenery found in class " << resClass;
+   if (resource_list.empty())
+      warn() << "No scenery found in class " << res_class;
    else {
-      resourceIt = resourceList.begin();
-      changeActive((*resourceIt)->name());
+      resource_it = resource_list.begin();
+      change_active((*resource_it)->name());
    }
 }
     
 void SceneryPicker::next()
 {
-   if (++resourceIt == resourceList.end())
-      resourceIt = resourceList.begin();
+   if (++resource_it == resource_list.end())
+      resource_it = resource_list.begin();
    
-   changeActive((*resourceIt)->name());      
+   change_active((*resource_it)->name());      
 }
    
 void SceneryPicker::prev()
 {
-   if (resourceIt == resourceList.begin())
-      resourceIt = resourceList.end();
-   resourceIt--;
+   if (resource_it == resource_list.begin())
+      resource_it = resource_list.end();
+   resource_it--;
    
-   changeActive((*resourceIt)->name());
+   change_active((*resource_it)->name());
 }
 
 void SceneryPicker::show()
 {
-   layout->get(guiPath).visible(true);
+   layout->get(gui_path).visible(true);
 }
 
 void SceneryPicker::hide()
 {
-   layout->get(guiPath).visible(false);
+   layout->get(gui_path).visible(false);
 }
 
-void SceneryPicker::renderPreview(gui::Widget& canvas)
+void SceneryPicker::render_preview(gui::Widget& canvas)
 {
-   static ILightPtr sun = makeSunLight();
+   static ILightPtr sun = make_sun_light();
       
    glRotatef(45.0f, 1.0f, 0.0f, 0.0f);
    glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
@@ -128,17 +128,17 @@ void SceneryPicker::renderPreview(gui::Widget& canvas)
    glColor3f(1.0f, 1.0f, 1.0f);
    sun->apply();
    
-   activeItem->render();
+   active_item->render();
 }
 
-void SceneryPicker::changeActive(const string& newResName)
+void SceneryPicker::change_active(const string& new_res_name)
 {
-   if (newResName != resName) {
-      resName = newResName;
-      activeItem = this->get();
+   if (new_res_name != res_name) {
+      res_name = new_res_name;
+      active_item = this->get();
       
-      layout->cast<gui::Label&>(guiPath + "/name")
-         .text(activeItem->name());
+      layout->cast<gui::Label&>(gui_path + "/name")
+         .text(active_item->name());
    }   
 }
 
@@ -148,7 +148,7 @@ void SceneryPicker::rotate()
    if (rotation >= 350.0f)
       rotation = 0.0f;
 
-   activeItem->setAngle(rotation);
+   active_item->set_angle(rotation);
 }
 
 class BuildingPicker : public SceneryPicker {
@@ -157,12 +157,12 @@ public:
       : SceneryPicker(layout, "buildings",
          "/building_wnd", "/tool_wnd/tools/building")
    {
-      selectFirstItem();
+      select_first_item();
    }
 
    virtual ISceneryPtr get() const
    {
-      return loadBuilding(resName, rotation);
+      return load_building(res_name, rotation);
    }
 };
 
@@ -172,21 +172,21 @@ public:
       : SceneryPicker(layout, "trees",
          "/tree_wnd", "/tool_wnd/tools/tree")
    {
-      selectFirstItem();
+      select_first_item();
    }
 
    virtual ISceneryPtr get() const
    {
-      return loadTree(resName);
+      return load_tree(res_name);
    }
 };
    
-ISceneryPickerPtr makeTreePicker(gui::ILayoutPtr layout)
+ISceneryPickerPtr make_tree_picker(gui::ILayoutPtr layout)
 {
    return ISceneryPickerPtr(new TreePicker(layout));
 }
 
-ISceneryPickerPtr makeBuildingPicker(gui::ILayoutPtr layout)
+ISceneryPickerPtr make_building_picker(gui::ILayoutPtr layout)
 {
    return ISceneryPickerPtr(new BuildingPicker(layout));
 }

@@ -39,8 +39,8 @@ namespace gui {
       FONT_NORMAL, FONT_MONO
    };
    
-   IFontPtr loadFont(const string& file, int h,
-      FontType type=FONT_NORMAL, bool dropShadow=false);
+   IFontPtr load_font(const string& file, int h,
+      FontType type=FONT_NORMAL, bool drop_shadow=false);
    
 }
 

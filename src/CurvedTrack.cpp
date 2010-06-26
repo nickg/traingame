@@ -37,50 +37,50 @@ class CurvedTrack : public ITrackSegment,
                     public enable_shared_from_this<CurvedTrack>,
                     private CurvedTrackHelper {
 public:
-   CurvedTrack(track::Angle aStartAngle, track::Angle aFinishAngle,
-      int aRadius);
+   CurvedTrack(track::Angle a_start_angle, track::Angle a_finish_angle,
+      int a_radius);
    ~CurvedTrack();
 
    void render() const {}
    void merge(IMeshBufferPtr buf) const;
 
-   void setOrigin(int x, int y, float h);
-   float segmentLength(const track::TravelToken& aToken) const;
+   void set_origin(int x, int y, float h);
+   float segment_length(const track::TravelToken& a_token) const;
 
-   Connection nextPosition(const track::TravelToken& aToken) const;
-   bool isValidDirection(const Direction& aDirection) const;
-   void getEndpoints(vector<Point<int> >& aList) const;
-   void getCovers(vector<Point<int> >& output) const;
+   Connection next_position(const track::TravelToken& a_token) const;
+   bool is_valid_direction(const Direction& a_direction) const;
+   void get_endpoints(vector<Point<int> >& a_list) const;
+   void get_covers(vector<Point<int> >& output) const;
    
-   ITrackSegmentPtr mergeExit(Point<int> where, track::Direction dir);
+   ITrackSegmentPtr merge_exit(Point<int> where, track::Direction dir);
 
-   xml::element toXml() const;
-   track::TravelToken getTravelToken(track::Position aPosition,
-      track::Direction aDirection) const;
+   xml::element to_xml() const;
+   track::TravelToken get_travel_token(track::Position a_position,
+      track::Direction a_direction) const;
     
-   bool hasMultipleStates() const { return false; }
-   void nextState() {}
-   void prevState() {}
-   void setStateRenderHint() {}
+   bool has_multiple_states() const { return false; }
+   void next_state() {}
+   void prev_state() {}
+   void set_state_renderHint() {}
       
 private:
-   void transform(const track::TravelToken& aToken, float delta) const;
-   void glTransformToOrigin() const;
-   Vector<int> cwEntryVector() const;
-   Vector<int> ccwEntryVector() const;
-   void ensureValidDirection(const Direction& aDirection) const;
+   void transform(const track::TravelToken& a_token, float delta) const;
+   void glTransform_toOrigin() const;
+   Vector<int> cw_entry_vector() const;
+   Vector<int> ccw_entry_vector() const;
+   void ensure_valid_direction(const Direction& a_direction) const;
 
    Point<int> origin;
-   int baseRadius;
-   track::Angle startAngle, finishAngle;
+   int base_radius;
+   track::Angle start_angle, finish_angle;
    float height;
 };
 
-CurvedTrack::CurvedTrack(track::Angle aStartAngle,
-   track::Angle aFinishAngle,
-   int aRadius)
-   : origin(makePoint(0, 0)), baseRadius(aRadius),
-     startAngle(aStartAngle), finishAngle(aFinishAngle),
+CurvedTrack::CurvedTrack(track::Angle a_start_angle,
+   track::Angle a_finish_angle,
+   int a_radius)
+   : origin(make_point(0, 0)), base_radius(a_radius),
+     start_angle(a_start_angle), finish_angle(a_finish_angle),
      height(0.0f)
 {
    
@@ -91,72 +91,72 @@ CurvedTrack::~CurvedTrack()
 
 }
 
-void CurvedTrack::setOrigin(int x, int y, float h)
+void CurvedTrack::set_origin(int x, int y, float h)
 {
-   origin = makePoint(x, y);
+   origin = make_point(x, y);
    height = h;
 }
 
 track::TravelToken
-CurvedTrack::getTravelToken(track::Position aPosition,
-   track::Direction aDirection) const
+CurvedTrack::get_travel_token(track::Position a_position,
+   track::Direction a_direction) const
 {
-   ensureValidDirection(aDirection);
+   ensure_valid_direction(a_direction);
 
    track::TravelToken tok = {
-      aDirection,
-      aPosition,
+      a_direction,
+      a_position,
       bind(&CurvedTrack::transform, this, _1, _2),
-      track::flatGradientFunc,
+      track::flat_gradient_func,
       1
    };
    return tok;
 }
 
-void CurvedTrack::glTransformToOrigin() const
+void CurvedTrack::glTransform_toOrigin() const
 {
-   glTranslatef((baseRadius-1)*-sin(degToRad(startAngle)) - 0.5f, 0.0f,
-      (baseRadius-1)*-cos(degToRad(startAngle)) - 0.5f);
+   glTranslatef((base_radius-1)*-sin(deg_to_rad(start_angle)) - 0.5f, 0.0f,
+      (base_radius-1)*-cos(deg_to_rad(start_angle)) - 0.5f);
 
    // There *must* be a way to incorporate this in the above translation
    // as a neat formula, but I really can't think of it
    // This is a complete a hack, but whatever...
-   if (startAngle >= 90 && startAngle <= 180)
+   if (start_angle >= 90 && start_angle <= 180)
       glTranslatef(0.0f, 0.0f, 1.0f);
    
-   if (startAngle >= 180 && startAngle <= 270)
+   if (start_angle >= 180 && start_angle <= 270)
       glTranslatef(1.0f, 0.0f, 0.0f);
 }
 
-void CurvedTrack::transform(const track::TravelToken& aToken, float delta) const
+void CurvedTrack::transform(const track::TravelToken& a_token, float delta) const
 {
-   assert(delta < segmentLength(aToken));
+   assert(delta < segment_length(a_token));
    
    glTranslated(static_cast<double>(origin.x),
       height,
       static_cast<double>(origin.y));
 
-   glTransformToOrigin();
+   glTransform_toOrigin();
 
-   bool backwards = aToken.direction == cwEntryVector();
+   bool backwards = a_token.direction == cw_entry_vector();
    
-   double ratio = delta / segmentLength(aToken);
+   double ratio = delta / segment_length(a_token);
    if (backwards)
       ratio = 1.0 - ratio;
       
-   double angle = startAngle + (90.0 * ratio);
+   double angle = start_angle + (90.0 * ratio);
 
    glRotated(angle, 0.0, 1.0, 0.0);
-   glTranslated(0.0, 0.0, static_cast<double>(baseRadius - 0.5));
+   glTranslated(0.0, 0.0, static_cast<double>(base_radius - 0.5));
 
    if (backwards)
       glRotatef(180.0, 0, 1, 0);
 }
 
-float CurvedTrack::segmentLength(const track::TravelToken& aToken) const
+float CurvedTrack::segment_length(const track::TravelToken& a_token) const
 {
    // Assume curve is only through 90 degrees
-   return M_PI * (static_cast<float>(baseRadius) - 0.5f) / 2.0f;
+   return M_PI * (static_cast<float>(base_radius) - 0.5f) / 2.0f;
 }
 
 //
@@ -179,118 +179,118 @@ float CurvedTrack::segmentLength(const track::TravelToken& aToken) const
 //
 
 // The vector the train is moving on if it enters clockwise
-Vector<int> CurvedTrack::cwEntryVector() const
+Vector<int> CurvedTrack::cw_entry_vector() const
 {
-   return makeVector<int>(-cos(degToRad(finishAngle)), 0,
-      sin(degToRad(finishAngle)));
+   return make_vector<int>(-cos(deg_to_rad(finish_angle)), 0,
+      sin(deg_to_rad(finish_angle)));
 }
 
 // The vector the train is moving on if it enters counter-clockwise
-Vector<int> CurvedTrack::ccwEntryVector() const
+Vector<int> CurvedTrack::ccw_entry_vector() const
 {
-   return makeVector<int>(cos(degToRad(startAngle)), 0.0,
-      -sin(degToRad(startAngle)));
+   return make_vector<int>(cos(deg_to_rad(start_angle)), 0.0,
+      -sin(deg_to_rad(start_angle)));
 }
 
-void CurvedTrack::ensureValidDirection(const Direction& aDirection) const
+void CurvedTrack::ensure_valid_direction(const Direction& a_direction) const
 {
-   if (!isValidDirection(aDirection))
+   if (!is_valid_direction(a_direction))
       throw runtime_error
          ("Invalid direction on curved track from "
-            + lexical_cast<string>(startAngle) + " to "
-            + lexical_cast<string>(finishAngle) + " degrees: "
-            + lexical_cast<string>(aDirection)
+            + lexical_cast<string>(start_angle) + " to "
+            + lexical_cast<string>(finish_angle) + " degrees: "
+            + lexical_cast<string>(a_direction)
             + " (should be "
-            + lexical_cast<string>(cwEntryVector()) + " or "
-            + lexical_cast<string>(ccwEntryVector()) + ")");
+            + lexical_cast<string>(cw_entry_vector()) + " or "
+            + lexical_cast<string>(ccw_entry_vector()) + ")");
 }
 
-bool CurvedTrack::isValidDirection(const Direction& aDirection) const
+bool CurvedTrack::is_valid_direction(const Direction& a_direction) const
 {
-   return aDirection == cwEntryVector() || aDirection == ccwEntryVector();
+   return a_direction == cw_entry_vector() || a_direction == ccw_entry_vector();
 }
 
-Connection CurvedTrack::nextPosition(const track::TravelToken& aToken) const
+Connection CurvedTrack::next_position(const track::TravelToken& a_token) const
 {
    bool backwards;
-   Vector<int> nextDir;
-   if (aToken.direction == cwEntryVector()) {
-      nextDir = -ccwEntryVector();
+   Vector<int> next_dir;
+   if (a_token.direction == cw_entry_vector()) {
+      next_dir = -ccw_entry_vector();
       backwards = true;
    }
-   else if (aToken.direction == ccwEntryVector()) {
-      nextDir = -cwEntryVector();
+   else if (a_token.direction == ccw_entry_vector()) {
+      next_dir = -cw_entry_vector();
       backwards = false;
    }
    else
       assert(false);
 
    // Assuming 90 degree curves again
-   const int cosEnd = static_cast<int>(cos(degToRad(finishAngle)));
-   const int cosStart = static_cast<int>(cos(degToRad(startAngle)));
-   const int sinEnd = static_cast<int>(sin(degToRad(finishAngle)));
-   const int sinStart = static_cast<int>(sin(degToRad(startAngle)));
+   const int cos_end = static_cast<int>(cos(deg_to_rad(finish_angle)));
+   const int cos_start = static_cast<int>(cos(deg_to_rad(start_angle)));
+   const int sin_end = static_cast<int>(sin(deg_to_rad(finish_angle)));
+   const int sin_start = static_cast<int>(sin(deg_to_rad(start_angle)));
 
-   int xDelta, yDelta;
+   int x_delta, y_delta;
 
    if (backwards)
-      xDelta = yDelta = 0;
+      x_delta = y_delta = 0;
    else {
-      xDelta = (baseRadius - 1) * (sinEnd - sinStart);
-      yDelta = (baseRadius - 1) * (cosEnd - cosStart);
+      x_delta = (base_radius - 1) * (sin_end - sin_start);
+      y_delta = (base_radius - 1) * (cos_end - cos_start);
    }
    
-   return make_pair(makePoint(origin.x + xDelta + nextDir.x,
-         origin.y + yDelta + nextDir.z),
-      nextDir);
+   return make_pair(make_point(origin.x + x_delta + next_dir.x,
+         origin.y + y_delta + next_dir.z),
+      next_dir);
 }
 
-void CurvedTrack::getEndpoints(vector<Point<int> >& aList) const
+void CurvedTrack::get_endpoints(vector<Point<int> >& a_list) const
 {
-   aList.push_back(origin);
+   a_list.push_back(origin);
 
    // Assuming 90 degree curves again
-   const int cosEnd = static_cast<int>(cos(degToRad(finishAngle)));
-   const int cosStart = static_cast<int>(cos(degToRad(startAngle)));
-   const int sinEnd = static_cast<int>(sin(degToRad(finishAngle)));
-   const int sinStart = static_cast<int>(sin(degToRad(startAngle)));
+   const int cos_end = static_cast<int>(cos(deg_to_rad(finish_angle)));
+   const int cos_start = static_cast<int>(cos(deg_to_rad(start_angle)));
+   const int sin_end = static_cast<int>(sin(deg_to_rad(finish_angle)));
+   const int sin_start = static_cast<int>(sin(deg_to_rad(start_angle)));
    
-   const int xDelta = (baseRadius - 1) * (sinEnd - sinStart);
-   const int yDelta = (baseRadius - 1) * (cosEnd - cosStart);
+   const int x_delta = (base_radius - 1) * (sin_end - sin_start);
+   const int y_delta = (base_radius - 1) * (cos_end - cos_start);
    
-   aList.push_back(makePoint(origin.x + xDelta, origin.y + yDelta));
+   a_list.push_back(make_point(origin.x + x_delta, origin.y + y_delta));
 }
 
-void CurvedTrack::getCovers(vector<Point<int> >& output) const
+void CurvedTrack::get_covers(vector<Point<int> >& output) const
 {
    vector<Point<int> > exits;
-   getEndpoints(exits);
+   get_endpoints(exits);
 
    const Point<int>& start = exits.at(0);
    const Point<int>& finish = exits.at(1);
    
-   Point<int> trueOrigin =
-      (startAngle == 90 || startAngle == 270)
-      ? makePoint(finish.x, start.y)
-      : makePoint(start.x, finish.y);
+   Point<int> true_origin =
+      (start_angle == 90 || start_angle == 270)
+      ? make_point(finish.x, start.y)
+      : make_point(start.x, finish.y);
    
    set<Point<int> > tmp;
 
    // A fiddle factor to put the cover tiles in the best location
-   const float fiddleRadius = static_cast<float>(baseRadius) - 0.5f;
+   const float fiddle_radius = static_cast<float>(base_radius) - 0.5f;
 
-   const float sign = (startAngle == 0 || startAngle == 180) ? 1.0f : -1.0f;
+   const float sign = (start_angle == 0 || start_angle == 180) ? 1.0f : -1.0f;
 
-   for (track::Angle angle = startAngle; angle < finishAngle; angle += 5) {
-      float x = fiddleRadius * sign * cos(degToRad(angle));
-      float y = fiddleRadius * sign * sin(degToRad(angle));
-      Point<int> p = makePoint(static_cast<int>(x),
+   for (track::Angle angle = start_angle; angle < finish_angle; angle += 5) {
+      float x = fiddle_radius * sign * cos(deg_to_rad(angle));
+      float y = fiddle_radius * sign * sin(deg_to_rad(angle));
+      Point<int> p = make_point(static_cast<int>(x),
          static_cast<int>(y));
 
-      if (abs(p.x) >= baseRadius || abs(p.y) >= baseRadius)
+      if (abs(p.x) >= base_radius || abs(p.y) >= base_radius)
          continue;
       
-      Point<int> actual = p + trueOrigin;
+      Point<int> actual = p + true_origin;
 
       if (actual != start && actual != finish)
          tmp.insert(actual);
@@ -299,12 +299,12 @@ void CurvedTrack::getCovers(vector<Point<int> >& output) const
    copy(tmp.begin(), tmp.end(), back_inserter(output));
 }
 
-ITrackSegmentPtr CurvedTrack::mergeExit(Point<int> where, track::Direction dir)
+ITrackSegmentPtr CurvedTrack::merge_exit(Point<int> where, track::Direction dir)
 {
    // See if this is already an exit
-   if (isValidDirection(dir)) {
+   if (is_valid_direction(dir)) {
       vector<Point<int> > exits;
-      getEndpoints(exits);
+      get_endpoints(exits);
 
       for (vector<Point<int> >::iterator it = exits.begin();
            it != exits.end(); ++it)
@@ -318,27 +318,27 @@ ITrackSegmentPtr CurvedTrack::mergeExit(Point<int> where, track::Direction dir)
 
 void CurvedTrack::merge(IMeshBufferPtr buf) const
 {
-   const Vector<float> off = makeVector(
+   const Vector<float> off = make_vector(
       static_cast<float>(origin.x),
       height,
       static_cast<float>(origin.y));
 
-   mergeCurvedTrack(buf, off, baseRadius, startAngle, finishAngle);
+   merge_curved_track(buf, off, base_radius, start_angle, finish_angle);
 }
 
-xml::element CurvedTrack::toXml() const
+xml::element CurvedTrack::to_xml() const
 {
-   return xml::element("curvedTrack")
-      .addAttribute("startAngle", startAngle)
-      .addAttribute("finishAngle", finishAngle)
-      .addAttribute("radius", baseRadius);
+   return xml::element("curved_track")
+      .add_attribute("start_angle", start_angle)
+      .add_attribute("finish_angle", finish_angle)
+      .add_attribute("radius", base_radius);
 }
 
-ITrackSegmentPtr makeCurvedTrack(track::Angle aStartAngle,
-   track::Angle aFinishAngle, int aRadius)
+ITrackSegmentPtr make_curved_track(track::Angle a_start_angle,
+   track::Angle a_finish_angle, int a_radius)
 {
-   assert(aStartAngle < aFinishAngle);
+   assert(a_start_angle < a_finish_angle);
    
    return ITrackSegmentPtr
-      (new CurvedTrack(aStartAngle, aFinishAngle, aRadius));
+      (new CurvedTrack(a_start_angle, a_finish_angle, a_radius));
 }

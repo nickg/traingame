@@ -27,20 +27,20 @@
 // Concrete implementation of buildings
 class Building : public IScenery, public IXMLCallback {
 public:
-   Building(IResourcePtr aRes);
+   Building(IResourcePtr a_res);
 
    // ISceneryInterface
    const string& name() const { return name_; }
    void render() const;
-   void setAngle(float a) { angle = a; }
-   void setPosition(float x, float y, float z);
+   void set_angle(float a) { angle = a; }
+   void set_position(float x, float y, float z);
    void merge(IMeshBufferPtr buf);
 
    // IXMLSerialisable interface
-   xml::element toXml() const;
+   xml::element to_xml() const;
    
    // IXMLCallback interface
-   void text(const string& localName, const string& aString);
+   void text(const string& local_name, const string& a_string);
 
 private:
    IModelPtr model_;
@@ -50,29 +50,29 @@ private:
    Vector<float> position;
 
    struct ParserState {
-      string modelFile;
+      string model_file;
       float scale;
-   } *parserState;
+   } *parser_state;
 };
 
-Building::Building(IResourcePtr aRes)
-   : name_("???"), resource(aRes), angle(0.0f)
+Building::Building(IResourcePtr a_res)
+   : name_("???"), resource(a_res), angle(0.0f)
 {
    static IXMLParserPtr parser = makeXMLParser("schemas/building.xsd");
 
-   parserState = new ParserState;
-   parserState->scale = 1.0f;
+   parser_state = new ParserState;
+   parser_state->scale = 1.0f;
    
-   parser->parse(aRes->xmlFileName(), *this);
+   parser->parse(a_res->xml_file_name(), *this);
 
-   model_ = loadModel(aRes, parserState->modelFile, parserState->scale);
+   model_ = load_model(a_res, parser_state->model_file, parser_state->scale);
 
-   delete parserState;
+   delete parser_state;
 }
 
-void Building::setPosition(float x, float y, float z)
+void Building::set_position(float x, float y, float z)
 {
-   position = makeVector(x, y, z);
+   position = make_vector(x, y, z);
 }
 
 void Building::render() const
@@ -91,48 +91,48 @@ void Building::merge(IMeshBufferPtr buf)
    model_->merge(buf, position, angle);
 }
 
-void Building::text(const string& localName, const string& aString)
+void Building::text(const string& local_name, const string& a_string)
 {
-   if (localName == "name")
-      name_ = aString;
-   else if (localName == "scale")
-      parserState->scale = boost::lexical_cast<float>(aString);
-   else if (localName == "model")
-      parserState->modelFile = aString;
+   if (local_name == "name")
+      name_ = a_string;
+   else if (local_name == "scale")
+      parser_state->scale = boost::lexical_cast<float>(a_string);
+   else if (local_name == "model")
+      parser_state->model_file = a_string;
 }
 
-xml::element Building::toXml() const
+xml::element Building::to_xml() const
 {
    return xml::element("building")
-      .addAttribute("angle", static_cast<int>(angle))
-      .addAttribute("name", resource->name());
+      .add_attribute("angle", static_cast<int>(angle))
+      .add_attribute("name", resource->name());
 }
 
 namespace {
-   Building* loadBuildingXml(IResourcePtr aRes)
+   Building* load_building_xml(IResourcePtr a_res)
    {      
-      log() << "Loading building from " << aRes->xmlFileName();
+      log() << "Loading building from " << a_res->xml_file_name();
 
-      return new Building(aRes);
+      return new Building(a_res);
    }
 }
 
-ISceneryPtr loadBuilding(const string& aResId, float angle)
+ISceneryPtr load_building(const string& a_res_id, float angle)
 {
-   static ResourceCache<Building> cache(loadBuildingXml, "buildings");
+   static ResourceCache<Building> cache(load_building_xml, "buildings");
    
-   shared_ptr<Building> bld = cache.loadCopy(aResId);
-   bld->setAngle(angle);
+   shared_ptr<Building> bld = cache.load_copy(a_res_id);
+   bld->set_angle(angle);
 
    return ISceneryPtr(bld);
 }
 
-ISceneryPtr loadBuilding(const AttributeSet& attrs)
+ISceneryPtr load_building(const AttributeSet& attrs)
 {
    float angle;
    string name;
    attrs.get("name", name);
    attrs.get("angle", angle);
 
-   return loadBuilding(name, angle);
+   return load_building(name, angle);
 }

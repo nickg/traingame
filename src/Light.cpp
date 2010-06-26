@@ -24,9 +24,9 @@ struct SunLight : ILight {
 
    void apply() const
    {      
-      //const GLfloat globalAmbient[] = { 0.3f, 0.3f, 0.3f, 1.0f };
-      const GLfloat globalAmbient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-      glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
+      //const GLfloat global_ambient[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+      const GLfloat global_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+      glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
       
       const GLfloat ambient[] = { 0.45f, 0.45f, 0.45f, 1.0f };
       //const GLfloat diffuse[] = { 0.4f, 0.4f, 0.4f, 1.0f };
@@ -48,7 +48,7 @@ struct SunLight : ILight {
 
 };
 
-ILightPtr makeSunLight()
+ILightPtr make_sun_light()
 {
    return ILightPtr(new SunLight);
 }

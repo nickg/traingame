@@ -28,14 +28,14 @@ struct ITrain {
    virtual ~ITrain() {}
    
    virtual void render() const = 0;
-   virtual void update(int aDelta) = 0;
+   virtual void update(int a_delta) = 0;
 
    // Return a vector of the absolute position of the front of
    // the train
    virtual Vector<float> front() const = 0;
 
    // Return the track segment occupied by the front of the train
-   virtual ITrackSegmentPtr trackSegment() const = 0;
+   virtual ITrackSegmentPtr track_segment() const = 0;
 
    // Return the tile occupied by the front of the train
    virtual track::Position tile() const = 0;
@@ -52,6 +52,6 @@ struct ITrain {
 
 typedef std::tr1::shared_ptr<ITrain> ITrainPtr;
 
-ITrainPtr makeTrain(IMapPtr aMap);
+ITrainPtr make_train(IMapPtr a_map);
 
 #endif

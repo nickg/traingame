@@ -26,41 +26,41 @@ using namespace gui;
 ToggleBar::ToggleBar(const AttributeSet& attrs)
    : ContainerWidget(attrs),
      nextX(0),
-     buttonWidth(32), buttonHeight(32)
+     button_width(32), button_height(32)
 {
    width(1);
-   height(buttonHeight);
+   height(button_height);
 }
 
 void ToggleBar::render(RenderContext& rc) const
 {
-   rc.pushOrigin(this);
+   rc.push_origin(this);
    ContainerWidget::render(rc);
-   rc.popOrigin();
+   rc.pop_origin();
 }
 
-void ToggleBar::childAdded(Widget* w)
+void ToggleBar::child_added(Widget* w)
 {
    debug() << "Added " << w->name() << " to toggle bar";
 
    w->x(nextX);
    w->y(0);
-   w->width(buttonWidth);
-   w->height(buttonHeight);
+   w->width(button_width);
+   w->height(button_height);
 
-   nextX += buttonWidth;
+   nextX += button_width;
 
-   width(width() + buttonWidth);
+   width(width() + button_width);
 
-   if (countChildren() == 1)
+   if (count_children() == 1)
       boost::polymorphic_cast<ToggleButton*>(w)->on();
 }
 
-bool ToggleBar::handleClick(int x, int y)
+bool ToggleBar::handle_click(int x, int y)
 {
    ChildList::iterator it;
    for (it = begin(); it != end(); ++it)
       boost::polymorphic_cast<ToggleButton*>(*it)->off();
    
-   return ContainerWidget::handleClick(x, y);
+   return ContainerWidget::handle_click(x, y);
 }

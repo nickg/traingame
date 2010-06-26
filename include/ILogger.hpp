@@ -24,7 +24,7 @@
 
 // Stream surrogate for writing log data to
 struct PrintLine {
-   PrintLine(std::ostream& aStream);
+   PrintLine(std::ostream& a_stream);
    ~PrintLine();
    std::ostream& stream;
 };
@@ -32,11 +32,11 @@ struct PrintLine {
 typedef std::tr1::shared_ptr<PrintLine> PrintLinePtr;
 
 template <typename T>
-inline PrintLinePtr operator<<(PrintLinePtr aPrintLine, const T& aThing)
+inline PrintLinePtr operator<<(PrintLinePtr a_print_line, const T& a_thing)
 {
    using namespace std;
-   aPrintLine->stream << aThing;
-   return aPrintLine;
+   a_print_line->stream << a_thing;
+   return a_print_line;
 }
 
 // Types of log levels
@@ -48,16 +48,16 @@ enum LogMsgType {
 struct ILogger {
    virtual ~ILogger() {}
    
-   virtual PrintLinePtr writeMsg(LogMsgType type = LOG_NORMAL) = 0;
+   virtual PrintLinePtr write_msg(LogMsgType type = LOG_NORMAL) = 0;
 };
 
 typedef std::tr1::shared_ptr<ILogger> ILoggerPtr;
 
-ILoggerPtr getLogger();
+ILoggerPtr get_logger();
 
 inline PrintLinePtr log(LogMsgType type = LOG_NORMAL)
 {
-   return getLogger()->writeMsg(type);
+   return get_logger()->write_msg(type);
 }
 
 inline PrintLinePtr warn() { return log(LOG_WARN); }

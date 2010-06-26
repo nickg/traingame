@@ -115,15 +115,15 @@ struct Matrix {
    {
       assert(N == 4);
 
-      T vCols[4] = { v.x, v.y, v.z, 1 };
+      T v_cols[4] = { v.x, v.y, v.z, 1 };
       T cols[4];
       for (int i = 0; i < N; i++) {
          cols[i] = 0;
          for (int j = 0; j < N; j++)
-            cols[i] += entries[i][j] * vCols[j];
+            cols[i] += entries[i][j] * v_cols[j];
       }
 
-      return makeVector(cols[0], cols[1], cols[2]);
+      return make_vector(cols[0], cols[1], cols[2]);
    }
 
    Matrix<T, N>& operator*=(const Matrix<T, N>& rhs)

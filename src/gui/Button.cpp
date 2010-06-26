@@ -31,7 +31,7 @@ void Button::render(RenderContext& rc) const
    rc.rectangle(x(), y(), width(), height(),
       rc.theme().background());
 
-   IFontPtr f = rc.theme().normalFont();
+   IFontPtr f = rc.theme().normal_font();
 
    int center = (height() - f->height()) / 2;
    

@@ -39,7 +39,7 @@ void checkGLError()
    }
 }
 
-void drawGLScene(IWindowPtr aWindow, IGraphicsPtr aContext, IScreenPtr aScreen)
+void drawGLScene(IWindowPtr a_window, IGraphicsPtr a_context, IScreenPtr a_screen)
 {
    using namespace boost;
    
@@ -47,10 +47,10 @@ void drawGLScene(IWindowPtr aWindow, IGraphicsPtr aContext, IScreenPtr aScreen)
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
 
-   const int w = aWindow->width();
-   const int h = aWindow->height();
+   const int w = a_window->width();
+   const int h = a_window->height();
 
-   IConfigPtr cfg = getConfig();
+   IConfigPtr cfg = get_config();
    gluPerspective(45.0f, (GLfloat)w/(GLfloat)h,
       cfg->get<float>("NearClip"),
       cfg->get<float>("FarClip"));
@@ -71,7 +71,7 @@ void drawGLScene(IWindowPtr aWindow, IGraphicsPtr aContext, IScreenPtr aScreen)
    glLoadIdentity();
 
    // Draw the 3D part
-   aScreen->display(aContext);
+   a_screen->display(a_context);
 
    // Set up for 2D
    glMatrixMode(GL_PROJECTION);
@@ -88,7 +88,7 @@ void drawGLScene(IWindowPtr aWindow, IGraphicsPtr aContext, IScreenPtr aScreen)
    glDisable(GL_CULL_FACE);
 
    // Draw the 2D part
-   aScreen->overlay();
+   a_screen->overlay();
 
    // Check for OpenGL errors
    checkGLError();
@@ -113,7 +113,7 @@ void initGL()
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
    // Clear to the sky colour
-   //glClearColor(0.6f, 0.7f, 0.8f, 1.0f);
+   //glClear_color(0.6f, 0.7f, 0.8f, 1.0f);
    glClearColor(176.0f/255.0f, 196.0f/255.0f, 222.0f/255.0f, 1.0f);
    
    // Check for OpenGL extensions   
@@ -125,19 +125,19 @@ void initGL()
 }
 
 // Set the current viewport
-void resizeGLScene(IWindowPtr aWindow)
+void resizeGLScene(IWindowPtr a_window)
 {
-   glViewport(0, 0, aWindow->width(), aWindow->height());
+   glViewport(0, 0, a_window->width(), a_window->height());
 }
 
-void beginPick(IWindowPtr aWindow, unsigned* aBuffer, int x, int y)
+void begin_pick(IWindowPtr a_window, unsigned* a_buffer, int x, int y)
 {
    // Set up selection buffer
-   glSelectBuffer(128, aBuffer);
+   glSelectBuffer(128, a_buffer);
 
    // Get viewport coordinates
-   GLint viewportCoords[4];
-   glGetIntegerv(GL_VIEWPORT, viewportCoords);	
+   GLint viewport_coords[4];
+   glGetIntegerv(GL_VIEWPORT, viewport_coords);	
    
    // Switch to projection matrix
    glMatrixMode(GL_PROJECTION);
@@ -148,11 +148,11 @@ void beginPick(IWindowPtr aWindow, unsigned* aBuffer, int x, int y)
    glLoadIdentity();	
    
    // Set picking matrix
-   gluPickMatrix(x, viewportCoords[3] - y, 2, 2, viewportCoords);
+   gluPickMatrix(x, viewport_coords[3] - y, 2, 2, viewport_coords);
 
    // Just set the perspective
-   IConfigPtr cfg = getConfig();
-   gluPerspective(45.0f, (GLfloat)(aWindow->width())/(GLfloat)(aWindow->height()),
+   IConfigPtr cfg = get_config();
+   gluPerspective(45.0f, (GLfloat)(a_window->width())/(GLfloat)(a_window->height()),
       cfg->get<float>("NearClip"),
       cfg->get<float>("FarClip"));
 
@@ -163,9 +163,9 @@ void beginPick(IWindowPtr aWindow, unsigned* aBuffer, int x, int y)
    glLoadIdentity();
 }
 
-unsigned endPick(unsigned* aBuffer)
+unsigned end_pick(unsigned* a_buffer)
 {   
-   int objectsFound = glRenderMode(GL_RENDER);
+   int objects_found = glRenderMode(GL_RENDER);
    
    // Go back to normal
    glMatrixMode(GL_PROJECTION);
@@ -173,22 +173,22 @@ unsigned endPick(unsigned* aBuffer)
    glMatrixMode(GL_MODELVIEW);
    
    // See if we found any objects
-   if (objectsFound > 0) {
+   if (objects_found > 0) {
       // Find the object with the lowest depth
-      unsigned int lowestDepth = aBuffer[1];
-      int selectedObject = aBuffer[3];
+      unsigned int lowest_depth = a_buffer[1];
+      int selected_object = a_buffer[3];
       
       // Go through all the objects found
-      for (int i = 1; i < objectsFound; i++) {
+      for (int i = 1; i < objects_found; i++) {
          // See if it's closer than the current nearest
-         if (aBuffer[(i*4) + 1] < lowestDepth) { // 4 values for each object
-            lowestDepth = aBuffer[(i * 4) + 1];
-            selectedObject = aBuffer[(i * 4) + 3];
+         if (a_buffer[(i*4) + 1] < lowest_depth) { // 4 values for each object
+            lowest_depth = a_buffer[(i * 4) + 1];
+            selected_object = a_buffer[(i * 4) + 3];
          }
       }
       
       // Return closest object
-      return selectedObject;
+      return selected_object;
    }
    else
       return 0;

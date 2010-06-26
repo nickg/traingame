@@ -25,35 +25,35 @@ using namespace gui;
 
 Theme::Theme()
 {
-   normal_font_ = gui::loadFont("fonts/DejaVuSans.ttf",
+   normal_font_ = gui::load_font("fonts/DejaVuSans.ttf",
       17, gui::FONT_NORMAL);
 }
 
-void Theme::addFont(const string& name, IFontPtr f)
+void Theme::add_font(const string& name, IFontPtr f)
 {
    fonts[name] = f;
 }
 
 Colour Theme::background() const
 {
-   return makeColour(0.0f, 0.0f, 0.3f, 0.5f);
+   return make_colour(0.0f, 0.0f, 0.3f, 0.5f);
 }
 
 Colour Theme::border() const
 {
-   return makeColour(0.0f, 0.0f, 1.0f, 1.0f);
+   return make_colour(0.0f, 0.0f, 1.0f, 1.0f);
 }
 
-IFontPtr Theme::font(const string& fontName) const
+IFontPtr Theme::font(const string& font_name) const
 {
-   if (fontName == "")
-      return normalFont();
+   if (font_name == "")
+      return normal_font();
    else {
-      FontMap::const_iterator it = fonts.find(fontName);
+      FontMap::const_iterator it = fonts.find(font_name);
       if (it != fonts.end())
          return (*it).second;
       else 
-         throw runtime_error("Unknown font: " + fontName);
+         throw runtime_error("Unknown font: " + font_name);
    }
 }
 

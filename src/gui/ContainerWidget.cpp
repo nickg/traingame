@@ -28,8 +28,8 @@ ContainerWidget::ContainerWidget(const AttributeSet& attrs)
 
 void ContainerWidget::render(RenderContext& rc) const
 {
-   for (ChildList::const_iterator it = constBegin();
-        it != constEnd(); ++it) {
+   for (ChildList::const_iterator it = const_begin();
+        it != const_end(); ++it) {
       if ((*it)->visible()) {
          rc.scissor(*it);
          (*it)->render(rc);
@@ -37,43 +37,43 @@ void ContainerWidget::render(RenderContext& rc) const
    }
 }
 
-void ContainerWidget::addChild(Widget* w)
+void ContainerWidget::add_child(Widget* w)
 {
    children.push_back(w);
-   childAdded(w);
+   child_added(w);
 }
 
-void ContainerWidget::adjustForTheme(const Theme& theme)
+void ContainerWidget::adjust_for_theme(const Theme& theme)
 {
-   for (ChildList::const_iterator it = constBegin();
-        it != constEnd(); ++it)
-      (*it)->adjustForTheme(theme);
+   for (ChildList::const_iterator it = const_begin();
+        it != const_end(); ++it)
+      (*it)->adjust_for_theme(theme);
 }
 
-bool ContainerWidget::handleClick(int x, int y)
+bool ContainerWidget::handle_click(int x, int y)
 {
    if (!visible())
       return false;
  
    bool accepted = false;
   
-   for (ChildList::const_iterator it = constBegin();
-        it != constEnd(); ++it) {
+   for (ChildList::const_iterator it = const_begin();
+        it != const_end(); ++it) {
       Widget& w = **it;
 
       if (w.x() <= x && x < w.x() + w.width()
          && w.y() <= y && y < w.y() + w.height())
-         accepted |= w.handleClick(x - w.x(), y - w.y());
+         accepted |= w.handle_click(x - w.x(), y - w.y());
    }
 
-   bool inContainer = this->x() <= x && x < this->x() + this->width()
+   bool in_container = this->x() <= x && x < this->x() + this->width()
       && this->y() <= y && y < this->y() + this->height();
-   accepted |= inContainer;
+   accepted |= in_container;
 
    return accepted;
 }
 
-int ContainerWidget::countChildren()
+int ContainerWidget::count_children()
 {
    return children.size();
 }

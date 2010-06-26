@@ -27,8 +27,8 @@ struct IScenery : IXMLSerialisable {
    virtual ~IScenery() {}
    
    virtual void render() const = 0;
-   virtual void setPosition(float x, float y, float z) = 0;
-   virtual void setAngle(float angle) = 0;
+   virtual void set_position(float x, float y, float z) = 0;
+   virtual void set_angle(float angle) = 0;
    virtual void merge(IMeshBufferPtr buf) = 0;
    virtual const string& name() const = 0;
 };
@@ -37,10 +37,10 @@ typedef shared_ptr<IScenery> ISceneryPtr;
 
 class AttributeSet;
 
-ISceneryPtr loadTree(const string& name);
-ISceneryPtr loadTree(const AttributeSet& attrs);
+ISceneryPtr load_tree(const string& name);
+ISceneryPtr load_tree(const AttributeSet& attrs);
 
-ISceneryPtr loadBuilding(const string& aResId, float angle);
-ISceneryPtr loadBuilding(const AttributeSet& attrs);
+ISceneryPtr load_building(const string& a_res_id, float angle);
+ISceneryPtr load_building(const AttributeSet& attrs);
 
 #endif

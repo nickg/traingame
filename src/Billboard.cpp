@@ -28,37 +28,37 @@
 using namespace std;
 
 namespace {
-   Vector<float> cameraPosition;
+   Vector<float> camera_position;
 }
 
 // Common functions used by billboards
 class BillboardCommon : public IBillboard {
 public:
-   BillboardCommon(ITexturePtr aTexture)
-      : texture(aTexture),
-        position(makeVector(0.0f, 0.0f, 0.0f)),
+   BillboardCommon(ITexturePtr a_texture)
+      : texture(a_texture),
+        position(make_vector(0.0f, 0.0f, 0.0f)),
         scale(1.0f),
-        colour(makeColour(1.0f, 1.0f, 1.0f)) {}
+        colour(make_colour(1.0f, 1.0f, 1.0f)) {}
    virtual ~BillboardCommon() {}
 
    // IBillboard interface
-   void setPosition(float x, float y, float z);
-   void setScale(float aScale);
-   void setColour(float r, float g, float b, float a);
+   void set_position(float x, float y, float z);
+   void set_scale(float a_scale);
+   void set_colour(float r, float g, float b, float a);
    void render() const;
 
-   static void renderSaved();
+   static void render_saved();
    
 private:
    const ITexturePtr texture;
    
 protected:
-   void drawTextureQuad() const;
+   void draw_texture_quad() const;
    void translate() const;
 
-   void saveMe() const;
+   void save_me() const;
 
-   virtual void realRender() const = 0;
+   virtual void real_render() const = 0;
    
    Vector<float> position;
    float scale;
@@ -68,55 +68,55 @@ protected:
       bool operator()(const BillboardCommon* lhs,
          const BillboardCommon* rhs)
       {
-         return distanceToCamera(lhs->position)
-            > distanceToCamera(rhs->position);
+         return distance_to_camera(lhs->position)
+            > distance_to_camera(rhs->position);
       }
    };
    
    // List of billboards to draw at end of this frame
-   static vector<const BillboardCommon*> toDraw;
+   static vector<const BillboardCommon*> to_draw;
 };
 
-vector<const BillboardCommon*> BillboardCommon::toDraw;
+vector<const BillboardCommon*> BillboardCommon::to_draw;
 
-void BillboardCommon::renderSaved()
+void BillboardCommon::render_saved()
 {
    using namespace placeholders;
    
    // Depth sort the saved billboards and render them
 
-   sort(toDraw.begin(), toDraw.end(), CmpDistanceToCam());
+   sort(to_draw.begin(), to_draw.end(), CmpDistanceToCam());
 
-   for_each(toDraw.begin(), toDraw.end(),
-      bind(&BillboardCommon::realRender, placeholders::_1));
+   for_each(to_draw.begin(), to_draw.end(),
+      bind(&BillboardCommon::real_render, placeholders::_1));
    
-   toDraw.clear();
+   to_draw.clear();
 }
 
-void BillboardCommon::saveMe() const
+void BillboardCommon::save_me() const
 {
    // Remember to draw this billboard at the end of the frame
-   toDraw.push_back(this);
+   to_draw.push_back(this);
 }
 
 void BillboardCommon::render() const
 {
-   saveMe();
+   save_me();
 }      
 
-void BillboardCommon::setPosition(float x, float y, float z)
+void BillboardCommon::set_position(float x, float y, float z)
 {
-   position = makeVector(x, y, z);
+   position = make_vector(x, y, z);
 }
 
-void BillboardCommon::setColour(float r, float g, float b, float a)
+void BillboardCommon::set_colour(float r, float g, float b, float a)
 {
-   colour = makeColour(r, g, b, a);
+   colour = make_colour(r, g, b, a);
 }
 
-void BillboardCommon::setScale(float aScale)
+void BillboardCommon::set_scale(float a_scale)
 {
-   scale = aScale;
+   scale = a_scale;
 }
 
 void BillboardCommon::translate() const
@@ -125,7 +125,7 @@ void BillboardCommon::translate() const
 }
       
 // Draw the actual quad containing the texture
-void BillboardCommon::drawTextureQuad() const
+void BillboardCommon::draw_texture_quad() const
 {
    glPushAttrib(GL_ENABLE_BIT);
 
@@ -140,14 +140,16 @@ void BillboardCommon::drawTextureQuad() const
    const float w = scale / 2.0f;
 
    glBegin(GL_QUADS);
-   glTexCoord2f(1.0f, 0.0f);
-   glVertex2f(w, w);
-   glTexCoord2f(0.0f, 0.0f);
-   glVertex2f(-w, w);
-   glTexCoord2f(0.0f, 1.0f);
-   glVertex2f(-w, -w);
-   glTexCoord2f(1.0f, 1.0f);
-   glVertex2f(w, -w);
+   {
+      glTexCoord2f(1.0f, 0.0f);
+      glVertex2f(w, w);
+      glTexCoord2f(0.0f, 0.0f);
+      glVertex2f(-w, w);
+      glTexCoord2f(0.0f, 1.0f);
+      glVertex2f(-w, -w);
+      glTexCoord2f(1.0f, 1.0f);
+      glVertex2f(w, -w);
+   }
    glEnd();
    
    glPopAttrib();
@@ -157,18 +159,18 @@ void BillboardCommon::drawTextureQuad() const
 // but not xz
 class CylindricalBillboard : public BillboardCommon {
 public:
-   CylindricalBillboard(ITexturePtr aTexture)
-      : BillboardCommon(aTexture) {}
+   CylindricalBillboard(ITexturePtr a_texture)
+      : BillboardCommon(a_texture) {}
 
-   void realRender() const;
+   void real_render() const;
 };
 
-void CylindricalBillboard::realRender() const
+void CylindricalBillboard::real_render() const
 {
    // Based on code from
-   // http://www.lighthouse3d.com/opengl/billboarding/index.php?billCyl
-   Vector<float> lookAt, objToCamProj, upAux, objToCam;
-   float angleCosine;  
+   // http://www.lighthouse3d.com/opengl/billboarding/index.php?bill_cyl
+   Vector<float> look_at, obj_to_camProj, up_aux, obj_to_cam;
+   float angle_cosine;  
 
    glPushAttrib(GL_DEPTH_BUFFER_BIT);
    glDepthMask(GL_FALSE);
@@ -177,36 +179,36 @@ void CylindricalBillboard::realRender() const
 
    translate();
    
-	 // objToCamProj is the vector in world coordinates from the 
+   // obj_to_camProj is the vector in world coordinates from the 
    // local origin to the camera projected in the XZ plane
-   objToCamProj = makeVector(
-      cameraPosition.x - position.x,
+   obj_to_camProj = make_vector(
+      camera_position.x - position.x,
       0.0f,
-      cameraPosition.z - position.z);
+      camera_position.z - position.z);
 
-   // This is the original lookAt vector for the object 
+   // This is the original look_at vector for the object 
    // in world coordinates
-   lookAt = makeVector(0.0f, 0.0f, 1.0f);
+   look_at = make_vector(0.0f, 0.0f, 1.0f);
 
    // normalize both vectors to get the cosine directly afterwards
-   objToCamProj.normalise();
+   obj_to_camProj.normalise();
 
    // easy fix to determine wether the angle is negative or positive
-   // for positive angles upAux will be a vector pointing in the 
-   // positive y direction, otherwise upAux will point downwards
+   // for positive angles up_aux will be a vector pointing in the 
+   // positive y direction, otherwise up_aux will point downwards
    // effectively reversing the rotation.
-   upAux = lookAt * objToCamProj;
+   up_aux = look_at * obj_to_camProj;
 
    // compute the angle
-   angleCosine = lookAt.dot(objToCamProj);
+   angle_cosine = look_at.dot(obj_to_camProj);
 
    // perform the rotation. The if statement is used for stability reasons
-   // if the lookAt and objToCamProj vectors are too close together then 
-   // |angleCosine| could be bigger than 1 due to lack of precision
-   //if ((angleCosine < 0.999999f) && (angleCosine > -0.999999f))
-   glRotatef(acos(angleCosine)*180.0f/M_PI, upAux.x, upAux.y, upAux.z);	
+   // if the look_at and obj_to_camProj vectors are too close together then 
+   // |angle_cosine| could be bigger than 1 due to lack of precision
+   //if ((angle_cosine < 0.999999f) && (angle_cosine > -0.999999f))
+   glRotatef(acos(angle_cosine)*180.0f/M_PI, up_aux.x, up_aux.y, up_aux.z);	
 
-   drawTextureQuad();
+   draw_texture_quad();
 
    glPopMatrix();
    glPopAttrib();
@@ -215,18 +217,18 @@ void CylindricalBillboard::realRender() const
 // A billboard which always faces the viewer
 class SphericalBillboard : public BillboardCommon {
 public:
-   SphericalBillboard(ITexturePtr aTexture)
-      : BillboardCommon(aTexture) {}
+   SphericalBillboard(ITexturePtr a_texture)
+      : BillboardCommon(a_texture) {}
 
-   void realRender() const;   
+   void real_render() const;   
 };
 
-void SphericalBillboard::realRender() const
+void SphericalBillboard::real_render() const
 { 
    // Based on code from
-   // http://www.lighthouse3d.com/opengl/billboarding/index.php?billSphe
-   Vector<float> lookAt, objToCamProj, upAux, objToCam;
-   float angleCosine;
+   // http://www.lighthouse3d.com/opengl/billboarding/index.php?bill_sphe
+   Vector<float> look_at, obj_to_camProj, up_aux, obj_to_cam;
+   float angle_cosine;
    
    glPushAttrib(GL_DEPTH_BUFFER_BIT);
    glDepthMask(GL_FALSE);
@@ -235,88 +237,88 @@ void SphericalBillboard::realRender() const
 
    translate();
    
-   // objToCamProj is the vector in world coordinates from the 
+   // obj_to_camProj is the vector in world coordinates from the 
    // local origin to the camera projected in the XZ plane
-   objToCamProj = makeVector(cameraPosition.x - position.x,
+   obj_to_camProj = make_vector(camera_position.x - position.x,
                              0.0f,
-                             cameraPosition.z - position.z);
+                             camera_position.z - position.z);
 
-   // This is the original lookAt vector for the object 
+   // This is the original look_at vector for the object 
    // in world coordinates
-   lookAt = makeVector(0.0f, 0.0f, 1.0f);
+   look_at = make_vector(0.0f, 0.0f, 1.0f);
 
    // normalize both vectors to get the cosine directly afterwards
-   objToCamProj.normalise();
+   obj_to_camProj.normalise();
 
    // easy fix to determine wether the angle is negative or positive
-   // for positive angles upAux will be a vector pointing in the 
-   // positive y direction, otherwise upAux will point downwards
+   // for positive angles up_aux will be a vector pointing in the 
+   // positive y direction, otherwise up_aux will point downwards
    // effectively reversing the rotation.
 
-   upAux = lookAt * objToCamProj;
+   up_aux = look_at * obj_to_camProj;
 
    // compute the angle
-   angleCosine = lookAt.dot(objToCamProj);
+   angle_cosine = look_at.dot(obj_to_camProj);
 
    // perform the rotation. The if statement is used for stability reasons
-   // if the lookAt and objToCamProj vectors are too close together then 
-   // |angleCosine| could be bigger than 1 due to lack of precision
-   glRotatef(acos(angleCosine)*180.0f/M_PI, upAux.x, upAux.y, upAux.z);	
+   // if the look_at and obj_to_camProj vectors are too close together then 
+   // |angle_cosine| could be bigger than 1 due to lack of precision
+   glRotatef(acos(angle_cosine)*180.0f/M_PI, up_aux.x, up_aux.y, up_aux.z);	
       
    // so far it is just like the cylindrical billboard. The code for the 
    // second rotation comes now
    // The second part tilts the object so that it faces the camera
 
-   // objToCam is the vector in world coordinates from 
+   // obj_to_cam is the vector in world coordinates from 
    // the local origin to the camera
-   objToCam = cameraPosition - position;
+   obj_to_cam = camera_position - position;
 
    // Normalize to get the cosine afterwards
-   objToCam.normalise();
+   obj_to_cam.normalise();
 
-   // Compute the angle between objToCamProj and objToCam, 
+   // Compute the angle between obj_to_camProj and obj_to_cam, 
    //i.e. compute the required angle for the lookup vector
 
-   angleCosine = objToCamProj.dot(objToCam);
+   angle_cosine = obj_to_camProj.dot(obj_to_cam);
 
    // Tilt the object. The test is done to prevent instability 
-   // when objToCam and objToCamProj have a very small
+   // when obj_to_cam and obj_to_camProj have a very small
    // angle between them
 
-   if ((angleCosine < 0.99990) && (angleCosine > -0.9999)) {
-      if (objToCam.y < 0)
-         glRotatef(acos(angleCosine)*180/M_PI,1,0,0);	
+   if ((angle_cosine < 0.99990) && (angle_cosine > -0.9999)) {
+      if (obj_to_cam.y < 0)
+         glRotatef(acos(angle_cosine)*180/M_PI,1,0,0);	
       else
-         glRotatef(acos(angleCosine)*180/M_PI,-1,0,0);
+         glRotatef(acos(angle_cosine)*180/M_PI,-1,0,0);
    }
 
-   drawTextureQuad();
+   draw_texture_quad();
 
    glPopMatrix();
    glPopAttrib();
 }
 
-IBillboardPtr makeCylindricalBillboard(ITexturePtr aTexture)
+IBillboardPtr make_cylindrical_billboard(ITexturePtr a_texture)
 {
-   return IBillboardPtr(new CylindricalBillboard(aTexture));
+   return IBillboardPtr(new CylindricalBillboard(a_texture));
 }
 
-IBillboardPtr makeSphericalBillboard(ITexturePtr aTexture)
+IBillboardPtr make_spherical_billboard(ITexturePtr a_texture)
 {
-   return IBillboardPtr(new SphericalBillboard(aTexture));
+   return IBillboardPtr(new SphericalBillboard(a_texture));
 }
 
-void setBillboardCameraOrigin(Vector<float> aPosition)
+void set_billboard_cameraOrigin(Vector<float> a_position)
 {
-   cameraPosition = aPosition;
+   camera_position = a_position;
 }
 
-float distanceToCamera(Vector<float> aPosition)
+float distance_to_camera(Vector<float> a_position)
 {
-   return (cameraPosition - aPosition).length();
+   return (camera_position - a_position).length();
 }
 
-void renderBillboards()
+void render_billboards()
 {
-   BillboardCommon::renderSaved();
+   BillboardCommon::render_saved();
 }

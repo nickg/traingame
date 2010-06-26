@@ -37,43 +37,43 @@ class StraightTrack : public ITrackSegment,
                       private StraightTrackHelper,
                       private SleeperHelper {
 public:
-   StraightTrack(const Direction& aDirection);
+   StraightTrack(const Direction& a_direction);
    ~StraightTrack();
    
    void render() const {}
    void merge(IMeshBufferPtr buf) const;
    
-   void setOrigin(int x, int y, float h);
-   float segmentLength(const track::TravelToken& token) const { return 1.0f; }
+   void set_origin(int x, int y, float h);
+   float segment_length(const track::TravelToken& token) const { return 1.0f; }
 
-   Connection nextPosition(const track::TravelToken& aDirection) const;
-   bool isValidDirection(const Direction& aDirection) const;
-   void getEndpoints(vector<Point<int> >& aList) const;
-   void getCovers(vector<Point<int> >& output) const { }
+   Connection next_position(const track::TravelToken& a_direction) const;
+   bool is_valid_direction(const Direction& a_direction) const;
+   void get_endpoints(vector<Point<int> >& a_list) const;
+   void get_covers(vector<Point<int> >& output) const { }
    
-   ITrackSegmentPtr mergeExit(Point<int> where, track::Direction dir);
-   track::TravelToken getTravelToken(track::Position aPosition,
-      track::Direction aDirection) const;
+   ITrackSegmentPtr merge_exit(Point<int> where, track::Direction dir);
+   track::TravelToken get_travel_token(track::Position a_position,
+      track::Direction a_direction) const;
 
-   bool hasMultipleStates() const { return false; }
-   void nextState() {}
-   void prevState() {}
-   void setStateRenderHint() {}
+   bool has_multiple_states() const { return false; }
+   void next_state() {}
+   void prev_state() {}
+   void set_state_renderHint() {}
 
    // IXMLSerialisable interface
-   xml::element toXml() const;
+   xml::element to_xml() const;
    
 private:
-   void transform(const track::TravelToken& aToken, float delta) const;
-   void ensureValidDirection(const track::Direction& aDirection) const;
+   void transform(const track::TravelToken& a_token, float delta) const;
+   void ensure_valid_direction(const track::Direction& a_direction) const;
    
    Point<int> origin;  // Absolute position
    Direction direction;
    float height;
 };
 
-StraightTrack::StraightTrack(const Direction& aDirection)
-   : direction(aDirection), height(0.0f)
+StraightTrack::StraightTrack(const Direction& a_direction)
+   : direction(a_direction), height(0.0f)
 {
    
 }
@@ -83,57 +83,57 @@ StraightTrack::~StraightTrack()
    
 }
 
-void StraightTrack::setOrigin(int x, int y, float h)
+void StraightTrack::set_origin(int x, int y, float h)
 {
-   origin = makePoint(x, y);
+   origin = make_point(x, y);
    height = h;
 }
 
 track::TravelToken
-StraightTrack::getTravelToken(track::Position aPosition,
-   track::Direction aDirection) const
+StraightTrack::get_travel_token(track::Position a_position,
+   track::Direction a_direction) const
 {
-   ensureValidDirection(aDirection);
+   ensure_valid_direction(a_direction);
 
    track::TravelToken tok = {
-      aDirection,
-      aPosition,
+      a_direction,
+      a_position,
       bind(&StraightTrack::transform, this, _1, _2),
-      track::flatGradientFunc,
+      track::flat_gradient_func,
       1
    };
    return tok;
 }
 
-void StraightTrack::transform(const track::TravelToken& aToken,
+void StraightTrack::transform(const track::TravelToken& a_token,
    float delta) const
 {
    assert(delta < 1.0);
 
-   if (aToken.direction == -direction)
+   if (a_token.direction == -direction)
       delta = 1.0 - delta;
 
-   const float xTrans = direction == axis::X ? delta : 0;
-   const float yTrans = direction == axis::Y ? delta : 0;
+   const float x_trans = direction == axis::X ? delta : 0;
+   const float y_trans = direction == axis::Y ? delta : 0;
 
-   glTranslated(static_cast<double>(origin.x) + xTrans,
+   glTranslated(static_cast<double>(origin.x) + x_trans,
       height,
-      static_cast<double>(origin.y) + yTrans);
+      static_cast<double>(origin.y) + y_trans);
 
    if (direction == axis::Y)
       glRotated(-90.0, 0.0, 1.0, 0.0);
 
    glTranslated(-0.5, 0.0, 0.0);
    
-   if (aToken.direction == -direction)
+   if (a_token.direction == -direction)
       glRotated(-180.0, 0.0, 1.0, 0.0);
 }
 
-ITrackSegmentPtr StraightTrack::mergeExit(Point<int> where,
+ITrackSegmentPtr StraightTrack::merge_exit(Point<int> where,
    track::Direction dir)
 {
 #if 1
-   debug() << "mergeExit where=" << where
+   debug() << "merge_exit where=" << where
            << " dir=" << dir
            << " me=" << origin
            << " mydir=" << direction;
@@ -141,114 +141,114 @@ ITrackSegmentPtr StraightTrack::mergeExit(Point<int> where,
 
    // See if we can make this a crossover track
    if (direction != dir && where == origin)
-      return makeCrossoverTrack();
+      return make_crossover_track();
 
    // See if we can make some points
-   if (isValidDirection(dir)) {
+   if (is_valid_direction(dir)) {
       // X-aligned points
-      if (where == origin + makePoint(-2, 1))
-         return makePoints(-axis::X, true);
-      else if (where == origin + makePoint(-2, -1))
-         return makePoints(-axis::X, false);
-      else if (where == origin + makePoint(2, 1))
-         return makePoints(axis::X, false);
-      else if (where == origin + makePoint(2, -1))
-         return makePoints(axis::X, true);
+      if (where == origin + make_point(-2, 1))
+         return make_points(-axis::X, true);
+      else if (where == origin + make_point(-2, -1))
+         return make_points(-axis::X, false);
+      else if (where == origin + make_point(2, 1))
+         return make_points(axis::X, false);
+      else if (where == origin + make_point(2, -1))
+         return make_points(axis::X, true);
 
       // Y-aligned points
-      if (where == origin + makePoint(1, -2))
-         return makePoints(-axis::Y, false);
-      else if (where == origin + makePoint(-1, -2))
-         return makePoints(-axis::Y, true);
-      else if (where == origin + makePoint(1, 2))
-         return makePoints(axis::Y, true);
-      else if (where == origin + makePoint(-1, 2))
-         return makePoints(axis::Y, false);
+      if (where == origin + make_point(1, -2))
+         return make_points(-axis::Y, false);
+      else if (where == origin + make_point(-1, -2))
+         return make_points(-axis::Y, true);
+      else if (where == origin + make_point(1, 2))
+         return make_points(axis::Y, true);
+      else if (where == origin + make_point(-1, 2))
+         return make_points(axis::Y, false);
    }
    
    // Not possible to merge
    return ITrackSegmentPtr();
 }
 
-bool StraightTrack::isValidDirection(const Direction& aDirection) const
+bool StraightTrack::is_valid_direction(const Direction& a_direction) const
 {
    if (direction == axis::X)
-      return aDirection == axis::X || -aDirection == axis::X;
+      return a_direction == axis::X || -a_direction == axis::X;
    else
-      return aDirection == axis::Y || -aDirection == axis::Y;
+      return a_direction == axis::Y || -a_direction == axis::Y;
 }
 
-void StraightTrack::getEndpoints(vector<Point<int> >& aList) const
+void StraightTrack::get_endpoints(vector<Point<int> >& a_list) const
 {
-   aList.push_back(origin);
+   a_list.push_back(origin);
 }
 
-void StraightTrack::ensureValidDirection(const Direction& aDirection) const
+void StraightTrack::ensure_valid_direction(const Direction& a_direction) const
 {
-   if (!isValidDirection(aDirection))
+   if (!is_valid_direction(a_direction))
       throw runtime_error
          ("Invalid direction on straight track: "
-            + lexical_cast<string>(aDirection)
+            + lexical_cast<string>(a_direction)
             + " (should be parallel to "
             + lexical_cast<string>(direction) + ")");
 }
 
-Connection StraightTrack::nextPosition(const track::TravelToken& aToken) const
+Connection StraightTrack::next_position(const track::TravelToken& a_token) const
 {
-   ensureValidDirection(aToken.direction);
+   ensure_valid_direction(a_token.direction);
 
-   if (aToken.direction == axis::X)
-      return make_pair(makePoint(origin.x + 1, origin.y), axis::X);
-   else if (aToken.direction == -axis::X)
-      return make_pair(makePoint(origin.x - 1, origin.y), -axis::X);
-   else if (aToken.direction == axis::Y)
-      return make_pair(makePoint(origin.x, origin.y + 1), axis::Y);
-   else if (aToken.direction == -axis::Y)
-      return make_pair(makePoint(origin.x, origin.y - 1), -axis::Y);
+   if (a_token.direction == axis::X)
+      return make_pair(make_point(origin.x + 1, origin.y), axis::X);
+   else if (a_token.direction == -axis::X)
+      return make_pair(make_point(origin.x - 1, origin.y), -axis::X);
+   else if (a_token.direction == axis::Y)
+      return make_pair(make_point(origin.x, origin.y + 1), axis::Y);
+   else if (a_token.direction == -axis::Y)
+      return make_pair(make_point(origin.x, origin.y - 1), -axis::Y);
    else
       assert(false);
 }
 
 void StraightTrack::merge(IMeshBufferPtr buf) const
 {
-   Vector<float> off = makeVector(
+   Vector<float> off = make_vector(
       static_cast<float>(origin.x),
       height,
       static_cast<float>(origin.y));
 
-   float yAngle = direction == axis::X ? 90.0f : 0.0f;
+   float y_angle = direction == axis::X ? 90.0f : 0.0f;
 
-   mergeStraightRail(buf, off, yAngle);
+   merge_straight_rail(buf, off, y_angle);
 
-   yAngle += 90.0f;
+   y_angle += 90.0f;
 
-   off += rotate(makeVector(-0.4f, 0.0f, 0.0f), yAngle, 0.0f, 1.0f, 0.0f);
+   off += rotate(make_vector(-0.4f, 0.0f, 0.0f), y_angle, 0.0f, 1.0f, 0.0f);
    
    for (int i = 0; i < 4; i++) {
-      mergeSleeper(buf, off, yAngle);
+      merge_sleeper(buf, off, y_angle);
 
-      off += rotate(makeVector(0.25f, 0.0f, 0.0f), yAngle, 0.0f, 1.0f, 0.0f);
+      off += rotate(make_vector(0.25f, 0.0f, 0.0f), y_angle, 0.0f, 1.0f, 0.0f);
    }  
 }
 
-xml::element StraightTrack::toXml() const
+xml::element StraightTrack::to_xml() const
 {
-   return xml::element("straightTrack")
-      .addAttribute("align", direction == axis::X ? "x" : "y");
+   return xml::element("straight_track")
+      .add_attribute("align", direction == axis::X ? "x" : "y");
 }
 
-ITrackSegmentPtr makeStraightTrack(const Direction& aDirection)
+ITrackSegmentPtr make_straight_track(const Direction& a_direction)
 {
-   Direction realDir(aDirection);
+   Direction real_dir(a_direction);
    
    // Direction must either be along axis::X or axis::Y but we
    // allow the opositite direction here too
-   if (realDir == -axis::X || realDir == -axis::Y)
-      realDir = -realDir;
+   if (real_dir == -axis::X || real_dir == -axis::Y)
+      real_dir = -real_dir;
 
-   if (realDir != axis::X && realDir != axis::Y)
+   if (real_dir != axis::X && real_dir != axis::Y)
       throw runtime_error("Illegal straight track direction: "
-         + lexical_cast<string>(aDirection));
+         + lexical_cast<string>(a_direction));
    
-   return ITrackSegmentPtr(new StraightTrack(realDir));
+   return ITrackSegmentPtr(new StraightTrack(real_dir));
 }

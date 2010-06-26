@@ -22,7 +22,7 @@ using namespace gui;
 ImageButton::ImageButton(const AttributeSet& attrs)
    : Widget(attrs)
 {
-   texture = loadTexture(attrs.get<string>("image"));
+   texture = load_texture(attrs.get<string>("image"));
 }
 
 void ImageButton::render(RenderContext& rc) const

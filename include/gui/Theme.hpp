@@ -37,10 +37,10 @@ namespace gui {
       Colour border() const;
 
       // Fonts
-      IFontPtr normalFont() const { return normal_font_; }
-      IFontPtr font(const string& fontName) const;
+      IFontPtr normal_font() const { return normal_font_; }
+      IFontPtr font(const string& font_name) const;
 
-      void addFont(const string& name, IFontPtr f);
+      void add_font(const string& name, IFontPtr f);
       
    private:
       IFontPtr normal_font_;

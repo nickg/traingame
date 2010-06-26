@@ -62,7 +62,7 @@ struct BezierCurve {
 
    Vector<T> operator()(T t) const
    {
-      return makeVector
+      return make_vector
          (// X
           p[0].x * (1 - t) * (1 - t) * (1 - t)
           + p[1].x * 3 * t * (1 - t) * (1 - t)
@@ -86,7 +86,7 @@ struct BezierCurve {
    // The derivative with respect to t at a point
    Vector<T> deriv(T t) const
    {
-      return makeVector
+      return make_vector
          (// X
           p[0].x * -3 * (1 - t) * (1 - t)
           + p[1].x * (3 - 12*t + 9*t*t)
@@ -125,7 +125,7 @@ struct BezierCurve {
 
 // Generate Bezier curves
 template <typename T>
-BezierCurve<T> makeBezierCurve(Vector<T> p1, Vector<T> p2,
+BezierCurve<T> make_bezier_curve(Vector<T> p1, Vector<T> p2,
                                Vector<T> p3, Vector<T> p4)
 {
    return BezierCurve<T>(p1, p2, p3, p4);

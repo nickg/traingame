@@ -25,24 +25,24 @@ struct ISmokeTrail {
    virtual ~ISmokeTrail() {}
 
    // Move and generate new particles
-   virtual void update(int aDelta) = 0;
+   virtual void update(int a_delta) = 0;
    
    // Draw all the particles
    virtual void render() const = 0;
 
    // Change the position where new particles are generated
-   virtual void setPosition(float x, float y, float z) = 0;
+   virtual void set_position(float x, float y, float z) = 0;
 
    // Change the initial velocity of new particles
-   virtual void setVelocity(float x, float y, float z) = 0;
+   virtual void set_velocity(float x, float y, float z) = 0;
    
    // Change the rate at which particles are created
    // Delay is in milliseconds
-   virtual void setDelay(int aDelay) = 0;
+   virtual void set_delay(int a_delay) = 0;
 };
 
 typedef shared_ptr<ISmokeTrail> ISmokeTrailPtr;
 
-ISmokeTrailPtr makeSmokeTrail();
+ISmokeTrailPtr make_smoke_trail();
 
 #endif

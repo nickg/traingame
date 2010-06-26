@@ -40,22 +40,22 @@ struct IStation {
    // This is only used for the user's benefit and does not identify
    // the station in any way
    virtual const string& name() const = 0;
-   virtual void setName(const string& aName) = 0;
+   virtual void set_name(const string& a_name) = 0;
 
    // A station has an ID that uniquely identifies it
    // Setting is allowed to support the map loader
    virtual int id() const = 0;
-   virtual void setId(int anId) = 0;
+   virtual void set_id(int an_id) = 0;
 
    // A station has a random colour that is used to identify it when
    // the highlight is drawn
-   virtual Colour highlightColour() const = 0;
-   virtual bool highlightVisible() const = 0;
-   virtual void setHighlightVisible(bool onOff) = 0;
+   virtual Colour highlight_colour() const = 0;
+   virtual bool highlight_visible() const = 0;
+   virtual void set_highlight_visible(bool on_off) = 0;
 };
 
 typedef shared_ptr<IStation> IStationPtr;
 
-IStationPtr makeStation();
+IStationPtr make_station();
 
 #endif

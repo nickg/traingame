@@ -35,11 +35,11 @@ namespace gui {
       void range(int low, int high);
       
       void render(RenderContext& rc) const;
-      void adjustForTheme(const Theme& theme);
+      void adjust_for_theme(const Theme& theme);
 
    private:
-      int value_, minValue, maxValue;
-      string fontName;
+      int value_, min_value, max_value;
+      string font_name;
       
       static const int THROTTLE_MAX = 10;
       static const int THROTTLE_MIN = 0;

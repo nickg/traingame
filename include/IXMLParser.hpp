@@ -33,10 +33,10 @@
 namespace {
 
    template <class T>
-   T xmlAttrCast(const string& str);
+   T xml_attr_cast(const string& str);
 
    template <>
-   bool xmlAttrCast(const string& str)
+   bool xml_attr_cast(const string& str)
    {
       istringstream ss(str);
       bool result;
@@ -52,7 +52,7 @@ namespace {
    }
 
    template <>
-   Colour xmlAttrCast(const string& str)
+   Colour xml_attr_cast(const string& str)
    {
       istringstream ss(str);
       int r, g, b;
@@ -68,7 +68,7 @@ namespace {
    }
 
    template <class T>
-   T xmlAttrCast(const string& str)
+   T xml_attr_cast(const string& str)
    {
       return boost::lexical_cast<T>(str);
    }
@@ -79,43 +79,43 @@ namespace {
 class AttributeSet {
 public:
    AttributeSet(const xercesc::Attributes& attrs)
-      : myAttrs(attrs) {}
+      : my_attrs(attrs) {}
 
    bool has(const string& name) const
    {
-      XMLCh* xmlName = xercesc::XMLString::transcode(name.c_str());
+      XMLCh* xml_name = xercesc::XMLString::transcode(name.c_str());
 
-      int index = myAttrs.getIndex(xmlName);
-      xercesc::XMLString::release(&xmlName);
+      int index = my_attrs.getIndex(xml_name);
+      xercesc::XMLString::release(&xml_name);
 
       return index != -1;
    }
 
    template <class T>
-   T get(const std::string& aName) const
+   T get(const std::string& a_name) const
    {
-      XMLCh* xmlName = xercesc::XMLString::transcode(aName.c_str());
+      XMLCh* xml_name = xercesc::XMLString::transcode(a_name.c_str());
 
-      int index = myAttrs.getIndex(xmlName);
-      xercesc::XMLString::release(&xmlName);
+      int index = my_attrs.getIndex(xml_name);
+      xercesc::XMLString::release(&xml_name);
       
       if (index != -1) {
          char* ascii = xercesc::XMLString::transcode(
-            myAttrs.getValue(index));
+            my_attrs.getValue(index));
 
-         T result = xmlAttrCast<T>(ascii);
+         T result = xml_attr_cast<T>(ascii);
 
          xercesc::XMLString::release(&ascii);
          return result;
       }
       else
-         throw std::runtime_error("No attribute: " + aName);
+         throw std::runtime_error("No attribute: " + a_name);
    }
 
    template <class T>
-   void get(const std::string& aName, T& aT) const
+   void get(const std::string& a_name, T& aT) const
    {
-      aT = get<T>(aName);
+      aT = get<T>(a_name);
    }
 
    // Get with default
@@ -126,31 +126,31 @@ public:
    }
    
 private:
-   const xercesc::Attributes& myAttrs;
+   const xercesc::Attributes& my_attrs;
 };
 
 // SAX-like interface to XML parsing
 struct IXMLCallback {
    virtual ~IXMLCallback() {}
 
-   virtual void startElement(const string& localName,
+   virtual void start_element(const string& local_name,
                              const AttributeSet& attrs) {}
-   virtual void endElement(const string& localName) {}
-   virtual void text(const string& localName,
-                     const string& aString) {}
+   virtual void end_element(const string& local_name) {}
+   virtual void text(const string& local_name,
+                     const string& a_string) {}
 };
 
 // Interface to a validating XML parser
 struct IXMLParser {
    virtual ~IXMLParser() {}
 
-   virtual void parse(const std::string& aFileName,
-      IXMLCallback& aCallback) = 0;
+   virtual void parse(const std::string& a_file_name,
+      IXMLCallback& a_callback) = 0;
 };
 
 typedef std::tr1::shared_ptr<IXMLParser> IXMLParserPtr;
  
-IXMLParserPtr makeXMLParser(const std::string& aSchemaFile);
+IXMLParserPtr makeXMLParser(const std::string& a_schema_file);
      
 #endif
 

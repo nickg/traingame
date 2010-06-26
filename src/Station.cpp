@@ -27,41 +27,41 @@ public:
    ~Station() {}
 
    // IStation interface
-   const string& name() const { return myName; }
-   void setName(const string& aName) { myName = aName; }
-   int id() const { return myId; }
-   void setId(int anId) { myId = anId; }
-   Colour highlightColour() const { return colour; }
-   bool highlightVisible() const { return isHighlightVisible; }
-   void setHighlightVisible(bool onOff);
+   const string& name() const { return my_name; }
+   void set_name(const string& a_name) { my_name = a_name; }
+   int id() const { return my_id; }
+   void set_id(int an_id) { my_id = an_id; }
+   Colour highlight_colour() const { return colour; }
+   bool highlight_visible() const { return is_highlight_visible; }
+   void set_highlight_visible(bool on_off);
 private:
-   string myName;
+   string my_name;
    Colour colour;
-   bool isHighlightVisible;
-   int myId;
+   bool is_highlight_visible;
+   int my_id;
 };
 
 Station::Station()
-   : isHighlightVisible(false)
+   : is_highlight_visible(false)
 {
    using namespace boost;
    
    // Generate a unique station name;
-   static int nameCounter = 1;
-   myId = nameCounter++;
-   myName = "Station" + lexical_cast<string>(myId);
+   static int name_counter = 1;
+   my_id = name_counter++;
+   my_name = "Station" + lexical_cast<string>(my_id);
 
    // Generate a random colour
-   static Uniform<float> colourRand(0.3f, 1.0f);
-   colour = makeColour(colourRand(), colourRand(), colourRand());
+   static Uniform<float> colour_rand(0.3f, 1.0f);
+   colour = make_colour(colour_rand(), colour_rand(), colour_rand());
 }
 
-void Station::setHighlightVisible(bool onOff)
+void Station::set_highlight_visible(bool on_off)
 {
-   isHighlightVisible = onOff;
+   is_highlight_visible = on_off;
 }
 
-IStationPtr makeStation()
+IStationPtr make_station()
 {
    return IStationPtr(new Station);
 }

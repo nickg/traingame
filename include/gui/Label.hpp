@@ -38,9 +38,9 @@ namespace gui {
       void format(const char* fmt, ...);
 
       void render(RenderContext& rc) const;
-      void adjustForTheme(const Theme& theme);
+      void adjust_for_theme(const Theme& theme);
    private:
-      string text_, fontName;
+      string text_, font_name;
       Colour colour_;
       bool dirty;
    };

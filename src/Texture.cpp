@@ -35,52 +35,52 @@ public:
    Texture(const string &file);
    virtual ~Texture();
 
-   GLuint texture() const { return myTexture; }
+   GLuint texture() const { return my_texture; }
    void bind() const;
    
-   int width() const { return myWidth; }
-   int height() const { return myHeight; }
+   int width() const { return my_width; }
+   int height() const { return my_height; }
    
 private:
-   GLuint myTexture;
-   int myWidth, myHeight;
+   GLuint my_texture;
+   int my_width, my_height;
    
-   static bool isPowerOfTwo(int n);
-   static bool isTextureSizeSupported(int width, int height,
+   static bool is_power_ofTwo(int n);
+   static bool is_texture_sizeSupported(int width, int height,
                                       int ncols = 4, GLenum format = GL_RGBA);
 };
 
 // Texture cache
 namespace {
-   map<string, ITexturePtr> theTextureCache;
+   map<string, ITexturePtr> the_texture_cache;
 }
   
-ITexturePtr loadTexture(const string& aFileName)
+ITexturePtr load_texture(const string& a_file_name)
 {
    map<string, ITexturePtr>::iterator it =
-      theTextureCache.find(aFileName);
+      the_texture_cache.find(a_file_name);
 
-   if (it != theTextureCache.end())
+   if (it != the_texture_cache.end())
       return (*it).second;
    else {
-      ITexturePtr ptr(new Texture(aFileName));
-      theTextureCache[aFileName] = ptr;
+      ITexturePtr ptr(new Texture(a_file_name));
+      the_texture_cache[a_file_name] = ptr;
       return ptr;
    }      
 }
 
-ITexturePtr loadTexture(IResourcePtr aRes, const string& aFileName)
+ITexturePtr load_texture(IResourcePtr a_res, const string& a_file_name)
 {
    // Hack alert! Just use the handle to find out the file name
    // This should be replaced with a solution where all textures come
    // from resources...
-   string realFileName;
+   string real_file_name;
    {
-      IResource::Handle h = aRes->openFile(aFileName);
-      realFileName = h.fileName();
+      IResource::Handle h = a_res->open_file(a_file_name);
+      real_file_name = h.file_name();
    } // Handle closed here
 
-   return loadTexture(realFileName);
+   return load_texture(real_file_name);
 }
 
 Texture::Texture(const string &file)
@@ -92,12 +92,12 @@ Texture::Texture(const string &file)
       throw runtime_error(os.str());
    }
 
-   if (!isPowerOfTwo(surface->w))
+   if (!is_power_ofTwo(surface->w))
       warn() << file << " width not a power of 2";
-   if (!isPowerOfTwo(surface->h))
+   if (!is_power_ofTwo(surface->h))
       warn() << file << " height not a power of 2";
 
-   if (!isTextureSizeSupported(surface->w, surface->h))
+   if (!is_texture_sizeSupported(surface->w, surface->h))
       warn() << file << " bigger than max OpenGL texture";
 
    int ncols = surface->format->BytesPerPixel;
@@ -121,11 +121,11 @@ Texture::Texture(const string &file)
       throw runtime_error(os.str());
    }
 
-   myWidth = surface->w;
-   myHeight = surface->h;
+   my_width = surface->w;
+   my_height = surface->h;
    
-   glGenTextures(1, &myTexture);
-   glBindTexture(GL_TEXTURE_2D, myTexture);
+   glGenTextures(1, &my_texture);
+   glBindTexture(GL_TEXTURE_2D, my_texture);
 
    // Use GL_NEAREST here for better performance
    // Or GL_LINEAR for better apppearance
@@ -143,10 +143,10 @@ Texture::Texture(const string &file)
 
 Texture::~Texture()
 {
-   glDeleteTextures(1, &myTexture);
+   glDeleteTextures(1, &my_texture);
 }
 
-bool Texture::isPowerOfTwo(int n)
+bool Texture::is_power_ofTwo(int n)
 {
    int pop = 0;
    for (unsigned i = 0, bit = 1;
@@ -158,7 +158,7 @@ bool Texture::isPowerOfTwo(int n)
    return pop == 1;
 }
 
-bool Texture::isTextureSizeSupported(int width, int height, int ncols, GLenum format)
+bool Texture::is_texture_sizeSupported(int width, int height, int ncols, GLenum format)
 {
    glTexImage2D(GL_PROXY_TEXTURE_2D, 0, ncols, width, height, 0, format,
                 GL_UNSIGNED_BYTE, NULL);
@@ -170,5 +170,5 @@ bool Texture::isTextureSizeSupported(int width, int height, int ncols, GLenum fo
 
 void Texture::bind() const
 {
-   glBindTexture(GL_TEXTURE_2D, myTexture);
+   glBindTexture(GL_TEXTURE_2D, my_texture);
 }

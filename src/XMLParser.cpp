@@ -34,74 +34,74 @@ using namespace xercesc;
 // SAX2 handler to call our own methods
 struct SAX2WrapperHandler : public DefaultHandler {
    
-   SAX2WrapperHandler() : callbackPtr(NULL) {}
+   SAX2WrapperHandler() : callback_ptr(NULL) {}
    
-   void startElement(const XMLCh* const uri,
+   void start_element(const XMLCh* const uri,
                      const XMLCh* const localname,
                      const XMLCh* const qname,
                      const Attributes& attrs)
    {
-      char* chLocalname = XMLString::transcode(localname);
+      char* ch_localname = XMLString::transcode(localname);
 
-      callbackPtr->startElement(chLocalname, AttributeSet(attrs));
+      callback_ptr->start_element(ch_localname, AttributeSet(attrs));
       
-      XMLString::release(&chLocalname);
+      XMLString::release(&ch_localname);
    }
 
    void characters(const XMLCh* const buf, const XMLSize_t length)
    {
-      char* chBuf = XMLString::transcode(buf);
+      char* ch_buf = XMLString::transcode(buf);
 
-      charBuf << chBuf;
+      char_buf << ch_buf;
 
-      XMLString::release(&chBuf);
+      XMLString::release(&ch_buf);
    }
 
-   void endElement(const XMLCh* const uri,
+   void end_element(const XMLCh* const uri,
                    const XMLCh* const localname,
                    const XMLCh* const qname)
    {
-      char* chLocalname = XMLString::transcode(localname);
+      char* ch_localname = XMLString::transcode(localname);
 
-      if (charBuf.str().size() > 0) {
-         callbackPtr->text(chLocalname, charBuf.str());
-         charBuf.str("");
+      if (char_buf.str().size() > 0) {
+         callback_ptr->text(ch_localname, char_buf.str());
+         char_buf.str("");
       }
 
-      callbackPtr->endElement(chLocalname);
+      callback_ptr->end_element(ch_localname);
       
-      XMLString::release(&chLocalname);
+      XMLString::release(&ch_localname);
    }
    
    void error(const SAXParseException& e) { throw e; }
-   void fatalError(const SAXParseException& e) { throw e; }
+   void fatal_error(const SAXParseException& e) { throw e; }
 
-   IXMLCallback* callbackPtr;
-   ostringstream charBuf;
+   IXMLCallback* callback_ptr;
+   ostringstream char_buf;
 };
 
 // Concrete XML parser using Xerces
 class XercesXMLParser : public IXMLParser {
 public:
-   XercesXMLParser(const string& aSchemaFile);
+   XercesXMLParser(const string& a_schema_file);
    ~XercesXMLParser();
 
-   void parse(const string& aFileName, IXMLCallback& aCallback);
+   void parse(const string& a_file_name, IXMLCallback& a_callback);
 private:
-   SAX2XMLReader* myReader;
-   SAX2WrapperHandler* myHandler;
+   SAX2XMLReader* my_reader;
+   SAX2WrapperHandler* my_handler;
 
-   static int ourParserCount;
+   static int our_parser_count;
 };
 
 // Number of parsers in use
-int XercesXMLParser::ourParserCount(0);
+int XercesXMLParser::our_parser_count(0);
 
-XercesXMLParser::XercesXMLParser(const string& aSchemaFile)
+XercesXMLParser::XercesXMLParser(const string& a_schema_file)
 {
-   log() << "Creating parser for XML schema " << aSchemaFile;
+   log() << "Creating parser for XML schema " << a_schema_file;
 
-   if (ourParserCount++ == 0) {
+   if (our_parser_count++ == 0) {
       // Initialise Xerces for the first time
       try {
          XMLPlatformUtils::Initialize();
@@ -119,38 +119,38 @@ XercesXMLParser::XercesXMLParser(const string& aSchemaFile)
       log() << "Xerces initialised";
    }   
 
-   myReader = XMLReaderFactory::createXMLReader();
+   my_reader = XMLReaderFactory::createXMLReader();
    
-   myReader->setFeature(XMLUni::fgSAX2CoreValidation, true);
-   myReader->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
-   myReader->setFeature(XMLUni::fgXercesValidationErrorAsFatal, true);
-   myReader->setFeature(XMLUni::fgXercesDynamic, false);
-   myReader->setFeature(XMLUni::fgXercesSchema, true);
+   my_reader->setFeature(XMLUni::fgSAX2CoreValidation, true);
+   my_reader->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
+   my_reader->setFeature(XMLUni::fgXercesValidationErrorAsFatal, true);
+   my_reader->setFeature(XMLUni::fgXercesDynamic, false);
+   my_reader->setFeature(XMLUni::fgXercesSchema, true);
 
    // Full checking (can be slow)
-   myReader->setFeature(XMLUni::fgXercesSchemaFullChecking, true);
+   my_reader->setFeature(XMLUni::fgXercesSchemaFullChecking, true);
 
    // Enable grammar caching
-   myReader->setFeature(XMLUni::fgXercesCacheGrammarFromParse, true);
+   my_reader->setFeature(XMLUni::fgXercesCacheGrammarFromParse, true);
 
-   XMLCh* schemaName = XMLString::transcode(aSchemaFile.c_str());
+   XMLCh* schema_name = XMLString::transcode(a_schema_file.c_str());
 
-   myHandler = new SAX2WrapperHandler;
-   myReader->setContentHandler(myHandler);
-   myReader->setErrorHandler(myHandler);
-   myReader->setEntityResolver(myHandler);
+   my_handler = new SAX2WrapperHandler;
+   my_reader->setContentHandler(my_handler);
+   my_reader->setErrorHandler(my_handler);
+   my_reader->setEntityResolver(my_handler);
 
    // Cache the grammar
    try {
-      myReader->loadGrammar(schemaName, Grammar::SchemaGrammarType, true);
+      my_reader->loadGrammar(schema_name, Grammar::SchemaGrammarType, true);
 
       // Always use the cached grammar
-      myReader->setFeature(XMLUni::fgXercesUseCachedGrammarInParse, true);
+      my_reader->setFeature(XMLUni::fgXercesUseCachedGrammarInParse, true);
    }
    catch (const SAXParseException& e) {
       char* message = XMLString::transcode(e.getMessage());
       error() << "SAXParseException: " << message;
-      error() << "At " << aSchemaFile << " line "
+      error() << "At " << a_schema_file << " line "
               << e.getLineNumber() << " col "
               << e.getColumnNumber();
       XMLString::release(&message);
@@ -158,26 +158,26 @@ XercesXMLParser::XercesXMLParser(const string& aSchemaFile)
       throw runtime_error("Failed to load XML schema");
    }
 
-   XMLString::release(&schemaName);
+   XMLString::release(&schema_name);
 }
 
 XercesXMLParser::~XercesXMLParser()
 {
-   delete myReader;
-   delete myHandler;
+   delete my_reader;
+   delete my_handler;
 }
 
-void XercesXMLParser::parse(const string& aFileName, IXMLCallback& aCallback)
+void XercesXMLParser::parse(const string& a_file_name, IXMLCallback& a_callback)
 {
-   myHandler->callbackPtr = &aCallback;
+   my_handler->callback_ptr = &a_callback;
 
    try {
-      myReader->parse(aFileName.c_str());
+      my_reader->parse(a_file_name.c_str());
    }
    catch (const SAXParseException& e) {
       char* message = XMLString::transcode(e.getMessage());
       error() << "SAXParseException: " << message;
-      error() << "At " << aFileName << " line "
+      error() << "At " << a_file_name << " line "
               << e.getLineNumber() << " col "
               << e.getColumnNumber();
       XMLString::release(&message);
@@ -185,11 +185,11 @@ void XercesXMLParser::parse(const string& aFileName, IXMLCallback& aCallback)
       throw runtime_error("Failed to load XML file");
    }
 
-   myHandler->callbackPtr = NULL;
+   my_handler->callback_ptr = NULL;
 }
 
 // Create a Xerces parser for a schema and return a handle to it
-IXMLParserPtr makeXMLParser(const std::string& aSchemaFile)
+IXMLParserPtr makeXMLParser(const std::string& a_schema_file)
 {
-   return IXMLParserPtr(new XercesXMLParser(aSchemaFile));
+   return IXMLParserPtr(new XercesXMLParser(a_schema_file));
 }

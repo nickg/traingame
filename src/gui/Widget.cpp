@@ -23,10 +23,10 @@
 
 using namespace gui;
 
-int Widget::ourUniqueId(0);
+int Widget::our_unique_id(0);
 
 Widget::Widget(const AttributeSet& attrs)
-   : name_(attrs.get<string>("name", uniqueName())),
+   : name_(attrs.get<string>("name", unique_name())),
      x_(attrs.get<int>("x", -1)),
      y_(attrs.get<int>("y", -1)),
      width_(attrs.get<int>("width", 0)),
@@ -36,8 +36,8 @@ Widget::Widget(const AttributeSet& attrs)
 {
    // If x or y weren't specified center the widget in the screen
    if (x_ == -1 || y_ == -1) {
-      const int screenW = getGameWindow()->width();
-      const int screenH = getGameWindow()->height();
+      const int screenW = get_game_window()->width();
+      const int screenH = get_game_window()->height();
 
       if (x_ == -1)
          x_ = (screenW - width_) / 2;
@@ -47,9 +47,9 @@ Widget::Widget(const AttributeSet& attrs)
    }
 }
 
-string Widget::uniqueName()
+string Widget::unique_name()
 {
-   return "widget" + boost::lexical_cast<string>(ourUniqueId++);
+   return "widget" + boost::lexical_cast<string>(our_unique_id++);
 }
 
 void Widget::raise(Signal sig)
@@ -64,13 +64,13 @@ void Widget::connect(Signal sig, SignalHandler handler)
    handlers[sig] = handler;
 }
 
-bool Widget::handleClick(int x, int y)
+bool Widget::handle_click(int x, int y)
 {
    raise(SIG_CLICK);
    return true;
 }
 
-void Widget::dumpLocation() const
+void Widget::dump_location() const
 {
    debug() << name() << ": x=" << x()
            << " y=" << y() << " width=" << width()

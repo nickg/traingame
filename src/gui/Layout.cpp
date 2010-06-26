@@ -50,8 +50,8 @@ public:
    bool click(int x, int y);
 
    // IXMLCallback interface
-   void startElement(const string& localName, const AttributeSet &attrs);
-   void endElement(const string& localName);
+   void start_element(const string& local_name, const AttributeSet &attrs);
+   void end_element(const string& local_name);
 private:
 
    // Manages paths during parsing
@@ -97,51 +97,51 @@ Layout::~Layout()
       delete (*it).second;
 }
 
-void Layout::startElement(const string& localName,
+void Layout::start_element(const string& local_name,
    const AttributeSet &attrs)
 {
    Widget* w = NULL;
 
-   if (localName == "layout") {
+   if (local_name == "layout") {
       root = new RootWidget(attrs);
       parse_path.push(root);
       return;
    }
-   else if (localName == "font") {
+   else if (local_name == "font") {
       const string name = attrs.get<string>("name");
       const string file = attrs.get<string>("file");     
-      const bool dropShadow = attrs.get<bool>("dropShadow", false);
+      const bool drop_shadow = attrs.get<bool>("drop_shadow", false);
       const int size = attrs.get<int>("size", 14);
 
-      theme.addFont(name,
-         gui::loadFont(file, size, FONT_NORMAL, dropShadow));
+      theme.add_font(name,
+         gui::load_font(file, size, FONT_NORMAL, drop_shadow));
 
       return;
    }
-   else if (localName == "window")
+   else if (local_name == "window")
       w = new Window(attrs);
-   else if (localName == "button")
+   else if (local_name == "button")
       w = new Button(attrs);
-   else if (localName == "label")
+   else if (local_name == "label")
       w = new Label(attrs);
-   else if (localName == "throttleMeter")
+   else if (local_name == "throttle_meter")
       w = new ThrottleMeter(attrs);
-   else if (localName == "toggleBar")
+   else if (local_name == "toggle_bar")
       w = new ToggleBar(attrs);
-   else if (localName == "toggleButton")
+   else if (local_name == "toggle_button")
       w = new ToggleButton(attrs);
-   else if (localName == "canvas3d")
+   else if (local_name == "canvas3d")
       w = new Canvas3D(attrs);
-   else if (localName == "imageButton")
+   else if (local_name == "image_button")
       w = new ImageButton(attrs);
-   else if (localName == "fromBottom")
+   else if (local_name == "from_bottom")
       w = new FromBottom(attrs);
    else
-      throw runtime_error("Unexpected " + localName);
+      throw runtime_error("Unexpected " + local_name);
 
    Widget* parent = parse_path.top();
    if (ContainerWidget* c = dynamic_cast<ContainerWidget*>(parent)) {
-      c->addChild(w);
+      c->add_child(w);
    }
    else {
       throw runtime_error("Widget " + parse_path.str()
@@ -153,16 +153,16 @@ void Layout::startElement(const string& localName,
    widgets[parse_path.str()] = w;
 }
 
-void Layout::endElement(const string& localName)
+void Layout::end_element(const string& local_name)
 {
-   if (localName != "font")
+   if (local_name != "font")
       parse_path.pop();
 }
 
 void Layout::render() const
 {
    assert(root);
-   root->adjustForTheme(theme);
+   root->adjust_for_theme(theme);
    
    RenderContext rc(theme);
    root->render(rc);
@@ -185,7 +185,7 @@ bool Layout::exists(const string& path) const
 
 bool Layout::click(int x, int y)
 {
-   return root->handleClick(x, y);
+   return root->handle_click(x, y);
 }
 
 string Layout::PathStack::str() const
@@ -211,13 +211,13 @@ Widget* Layout::PathStack::top() const
    return path_comps.back();
 }
 
-ILayoutPtr gui::makeLayout(const string& file_name)
+ILayoutPtr gui::make_layout(const string& file_name)
 {
    return ILayoutPtr(new Layout(file_name));
 }
 
-string gui::parentPath(const string& path)
+string gui::parent_path(const string& path)
 {
-   size_t lastSlash = path.find_last_of("/");
-   return path.substr(lastSlash + 1);
+   size_t last_slash = path.find_last_of("/");
+   return path.substr(last_slash + 1);
 }
