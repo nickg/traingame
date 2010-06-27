@@ -123,13 +123,16 @@ void SlopeTrack::merge(IMeshBufferPtr buf) const
    for (float t = 0.1f; t < 1.0f; t += 0.25f) {
       const Vector<float> curve_value = curve(t);
 
+#if 0
+      // Should the sleepers be at the same angle as the slope?
       const Vector<float> deriv = curve.deriv(t);
       const float angle =
          rad_to_deg<float>(atanf(deriv.y / deriv.x));
+#endif
 
       Vector<float> t = make_vector(curve_value.x, curve_value.y, 0.0f);
 
-      merge_sleeper(buf, off + rotateY(t, y_angle), y_angle + angle);
+      merge_sleeper(buf, off + rotateY(t, y_angle), y_angle);
    }
 }
 
