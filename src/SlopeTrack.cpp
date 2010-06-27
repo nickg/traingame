@@ -268,7 +268,7 @@ ITrackSegmentPtr SlopeTrack::merge_exit(Point<int> where, track::Direction dir)
 
 xml::element SlopeTrack::to_xml() const
 {
-   return xml::element("slope_track")
+   return xml::element("slope-track")
       .add_attribute("align", axis == axis::X ? "x" : "y");
 }
 

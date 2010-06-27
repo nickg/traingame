@@ -202,7 +202,7 @@ ITrackSegmentPtr CrossoverTrack::merge_exit(Point<int> where,
 
 xml::element CrossoverTrack::to_xml() const
 {
-   return xml::element("crossover_track");
+   return xml::element("crossover-track");
 }
 
 ITrackSegmentPtr make_crossover_track()
