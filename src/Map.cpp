@@ -1468,7 +1468,7 @@ void Map::save_to(ostream& of)
 
          if (tile.station) {
             tile_xml.add_child
-               (xml::element("station_part")
+               (xml::element("station-part")
                   .add_attribute("id", tile.station->id()));
             useful = true;
          }

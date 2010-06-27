@@ -291,7 +291,7 @@ void SBend::ensure_valid_direction(track::Direction dir) const
 
 xml::element SBend::to_xml() const
 {
-   return xml::element("sbend_track")
+   return xml::element("sbend-track")
       .add_attribute("align", axis == axis::X ? "x" : "y")
       .add_attribute("offset", offset)
       .add_attribute("straight", straight);

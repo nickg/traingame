@@ -328,9 +328,9 @@ void CurvedTrack::merge(IMeshBufferPtr buf) const
 
 xml::element CurvedTrack::to_xml() const
 {
-   return xml::element("curved_track")
-      .add_attribute("start_angle", start_angle)
-      .add_attribute("finish_angle", finish_angle)
+   return xml::element("curved-track")
+      .add_attribute("start-angle", start_angle)
+      .add_attribute("finish-angle", finish_angle)
       .add_attribute("radius", base_radius);
 }
 

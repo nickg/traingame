@@ -233,7 +233,7 @@ void StraightTrack::merge(IMeshBufferPtr buf) const
 
 xml::element StraightTrack::to_xml() const
 {
-   return xml::element("straight_track")
+   return xml::element("straight-track")
       .add_attribute("align", direction == axis::X ? "x" : "y");
 }
 
