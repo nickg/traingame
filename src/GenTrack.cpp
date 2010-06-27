@@ -99,7 +99,7 @@ GenTrack::GenTrack(Vector<int> delta,
    Parameters parms = make_tuple(delta, entry_dir, exit_dir);
    MeshCache::iterator it = mesh_cache.find(parms);
    if (it == mesh_cache.end()) {
-      rail_buf = make_bezier_railMesh(curve);
+      rail_buf = make_bezier_rail_mesh(curve);
       mesh_cache[parms] = rail_buf;
    }
    else

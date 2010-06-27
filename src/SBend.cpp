@@ -98,7 +98,7 @@ SBend::SBend(track::Direction dir, int straight, int off)
    Parameters parms = make_tuple(straight, offset * reflect);
    MeshCache::iterator it = mesh_cache.find(parms);
    if (it == mesh_cache.end()) {
-      rail_buf = make_bezier_railMesh(curve);
+      rail_buf = make_bezier_rail_mesh(curve);
       mesh_cache[parms] = rail_buf;
    }
    else
