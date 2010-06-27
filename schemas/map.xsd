@@ -83,9 +83,9 @@
                     <xs:element name="gen-track" minOccurs="0">
                       <xs:complexType>
                         <xs:attribute name="delta-x" use="required"
-                                      type="xs:nonNegativeInteger"/>
+                                      type="xs:integer"/>
                         <xs:attribute name="delta-y" use="required"
-                                      type="xs:nonNegativeInteger"/>
+                                      type="xs:integer"/>
 
                         <xs:attribute name="entry-dir-x" use="required"
                                       type="xs:integer"/>

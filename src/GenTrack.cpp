@@ -51,6 +51,8 @@ public:
    xml::element to_xml() const;
    
 private:
+   float extend_from_center(track::Direction dir) const;
+   
    BezierCurve<float> curve;
    IMeshBufferPtr rail_buf;
 
@@ -88,11 +90,14 @@ GenTrack::GenTrack(Vector<int> delta,
       static_cast<float>(exit_dir.y)).normalise();
 
    float pinch_length = (delta_f.length() + 1.0f) / 3.0f;
+
+   const float entry_extend = extend_from_center(entry_dir);
+   const float exit_extend = extend_from_center(exit_dir);
    
-   Vector<float> p1 = entry_dir_norm * -0.5f;
+   Vector<float> p1 = entry_dir_norm * -entry_extend;
    Vector<float> p2 = entry_dir_norm * pinch_length;
    Vector<float> p3 = delta_f - (exit_dir_norm * pinch_length);
-   Vector<float> p4 = delta_f + (exit_dir_norm * 0.5f);
+   Vector<float> p4 = delta_f + (exit_dir_norm * exit_extend);
 
    curve = make_bezier_curve(p1, p2, p3, p4);
    
@@ -104,6 +109,21 @@ GenTrack::GenTrack(Vector<int> delta,
    }
    else
       rail_buf = (*it).second;
+}
+
+float GenTrack::extend_from_center(track::Direction dir) const
+{   
+   // Track must extend from the centre to the edge of a tile
+   const float x_sq = static_cast<float>(dir.x * dir.x);
+   const float y_sq = static_cast<float>(dir.y * dir.y);
+   
+   if (dir.x == dir.y)
+      return sqrtf(2.0f) * 0.5f;
+   else if (dir.x < dir.y)
+      return sqrtf(x_sq / y_sq + 1) * 0.5f;
+   else
+      return sqrtf(y_sq / x_sq + 1) * 0.5f;   
+
 }
 
 void GenTrack::merge(IMeshBufferPtr buf) const
