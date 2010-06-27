@@ -165,5 +165,8 @@ ITrackSegmentPtr make_points(track::Direction a_direction, bool reflect);
 ITrackSegmentPtr make_slope_track(track::Direction axis, Vector<float> slope,
    Vector<float> slope_before, Vector<float> slope_after);
 ITrackSegmentPtr makeSBend(track::Direction dir, int straight, int off);
+ITrackSegmentPtr make_gen_track(Vector<int> delta,
+                                track::Direction entry_dir,
+                                track::Direction exit_dir);
 
 #endif
