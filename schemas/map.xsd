@@ -80,6 +80,25 @@
                       </xs:complexType>
                     </xs:element>
 
+                    <xs:element name="gen-track" minOccurs="0">
+                      <xs:complexType>
+                        <xs:attribute name="delta-x" use="required"
+                                      type="xs:nonNegativeInteger"/>
+                        <xs:attribute name="delta-y" use="required"
+                                      type="xs:nonNegativeInteger"/>
+
+                        <xs:attribute name="entry-dir-x" use="required"
+                                      type="xs:nonNegativeInteger"/>
+                        <xs:attribute name="entry-dir-y" use="required"
+                                      type="xs:nonNegativeInteger"/>
+
+                        <xs:attribute name="exit-dir-x" use="required"
+                                      type="xs:nonNegativeInteger"/>
+                        <xs:attribute name="exit-dir-y" use="required"
+                                      type="xs:nonNegativeInteger"/>
+                      </xs:complexType>
+                    </xs:element>
+
                     <xs:element name="crossover-track" minOccurs="0">
                     </xs:element>
 

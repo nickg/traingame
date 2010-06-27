@@ -382,8 +382,6 @@ void Map::set_start(int x, int y, int dirX, int dirY)
 {
    start_location = make_point(x, y);
    start_direction = make_vector(dirX, 0, dirY);
-
-   debug() << "start " << start_location;
 }
 
 void Map::set_grid(bool on_off)
@@ -1539,6 +1537,8 @@ public:
          handle_curved_track(attrs);
       else if (local_name == "crossover-track")
          handle_crossover_track(attrs);
+      else if (local_name == "gen-track")
+         handle_gen_track(attrs);
       else if (local_name == "points")
          handle_points(attrs);
       else if (local_name == "slope-track")
@@ -1707,6 +1707,8 @@ private:
    {
       my_map->set_track_at(tile, make_crossover_track());
    }
+
+   void handle_gen_track(const AttributeSet& attrs);
    
    shared_ptr<Map> my_map;
    map<int, IStationPtr> my_stations;
@@ -1715,6 +1717,23 @@ private:
 
    IResourcePtr resource;
 };
+
+void MapLoader::handle_gen_track(const AttributeSet& attrs)
+{
+   Vector<int> delta;
+   track::Direction entry_dir, exit_dir;
+
+   attrs.get("delta-x", delta.x);
+   attrs.get("delta-y", delta.y);
+
+   attrs.get("entry-dir-x", entry_dir.x);
+   attrs.get("entry-dir-y", entry_dir.y);
+   
+   attrs.get("exit-dir-x", exit_dir.x);
+   attrs.get("exit-dir-y", exit_dir.y);
+
+   my_map->set_track_at(tile, make_gen_track(delta, entry_dir, exit_dir));
+}
 
 IMapPtr load_map(const string& a_res_id)
 {

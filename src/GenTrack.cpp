@@ -58,7 +58,12 @@ GenTrack::GenTrack(Vector<int> delta,
                    track::Direction entry_dir,
                    track::Direction exit_dir)
 {
-
+   const float deltaX = static_cast<float>(delta.x);
+   const float deltaZ = static_cast<float>(delta.y);
+   
+   Vector<float> p1 = make_vector(0.0f, 0.0f, 0.0f);
+   
+   Vector<float> p4 = make_vector(deltaX, 0.0f, deltaZ);
 }
 
 void GenTrack::merge(IMeshBufferPtr buf) const
