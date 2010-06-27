@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map width="32" height="32">
+<name>No Name</name>
+
+<start x="1" y="1" dirX="1" dirY="0"/>
+
+<heightmap>gen_track.bin</heightmap>
+
+<tileset>
+  <tile x="2" y="2">
+    <gen-track delta-x="4" delta-y="0" 
+               entry-dir-x="1" entry-dir-y="0"
+               exit-dir-x="1" exit-dir-y="1"/>
+  </tile>
+
+  <tile x="8" y="9">
+    <gen-track delta-x="8" delta-y="0" 
+               entry-dir-x="1" entry-dir-y="0"
+               exit-dir-x="1" exit-dir-y="0"/>
+  </tile>
+
+  <tile x="8" y="1">
+    <gen-track delta-x="6" delta-y="6" 
+               entry-dir-x="1" entry-dir-y="0"
+               exit-dir-x="1" exit-dir-y="1"/>
+  </tile>
+</tileset>
+
+</map>
