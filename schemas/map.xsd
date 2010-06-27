@@ -35,21 +35,21 @@
                 <xs:complexType>
                   <xs:sequence>
 
-                    <xs:element name="straightTrack" minOccurs="0">
+                    <xs:element name="straight-track" minOccurs="0">
                       <xs:complexType>
                         <xs:attribute name="align" use="required"
                                       type="xs:string"/>  <!-- should be restricted -->
                       </xs:complexType>
                     </xs:element>
 
-                    <xs:element name="slopeTrack" minOccurs="0">
+                    <xs:element name="slope-track" minOccurs="0">
                       <xs:complexType>
                         <xs:attribute name="align" use="required"
                                       type="xs:string"/>  <!-- should be restricted -->
                       </xs:complexType>
                     </xs:element>
 
-                    <xs:element name="sbendTrack" minOccurs="0">
+                    <xs:element name="sbend-track" minOccurs="0">
                       <xs:complexType>
                         <xs:attribute name="align" use="required"
                                       type="xs:string"/>  <!-- should be restricted -->
@@ -69,7 +69,7 @@
                       </xs:complexType>
                     </xs:element>
 
-                    <xs:element name="curvedTrack" minOccurs="0">
+                    <xs:element name="curved-track" minOccurs="0">
                       <xs:complexType>
                         <xs:attribute name="startAngle" use="required"
                                       type="xs:nonNegativeInteger"/>
@@ -80,10 +80,10 @@
                       </xs:complexType>
                     </xs:element>
 
-                    <xs:element name="crossoverTrack" minOccurs="0">
+                    <xs:element name="crossover-track" minOccurs="0">
                     </xs:element>
 
-                    <xs:element name="stationPart" minOccurs="0" maxOccurs="1">
+                    <xs:element name="station-part" minOccurs="0" maxOccurs="1">
                       <xs:complexType>
                         <xs:attribute name="id" use="required"
                                       type="xs:nonNegativeInteger"/>

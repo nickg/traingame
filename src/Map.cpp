@@ -1533,19 +1533,19 @@ public:
          handle_tile(attrs);
       else if (local_name == "start")
          handle_start(attrs);
-      else if (local_name == "straightTrack")
+      else if (local_name == "straight-track")
          handle_straight_track(attrs);
-      else if (local_name == "curvedTrack")
+      else if (local_name == "curved-track")
          handle_curved_track(attrs);
-      else if (local_name == "crossoverTrack")
+      else if (local_name == "crossover-track")
          handle_crossover_track(attrs);
       else if (local_name == "points")
          handle_points(attrs);
-      else if (local_name == "slopeTrack")
+      else if (local_name == "slope-track")
          handle_slope_track(attrs);
-      else if (local_name == "sbendTrack")
+      else if (local_name == "sbend-track")
          handleSBendTrack(attrs);
-      else if (local_name == "stationPart")
+      else if (local_name == "station-part")
          handle_station_part(attrs);
       else if (local_name == "station")
          handle_station(attrs);

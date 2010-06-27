@@ -8,163 +8,163 @@
 
 <tileset>
 <tile x="1" y="26">
-<curvedTrack startAngle="270" finishAngle="360" radius="4"/>
+<curved-track startAngle="270" finishAngle="360" radius="4"/>
 </tile>
 
 <tile x="2" y="8">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="2" y="9">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="2" y="10">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="2" y="11">
-<sbendTrack align="y" offset="4" straight="6"/>
+<sbend-track align="y" offset="4" straight="6"/>
 </tile>
 
 <tile x="5" y="29">
-<straightTrack align="x"/>
+<straight-track align="x"/>
 </tile>
 
 <tile x="6" y="17">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="6" y="18">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="6" y="19">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="6" y="20">
-<sbendTrack align="y" offset="-5" straight="6"/>
+<sbend-track align="y" offset="-5" straight="6"/>
 </tile>
 
 <tile x="6" y="29">
-<straightTrack align="x"/>
+<straight-track align="x"/>
 </tile>
 
 <tile x="7" y="2">
-<curvedTrack startAngle="180" finishAngle="270" radius="6"/>
+<curved-track startAngle="180" finishAngle="270" radius="6"/>
 </tile>
 
 <tile x="7" y="29">
-<sbendTrack align="x" offset="-4" straight="5"/>
+<sbend-track align="x" offset="-4" straight="5"/>
 </tile>
 
 <tile x="8" y="2">
-<sbendTrack align="x" offset="-1" straight="4"/>
+<sbend-track align="x" offset="-1" straight="4"/>
 </tile>
 
 <tile x="12" y="1">
-<straightTrack align="x"/>
+<straight-track align="x"/>
 </tile>
 
 <tile x="12" y="25">
-<straightTrack align="x"/>
+<straight-track align="x"/>
 </tile>
 
 <tile x="13" y="1">
-<straightTrack align="x"/>
+<straight-track align="x"/>
 </tile>
 
 <tile x="13" y="25">
-<straightTrack align="x"/>
+<straight-track align="x"/>
 </tile>
 
 <tile x="14" y="1">
-<straightTrack align="x"/>
+<straight-track align="x"/>
 </tile>
 
 <tile x="14" y="25">
-<straightTrack align="x"/>
+<straight-track align="x"/>
 </tile>
 
 <tile x="15" y="1">
-<straightTrack align="x"/>
+<straight-track align="x"/>
 </tile>
 
 <tile x="15" y="25">
-<sbendTrack align="x" offset="5" straight="5"/>
+<sbend-track align="x" offset="5" straight="5"/>
 </tile>
 
 <tile x="16" y="1">
-<sbendTrack align="x" offset="4" straight="6"/>
+<sbend-track align="x" offset="4" straight="6"/>
 </tile>
 
 <tile x="20" y="30">
-<straightTrack align="x"/>
+<straight-track align="x"/>
 </tile>
 
 <tile x="21" y="30">
-<curvedTrack startAngle="0" finishAngle="90" radius="4"/>
+<curved-track startAngle="0" finishAngle="90" radius="4"/>
 </tile>
 
 <tile x="22" y="5">
-<straightTrack align="x"/>
+<straight-track align="x"/>
 </tile>
 
 <tile x="24" y="25">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="24" y="26">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="25" y="7">
-<curvedTrack startAngle="90" finishAngle="180" radius="3"/>
+<curved-track startAngle="90" finishAngle="180" radius="3"/>
 </tile>
 
 <tile x="25" y="8">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="25" y="9">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="25" y="10">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="25" y="11">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="25" y="12">
-<sbendTrack align="y" offset="2" straight="4"/>
+<sbend-track align="y" offset="2" straight="4"/>
 </tile>
 
 <tile x="27" y="16">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="27" y="17">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="27" y="18">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="27" y="19">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="27" y="20">
-<straightTrack align="y"/>
+<straight-track align="y"/>
 </tile>
 
 <tile x="27" y="21">
-<sbendTrack align="y" offset="-3" straight="4"/>
+<sbend-track align="y" offset="-3" straight="4"/>
 </tile>
 </tileset>
 </map>
