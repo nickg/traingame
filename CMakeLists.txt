@@ -42,8 +42,8 @@ include_directories (include ${FREETYPE_INCLUDE_DIRS})
 include_directories (include ${CMAKE_CURRENT_BINARY_DIR})
 
 if (NOT WIN32) # Unix
-  add_definitions ("-Wall")
-#  add_definitions ("-Wall -Wconversion -Werror")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+  # "-Wconversion -Werror"
 endif (NOT WIN32)
 
 
