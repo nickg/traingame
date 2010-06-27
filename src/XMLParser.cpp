@@ -36,7 +36,7 @@ struct SAX2WrapperHandler : public DefaultHandler {
    
    SAX2WrapperHandler() : callback_ptr(NULL) {}
    
-   void start_element(const XMLCh* const uri,
+   void startElement(const XMLCh* const uri,
                      const XMLCh* const localname,
                      const XMLCh* const qname,
                      const Attributes& attrs)
@@ -57,7 +57,7 @@ struct SAX2WrapperHandler : public DefaultHandler {
       XMLString::release(&ch_buf);
    }
 
-   void end_element(const XMLCh* const uri,
+   void endElement(const XMLCh* const uri,
                    const XMLCh* const localname,
                    const XMLCh* const qname)
    {
@@ -74,7 +74,7 @@ struct SAX2WrapperHandler : public DefaultHandler {
    }
    
    void error(const SAXParseException& e) { throw e; }
-   void fatal_error(const SAXParseException& e) { throw e; }
+   void fatalError(const SAXParseException& e) { throw e; }
 
    IXMLCallback* callback_ptr;
    ostringstream char_buf;

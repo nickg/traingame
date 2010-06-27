@@ -134,7 +134,7 @@ struct IXMLCallback {
    virtual ~IXMLCallback() {}
 
    virtual void start_element(const string& local_name,
-                             const AttributeSet& attrs) {}
+                              const AttributeSet& attrs) {}
    virtual void end_element(const string& local_name) {}
    virtual void text(const string& local_name,
                      const string& a_string) {}
@@ -148,7 +148,7 @@ struct IXMLParser {
       IXMLCallback& a_callback) = 0;
 };
 
-typedef std::tr1::shared_ptr<IXMLParser> IXMLParserPtr;
+typedef shared_ptr<IXMLParser> IXMLParserPtr;
  
 IXMLParserPtr makeXMLParser(const std::string& a_schema_file);
      

@@ -1714,7 +1714,7 @@ private:
    Point<int> tile;
 
    IResourcePtr resource;
-}; 
+};
 
 IMapPtr load_map(const string& a_res_id)
 {
