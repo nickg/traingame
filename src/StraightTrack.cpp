@@ -58,7 +58,7 @@ public:
    bool has_multiple_states() const { return false; }
    void next_state() {}
    void prev_state() {}
-   void set_state_renderHint() {}
+   void set_state_render_hint() {}
 
    // IXMLSerialisable interface
    xml::element to_xml() const;

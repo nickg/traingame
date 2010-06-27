@@ -144,7 +144,7 @@ struct ITrackSegment : IXMLSerialisable {
    // The track may already have an exit here in which case
    // a pointer to itself will be returned
    virtual ITrackSegmentPtr merge_exit(Point<int> where,
-      track::Direction dir) = 0;
+                                       track::Direction dir) = 0;
 
    // Some track segments may have several states - e.g. points
    // These functions change the track state
@@ -154,7 +154,7 @@ struct ITrackSegment : IXMLSerialisable {
 
    // Set a hint to display something about the track state on the next render
    // call - e.g display an arrow over points
-   virtual void set_state_renderHint() = 0;
+   virtual void set_state_render_hint() = 0;
 };
 
 ITrackSegmentPtr make_straight_track(const track::Direction& a_direction);

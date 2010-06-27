@@ -50,7 +50,7 @@ public:
    void next_state();
    void prev_state();
    bool has_multiple_states() const { return true; }
-   void set_state_renderHint();
+   void set_state_render_hint();
 
    // IXMLSerialisable interface
    xml::element to_xml() const;
@@ -98,7 +98,7 @@ Points::Points(track::Direction a_direction, bool reflect)
    
 }
 
-void Points::set_state_renderHint() 
+void Points::set_state_render_hint() 
 {
    state_render_hint = true;
 }

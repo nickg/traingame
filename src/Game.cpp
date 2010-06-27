@@ -260,7 +260,7 @@ void Game::look_ahead()
             break;
          case TRACK_CHOICE:
             message_area->post("Oh no! You have to make a decision!");
-            it.track->set_state_renderHint();
+            it.track->set_state_render_hint();
             break;
          default:
             break;

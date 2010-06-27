@@ -61,7 +61,7 @@ public:
    bool has_multiple_states() const { return false; }
    void next_state() {}
    void prev_state() {}
-   void set_state_renderHint() {}
+   void set_state_render_hint() {}
       
 private:
    void transform(const track::TravelToken& a_token, float delta) const;
