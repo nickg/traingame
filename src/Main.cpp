@@ -95,7 +95,7 @@ int main(int argc, char** argv)
    log() << "Program started";
 
    try {
-      if (::action == "" || ::map_file == "")
+      if (::action == "" || (::map_file == "" && ::action != "uidemo"))
          throw runtime_error("Usage: TrainGame (edit|play) [map]");
       
       init_resources();
