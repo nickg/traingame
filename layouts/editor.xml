@@ -2,7 +2,7 @@
 <layout>
   <font name="small-font"
         file="fonts/Vera.ttf"
-        dropShadow="true"
+        drop-shadow="true"
         size="14" />
 
   <window x="10" y="10" border="5" name="tool_wnd">
@@ -10,27 +10,27 @@
            name="tool_label"
            x="0" y="0"/>
 
-    <toggleBar name="tools" x="60" y="0">
-      <toggleButton name="track" image="images/track_icon.png"/>
-      <toggleButton name="raise" image="images/raise_icon.png"/>
-      <toggleButton name="lower" image="images/lower_icon.png"/>
-      <toggleButton name="level" image="images/level_icon.png"/>
-      <toggleButton name="smooth" image="images/icons/smooth.png"/>
-      <toggleButton name="delete" image="images/delete_icon.png"/>
-      <toggleButton name="start" image="images/start_icon2.png"/>
-      <toggleButton name="station" image="images/station_icon.png"/>
-      <toggleButton name="building" image="images/buildings_icon.png"/>
-      <toggleButton name="tree" image="images/icons/tree.png"/>
-    </toggleBar>
+    <toggle-bar name="tools" x="60" y="0">
+      <toggle-button name="track" image="images/track_icon.png"/>
+      <toggle-button name="raise" image="images/raise_icon.png"/>
+      <toggle-button name="lower" image="images/lower_icon.png"/>
+      <toggle-button name="level" image="images/level_icon.png"/>
+      <toggle-button name="smooth" image="images/icons/smooth.png"/>
+      <toggle-button name="delete" image="images/delete_icon.png"/>
+      <toggle-button name="start" image="images/start_icon2.png"/>
+      <toggle-button name="station" image="images/station_icon.png"/>
+      <toggle-button name="building" image="images/buildings_icon.png"/>
+      <toggle-button name="tree" image="images/icons/tree.png"/>
+    </toggle-bar>
   </window>
 
   <window x="10" y="60" border="5" visible="false"
           name="building_wnd">
-    <imageButton name="prev" x="5" y="5" width="32" height="32"
+    <image-button name="prev" x="5" y="5" width="32" height="32"
                  image="images/icons/prev.png"/>
-    <imageButton name="next" x="37" y="5" width="32" height="32"
+    <image-button name="next" x="37" y="5" width="32" height="32"
                  image="images/icons/next.png"/>
-    <imageButton name="rotate" x="69" y="5" width="32" height="32"
+    <image-button name="rotate" x="69" y="5" width="32" height="32"
                  image="images/icons/rotate.png"/>
     
     <canvas3d name="preview" x="10" y="40" width="170" height="120"
@@ -42,9 +42,9 @@
 
   <window x="10" y="60" border="5" visible="false"
           name="tree_wnd">
-    <imageButton name="prev" x="5" y="5" width="32" height="32"
+    <image-button name="prev" x="5" y="5" width="32" height="32"
                  image="images/icons/prev.png"/>
-    <imageButton name="next" x="37" y="5" width="32" height="32"
+    <image-button name="next" x="37" y="5" width="32" height="32"
                  image="images/icons/next.png"/>
     
     <canvas3d name="preview" x="10" y="40" width="170" height="120"
@@ -54,14 +54,14 @@
            font="small-font"/>
   </window>
 
-  <fromBottom offset="53" name="lower">
+  <from-bottom offset="53" name="lower">
     <window x="5" y="0" border="5"
             name="action_wnd">
       <label text="Actions"
              name="action_label"
              x="0" y="0"/>
-      <imageButton name="save" x="70" y="0" width="32" height="32"
+      <image-button name="save" x="70" y="0" width="32" height="32"
                    image="images/icons/save.png"/>
     </window>
-  </fromBottom>
+  </from-bottom>
 </layout>

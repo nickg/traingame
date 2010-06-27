@@ -1696,8 +1696,8 @@ private:
    void handle_curved_track(const AttributeSet& attrs)
    {
       int start_angle, finish_angle, radius;
-      attrs.get("start_angle", start_angle);
-      attrs.get("finish_angle", finish_angle);
+      attrs.get("start-angle", start_angle);
+      attrs.get("finish-angle", finish_angle);
       attrs.get("radius", radius);
 
       my_map->set_track_at(tile, make_curved_track(start_angle, finish_angle, radius));

@@ -71,9 +71,9 @@
 
                     <xs:element name="curved-track" minOccurs="0">
                       <xs:complexType>
-                        <xs:attribute name="startAngle" use="required"
+                        <xs:attribute name="start-angle" use="required"
                                       type="xs:nonNegativeInteger"/>
-                        <xs:attribute name="finishAngle" use="required"
+                        <xs:attribute name="finish-angle" use="required"
                                       type="xs:nonNegativeInteger"/>
                         <xs:attribute name="radius" use="required"
                                       type="xs:positiveInteger"/>

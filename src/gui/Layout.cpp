@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -110,7 +110,7 @@ void Layout::start_element(const string& local_name,
    else if (local_name == "font") {
       const string name = attrs.get<string>("name");
       const string file = attrs.get<string>("file");     
-      const bool drop_shadow = attrs.get<bool>("drop_shadow", false);
+      const bool drop_shadow = attrs.get<bool>("drop-shadow", false);
       const int size = attrs.get<int>("size", 14);
 
       theme.add_font(name,
@@ -124,17 +124,17 @@ void Layout::start_element(const string& local_name,
       w = new Button(attrs);
    else if (local_name == "label")
       w = new Label(attrs);
-   else if (local_name == "throttle_meter")
+   else if (local_name == "throttle-meter")
       w = new ThrottleMeter(attrs);
-   else if (local_name == "toggle_bar")
+   else if (local_name == "toggle-bar")
       w = new ToggleBar(attrs);
-   else if (local_name == "toggle_button")
+   else if (local_name == "toggle-button")
       w = new ToggleButton(attrs);
    else if (local_name == "canvas3d")
       w = new Canvas3D(attrs);
-   else if (local_name == "image_button")
+   else if (local_name == "image-button")
       w = new ImageButton(attrs);
-   else if (local_name == "from_bottom")
+   else if (local_name == "from-bottom")
       w = new FromBottom(attrs);
    else
       throw runtime_error("Unexpected " + local_name);

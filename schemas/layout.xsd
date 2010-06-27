@@ -9,33 +9,33 @@
           <xs:complexType>
             <xs:attribute name="name" type="xs:string"/>
             <xs:attribute name="file" type="xs:string"/>
-            <xs:attribute name="dropShadow" type="xs:boolean"/>
+            <xs:attribute name="drop-shadow" type="xs:boolean"/>
             <xs:attribute name="size" type="xs:positiveInteger"/>
           </xs:complexType>
         </xs:element>
 
-        <xs:group ref="widgetGroup"
+        <xs:group ref="widget-group"
                   minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   
   <!-- Widgets that may appear anywhere -->
-  <xs:group name="widgetGroup">
+  <xs:group name="widget-group">
     <xs:choice>
-      <xs:element name="window" type="windowType"/>
-      <xs:element name="button" type="buttonType"/>
+      <xs:element name="window" type="window-type"/>
+      <xs:element name="button" type="button-type"/>
       <xs:element name="label" type="labelType"/>
-      <xs:element name="throttleMeter" type="throttleMeterType"/>
-      <xs:element name="toggleBar" type="toggleBarType"/>
-      <xs:element name="canvas3d" type="canvas3dType"/>
-      <xs:element name="imageButton" type="imageButtonType"/>
-      <xs:element name="fromBottom" type="fromBottomType"/>
+      <xs:element name="throttle-meter" type="throttle-meter-type"/>
+      <xs:element name="toggle-bar" type="toggle-bar-type"/>
+      <xs:element name="canvas3d" type="canvas3d-type"/>
+      <xs:element name="image-button" type="image-button-type"/>
+      <xs:element name="from-bottom" type="from-bottom-type"/>
     </xs:choice>
   </xs:group>
 
   <!-- Attributes for all widgets -->
-  <xs:complexType name="widgetType">
+  <xs:complexType name="widget-type">
     <xs:attribute name="name" type="xs:string"/>
     <xs:attribute name="x" type="xs:integer"/>
     <xs:attribute name="y" type="xs:integer"/>
@@ -46,10 +46,10 @@
   </xs:complexType>
 
   <!-- Top-level windows -->
-  <xs:complexType name="windowType">
+  <xs:complexType name="window-type">
     <xs:complexContent>
-      <xs:extension base="widgetType">
-        <xs:group ref="widgetGroup"
+      <xs:extension base="widget-type">
+        <xs:group ref="widget-group"
                   minOccurs="0" maxOccurs="unbounded"/>
         <xs:attribute name="title" type="xs:string"/>
       </xs:extension>
@@ -57,10 +57,10 @@
   </xs:complexType>
 
   <!-- Alignment container relative to bottom of parent -->
-  <xs:complexType name="fromBottomType">
+  <xs:complexType name="from-bottom-type">
     <xs:complexContent>
-      <xs:extension base="widgetType">
-        <xs:group ref="widgetGroup"
+      <xs:extension base="widget-type">
+        <xs:group ref="widget-group"
                   minOccurs="0" maxOccurs="unbounded"/>
         <xs:attribute name="offset" type="xs:integer"/>
       </xs:extension>
@@ -70,7 +70,7 @@
   <!-- Text labels -->
   <xs:complexType name="labelType">
     <xs:complexContent>
-      <xs:extension base="widgetType">
+      <xs:extension base="widget-type">
         <xs:attribute name="text" type="xs:string"/>
         <xs:attribute name="font" type="xs:string"/>
         <xs:attribute name="colour" type="xs:string"/>
@@ -79,18 +79,18 @@
   </xs:complexType>
 
   <!-- Push buttons -->
-  <xs:complexType name="buttonType">
+  <xs:complexType name="button-type">
     <xs:complexContent>
-      <xs:extension base="widgetType">
+      <xs:extension base="widget-type">
         <xs:attribute name="label" type="xs:string"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
 
   <!-- Toggle bars -->
-  <xs:complexType name="toggleBarType">
+  <xs:complexType name="toggle-bar-type">
     <xs:complexContent>
-      <xs:extension base="widgetType">
+      <xs:extension base="widget-type">
         <xs:group ref="toggleBarGroup"
                   minOccurs="0" maxOccurs="unbounded"/>
       </xs:extension>
@@ -100,41 +100,41 @@
   <!-- Widgets that may appear inside a toggle bar -->
   <xs:group name="toggleBarGroup">
     <xs:choice>
-      <xs:element name="toggleButton" type="toggleButtonType"/>
+      <xs:element name="toggle-button" type="toggle-button-type"/>
     </xs:choice>
   </xs:group>
 
   <!-- Buttons inside toggle bars -->
-  <xs:complexType name="toggleButtonType">
+  <xs:complexType name="toggle-button-type">
     <xs:complexContent>
-      <xs:extension base="widgetType">
+      <xs:extension base="widget-type">
         <xs:attribute name="image" type="xs:string"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
 
   <!-- Buttons with an image instead of text -->
-  <xs:complexType name="imageButtonType">
+  <xs:complexType name="image-button-type">
     <xs:complexContent>
-      <xs:extension base="widgetType">
+      <xs:extension base="widget-type">
         <xs:attribute name="image" type="xs:string"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
 
   <!-- The throttle meter -->
-  <xs:complexType name="throttleMeterType">
+  <xs:complexType name="throttle-meter-type">
     <xs:complexContent>
-      <xs:extension base="widgetType">
+      <xs:extension base="widget-type">
         <xs:attribute name="font" type="xs:string"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
 
   <!-- 3D canvas -->
-  <xs:complexType name="canvas3dType">
+  <xs:complexType name="canvas3d-type">
     <xs:complexContent>
-      <xs:extension base="widgetType">
+      <xs:extension base="widget-type">
         <xs:attribute name="clear" type="xs:boolean"/>
       </xs:extension>
     </xs:complexContent>

@@ -144,7 +144,7 @@
 </tile>
 
 <tile x="2" y="41">
-<curved-track startAngle="270" finishAngle="360" radius="3"/>
+<curved-track start-angle="270" finish-angle="360" radius="3"/>
 </tile>
 
 <tile x="2" y="106">
@@ -156,7 +156,7 @@
 </tile>
 
 <tile x="2" y="108">
-<curved-track startAngle="270" finishAngle="360" radius="4"/>
+<curved-track start-angle="270" finish-angle="360" radius="4"/>
 </tile>
 
 <tile x="3" y="1">
@@ -192,11 +192,11 @@
 </tile>
 
 <tile x="4" y="2">
-<curved-track startAngle="180" finishAngle="270" radius="3"/>
+<curved-track start-angle="180" finish-angle="270" radius="3"/>
 </tile>
 
 <tile x="4" y="103">
-<curved-track startAngle="180" finishAngle="270" radius="3"/>
+<curved-track start-angle="180" finish-angle="270" radius="3"/>
 </tile>
 
 <tile x="5" y="1">
@@ -204,15 +204,15 @@
 </tile>
 
 <tile x="5" y="43">
-<curved-track startAngle="0" finishAngle="90" radius="3"/>
+<curved-track start-angle="0" finish-angle="90" radius="3"/>
 </tile>
 
 <tile x="5" y="103">
-<curved-track startAngle="0" finishAngle="90" radius="3"/>
+<curved-track start-angle="0" finish-angle="90" radius="3"/>
 </tile>
 
 <tile x="6" y="111">
-<curved-track startAngle="0" finishAngle="90" radius="3"/>
+<curved-track start-angle="0" finish-angle="90" radius="3"/>
 </tile>
 
 <tile x="7" y="29">
@@ -236,7 +236,7 @@
 </tile>
 
 <tile x="8" y="5">
-<curved-track startAngle="90" finishAngle="180" radius="4"/>
+<curved-track start-angle="90" finish-angle="180" radius="4"/>
 </tile>
 
 <tile x="8" y="35">
@@ -532,7 +532,7 @@
 </tile>
 
 <tile x="9" y="4">
-<curved-track startAngle="90" finishAngle="180" radius="4"/>
+<curved-track start-angle="90" finish-angle="180" radius="4"/>
 </tile>
 
 <tile x="9" y="5">

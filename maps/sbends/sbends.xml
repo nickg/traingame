@@ -8,7 +8,7 @@
 
 <tileset>
 <tile x="1" y="26">
-<curved-track startAngle="270" finishAngle="360" radius="4"/>
+<curved-track start-angle="270" finish-angle="360" radius="4"/>
 </tile>
 
 <tile x="2" y="8">
@@ -52,7 +52,7 @@
 </tile>
 
 <tile x="7" y="2">
-<curved-track startAngle="180" finishAngle="270" radius="6"/>
+<curved-track start-angle="180" finish-angle="270" radius="6"/>
 </tile>
 
 <tile x="7" y="29">
@@ -104,7 +104,7 @@
 </tile>
 
 <tile x="21" y="30">
-<curved-track startAngle="0" finishAngle="90" radius="4"/>
+<curved-track start-angle="0" finish-angle="90" radius="4"/>
 </tile>
 
 <tile x="22" y="5">
@@ -120,7 +120,7 @@
 </tile>
 
 <tile x="25" y="7">
-<curved-track startAngle="90" finishAngle="180" radius="3"/>
+<curved-track start-angle="90" finish-angle="180" radius="3"/>
 </tile>
 
 <tile x="25" y="8">

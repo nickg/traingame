@@ -2,7 +2,7 @@
 <layout>
   <font name="status-font"
         file="fonts/Vera.ttf"
-        dropShadow="true"
+        drop-shadow="true"
         size="20" />
 
   <!-- Status area -->
@@ -10,7 +10,7 @@
          name="speed_label"
          font="status-font"
          x="10" y="10" />
-  <throttleMeter font="status-font"
+  <throttle-meter font="status-font"
                  name="throttle_meter"
                  x="10" y="35"/>
   <label text="Brake on"
