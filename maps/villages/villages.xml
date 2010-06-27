@@ -454,37 +454,37 @@
 <tile x="8" y="90">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="8" y="91">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="8" y="92">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="8" y="93">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="8" y="94">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="8" y="95">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="8" y="96">
@@ -550,43 +550,43 @@
 <tile x="9" y="10">
 <straight-track align="y"/>
 
-<stationPart id="1"/>
+<station-part id="1"/>
 </tile>
 
 <tile x="9" y="11">
 <straight-track align="y"/>
 
-<stationPart id="1"/>
+<station-part id="1"/>
 </tile>
 
 <tile x="9" y="12">
 <straight-track align="y"/>
 
-<stationPart id="1"/>
+<station-part id="1"/>
 </tile>
 
 <tile x="9" y="13">
 <straight-track align="y"/>
 
-<stationPart id="1"/>
+<station-part id="1"/>
 </tile>
 
 <tile x="9" y="14">
 <straight-track align="y"/>
 
-<stationPart id="1"/>
+<station-part id="1"/>
 </tile>
 
 <tile x="9" y="15">
 <straight-track align="y"/>
 
-<stationPart id="1"/>
+<station-part id="1"/>
 </tile>
 
 <tile x="9" y="16">
 <straight-track align="y"/>
 
-<stationPart id="1"/>
+<station-part id="1"/>
 </tile>
 
 <tile x="9" y="17">

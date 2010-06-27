@@ -94,37 +94,37 @@
 <tile x="2" y="10">
 <slope-track align="y"/>
 
-<stationPart id="5"/>
+<station-part id="5"/>
 </tile>
 
 <tile x="2" y="11">
 <slope-track align="y"/>
 
-<stationPart id="5"/>
+<station-part id="5"/>
 </tile>
 
 <tile x="2" y="12">
 <slope-track align="y"/>
 
-<stationPart id="5"/>
+<station-part id="5"/>
 </tile>
 
 <tile x="2" y="13">
 <slope-track align="y"/>
 
-<stationPart id="5"/>
+<station-part id="5"/>
 </tile>
 
 <tile x="2" y="14">
 <slope-track align="y"/>
 
-<stationPart id="5"/>
+<station-part id="5"/>
 </tile>
 
 <tile x="2" y="15">
 <slope-track align="y"/>
 
-<stationPart id="5"/>
+<station-part id="5"/>
 </tile>
 
 <tile x="2" y="16">
@@ -338,7 +338,7 @@
 <tile x="9" y="14">
 <straight-track align="x"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="9" y="19">
@@ -372,7 +372,7 @@
 <tile x="10" y="14">
 <straight-track align="x"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="10" y="15">
@@ -406,7 +406,7 @@
 <tile x="11" y="14">
 <straight-track align="x"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="11" y="16">
@@ -448,7 +448,7 @@
 <tile x="12" y="14">
 <straight-track align="x"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="13" y="1">
@@ -530,7 +530,7 @@
 <tile x="15" y="28">
 <straight-track align="x"/>
 
-<stationPart id="4"/>
+<station-part id="4"/>
 </tile>
 
 <tile x="15" y="29">
@@ -572,7 +572,7 @@
 <tile x="16" y="28">
 <straight-track align="x"/>
 
-<stationPart id="4"/>
+<station-part id="4"/>
 </tile>
 
 <tile x="16" y="29">
@@ -602,7 +602,7 @@
 <tile x="17" y="28">
 <straight-track align="x"/>
 
-<stationPart id="4"/>
+<station-part id="4"/>
 </tile>
 
 <tile x="17" y="29">
@@ -624,37 +624,37 @@
 <tile x="18" y="11">
 <straight-track align="y"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="18" y="12">
 <straight-track align="y"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="18" y="13">
 <straight-track align="y"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="18" y="14">
 <straight-track align="y"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="18" y="15">
 <straight-track align="y"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="18" y="16">
 <straight-track align="y"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="18" y="17">
@@ -668,7 +668,7 @@
 <tile x="18" y="28">
 <straight-track align="x"/>
 
-<stationPart id="4"/>
+<station-part id="4"/>
 </tile>
 
 <tile x="18" y="29">
@@ -692,7 +692,7 @@
 </tile>
 
 <tile x="19" y="13">
-<stationPart id="3"/>
+<station-part id="3"/>
 
 <building angle="90" name="platform_middle"/>
 </tile>
@@ -744,37 +744,37 @@
 <tile x="20" y="11">
 <straight-track align="y"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="20" y="12">
 <straight-track align="y"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="20" y="13">
 <straight-track align="y"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="20" y="14">
 <straight-track align="y"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="20" y="15">
 <straight-track align="y"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="20" y="16">
 <straight-track align="y"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="20" y="17">

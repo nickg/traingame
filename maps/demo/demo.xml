@@ -118,7 +118,7 @@
 <tile x="3" y="1">
 <straight-track align="x"/>
 
-<stationPart id="4"/>
+<station-part id="4"/>
 </tile>
 
 <tile x="3" y="2">
@@ -152,7 +152,7 @@
 <tile x="4" y="1">
 <straight-track align="x"/>
 
-<stationPart id="4"/>
+<station-part id="4"/>
 </tile>
 
 <tile x="4" y="2">
@@ -170,7 +170,7 @@
 <tile x="4" y="12">
 <slope-track align="x"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="4" y="13">
@@ -188,7 +188,7 @@
 <tile x="5" y="1">
 <straight-track align="x"/>
 
-<stationPart id="4"/>
+<station-part id="4"/>
 </tile>
 
 <tile x="5" y="2">
@@ -210,7 +210,7 @@
 <tile x="5" y="12">
 <straight-track align="x"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="5" y="13">
@@ -244,7 +244,7 @@
 <tile x="6" y="1">
 <straight-track align="x"/>
 
-<stationPart id="4"/>
+<station-part id="4"/>
 </tile>
 
 <tile x="6" y="2">
@@ -266,7 +266,7 @@
 <tile x="6" y="12">
 <straight-track align="x"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="6" y="13">
@@ -296,7 +296,7 @@
 <tile x="7" y="1">
 <straight-track align="x"/>
 
-<stationPart id="4"/>
+<station-part id="4"/>
 </tile>
 
 <tile x="7" y="2">
@@ -310,7 +310,7 @@
 <tile x="7" y="12">
 <straight-track align="x"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="7" y="13">
@@ -344,7 +344,7 @@
 <tile x="8" y="1">
 <straight-track align="x"/>
 
-<stationPart id="4"/>
+<station-part id="4"/>
 </tile>
 
 <tile x="8" y="2">
@@ -366,7 +366,7 @@
 <tile x="8" y="12">
 <straight-track align="x"/>
 
-<stationPart id="3"/>
+<station-part id="3"/>
 </tile>
 
 <tile x="8" y="13">
@@ -572,49 +572,49 @@
 <tile x="11" y="32">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="11" y="33">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="11" y="34">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="11" y="35">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="11" y="36">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="11" y="37">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="11" y="38">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="11" y="39">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="11" y="40">
@@ -780,49 +780,49 @@
 <tile x="13" y="32">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="13" y="33">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="13" y="34">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="13" y="35">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="13" y="36">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="13" y="37">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="13" y="38">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="13" y="39">
 <straight-track align="y"/>
 
-<stationPart id="2"/>
+<station-part id="2"/>
 </tile>
 
 <tile x="13" y="40">
@@ -1424,31 +1424,31 @@
 <tile x="25" y="18">
 <straight-track align="y"/>
 
-<stationPart id="1"/>
+<station-part id="1"/>
 </tile>
 
 <tile x="25" y="19">
 <straight-track align="y"/>
 
-<stationPart id="1"/>
+<station-part id="1"/>
 </tile>
 
 <tile x="25" y="20">
 <straight-track align="y"/>
 
-<stationPart id="1"/>
+<station-part id="1"/>
 </tile>
 
 <tile x="25" y="21">
 <straight-track align="y"/>
 
-<stationPart id="1"/>
+<station-part id="1"/>
 </tile>
 
 <tile x="25" y="22">
 <slope-track align="y"/>
 
-<stationPart id="1"/>
+<station-part id="1"/>
 </tile>
 
 <tile x="25" y="23">
