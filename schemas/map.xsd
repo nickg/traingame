@@ -88,14 +88,14 @@
                                       type="xs:nonNegativeInteger"/>
 
                         <xs:attribute name="entry-dir-x" use="required"
-                                      type="xs:nonNegativeInteger"/>
+                                      type="xs:integer"/>
                         <xs:attribute name="entry-dir-y" use="required"
-                                      type="xs:nonNegativeInteger"/>
+                                      type="xs:integer"/>
 
                         <xs:attribute name="exit-dir-x" use="required"
-                                      type="xs:nonNegativeInteger"/>
+                                      type="xs:integer"/>
                         <xs:attribute name="exit-dir-y" use="required"
-                                      type="xs:nonNegativeInteger"/>
+                                      type="xs:integer"/>
                       </xs:complexType>
                     </xs:element>
 

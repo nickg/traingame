@@ -113,6 +113,14 @@ struct Vector {
       return !(v == *this);
    }
 
+   bool operator<(const Vector<T>& rhs) const
+   {
+      return x < rhs.x
+         || (x == rhs.x
+             && (y < rhs.y
+                 || (y == rhs.y && z < rhs.z)));
+   }
+   
    bool approx_equal(const Vector<T>& rhs, T delta) const
    {
       return (abs(rhs.x - x) < delta)
@@ -187,7 +195,8 @@ struct Point {
 
    bool operator<(const Point<T>& rhs) const
    {
-      return x < rhs.x || y < rhs.y;
+      return x < rhs.x
+         || (x == rhs.x && y < rhs.y);
    }
    
    T x, y;

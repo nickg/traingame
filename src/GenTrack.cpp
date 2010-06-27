@@ -51,34 +51,80 @@ public:
    xml::element to_xml() const;
    
 private:
+   BezierCurve<float> curve;
+   IMeshBufferPtr rail_buf;
 
+   Point<int> origin;
+   float height;
+   Vector<int> delta;
+
+   typedef tuple<Vector<int>,
+                 track::Direction,
+                 track::Direction> Parameters;
+   typedef map<Parameters, IMeshBufferPtr> MeshCache; 
+   static MeshCache mesh_cache;
 };
+
+GenTrack::MeshCache GenTrack::mesh_cache;
 
 GenTrack::GenTrack(Vector<int> delta,
                    track::Direction entry_dir,
                    track::Direction exit_dir)
+   : delta(delta)
 {
-   const float deltaX = static_cast<float>(delta.x);
-   const float deltaZ = static_cast<float>(delta.y);
+   Vector<float> delta_f = make_vector(
+      static_cast<float>(delta.x),
+      0.0f,
+      static_cast<float>(delta.y));
+
+   Vector<float> entry_dir_norm = make_vector(
+      static_cast<float>(entry_dir.x),
+      0.0f,
+      static_cast<float>(entry_dir.y)).normalise();
    
-   Vector<float> p1 = make_vector(0.0f, 0.0f, 0.0f);
+   Vector<float> exit_dir_norm = make_vector(
+      static_cast<float>(exit_dir.x),
+      0.0f,
+      static_cast<float>(exit_dir.y)).normalise();
+
+   float pinch_length = (delta_f.length() + 1.0f) / 3.0f;
    
-   Vector<float> p4 = make_vector(deltaX, 0.0f, deltaZ);
+   Vector<float> p1 = entry_dir_norm * -0.5f;
+   Vector<float> p2 = entry_dir_norm * pinch_length;
+   Vector<float> p3 = delta_f - (exit_dir_norm * pinch_length);
+   Vector<float> p4 = delta_f + (exit_dir_norm * 0.5f);
+
+   curve = make_bezier_curve(p1, p2, p3, p4);
+   
+   Parameters parms = make_tuple(delta, entry_dir, exit_dir);
+   MeshCache::iterator it = mesh_cache.find(parms);
+   if (it == mesh_cache.end()) {
+      rail_buf = make_bezier_railMesh(curve);
+      mesh_cache[parms] = rail_buf;
+   }
+   else
+      rail_buf = (*it).second;
 }
 
 void GenTrack::merge(IMeshBufferPtr buf) const
 {
+   Vector<float> off = make_vector(
+      static_cast<float>(origin.x),
+      height,
+      static_cast<float>(origin.y));
 
+   buf->merge(rail_buf, off, 0.0f);
 }
 
 void GenTrack::set_origin(int x, int y, float h)
 {
-
+   origin = make_point(x, y);
+   height = h;
 }
 
 float GenTrack::segment_length(const track::TravelToken& token) const
 {
-   return 1.0f;
+   return curve.length;
 }
 
 bool GenTrack::is_valid_direction(const track::Direction& dir) const
@@ -93,7 +139,11 @@ track::Connection GenTrack::next_position(const track::TravelToken& token) const
 
 void GenTrack::get_endpoints(vector<Point<int> >& output) const
 {
+   output.push_back(origin);
 
+   if (delta.x > 0 || delta.y > 0)
+      output.push_back(
+         make_point(origin.x + delta.x - 0, origin.y + delta.y - 0));
 }
 
 void GenTrack::get_covers(vector<Point<int> >& output) const
