@@ -103,31 +103,36 @@ void BezierHelper::build_one_bezier_rail(const BezierCurve<float>& func,
 
    for (float t = 0.0f; t < 1.0f; t += step) {
 
-      Vector<float> v1 = func.offset(t, p);
-      Vector<float> v2 = func.offset(t + step, p);
+      const float half_rail = RAIL_WIDTH / 2.0f;
+      
+      Vector<float> v1_out = func.offset(t, p + half_rail);
+      Vector<float> v2_out = func.offset(t + step, p + half_rail);
+      
+      Vector<float> v1_in = func.offset(t, p - half_rail);
+      Vector<float> v2_in = func.offset(t + step, p - half_rail);
               
-      v1.z -= RAIL_WIDTH / 2.0f;
-      v2.z -= RAIL_WIDTH / 2.0f;
-
       // Top of rail
-      buf->add_quad(make_vector(v1.x, v1.y + track::RAIL_HEIGHT, v1.z),
-         make_vector(v1.x, v1.y + track::RAIL_HEIGHT, v1.z + RAIL_WIDTH),
-         make_vector(v2.x, v2.y + track::RAIL_HEIGHT, v2.z + RAIL_WIDTH),
-         make_vector(v2.x, v2.y + track::RAIL_HEIGHT, v2.z),
+      buf->add_quad(
+         make_vector(v1_out.x, v1_out.y + track::RAIL_HEIGHT, v1_out.z),
+         make_vector(v1_in.x, v1_in.y + track::RAIL_HEIGHT, v1_in.z),
+         make_vector(v2_in.x, v2_in.y + track::RAIL_HEIGHT, v2_in.z),
+         make_vector(v2_out.x, v2_out.y + track::RAIL_HEIGHT, v2_out.z),
          METAL);
 
       // Outer edge
-      buf->add_quad(make_vector(v2.x, v2.y + track::RAIL_HEIGHT, v2.z),
-         make_vector(v2.x , v2.y, v2.z),
-         make_vector(v1.x, v1.y, v1.z),
-         make_vector(v1.x, v1.y + track::RAIL_HEIGHT, v1.z),
+      buf->add_quad(
+         make_vector(v2_out.x, v2_out.y + track::RAIL_HEIGHT, v2_out.z),
+         make_vector(v2_out.x , v2_out.y, v2_out.z),
+         make_vector(v1_out.x, v1_out.y, v1_out.z),
+         make_vector(v1_out.x, v1_out.y + track::RAIL_HEIGHT, v1_out.z),
          METAL);
 
       // Inner edge
-      buf->add_quad(make_vector(v1.x, v1.y + track::RAIL_HEIGHT, v1.z + RAIL_WIDTH),
-         make_vector(v1.x, v1.y, v1.z + RAIL_WIDTH),
-         make_vector(v2.x , v2.y, v2.z + RAIL_WIDTH),
-         make_vector(v2.x, v2.y + track::RAIL_HEIGHT, v2.z + RAIL_WIDTH),
+      buf->add_quad(
+         make_vector(v1_in.x, v1_in.y + track::RAIL_HEIGHT, v1_in.z),
+         make_vector(v1_in.x, v1_in.y, v1_in.z),
+         make_vector(v2_in.x , v2_in.y, v2_in.z),
+         make_vector(v2_in.x, v2_in.y + track::RAIL_HEIGHT, v2_in.z),
          METAL);
    }
 }
