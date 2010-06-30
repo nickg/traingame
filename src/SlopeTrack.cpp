@@ -103,7 +103,7 @@ SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
    curve = make_bezier_curve(p1, p2, p3, p4);
    length = curve.length;
 
-   rail_buf = make_bezier_railMesh(curve);
+   rail_buf = make_bezier_rail_mesh(curve);
 }
 
 void SlopeTrack::merge(IMeshBufferPtr buf) const

@@ -37,7 +37,7 @@ namespace {
 
 IMeshBufferPtr SleeperHelper::sleeper_buf;
 
-IMeshBufferPtr SleeperHelper::generate_sleeper_meshBuffer()
+IMeshBufferPtr SleeperHelper::generate_sleeper_mesh_buffer()
 {
    IMeshBufferPtr buf = make_mesh_buffer();
 
@@ -91,61 +91,66 @@ void SleeperHelper::merge_sleeper(IMeshBufferPtr buf,
    Vector<float> off, float y_angle) const
 {
    if (!sleeper_buf)
-      sleeper_buf = generate_sleeper_meshBuffer();
+      sleeper_buf = generate_sleeper_mesh_buffer();
 
    buf->merge(sleeper_buf, off, y_angle);
 }
 
-void BezierHelper::build_one_bezierRail(const BezierCurve<float>& func,
+void BezierHelper::build_one_bezier_rail(const BezierCurve<float>& func,
    IMeshBufferPtr buf, float p)
 {
    const float step = 0.1f;
 
    for (float t = 0.0f; t < 1.0f; t += step) {
 
-      Vector<float> v1 = func.offset(t, p);
-      Vector<float> v2 = func.offset(t + step, p);
+      const float half_rail = RAIL_WIDTH / 2.0f;
+      
+      Vector<float> v1_out = func.offset(t, p + half_rail);
+      Vector<float> v2_out = func.offset(t + step, p + half_rail);
+      
+      Vector<float> v1_in = func.offset(t, p - half_rail);
+      Vector<float> v2_in = func.offset(t + step, p - half_rail);
               
-      v1.z -= RAIL_WIDTH / 2.0f;
-      v2.z -= RAIL_WIDTH / 2.0f;
-
       // Top of rail
-      buf->add_quad(make_vector(v1.x, v1.y + track::RAIL_HEIGHT, v1.z),
-         make_vector(v1.x, v1.y + track::RAIL_HEIGHT, v1.z + RAIL_WIDTH),
-         make_vector(v2.x, v2.y + track::RAIL_HEIGHT, v2.z + RAIL_WIDTH),
-         make_vector(v2.x, v2.y + track::RAIL_HEIGHT, v2.z),
+      buf->add_quad(
+         make_vector(v1_out.x, v1_out.y + track::RAIL_HEIGHT, v1_out.z),
+         make_vector(v1_in.x, v1_in.y + track::RAIL_HEIGHT, v1_in.z),
+         make_vector(v2_in.x, v2_in.y + track::RAIL_HEIGHT, v2_in.z),
+         make_vector(v2_out.x, v2_out.y + track::RAIL_HEIGHT, v2_out.z),
          METAL);
 
       // Outer edge
-      buf->add_quad(make_vector(v2.x, v2.y + track::RAIL_HEIGHT, v2.z),
-         make_vector(v2.x , v2.y, v2.z),
-         make_vector(v1.x, v1.y, v1.z),
-         make_vector(v1.x, v1.y + track::RAIL_HEIGHT, v1.z),
+      buf->add_quad(
+         make_vector(v2_out.x, v2_out.y + track::RAIL_HEIGHT, v2_out.z),
+         make_vector(v2_out.x , v2_out.y, v2_out.z),
+         make_vector(v1_out.x, v1_out.y, v1_out.z),
+         make_vector(v1_out.x, v1_out.y + track::RAIL_HEIGHT, v1_out.z),
          METAL);
 
       // Inner edge
-      buf->add_quad(make_vector(v1.x, v1.y + track::RAIL_HEIGHT, v1.z + RAIL_WIDTH),
-         make_vector(v1.x, v1.y, v1.z + RAIL_WIDTH),
-         make_vector(v2.x , v2.y, v2.z + RAIL_WIDTH),
-         make_vector(v2.x, v2.y + track::RAIL_HEIGHT, v2.z + RAIL_WIDTH),
+      buf->add_quad(
+         make_vector(v1_in.x, v1_in.y + track::RAIL_HEIGHT, v1_in.z),
+         make_vector(v1_in.x, v1_in.y, v1_in.z),
+         make_vector(v2_in.x , v2_in.y, v2_in.z),
+         make_vector(v2_in.x, v2_in.y + track::RAIL_HEIGHT, v2_in.z),
          METAL);
    }
 }
 
-IMeshBufferPtr BezierHelper::make_bezier_railMesh(
+IMeshBufferPtr BezierHelper::make_bezier_rail_mesh(
    const BezierCurve<float>& func) const
 {
    IMeshBufferPtr buf = make_mesh_buffer();
    
-   build_one_bezierRail(func, buf, GAUGE/2.0f);
-   build_one_bezierRail(func, buf, -GAUGE/2.0f);
+   build_one_bezier_rail(func, buf, GAUGE/2.0f);
+   build_one_bezier_rail(func, buf, -GAUGE/2.0f);
 
    return buf;
 }
 
 IMeshBufferPtr StraightTrackHelper::rail_buf;
 
-IMeshBufferPtr StraightTrackHelper::generate_rail_meshBuffer()
+IMeshBufferPtr StraightTrackHelper::generate_rail_mesh_buffer()
 {
    IMeshBufferPtr buf = make_mesh_buffer();
 
@@ -177,7 +182,7 @@ void StraightTrackHelper::merge_one_rail(IMeshBufferPtr buf,
    Vector<float> off, float y_angle) const
 {
    if (!rail_buf)
-      rail_buf = generate_rail_meshBuffer();
+      rail_buf = generate_rail_mesh_buffer();
    
    buf->merge(rail_buf, off, y_angle);
 }
@@ -215,7 +220,7 @@ void CurvedTrackHelper::transform_to_origin(Vector<float>& off,
       off += make_vector(1.0f, 0.0f, 0.0f);
 }
 
-void CurvedTrackHelper::generate_curved_railMesh(IMeshBufferPtr buf,
+void CurvedTrackHelper::generate_curved_rail_mesh(IMeshBufferPtr buf,
    int base_radius, RailType type)
 {
    const float edge_width = (1 - GAUGE - RAIL_WIDTH)/2.0f;
@@ -290,8 +295,8 @@ void CurvedTrackHelper::merge_curved_rail(IMeshBufferPtr buf, int base_radius,
    else {
       rail_buf = make_mesh_buffer();
          
-      generate_curved_railMesh(rail_buf, base_radius, INNER_RAIL);
-      generate_curved_railMesh(rail_buf, base_radius, OUTER_RAIL);
+      generate_curved_rail_mesh(rail_buf, base_radius, INNER_RAIL);
+      generate_curved_rail_mesh(rail_buf, base_radius, OUTER_RAIL);
             
       curved_rail_meshes[base_radius] = rail_buf;
    }

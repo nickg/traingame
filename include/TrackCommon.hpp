@@ -33,7 +33,7 @@ private:
    void merge_one_rail(IMeshBufferPtr buf,
       Vector<float> off, float y_angle) const;
    
-   static IMeshBufferPtr generate_rail_meshBuffer();
+   static IMeshBufferPtr generate_rail_mesh_buffer();
       
    static IMeshBufferPtr rail_buf;
 };
@@ -44,17 +44,17 @@ public:
       Vector<float> off, float y_angle) const;
    
 private:
-   static IMeshBufferPtr generate_sleeper_meshBuffer();
+   static IMeshBufferPtr generate_sleeper_mesh_buffer();
    
    static IMeshBufferPtr sleeper_buf;
 };
 
 class BezierHelper {
 public:
-   IMeshBufferPtr make_bezier_railMesh(const BezierCurve<float>& func) const;
+   IMeshBufferPtr make_bezier_rail_mesh(const BezierCurve<float>& func) const;
 
 private:
-   static void build_one_bezierRail(const BezierCurve<float>& func,
+   static void build_one_bezier_rail(const BezierCurve<float>& func,
       IMeshBufferPtr buf, float p);
 };
 
@@ -71,7 +71,7 @@ private:
       INNER_RAIL, OUTER_RAIL
    };
    
-   static void generate_curved_railMesh(IMeshBufferPtr buf,
+   static void generate_curved_rail_mesh(IMeshBufferPtr buf,
       int base_radius, RailType type);
    static void merge_curved_rail(IMeshBufferPtr buf, int base_radius,
       Vector<float> off, float y_angle);

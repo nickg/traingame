@@ -180,8 +180,8 @@ void Points::render_arrow() const
 
 void Points::merge(IMeshBufferPtr buf) const
 {
-   static IMeshBufferPtr rail_buf = make_bezier_railMesh(my_curve);
-   static IMeshBufferPtr reflect_buf = make_bezier_railMesh(my_reflected_curve);
+   static IMeshBufferPtr rail_buf = make_bezier_rail_mesh(my_curve);
+   static IMeshBufferPtr reflect_buf = make_bezier_rail_mesh(my_reflected_curve);
    
    Vector<float> off = make_vector(
       static_cast<float>(myX),
