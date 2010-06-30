@@ -108,7 +108,7 @@ Train::Train(IMapPtr a_map)
    // Bit of a hack to put the engine in the right place
    move(0.275);
 
-#if 1
+#if 0
    for (int i = 1; i <= 4; i++)
       add_part(load_waggon("coal_truck"));
 #endif
@@ -253,7 +253,7 @@ void Train::enter_segment(Part& a_part, const track::Connection& a_connection)
    Point<int> pos;
    tie(pos, a_part.direction) = a_connection;
 
-#if 0
+#if 1
    debug() << "Train part entered segment at " << pos
            << " moving " << a_part.direction;
 #endif

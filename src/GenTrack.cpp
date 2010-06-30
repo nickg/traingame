@@ -18,6 +18,8 @@
 #include "ITrackSegment.hpp"
 #include "TrackCommon.hpp"
 #include "XMLBuilder.hpp"
+#include "OpenGLHelper.hpp"
+#include "ILogger.hpp"
 
 #include <stdexcept>
 
@@ -52,6 +54,9 @@ public:
    
 private:
    float extend_from_center(track::Direction dir) const;
+   void ensure_valid_direction(track::Direction dir) const;
+   void transform(const track::TravelToken& token, float delta) const;
+   float rotation_at(float delta) const;
    
    BezierCurve<float> curve;
    IMeshBufferPtr rail_buf;
@@ -59,6 +64,7 @@ private:
    Point<int> origin;
    float height;
    Vector<int> delta;
+   track::Direction entry_dir, exit_dir;
 
    typedef tuple<Vector<int>,
                  track::Direction,
@@ -72,7 +78,9 @@ GenTrack::MeshCache GenTrack::mesh_cache;
 GenTrack::GenTrack(Vector<int> delta,
                    track::Direction entry_dir,
                    track::Direction exit_dir)
-   : delta(delta)
+   : delta(delta),
+     entry_dir(entry_dir),
+     exit_dir(exit_dir)
 {
    Vector<float> delta_f = make_vector(
       static_cast<float>(delta.x),
@@ -82,12 +90,12 @@ GenTrack::GenTrack(Vector<int> delta,
    Vector<float> entry_dir_norm = make_vector(
       static_cast<float>(entry_dir.x),
       0.0f,
-      static_cast<float>(entry_dir.y)).normalise();
+      static_cast<float>(entry_dir.z)).normalise();
    
    Vector<float> exit_dir_norm = make_vector(
       static_cast<float>(exit_dir.x),
       0.0f,
-      static_cast<float>(exit_dir.y)).normalise();
+      static_cast<float>(exit_dir.z)).normalise();
 
    float pinch_length = (delta_f.length() + 1.0f) / 3.0f;
 
@@ -115,15 +123,14 @@ float GenTrack::extend_from_center(track::Direction dir) const
 {   
    // Track must extend from the centre to the edge of a tile
    const float x_sq = static_cast<float>(dir.x * dir.x);
-   const float y_sq = static_cast<float>(dir.y * dir.y);
+   const float y_sq = static_cast<float>(dir.z * dir.z);
    
-   if (dir.x == dir.y)
+   if (dir.x == dir.z)
       return sqrtf(2.0f) * 0.5f;
-   else if (dir.x < dir.y)
+   else if (dir.x < dir.z)
       return sqrtf(x_sq / y_sq + 1) * 0.5f;
    else
       return sqrtf(y_sq / x_sq + 1) * 0.5f;   
-
 }
 
 void GenTrack::merge(IMeshBufferPtr buf) const
@@ -149,12 +156,33 @@ float GenTrack::segment_length(const track::TravelToken& token) const
 
 bool GenTrack::is_valid_direction(const track::Direction& dir) const
 {
-   return false;
+   return dir == entry_dir || dir == -exit_dir;
+}
+
+void GenTrack::ensure_valid_direction(track::Direction dir) const
+{
+   if (!is_valid_direction(dir))
+      throw runtime_error(
+         "Invalid direction on gen-track: "
+         + boost::lexical_cast<string>(dir)
+         + " (should be "
+         + boost::lexical_cast<string>(entry_dir)
+         + " or " + boost::lexical_cast<string>(-exit_dir) + ")");
 }
 
 track::Connection GenTrack::next_position(const track::TravelToken& token) const
 {
-   throw runtime_error("next_position not implemented");
+   ensure_valid_direction(token.direction);
+
+   if (token.direction == entry_dir) {
+      Point<int> off =
+         make_point(exit_dir.x, exit_dir.z) + make_point(delta.x, delta.y);
+      return make_pair(origin + off, exit_dir);
+   }
+   else {
+      Point<int> off = -make_point(exit_dir.x, exit_dir.z);
+      return make_pair(origin + off, exit_dir);
+   }   
 }
 
 void GenTrack::get_endpoints(vector<Point<int> >& output) const
@@ -176,10 +204,59 @@ ITrackSegmentPtr GenTrack::merge_exit(Point<int> where, track::Direction dir)
    return ITrackSegmentPtr();
 }
 
+float GenTrack::rotation_at(float curve_delta) const
+{
+   assert(curve_delta >= 0.0f && curve_delta <= 1.0f);
+   
+   const Vector<float> deriv = curve.deriv(curve_delta);
+
+   // Derivation of angle depends on quadrant
+   if (deriv.z >= 0 && deriv.x > 0)
+      return rad_to_deg<float>(atanf(deriv.z / deriv.x));
+   else if (deriv.z > 0 && deriv.x <= 0)
+      return 90 - rad_to_deg<float>(atanf(deriv.x / deriv.z));
+   else if (deriv.z < 0 && deriv.x <= 0)
+      return 270 - rad_to_deg<float>(atanf(deriv.x / deriv.z));
+   else if (deriv.z <= 0 && deriv.x > 0)
+      return rad_to_deg<float>(atanf(deriv.z / deriv.x));
+   else
+      assert(false);
+}
+
+void GenTrack::transform(const track::TravelToken& token, float delta) const
+{
+   assert(delta < curve.length);
+
+   const float curve_delta = delta / curve.length;
+
+   Vector<float> curve_value = curve(curve_delta);
+
+   const float angle = rotation_at(curve_delta);
+   
+   glTranslatef(
+      static_cast<float>(origin.x) + curve_value.x,
+      height,
+      static_cast<float>(origin.y) + curve_value.z);
+      
+   glRotatef(-angle, 0.0f, 1.0f, 0.0f);
+
+}
+
 track::TravelToken GenTrack::get_travel_token(track::Position pos,
                                               track::Direction dir) const
 {
-   throw runtime_error("get_travel_token not implemented");
+   using namespace placeholders;
+
+   ensure_valid_direction(dir);
+
+   track::TravelToken tok = {
+      dir,
+      pos,
+      bind(&GenTrack::transform, this, _1, _2),
+      track::flat_gradient_func,
+      1
+   };
+   return tok;
 }
 
 xml::element GenTrack::to_xml() const

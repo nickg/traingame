@@ -1727,10 +1727,10 @@ void MapLoader::handle_gen_track(const AttributeSet& attrs)
    attrs.get("delta-y", delta.y);
 
    attrs.get("entry-dir-x", entry_dir.x);
-   attrs.get("entry-dir-y", entry_dir.y);
+   attrs.get("entry-dir-y", entry_dir.z);
    
    attrs.get("exit-dir-x", exit_dir.x);
-   attrs.get("exit-dir-y", exit_dir.y);
+   attrs.get("exit-dir-y", exit_dir.z);
 
    my_map->set_track_at(tile, make_gen_track(delta, entry_dir, exit_dir));
 }

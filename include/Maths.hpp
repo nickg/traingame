@@ -193,6 +193,11 @@ struct Point {
       return *this;
    }
 
+   Point<T> operator-() const
+   {
+      return make_point(-x, -y);
+   }
+
    bool operator<(const Point<T>& rhs) const
    {
       return x < rhs.x
