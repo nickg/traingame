@@ -20,6 +20,7 @@
 #include "XMLBuilder.hpp"
 #include "OpenGLHelper.hpp"
 #include "ILogger.hpp"
+#include "Matrix.hpp"
 
 #include <stdexcept>
 
@@ -141,6 +142,17 @@ void GenTrack::merge(IMeshBufferPtr buf) const
       static_cast<float>(origin.y));
 
    buf->merge(rail_buf, off, 0.0f);
+
+   // Draw the sleepers
+   for (float i = 0.2f; i < curve.length; i += 0.25f) {
+      Vector<float> v = curve(i / curve.length);
+
+      const Vector<float> deriv = curve.deriv(i / curve.length);
+      const float angle =
+         rad_to_deg<float>(atanf(deriv.z / deriv.x));
+
+      merge_sleeper(buf, off + v, -angle);
+   }
 }
 
 void GenTrack::set_origin(int x, int y, float h)
