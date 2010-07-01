@@ -64,4 +64,11 @@
                    image="images/icons/save.png"/>
     </window>
   </from-bottom>
+
+  <from-bottom offset="80" name="fps">
+    <label text="FPS: "
+           name="fps_label"
+           font="small-font"
+           x="5" y="0"/>
+  </from-bottom>
 </layout>

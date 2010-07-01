@@ -4,6 +4,10 @@
         file="fonts/Vera.ttf"
         drop-shadow="true"
         size="20" />
+  <font name="small-font"
+        file="fonts/Vera.ttf"
+        drop-shadow="true"
+        size="14" />
 
   <!-- Status area -->
   <label text="Speed"
@@ -30,4 +34,11 @@
           name="station">
     <label name="name" text="" x="0" y="0" />
   </window>
+
+  <from-bottom offset="30" name="fps">
+    <label text="FPS: "
+           name="fps_label"
+           font="small-font"
+           x="5" y="0"/>
+  </from-bottom>
 </layout>

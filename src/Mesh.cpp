@@ -630,7 +630,11 @@ void update_render_stats()
 
 int get_average_triangleCount()
 {
-   int avg = ::triangle_count / ::frame_counter;
-   ::triangle_count = ::frame_counter = 0;
-   return avg;
+   if (::frame_counter == 0)
+      return 0;
+   else {
+      int avg = ::triangle_count / ::frame_counter;
+      ::triangle_count = ::frame_counter = 0;
+      return avg;
+   }
 }

@@ -27,6 +27,7 @@
 #include "IterateTrack.hpp"
 #include "IConfig.hpp"
 #include "IMessageArea.hpp"
+#include "IRenderStats.hpp"
 
 #include "gui/ILayout.hpp"
 #include "gui/Label.hpp"
@@ -80,6 +81,7 @@ private:
    
    gui::ILayoutPtr layout;
    IMessageAreaPtr message_area;
+   IRenderStatsPtr render_stats;
 };
 
 Game::Game(IMapPtr a_map)
@@ -96,6 +98,7 @@ Game::Game(IMapPtr a_map)
    // Build the GUI
    layout = gui::make_layout("layouts/game.xml");
    message_area = make_message_area();
+   render_stats = make_render_stats(layout, "/fps/fps_label");
 
    switch_to_birdCamera();
 }
@@ -159,6 +162,7 @@ void Game::stopped_at_station()
 void Game::update(IPickBufferPtr a_pick_buffer, int a_delta)
 {
    message_area->update(a_delta);
+   render_stats->update(a_delta);
    
    train->update(a_delta);
 

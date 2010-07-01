@@ -50,6 +50,7 @@ public:
    int width() const { return width_; }
    int height() const { return height_; }
    void redraw_hint() {}
+   int get_fps() const;
 
    // IGraphics interface
    bool cuboid_in_viewFrustum(float x, float y, float z,
@@ -84,7 +85,7 @@ private:
 // Calculation and display of the FPS rate
 namespace {
    int the_frame_counter = 0;
-   int the_lastFPS = 0;
+   int the_last_fps = 0;
 
    Uint32 updateFPS(Uint32 an_interval, void* thread);
 
@@ -101,30 +102,13 @@ namespace {
          SDL_RemoveTimer(my_timer);
       }
 
-      // Should be called from the main thread
-      void update_title()
-      {
-         if (should_update_title) {
-            int avg_triangles = get_average_triangleCount();
-            
-            const string title =
-               "Trains! @ " + lexical_cast<string>(the_lastFPS)
-               + " FPS [" + lexical_cast<string>(avg_triangles)
-               + " triangles]";
-            SDL_WM_SetCaption(title.c_str(), title.c_str());
-         }
-      }
-
       SDL_TimerID my_timer;
-      bool should_update_title;
    };
 
    Uint32 updateFPS(Uint32 an_interval, void* thread)
    {
-      the_lastFPS = the_frame_counter;
+      the_last_fps = the_frame_counter;
       the_frame_counter = 0;
-
-      static_cast<FrameTimerThread*>(thread)->should_update_title = true;
       
       return an_interval;
    }
@@ -162,6 +146,8 @@ SDLWindow::SDLWindow()
       ss << "Unable to create OpenGL screen: " << SDL_GetError();
       throw runtime_error(ss.str());
    }
+
+   SDL_WM_SetCaption("Trains!", NULL);
 
    // Turn on key repeat
    SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -238,8 +224,9 @@ void SDLWindow::run(IScreenPtr a_screen)
       }
 
       frame_complete();
-      fps_timer.update_title();
+      //fps_timer.update_title();
       last_tick = tick_start;
+      update_render_stats();
    } while (am_running);
    
    screen.reset();
@@ -409,6 +396,11 @@ void SDLWindow::capture_frame() const
    SDL_FreeSurface(temp);
 
    log() << "Wrote screen shot to " << file_name;
+}
+
+int SDLWindow::get_fps() const
+{
+   return ::the_last_fps;
 }
 
 // Construct and initialise an OpenGL SDL window

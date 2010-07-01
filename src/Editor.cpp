@@ -21,9 +21,12 @@
 #include "IMap.hpp"
 #include "Maths.hpp"
 #include "ILight.hpp"
-#include "gui/ILayout.hpp"
 #include "ISceneryPicker.hpp"
 #include "Random.hpp"
+#include "IRenderStats.hpp"
+
+#include "gui/ILayout.hpp"
+#include "gui/Label.hpp"
 
 #include <algorithm>
 #include <stdexcept>
@@ -89,6 +92,7 @@ private:
    // GUI elements
    gui::ILayoutPtr layout;
    ISceneryPickerPtr building_picker, tree_picker;
+   IRenderStatsPtr render_stats;
 };
 
 Editor::Editor(IMapPtr a_map) 
@@ -141,6 +145,8 @@ void Editor::buildGUI()
     
    building_picker = make_building_picker(layout);
    tree_picker = make_tree_picker(layout);
+
+   render_stats = make_render_stats(layout, "/fps/fps_label");
 }
 
 void Editor::set_map(IMapPtr a_map)
@@ -198,7 +204,7 @@ void Editor::overlay() const
 // Prepare the next frame
 void Editor::update(IPickBufferPtr pick_buffer, int a_delta)
 {
-   
+   render_stats->update(a_delta);
 }
 
 // True if the `a_first_point' is a valid track segment and it can

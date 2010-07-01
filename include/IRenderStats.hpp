@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,29 +15,21 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_IWINDOW_HPP
-#define INC_IWINDOW_HPP
+#ifndef INC_IRENDER_STATS_HPP
+#define INC_IRENDER_STATS_HPP
 
 #include "Platform.hpp"
-#include "IScreen.hpp"
+#include "gui/ILayout.hpp"
+#include "gui/Label.hpp"
 
-// Interface to the game window
-class IWindow {
-public:
-   virtual ~IWindow() {}
-   
-   virtual void run(IScreenPtr a_screen) = 0;
-   virtual void switch_screen(IScreenPtr a_screen) = 0;
-   virtual void quit() = 0;
-   virtual void take_screen_shot() = 0;
-   virtual int width() const = 0;
-   virtual int height() const = 0;
-   virtual int get_fps() const = 0;
+struct IRenderStats {
+   virtual ~IRenderStats() {}
+
+   virtual void update(int delta) = 0;
 };
 
-typedef shared_ptr<IWindow> IWindowPtr;
+typedef shared_ptr<IRenderStats> IRenderStatsPtr;
 
-// Implementors
-IWindowPtr makeSDLWindow();
+IRenderStatsPtr make_render_stats(gui::ILayoutPtr layout, const string& path);
 
 #endif
