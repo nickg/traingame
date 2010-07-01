@@ -47,7 +47,7 @@ void RenderStats::update(int delta)
    ticks_until_update -= delta;
    
    if (ticks_until_update <= 0) {
-      int avg_triangles = get_average_triangleCount();
+      int avg_triangles = get_average_triangle_count();
       
       label.text(
          "FPS: " + boost::lexical_cast<string>(get_game_window()->get_fps())

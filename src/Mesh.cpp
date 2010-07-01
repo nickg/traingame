@@ -628,7 +628,7 @@ void update_render_stats()
    ::frame_counter++;
 }
 
-int get_average_triangleCount()
+int get_average_triangle_count()
 {
    if (::frame_counter == 0)
       return 0;

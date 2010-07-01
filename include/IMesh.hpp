@@ -81,6 +81,6 @@ typedef shared_ptr<IMesh> IMeshPtr;
 IMeshPtr make_mesh(IMeshBufferPtr a_buffer);
 IMeshBufferPtr make_mesh_buffer();
 void update_render_stats();
-int get_average_triangleCount();
+int get_average_triangle_count();
 
 #endif
