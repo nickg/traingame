@@ -53,10 +53,10 @@ public:
    int get_fps() const;
 
    // IGraphics interface
-   bool cuboid_in_viewFrustum(float x, float y, float z,
-                            float sizeX, float sizeY, float sizeZ);
-   bool cube_in_viewFrustum(float x, float y, float z, float size);
-   bool point_in_viewFrustum(float x, float y, float z);
+   bool cuboid_in_view_frustum(float x, float y, float z,
+                               float sizeX, float sizeY, float sizeZ);
+   bool cube_in_view_frustum(float x, float y, float z, float size);
+   bool point_in_view_frustum(float x, float y, float z);
    void set_camera(const Vector<float>& a_pos,
                   const Vector<float>& a_rotation);
    void look_at(const Vector<float> an_eye_point,
@@ -67,14 +67,14 @@ public:
    unsigned end_pick();
 private:
    void process_input();
-   MouseButton fromSDLButton(Uint8 aSDLButton) const;
+   MouseButton from_sdl_button(Uint8 aSDLButton) const;
    void capture_frame() const;
    
    bool am_running;
    int width_, height_;
    IScreenPtr screen;
-   bool will_skip_nextFrame;
-   bool will_take_screenShot;
+   bool will_skip_next_frame;
+   bool will_take_screen_shot;
    Frustum view_frustum;
 
    // Picking data
@@ -123,8 +123,8 @@ namespace {
 
 // Create the game window
 SDLWindow::SDLWindow()
-   : am_running(false), will_skip_nextFrame(false),
-     will_take_screenShot(false)
+   : am_running(false), will_skip_next_frame(false),
+     will_take_screen_shot(false)
 {
    IConfigPtr cfg = get_config();
       
@@ -171,7 +171,7 @@ SDLWindow::~SDLWindow()
 // Make a screen capture at the end of this frame
 void SDLWindow::take_screen_shot()
 {
-   will_take_screenShot = true;
+   will_take_screen_shot = true;
 }
 
 // Change the active screen while the game is running
@@ -180,7 +180,7 @@ void SDLWindow::switch_screen(IScreenPtr a_screen)
    assert(am_running);
 
    screen = a_screen;
-   will_skip_nextFrame = true;
+   will_skip_next_frame = true;
 }
 
 // Run the game until the user quits
@@ -206,21 +206,21 @@ void SDLWindow::run(IScreenPtr a_screen)
          process_input();
          screen->update(shared_from_this(), delta);
          
-         if (!will_skip_nextFrame) {
+         if (!will_skip_next_frame) {
             drawGLScene(shared_from_this(), shared_from_this(), screen);
             SDL_GL_SwapBuffers();
          }
          else
-            will_skip_nextFrame = false;
+            will_skip_next_frame = false;
       }
       catch (runtime_error& e) {
          error() << "Caught exception: " << e.what();
          am_running = false;
       }
 
-      if (will_take_screenShot) {
+      if (will_take_screen_shot) {
          capture_frame();
-         will_take_screenShot = false;
+         will_take_screen_shot = false;
       }
 
       frame_complete();
@@ -239,9 +239,9 @@ void SDLWindow::quit()
 }
 
 // Convert an SDL button constant to a MouseButton
-MouseButton SDLWindow::fromSDLButton(Uint8 aSDLButton) const
+MouseButton SDLWindow::from_sdl_button(Uint8 button) const
 {
-   switch (aSDLButton) {
+   switch (button) {
    case SDL_BUTTON_LEFT: return MOUSE_LEFT;
    case SDL_BUTTON_MIDDLE: return MOUSE_MIDDLE;
    case SDL_BUTTON_RIGHT: return MOUSE_RIGHT;
@@ -288,13 +288,13 @@ void SDLWindow::process_input()
       case SDL_MOUSEBUTTONDOWN:
          screen->on_mouse_click(shared_from_this(),
                                 e.button.x, e.button.y,
-                                fromSDLButton(e.button.button));
+                                from_sdl_button(e.button.button));
          break;
 
       case SDL_MOUSEBUTTONUP:
          screen->on_mouse_release(shared_from_this(),
                                   e.button.x, e.button.y,
-                                  fromSDLButton(e.button.button));
+                                  from_sdl_button(e.button.button));
          break;
 
       case SDL_VIDEORESIZE:
@@ -346,20 +346,20 @@ void SDLWindow::look_at(const Vector<float> an_eye_point,
 }
 
 // Intersect a cuboid with the current view frustum
-bool SDLWindow::cuboid_in_viewFrustum(float x, float y, float z,
-                                    float sizeX, float sizeY, float sizeZ)
+bool SDLWindow::cuboid_in_view_frustum(float x, float y, float z,
+                                       float sizeX, float sizeY, float sizeZ)
 {
    return view_frustum.cuboid_in_frustum(x, y, z, sizeX, sizeY, sizeZ);
 }
 
 // Intersect a cube with the current view frustum
-bool SDLWindow::cube_in_viewFrustum(float x, float y, float z, float size)
+bool SDLWindow::cube_in_view_frustum(float x, float y, float z, float size)
 {
    return view_frustum.cube_in_frustum(x, y, z, size);
 }
 
 // True if the point is contained within the view frustum
-bool SDLWindow::point_in_viewFrustum(float x, float y, float z)
+bool SDLWindow::point_in_view_frustum(float x, float y, float z)
 {
    return view_frustum.point_in_frustum(x, y, z);
 }
@@ -404,7 +404,7 @@ int SDLWindow::get_fps() const
 }
 
 // Construct and initialise an OpenGL SDL window
-IWindowPtr makeSDLWindow()
+IWindowPtr make_sdl_window()
 {
    return std::tr1::shared_ptr<IWindow>(new SDLWindow);
 }

@@ -102,7 +102,7 @@ int main(int argc, char** argv)
       
       IConfigPtr cfg = get_config();
       
-      ::window = makeSDLWindow();
+      ::window = make_sdl_window();
       
       IScreenPtr screen;
       if (::action == "edit") {

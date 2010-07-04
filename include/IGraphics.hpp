@@ -26,15 +26,15 @@ struct IGraphics {
    virtual ~IGraphics() {}
 
    // Camera
-   virtual bool cuboid_in_viewFrustum(float x, float y, float z,
-                                    float sizeX, float sizeY, float sizeZ) = 0;
-   virtual bool cube_in_viewFrustum(float x, float y, float z,
-                                  float size) = 0;
-   virtual bool point_in_viewFrustum(float x, float y, float z) = 0;
+   virtual bool cuboid_in_view_frustum(float x, float y, float z, float sizeX,
+                                       float sizeY, float sizeZ) = 0;
+   virtual bool cube_in_view_frustum(float x, float y, float z,
+                                     float size) = 0;
+   virtual bool point_in_view_frustum(float x, float y, float z) = 0;
    virtual void set_camera(const Vector<float>& a_pos,
-                          const Vector<float>& a_rotation) = 0;
+                           const Vector<float>& a_rotation) = 0;
    virtual void look_at(const Vector<float> an_eye_point,
-                       const Vector<float> a_target_point) = 0;
+                        const Vector<float> a_target_point) = 0;
 };
 
 typedef std::tr1::shared_ptr<IGraphics> IGraphicsPtr;

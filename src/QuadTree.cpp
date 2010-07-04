@@ -163,7 +163,7 @@ int QuadTree::calc_num_sectors(int a_width)
 
 // Find all the visible sectors
 void QuadTree::visible_sectors(IGraphicsPtr a_context, list<Sector*>& a_list,
-                              int a_sector)
+                               int a_sector)
 {
    if (a_sector >= num_sectors) {
       ostringstream ss;
@@ -196,7 +196,11 @@ void QuadTree::visible_sectors(IGraphicsPtr a_context, list<Sector*>& a_list,
          int x = child->bot_left.x + w/2;
          int y = child->bot_left.y + h/2;
 
-         if (a_context->cube_in_viewFrustum((float)x, 0.0f, (float)y, (float)w/2))
+         if (a_context->cube_in_view_frustum(
+                static_cast<float>(x),
+                0.0f,
+                static_cast<float>(y),
+                static_cast<float>(w) / 2.0f))
             visible_sectors(a_context, a_list, childID);
          else
             kill_count++;

@@ -144,7 +144,15 @@ void GenTrack::merge(IMeshBufferPtr buf) const
    buf->merge(rail_buf, off, 0.0f);
 
    // Draw the sleepers
-   for (float i = 0.2f; i < curve.length; i += 0.25f) {
+
+   const float sleeper_sep = 0.25f;
+   const float sleepers_per_unit = 1.0f / sleeper_sep;
+   const int n_sleepers = static_cast<int>(curve.length * sleepers_per_unit);
+   const float spill = curve.length - (n_sleepers * sleeper_sep);
+
+   debug() << "spill=" << spill;
+   
+   for (float i = spill / 2.0f; i < curve.length; i += sleeper_sep) {
       Vector<float> v = curve(i / curve.length);
 
       const Vector<float> deriv = curve.deriv(i / curve.length);

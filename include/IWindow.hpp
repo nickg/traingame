@@ -38,6 +38,6 @@ public:
 typedef shared_ptr<IWindow> IWindowPtr;
 
 // Implementors
-IWindowPtr makeSDLWindow();
+IWindowPtr make_sdl_window();
 
 #endif
