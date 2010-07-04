@@ -197,9 +197,9 @@ void QuadTree::visible_sectors(IGraphicsPtr a_context, list<Sector*>& a_list,
          int y = child->bot_left.y + h/2;
 
          if (a_context->cube_in_view_frustum(
-                static_cast<float>(x),
+                static_cast<float>(x) - 0.5f,
                 0.0f,
-                static_cast<float>(y),
+                static_cast<float>(y) - 0.5f,
                 static_cast<float>(w) / 2.0f))
             visible_sectors(a_context, a_list, childID);
          else
@@ -208,7 +208,8 @@ void QuadTree::visible_sectors(IGraphicsPtr a_context, list<Sector*>& a_list,
    }
 }
 
-IQuadTreePtr make_quad_tree(ISectorRenderablePtr a_renderer, int width, int height)
+IQuadTreePtr make_quad_tree(ISectorRenderablePtr a_renderer,
+                            int width, int height)
 {
    auto_ptr<QuadTree> ptr(new QuadTree(a_renderer));
    ptr->build_tree(width, height);
