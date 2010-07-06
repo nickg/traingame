@@ -64,7 +64,7 @@ public:
    void set_map(IMapPtr a_map);
    
 private:
-   void buildGUI();
+   void build_gui();
    void draw_dragged_track();
    bool draw_track_tile(Point<int> where, track::Direction axis);
    void draw_dragged_straight(const track::Direction& an_axis, int a_length);
@@ -101,7 +101,7 @@ Editor::Editor(IMapPtr a_map)
 {
    my_sun = make_sun_light();
 		
-   buildGUI();
+   build_gui();
 		
    map->set_grid(true);
 		
@@ -113,7 +113,7 @@ Editor::~Editor()
    
 }
 
-void Editor::buildGUI()
+void Editor::build_gui()
 {
    using namespace placeholders;
     

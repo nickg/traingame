@@ -38,7 +38,6 @@
 #include <set>
 #include <map>
 
-#include <GL/gl.h>
 #include <boost/filesystem.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/lexical_cast.hpp>
@@ -142,7 +141,7 @@ private:
    } *height_map;
 
    static const unsigned TILE_NAME_BASE	= 1000;	  // Base of tile naming
-   static const unsigned NULL_OBJECT		= 0;		  // Non-existant object
+   static const unsigned NULL_OBJECT	= 0;	  // Non-existant object
    static const float TILE_HEIGHT;	   // Standard height increment
 
    // Meshes for each terrain sector
@@ -209,14 +208,14 @@ private:
    void raise_tile(int x, int y, float delta_height);
    void set_tile_height(int x, int y, float h);
    void fix_normals(int x, int y);
-   bool raise_will_coverTrack(int x, int y) const;
+   bool raise_will_cover_track(int x, int y) const;
    
    int my_width, my_depth;
    Point<int> start_location;
    track::Direction start_direction;
    IQuadTreePtr quad_tree;
    IFogPtr fog;
-   bool should_draw_gridLines, in_pick_mode;
+   bool should_draw_grid_lines, in_pick_mode;
    list<Point<int> > dirty_tiles;
    IResourcePtr resource;
    vector<bool> sea_sectors;
@@ -232,7 +231,7 @@ Map::Map(IResourcePtr a_res)
    : tiles(NULL), height_map(NULL), my_width(0), my_depth(0),
      start_location(make_point(1, 1)),
      start_direction(axis::X),
-     should_draw_gridLines(false), in_pick_mode(false),
+     should_draw_grid_lines(false), in_pick_mode(false),
      resource(a_res), frame_num(0)
 {
    const float far_clip = get_config()->get<float>("FarClip");
@@ -386,7 +385,7 @@ void Map::set_start(int x, int y, int dirX, int dirY)
 
 void Map::set_grid(bool on_off)
 {
-   should_draw_gridLines = on_off;
+   should_draw_grid_lines = on_off;
 }
 
 void Map::reset_map(int a_width, int a_depth)
@@ -817,7 +816,7 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
          //   draw_normal(v.pos, v.normal);
          //}
          
-         if (should_draw_gridLines) {
+         if (should_draw_grid_lines) {
             // Render grid lines
             glColor3f(0.0f, 0.0f, 0.0f);
             glBegin(GL_LINE_LOOP);
@@ -858,12 +857,12 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
 
          // Draw the station, if any
          if (tile.station
-            && (should_draw_gridLines || tile.station->highlight_visible()))
+            && (should_draw_grid_lines || tile.station->highlight_visible()))
             highlight_tile(make_point(x, y), tile.station->highlight_colour());
 
          // Draw the start location if it's on this tile
          if (start_location.x == x && start_location.y == y
-            && should_draw_gridLines)
+            && should_draw_grid_lines)
             draw_start_location();
       }			
    }
@@ -979,7 +978,7 @@ void Map::tile_vertices(int x, int y, int* indexes) const
 
 // True if changing the height of this tile will affect
 // a piece of track
-bool Map::raise_will_coverTrack(int x, int y) const
+bool Map::raise_will_cover_track(int x, int y) const
 {
    return tile_at(x, y).track
       || (x < my_width - 1 && tile_at(x + 1, y).track)
@@ -995,7 +994,7 @@ bool Map::raise_will_coverTrack(int x, int y) const
 // Changes the height of a complete tile
 void Map::raise_tile(int x, int y, float delta_height)
 {
-   if (raise_will_coverTrack(x, y)) {
+   if (raise_will_cover_track(x, y)) {
       warn() << "Cannot raise terrain over track";
       return;
    }
@@ -1013,7 +1012,7 @@ void Map::raise_tile(int x, int y, float delta_height)
 // Sets the absolute height of a tile
 void Map::set_tile_height(int x, int y, float h)
 {
-   bool track_affected = raise_will_coverTrack(x, y);
+   bool track_affected = raise_will_cover_track(x, y);
    
    int indexes[4];
    tile_vertices(x, y, indexes);
@@ -1207,7 +1206,7 @@ void Map::smooth_area(Point<int> start, Point<int> finish)
 
    int i = 0;
    for (Point<int> it = abs_start; it != abs_finish; i++, it += step) {
-      const bool track_affected = raise_will_coverTrack(it.x, it.y);
+      const bool track_affected = raise_will_cover_track(it.x, it.y);
       
       int indexes[4];
       tile_vertices(it.x, it.y, indexes);
@@ -1523,191 +1522,24 @@ public:
       : my_map(a_map), tile(make_point(0, 0)),
         resource(a_res) {}
 
-   void start_element(const string& local_name, const AttributeSet& attrs)
-   {
-      if (local_name == "map")
-         handle_map(attrs);
-      else if (local_name == "tile")
-         handle_tile(attrs);
-      else if (local_name == "start")
-         handle_start(attrs);
-      else if (local_name == "straight-track")
-         handle_straight_track(attrs);
-      else if (local_name == "curved-track")
-         handle_curved_track(attrs);
-      else if (local_name == "crossover-track")
-         handle_crossover_track(attrs);
-      else if (local_name == "gen-track")
-         handle_gen_track(attrs);
-      else if (local_name == "points")
-         handle_points(attrs);
-      else if (local_name == "slope-track")
-         handle_slope_track(attrs);
-      else if (local_name == "sbend-track")
-         handleSBendTrack(attrs);
-      else if (local_name == "station-part")
-         handle_station_part(attrs);
-      else if (local_name == "station")
-         handle_station(attrs);
-      else if (local_name == "building")
-         handle_building(attrs);
-      else if (local_name == "tree")
-         handle_tree(attrs);
-   }
-
-   void end_element(const string& local_name)
-   {
-      if (local_name == "station")
-         my_active_station.reset();
-   }                   
-   
-   void text(const string& local_name, const string& a_string)
-   {
-      if (local_name == "heightmap")
-         my_map->read_height_map(resource->open_file(a_string));
-      else if (my_active_station) {
-         if (local_name == "name")
-            my_active_station->set_name(a_string);
-      }
-   }
+   void start_element(const string& local_name, const AttributeSet& attrs);
+   void end_element(const string& local_name);
+   void text(const string& local_name, const string& a_string);
    
 private:
-   void handle_map(const AttributeSet& attrs)
-   {
-      int width, height;
-      attrs.get("width", width);
-      attrs.get("height", height);
-
-      my_map->reset_map(width, height);
-   }
-
-   void handle_building(const AttributeSet& attrs)
-   {
-      my_map->add_scenery(tile, load_building(attrs));
-   }
-
-   void handle_tree(const AttributeSet& attrs)
-   {
-      my_map->add_scenery(tile, load_tree(attrs));
-   }
-   
-   void handle_station(const AttributeSet& attrs)
-   {
-      my_active_station = make_station();
-
-      int id;
-      attrs.get("id", id);
-      my_active_station->set_id(id);
-
-      my_stations[id] = my_active_station;
-   }
-   
-   void handle_start(const AttributeSet& attrs)
-   {
-      int x, y, dirX, dirY;
-      attrs.get("x", x);
-      attrs.get("y", y);
-      attrs.get("dirX", dirX);
-      attrs.get("dirY", dirY);
-      
-      my_map->set_start(x, y, dirX, dirY);
-   }
-
-   void handle_tile(const AttributeSet& attrs)
-   {
-      attrs.get("x", tile.x);
-      attrs.get("y", tile.y);
-   }
-
-   void handle_station_part(const AttributeSet& attrs)
-   {
-      int id;
-      attrs.get("id", id);
-
-      map<int, IStationPtr>::iterator it = my_stations.find(id);
-      if (it == my_stations.end())
-         throw runtime_error("No station definition for ID "
-            + boost::lexical_cast<string>(id));
-      else
-         my_map->set_station_at(tile, (*it).second);
-   }
-
-   void handle_straight_track(const AttributeSet& attrs)
-   {
-      string align;
-      attrs.get("align", align);
-
-      track::Direction axis = align == "x" ? axis::X : axis::Y;
-
-      my_map->set_track_at(tile, make_straight_track(axis));
-   }
-
-   void handle_slope_track(const AttributeSet& attrs)
-   {
-      string align;
-      attrs.get("align", align);
-      
-      track::Direction axis = align == "x" ? axis::X : axis::Y;
-
-      bool level;
-      Vector<float> slope = my_map->slope_at(tile, axis, level);
-         
-      bool a_valid, b_valid;
-      Vector<float> slope_before = my_map->slope_before(tile, axis, b_valid);
-      Vector<float> slope_after = my_map->slope_after(tile, axis, a_valid);
-
-      if (!a_valid || !b_valid || !level)
-         throw runtime_error("SlopeTrack in invalid location");
-
-      my_map->set_track_at(tile,
-         make_slope_track(axis, slope, slope_before, slope_after));
-   }
-
-   void handleSBendTrack(const AttributeSet attrs)
-   {
-      string align;
-      attrs.get("align", align);
-
-      track::Direction axis = align == "x" ? axis::X : axis::Y;
-
-      int offset, straight;
-      attrs.get("offset", offset);
-      attrs.get("straight", straight);
-
-      my_map->set_track_at(tile, makeSBend(axis, straight, offset));
-   }
-   
-   void handle_points(const AttributeSet& attrs)
-   {
-      string align;
-      attrs.get("align", align);
-
-      bool reflect;
-      attrs.get("reflect", reflect);
-
-      track::Direction dir =
-         align == "x" ? axis::X
-         : (align == "-x" ? -axis::X
-            : (align == "y" ? axis::Y : -axis::Y));
-
-      my_map->set_track_at(tile, make_points(dir, reflect));
-   }
-   
-   void handle_curved_track(const AttributeSet& attrs)
-   {
-      int start_angle, finish_angle, radius;
-      attrs.get("start-angle", start_angle);
-      attrs.get("finish-angle", finish_angle);
-      attrs.get("radius", radius);
-
-      my_map->set_track_at(tile, make_curved_track(start_angle, finish_angle, radius));
-   }
-
-   void handle_crossover_track(const AttributeSet& attrs)
-   {
-      my_map->set_track_at(tile, make_crossover_track());
-   }
-
+   void handle_map(const AttributeSet& attrs);
+   void handle_building(const AttributeSet& attrs);
+   void handle_tree(const AttributeSet& attrs);
+   void handle_station(const AttributeSet& attrs);
+   void handle_start(const AttributeSet& attrs);
+   void handle_tile(const AttributeSet& attrs);
+   void handle_station_part(const AttributeSet& attrs);
+   void handle_straight_track(const AttributeSet& attrs);
+   void handle_slope_track(const AttributeSet& attrs);
+   void handle_s_bend_track(const AttributeSet attrs);
+   void handle_points(const AttributeSet& attrs);
+   void handle_curved_track(const AttributeSet& attrs);
+   void handle_crossover_track(const AttributeSet& attrs);
    void handle_gen_track(const AttributeSet& attrs);
    
    shared_ptr<Map> my_map;
@@ -1717,6 +1549,192 @@ private:
 
    IResourcePtr resource;
 };
+
+void MapLoader::start_element(const string& local_name,
+                              const AttributeSet& attrs)
+{
+   if (local_name == "map")
+      handle_map(attrs);
+   else if (local_name == "tile")
+      handle_tile(attrs);
+   else if (local_name == "start")
+      handle_start(attrs);
+   else if (local_name == "straight-track")
+      handle_straight_track(attrs);
+   else if (local_name == "curved-track")
+      handle_curved_track(attrs);
+   else if (local_name == "crossover-track")
+      handle_crossover_track(attrs);
+   else if (local_name == "gen-track")
+      handle_gen_track(attrs);
+   else if (local_name == "points")
+      handle_points(attrs);
+   else if (local_name == "slope-track")
+      handle_slope_track(attrs);
+   else if (local_name == "sbend-track")
+      handle_s_bend_track(attrs);
+   else if (local_name == "station-part")
+      handle_station_part(attrs);
+   else if (local_name == "station")
+      handle_station(attrs);
+   else if (local_name == "building")
+      handle_building(attrs);
+   else if (local_name == "tree")
+      handle_tree(attrs);
+}
+
+void MapLoader::end_element(const string& local_name)
+{
+   if (local_name == "station")
+      my_active_station.reset();
+}                   
+   
+void MapLoader::text(const string& local_name, const string& a_string)
+{
+   if (local_name == "heightmap")
+      my_map->read_height_map(resource->open_file(a_string));
+   else if (my_active_station) {
+      if (local_name == "name")
+         my_active_station->set_name(a_string);
+   }
+}
+
+void MapLoader::handle_map(const AttributeSet& attrs)
+{
+   int width, height;
+   attrs.get("width", width);
+   attrs.get("height", height);
+
+   my_map->reset_map(width, height);
+}
+
+void MapLoader::handle_building(const AttributeSet& attrs)
+{
+   my_map->add_scenery(tile, load_building(attrs));
+}
+
+void MapLoader::handle_tree(const AttributeSet& attrs)
+{
+   my_map->add_scenery(tile, load_tree(attrs));
+}
+   
+void MapLoader::handle_station(const AttributeSet& attrs)
+{
+   my_active_station = make_station();
+
+   int id;
+   attrs.get("id", id);
+   my_active_station->set_id(id);
+
+   my_stations[id] = my_active_station;
+}
+   
+void MapLoader::handle_start(const AttributeSet& attrs)
+{
+   int x, y, dirX, dirY;
+   attrs.get("x", x);
+   attrs.get("y", y);
+   attrs.get("dirX", dirX);
+   attrs.get("dirY", dirY);
+      
+   my_map->set_start(x, y, dirX, dirY);
+}
+
+void MapLoader::handle_tile(const AttributeSet& attrs)
+{
+   attrs.get("x", tile.x);
+   attrs.get("y", tile.y);
+}
+
+void MapLoader::handle_station_part(const AttributeSet& attrs)
+{
+   int id;
+   attrs.get("id", id);
+
+   map<int, IStationPtr>::iterator it = my_stations.find(id);
+   if (it == my_stations.end())
+      throw runtime_error("No station definition for ID "
+                          + boost::lexical_cast<string>(id));
+   else
+      my_map->set_station_at(tile, (*it).second);
+}
+
+void MapLoader::handle_straight_track(const AttributeSet& attrs)
+{
+   string align;
+   attrs.get("align", align);
+
+   track::Direction axis = align == "x" ? axis::X : axis::Y;
+
+   my_map->set_track_at(tile, make_straight_track(axis));
+}
+
+void MapLoader::handle_slope_track(const AttributeSet& attrs)
+{
+   string align;
+   attrs.get("align", align);
+      
+   track::Direction axis = align == "x" ? axis::X : axis::Y;
+
+   bool level;
+   Vector<float> slope = my_map->slope_at(tile, axis, level);
+         
+   bool a_valid, b_valid;
+   Vector<float> slope_before = my_map->slope_before(tile, axis, b_valid);
+   Vector<float> slope_after = my_map->slope_after(tile, axis, a_valid);
+
+   if (!a_valid || !b_valid || !level)
+      throw runtime_error("SlopeTrack in invalid location");
+
+   my_map->set_track_at(tile,
+                        make_slope_track(axis, slope, slope_before, slope_after));
+}
+
+void MapLoader::handle_s_bend_track(const AttributeSet attrs)
+{
+   string align;
+   attrs.get("align", align);
+
+   track::Direction axis = align == "x" ? axis::X : axis::Y;
+
+   int offset, straight;
+   attrs.get("offset", offset);
+   attrs.get("straight", straight);
+
+   my_map->set_track_at(tile, makeSBend(axis, straight, offset));
+}
+   
+void MapLoader::handle_points(const AttributeSet& attrs)
+{
+   string align;
+   attrs.get("align", align);
+   
+   bool reflect;
+   attrs.get("reflect", reflect);
+
+   track::Direction dir =
+      align == "x" ? axis::X
+      : (align == "-x" ? -axis::X
+         : (align == "y" ? axis::Y : -axis::Y));
+   
+   my_map->set_track_at(tile, make_points(dir, reflect));
+}
+
+void MapLoader::handle_curved_track(const AttributeSet& attrs)
+{
+   int start_angle, finish_angle, radius;
+   attrs.get("start-angle", start_angle);
+   attrs.get("finish-angle", finish_angle);
+   attrs.get("radius", radius);
+
+   my_map->set_track_at(tile,
+                        make_curved_track(start_angle, finish_angle, radius));
+}
+
+void MapLoader::handle_crossover_track(const AttributeSet& attrs)
+{
+   my_map->set_track_at(tile, make_crossover_track());
+}
 
 void MapLoader::handle_gen_track(const AttributeSet& attrs)
 {
