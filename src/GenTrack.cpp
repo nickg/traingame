@@ -44,7 +44,7 @@ public:
    void get_covers(vector<Point<int> >& output) const;
    ITrackSegmentPtr merge_exit(Point<int> where, track::Direction dir);
    track::TravelToken get_travel_token(track::Position pos,
-      track::Direction dir) const;
+                                       track::Direction dir) const;
    void next_state() {}
    void prev_state() {}
    bool has_multiple_states() const { return false; }
@@ -146,16 +146,20 @@ void GenTrack::merge(IMeshBufferPtr buf) const
    // Draw the sleepers
 
    const float sleeper_sep = 0.25f;
-   const float sleepers_per_unit = 1.0f / sleeper_sep;
-   const int n_sleepers = static_cast<int>(curve.length * sleepers_per_unit);
-   const float spill = curve.length - (n_sleepers * sleeper_sep);
 
-   debug() << "spill=" << spill;
-   
-   for (float i = spill / 2.0f; i < curve.length; i += sleeper_sep) {
-      Vector<float> v = curve(i / curve.length);
+   float delta = 0;
+   int n = 0;
+   do {
+      ++n;
+      delta = ((curve.length - sleeper_sep) / n) - sleeper_sep;
+   } while (delta > sleeper_sep / n);
+  
+   for (int i = 0; i <= n; i++) {
+      float pos = (sleeper_sep / 2) + i * (sleeper_sep + delta);
+      
+      Vector<float> v = curve(pos / curve.length);
 
-      const Vector<float> deriv = curve.deriv(i / curve.length);
+      const Vector<float> deriv = curve.deriv(pos / curve.length);
       const float angle =
          rad_to_deg<float>(atanf(deriv.z / deriv.x));
 
