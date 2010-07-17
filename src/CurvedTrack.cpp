@@ -51,6 +51,7 @@ public:
    bool is_valid_direction(const Direction& a_direction) const;
    void get_endpoints(vector<Point<int> >& a_list) const;
    void get_covers(vector<Point<int> >& output) const;
+   void get_covers2(vector<Point<int> >& output) const;
    
    ITrackSegmentPtr merge_exit(Point<int> where, track::Direction dir);
 
@@ -297,6 +298,11 @@ void CurvedTrack::get_covers(vector<Point<int> >& output) const
    }
 
    copy(tmp.begin(), tmp.end(), back_inserter(output));
+}
+
+void CurvedTrack::get_covers2(vector<Point<int> >& output) const
+{
+
 }
 
 ITrackSegmentPtr CurvedTrack::merge_exit(Point<int> where, track::Direction dir)

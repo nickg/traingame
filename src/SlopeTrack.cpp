@@ -49,6 +49,7 @@ public:
    track::Connection next_position(const track::TravelToken& token) const;
    void get_endpoints(vector<Point<int> >& output) const;
    void get_covers(vector<Point<int> >& output) const {};
+   void get_covers2(vector<Point<int> >& output) const;
    ITrackSegmentPtr merge_exit(Point<int> where, track::Direction dir);
    
    bool has_multiple_states() const { return false; }
@@ -259,6 +260,11 @@ void SlopeTrack::transform(const track::TravelToken& token, float delta) const
 void SlopeTrack::get_endpoints(vector<Point<int> >& output) const
 {
    output.push_back(origin);
+}
+
+void SlopeTrack::get_covers2(vector<Point<int> >& output) const
+{
+   
 }
 
 ITrackSegmentPtr SlopeTrack::merge_exit(Point<int> where, track::Direction dir)
