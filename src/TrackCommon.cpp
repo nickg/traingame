@@ -326,3 +326,8 @@ void CurvedTrackHelper::merge_curved_track(IMeshBufferPtr buf, Vector<float> off
       merge_sleeper(buf, off + rotateY(t, y_angle), y_angle);
    }
 }
+
+float track::flat_gradient_func(const TravelToken& t, float d)
+{
+   return 0.0f;
+}

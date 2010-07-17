@@ -45,7 +45,7 @@ namespace track {
    typedef function<void (const TravelToken&, double)> TransformFunc;
    typedef function<float (const TravelToken&, float)> GradientFunc;
 
-   inline float flat_gradient_func(const TravelToken& t, float d) { return 0.0f; }
+   float flat_gradient_func(const TravelToken& t, float d);
 
    // Sums up all the information required to travel along a piece
    // of track
