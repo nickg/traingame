@@ -7,42 +7,32 @@
 <heightmap>gen_track.bin</heightmap>
 
 <tileset>
-  <tile x="0" y="2">
-    <straight-track align="x"/>
-  </tile>
+<tile x="0" y="2">
+<straight-track align="x"/>
+</tile>
 
-  <tile x="1" y="2">
-    <straight-track align="x"/>
-  </tile>
+<tile x="1" y="2">
+<straight-track align="x"/>
+</tile>
 
-  <tile x="2" y="2">
-    <straight-track align="x"/>
-  </tile>
+<tile x="2" y="2">
+<straight-track align="x"/>
+</tile>
 
-  <tile x="3" y="2">
-    <gen-track delta-x="4" delta-y="-1" 
-               entry-dir-x="1" entry-dir-y="0"
-               exit-dir-x="1" exit-dir-y="0"/>
-  </tile>
+<tile x="3" y="2">
+<gen-track/>
+</tile>
 
-  <tile x="8" y="1">
-    <gen-track delta-x="6" delta-y="6" 
-               entry-dir-x="1" entry-dir-y="0"
-               exit-dir-x="-1" exit-dir-y="1"/>
-  </tile>
+<tile x="8" y="1">
+<gen-track/>
+</tile>
 
-  <tile x="13" y="8">
-    <gen-track delta-x="-2" delta-y="2" 
-               entry-dir-x="-1" entry-dir-y="1"
-               exit-dir-x="-1" exit-dir-y="1"/>
-  </tile>
+<tile x="10" y="11">
+<gen-track/>
+</tile>
 
-  <tile x="10" y="11">
-    <gen-track delta-x="-3" delta-y="-3" 
-               entry-dir-x="-1" entry-dir-y="1"
-               exit-dir-x="-1" exit-dir-y="-1"/>
-  </tile>
-
+<tile x="13" y="8">
+<gen-track/>
+</tile>
 </tileset>
-
 </map>

@@ -219,6 +219,12 @@ struct Point {
    T x, y;
 };
 
+template <typename V, typename U>
+inline Point<V> point_cast(const Point<U>& p)
+{
+   return make_point(static_cast<V>(p.x), static_cast<V>(p.y));
+}
+
 template <typename T>
 std::ostream& operator<<(std::ostream& a_stream, const Point<T>& a_point)
 {

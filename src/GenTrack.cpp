@@ -58,6 +58,7 @@ public:
 private:
    typedef vector<Point<float> > Polygon;
    void bounding_polygon(Polygon& poly) const;
+   static bool point_in_polygon(const Polygon& poly, Point<float> p);
    
    float extend_from_center(track::Direction dir) const;
    void ensure_valid_direction(track::Direction dir) const;
@@ -77,8 +78,6 @@ private:
                  track::Direction> Parameters;
    typedef map<Parameters, IMeshBufferPtr> MeshCache; 
    static MeshCache mesh_cache;
-
-   typedef set<Point<int> > PointSet;
 };
 
 GenTrack::MeshCache GenTrack::mesh_cache;
@@ -249,6 +248,28 @@ void GenTrack::get_covers(vector<Point<int> >& output) const
    
 }
 
+bool GenTrack::point_in_polygon(const Polygon& poly, Point<float> p)
+{
+   bool odd_nodes = false;
+   const int n_sides = poly.size();
+   int j = n_sides - 1;
+
+   const float x = p.x - 0.5f;
+   const float y = p.y - 0.5f;
+
+   for (int i = 0; i < n_sides; i++) {
+      if ((poly[i].y < y && poly[j].y >= y)
+          || (poly[j].y < y && poly[i].y >= y)) {
+
+         if (poly[i].x + (y - poly[i].y)/(poly[j].y-poly[i].y)*(poly[j].x-poly[i].x) < x)
+            odd_nodes = !odd_nodes;
+      }
+      j = i;
+   }
+
+   return odd_nodes;
+}
+
 void GenTrack::bounding_polygon(Polygon& poly) const
 {
    const float step = 0.01f;
@@ -267,14 +288,17 @@ void GenTrack::bounding_polygon(Polygon& poly) const
 
 void GenTrack::get_covers2(vector<Point<int> >& output) const
 {
-   PointSet all;
-
+   Polygon poly;
+   bounding_polygon(poly);
+   
    for (int x = min(0, delta.x); x <= max(0, delta.x) + 1; x++) {
-      for (int y = min(0, delta.y); y <= max(0, delta.y) + 1; y++)
-         all.insert(origin + make_point(x, y));
-   }
+      for (int y = min(0, delta.y); y <= max(0, delta.y) + 1; y++) {
 
-   copy(all.begin(), all.end(), back_inserter(output));
+         Point<int> p = make_point(x, y);
+         if (point_in_polygon(poly, point_cast<float>(p)))
+            output.push_back(p + origin);
+      }
+   }
 }
 
 ITrackSegmentPtr GenTrack::merge_exit(Point<int> where, track::Direction dir)
