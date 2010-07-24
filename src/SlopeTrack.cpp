@@ -264,7 +264,10 @@ void SlopeTrack::get_endpoints(vector<Point<int> >& output) const
 
 void SlopeTrack::get_covers2(vector<Point<int> >& output) const
 {
-   
+   output.push_back(origin + make_point(0, 0));
+   output.push_back(origin + make_point(0, 1));
+   output.push_back(origin + make_point(1, 1));
+   output.push_back(origin + make_point(1, 0));
 }
 
 ITrackSegmentPtr SlopeTrack::merge_exit(Point<int> where, track::Direction dir)

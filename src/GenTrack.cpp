@@ -21,6 +21,7 @@
 #include "OpenGLHelper.hpp"
 #include "ILogger.hpp"
 #include "Matrix.hpp"
+#include "SolveCubic.hpp"
 
 #include <stdexcept>
 
@@ -221,12 +222,12 @@ void GenTrack::get_endpoints(vector<Point<int> >& output) const
 
 void GenTrack::get_covers(vector<Point<int> >& output) const
 {
-
+   
 }
 
 void GenTrack::get_covers2(vector<Point<int> >& output) const
 {
-
+   float t = solve_cubic(
 }
 
 ITrackSegmentPtr GenTrack::merge_exit(Point<int> where, track::Direction dir)

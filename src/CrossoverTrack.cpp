@@ -35,7 +35,7 @@ class CrossoverTrack : public ITrackSegment,
                        private StraightTrackHelper,
                        private SleeperHelper {
 public:
-   CrossoverTrack() : myX(0), myY(0), height(0.0f) {}
+   CrossoverTrack() : height(0.0f) {}
    ~CrossoverTrack() {}
 
    void set_origin(int x, int y, float h);
@@ -63,7 +63,7 @@ public:
 private:
    void transform(const track::TravelToken& a_token, float delta) const;
    
-   int myX, myY;
+   Point<int> origin;
    float height;
 };
 
@@ -72,9 +72,9 @@ void CrossoverTrack::merge(IMeshBufferPtr buf) const
    // Render the y-going rails and sleepers
    {    
       Vector<float> off = make_vector(
-         static_cast<float>(myX),
+         static_cast<float>(origin.x),
          height,
-         static_cast<float>(myY));
+         static_cast<float>(origin.y));
       
       merge_straight_rail(buf, off, 0.0f);
 
@@ -89,9 +89,9 @@ void CrossoverTrack::merge(IMeshBufferPtr buf) const
    // Render the x-going rails and sleepers
    {
       Vector<float> off = make_vector(
-         static_cast<float>(myX),
+         static_cast<float>(origin.x),
          height,
-         static_cast<float>(myY));
+         static_cast<float>(origin.y));
       
       merge_straight_rail(buf, off, 90.0f);
       
@@ -106,8 +106,7 @@ void CrossoverTrack::merge(IMeshBufferPtr buf) const
 
 void CrossoverTrack::set_origin(int x, int y, float h )
 {
-   myX = x;
-   myY = y;
+   origin = make_point(x, y);
    height = h;
 }
 
@@ -150,9 +149,9 @@ void CrossoverTrack::transform(const track::TravelToken& a_token,
    const double x_trans = dir == axis::X ? delta : 0;
    const double y_trans = dir == axis::Y ? delta : 0;
 
-   glTranslated(static_cast<double>(myX) + x_trans,
+   glTranslated(static_cast<double>(origin.x) + x_trans,
       height,
-      static_cast<double>(myY) + y_trans);
+      static_cast<double>(origin.y) + y_trans);
 
    if (dir == axis::Y)
       glRotated(-90.0, 0.0, 1.0, 0.0);
@@ -173,13 +172,13 @@ track::Connection
 CrossoverTrack::next_position(const track::TravelToken& a_token) const
 {
    if (a_token.direction == axis::X)
-      return make_pair(make_point(myX + 1, myY), axis::X);
+      return make_pair(origin + make_point(1, 0), axis::X);
    else if (a_token.direction == -axis::X)
-      return make_pair(make_point(myX - 1, myY), -axis::X);
+      return make_pair(origin - make_point(1, 0), -axis::X);
    else if (a_token.direction == axis::Y)
-      return make_pair(make_point(myX, myY + 1), axis::Y);
+      return make_pair(origin + make_point(0, 1), axis::Y);
    else if (a_token.direction == -axis::Y)
-      return make_pair(make_point(myX, myY - 1), -axis::Y);
+      return make_pair(origin - make_point(0, 1), -axis::Y);
    else
       throw runtime_error
          ("Invalid direction on crossover: " + lexical_cast<string>(a_token.direction));
@@ -187,18 +186,21 @@ CrossoverTrack::next_position(const track::TravelToken& a_token) const
 
 void CrossoverTrack::get_endpoints(vector<Point<int> >& a_list) const
 {
-   a_list.push_back(make_point(myX, myY));
+   a_list.push_back(origin);
 }
 
 void CrossoverTrack::get_covers2(vector<Point<int> >& output) const
-{
-
+{   
+   output.push_back(origin + make_point(0, 0));
+   output.push_back(origin + make_point(0, 1));
+   output.push_back(origin + make_point(1, 1));
+   output.push_back(origin + make_point(1, 0));
 }
 
 ITrackSegmentPtr CrossoverTrack::merge_exit(Point<int> where,
    track::Direction dir)
 {
-   if (where == make_point(myX, myY)
+   if (where == origin
       && is_valid_direction(dir))
       return shared_from_this();
 

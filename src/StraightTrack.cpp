@@ -184,9 +184,12 @@ void StraightTrack::get_endpoints(vector<Point<int> >& a_list) const
    a_list.push_back(origin);
 }
 
-void StraightTrack::get_covers2(vector<Point<int> >& a_list) const
+void StraightTrack::get_covers2(vector<Point<int> >& output) const
 {
-
+   output.push_back(origin + make_point(0, 0));
+   output.push_back(origin + make_point(0, 1));
+   output.push_back(origin + make_point(1, 1));
+   output.push_back(origin + make_point(1, 0));
 }
 
 void StraightTrack::ensure_valid_direction(const Direction& a_direction) const

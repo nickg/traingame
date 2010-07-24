@@ -95,6 +95,7 @@ public:
    bool is_valid_track(const Point<int>& a_point) const;
    void render(IGraphicsPtr a_context) const;
    void highlight_tile(Point<int> point, Colour colour) const;
+   void highlight_vertex(Point<int> point, Colour colour) const;
    void reset_map(int a_width, int a_depth);
    void erase_tile(int x, int y);
    bool empty_tile(Point<int> tile) const;
@@ -417,6 +418,23 @@ void Map::reset_map(int a_width, int a_depth)
    
    // Create quad tree
    quad_tree = make_quad_tree(shared_from_this(), my_width, my_depth);
+}
+
+void Map::highlight_vertex(Point<int> point, Colour colour) const
+{
+   assert(point.x >= 0 && point.x < my_width
+          && point.y >= 0 && point.y < my_depth);
+
+   int index = point.x + (point.y * (my_width + 1));
+   
+   gl::colour(colour);
+   glPointSize(5.0f);
+  
+   glBegin(GL_POINTS);
+   glVertex3f(static_cast<float>(point.x) - 0.5f,
+              height_map[index].pos.y + 0.01f,
+              static_cast<float>(point.y) - 0.5f);
+   glEnd();
 }
 
 void Map::highlight_tile(Point<int> point, Colour colour) const
@@ -785,7 +803,7 @@ void Map::render_pick_sector(Point<int> bot_left, Point<int> top_right)
 
 // Render a small part of the map as directed by the quad tree
 void Map::render_sector(IGraphicsPtr a_context, int id,
-   Point<int> bot_left, Point<int> top_right)
+                        Point<int> bot_left, Point<int> top_right)
 {
    if (in_pick_mode) {
       render_pick_sector(bot_left, top_right);
@@ -847,6 +865,15 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
             for_each(tiles.begin(), tiles.end(),
                     bind(&Map::highlight_tile, this, placeholders::_1,
                           make_colour(0.4f, 0.7f, 0.1f)));
+#endif
+
+#if 1
+            // Draw vertices covered by track
+            vector<Point<int> > vertices;
+            tile.track->get()->get_covers2(vertices);
+            for_each(vertices.begin(), vertices.end(),
+                     bind(&Map::highlight_vertex, this, placeholders::_1,
+                          make_colour(1.0f, 0.0f, 0.0f)));
 #endif
             
             // Draw track highlights

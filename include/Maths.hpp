@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -186,10 +186,22 @@ struct Point {
       return Point(x + rhs.x, y + rhs.y);
    }
 
+   Point<T> operator-(const Point<T>& rhs) const
+   {
+      return Point(x - rhs.x, y - rhs.y);
+   }
+   
    Point<T>& operator+=(const Point<T>& rhs)
    {
       x += rhs.x;
       y += rhs.y;
+      return *this;
+   }
+   
+   Point<T>& operator-=(const Point<T>& rhs)
+   {
+      x -= rhs.x;
+      y -= rhs.y;
       return *this;
    }
 

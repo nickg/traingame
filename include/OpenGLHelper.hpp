@@ -72,6 +72,7 @@ namespace gl {
    {
       glNormal3f(v.x, v.y, v.z);
    }
+
 }
 
 #endif
