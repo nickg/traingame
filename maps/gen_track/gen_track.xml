@@ -34,5 +34,13 @@
 <tile x="13" y="8">
 <gen-track delta-x="-2" delta-y="2" entry-dir-x="-1" entry-dir-y="1" exit-dir-x="-1" exit-dir-y="1"/>
 </tile>
+
+<tile x="20" y="20">
+<gen-track delta-x="-3" delta-y="3" 
+           entry-dir-x="-1" entry-dir-y="0" 
+           exit-dir-x="1" exit-dir-y="0"/>
+</tile>
+
+
 </tileset>
 </map>

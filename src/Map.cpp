@@ -1754,8 +1754,46 @@ void MapLoader::handle_curved_track(const AttributeSet& attrs)
    attrs.get("finish-angle", finish_angle);
    attrs.get("radius", radius);
 
+#if 1
+   ITrackSegmentPtr track;
+   const int off = radius - 1;
+   Vector<int> delta = make_vector(radius - 1, radius - 1, 0);
+   
+   switch (start_angle) {
+   case 0:
+      track = make_gen_track(make_vector(off, -off, 0),
+                             make_vector(1, 0, 0),
+                             make_vector(0, 0, -1));
+      break;
+   case 90:
+      track = make_gen_track(make_vector(-off, -off, 0),
+                             make_vector(0, 0, -1),
+                             make_vector(-1, 0, 0));
+      break;
+   case 180:
+      track = make_gen_track(make_vector(-off, off, 0),
+                             make_vector(-1, 0, 0),
+                             make_vector(0, 0, 1));
+      break;
+   case 270:
+      track = make_gen_track(make_vector(off, off, 0),
+                             make_vector(0, 0, 1),
+                             make_vector(1, 0, 0));
+      break;
+      
+   default:
+      throw runtime_error("Invalid curved-track angle"
+                          + boost::lexical_cast<string>(start_angle));
+   }
+
+   my_map->set_track_at(tile, track);
+
+#else
+   // Legacy CurvedTrack
    my_map->set_track_at(tile,
                         make_curved_track(start_angle, finish_angle, radius));
+
+#endif
 }
 
 void MapLoader::handle_crossover_track(const AttributeSet& attrs)

@@ -21,7 +21,6 @@
 #include "OpenGLHelper.hpp"
 #include "ILogger.hpp"
 #include "Matrix.hpp"
-#include "SolveCubic.hpp"
 
 #include <stdexcept>
 
@@ -108,7 +107,7 @@ GenTrack::GenTrack(Vector<int> delta,
 
    const float entry_extend = extend_from_center(entry_dir);
    const float exit_extend = extend_from_center(exit_dir);
-   
+
    Vector<float> p1 = entry_dir_norm * -entry_extend;
    Vector<float> p2 = entry_dir_norm * pinch_length;
    Vector<float> p3 = delta_f - (exit_dir_norm * pinch_length);
@@ -132,9 +131,9 @@ float GenTrack::extend_from_center(track::Direction dir) const
    const float x_sq = static_cast<float>(dir.x * dir.x);
    const float y_sq = static_cast<float>(dir.z * dir.z);
    
-   if (dir.x == dir.z)
+   if (abs(dir.x) == abs(dir.z))
       return sqrtf(2.0f) * 0.5f;
-   else if (dir.x < dir.z)
+   else if (abs(dir.x) < abs(dir.z))
       return sqrtf(x_sq / y_sq + 1) * 0.5f;
    else
       return sqrtf(y_sq / x_sq + 1) * 0.5f;   
