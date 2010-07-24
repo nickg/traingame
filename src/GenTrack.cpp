@@ -35,7 +35,7 @@ public:
             track::Direction exit_dir);
 
    // ITrackSegment interface
-   void render() const {}
+   void render() const;
    void merge(IMeshBufferPtr buf) const;
    void set_origin(int x, int y, float h);
    float segment_length(const track::TravelToken& token) const;
@@ -56,6 +56,9 @@ public:
    xml::element to_xml() const;
    
 private:
+   typedef vector<Point<float> > Polygon;
+   void bounding_polygon(Polygon& poly) const;
+   
    float extend_from_center(track::Direction dir) const;
    void ensure_valid_direction(track::Direction dir) const;
    void transform(const track::TravelToken& token, float delta) const;
@@ -74,6 +77,8 @@ private:
                  track::Direction> Parameters;
    typedef map<Parameters, IMeshBufferPtr> MeshCache; 
    static MeshCache mesh_cache;
+
+   typedef set<Point<int> > PointSet;
 };
 
 GenTrack::MeshCache GenTrack::mesh_cache;
@@ -169,6 +174,25 @@ void GenTrack::merge(IMeshBufferPtr buf) const
    }
 }
 
+void GenTrack::render() const
+{
+   Polygon p;
+   bounding_polygon(p);
+
+   glPushMatrix();
+
+   glTranslatef(origin.x, 0.0f, origin.y);
+   glColor3f(0.1f, 0.1f, 0.8f);
+   
+   glBegin(GL_LINE_LOOP);
+   for (Polygon::const_iterator it = p.begin(); it != p.end(); ++it) {
+      glVertex3f((*it).x, 0.1f, (*it).y);
+   }
+   glEnd();
+
+   glPopMatrix();
+}     
+
 void GenTrack::set_origin(int x, int y, float h)
 {
    origin = make_point(x, y);
@@ -215,9 +239,9 @@ void GenTrack::get_endpoints(vector<Point<int> >& output) const
 {
    output.push_back(origin);
 
-   if (delta.x > 0 || delta.y > 0)
+   if (abs(delta.x) > 0 || abs(delta.y) > 0)
       output.push_back(
-         make_point(origin.x + delta.x - 0, origin.y + delta.y - 0));
+         make_point(origin.x + delta.x, origin.y + delta.y));
 }
 
 void GenTrack::get_covers(vector<Point<int> >& output) const
@@ -225,9 +249,32 @@ void GenTrack::get_covers(vector<Point<int> >& output) const
    
 }
 
+void GenTrack::bounding_polygon(Polygon& poly) const
+{
+   const float step = 0.01f;
+   const float fudge = 0.8f;
+   
+   for (float t = 0.0f; t <= 1.0f; t += step) {
+      Vector<float> v = curve.offset(t, fudge);
+      poly.push_back(make_point(v.x, v.z));
+   }
+
+   for (float t = 1.0f; t >= 0.0f; t -= step) {
+      Vector<float> v = curve.offset(t, -fudge);
+      poly.push_back(make_point(v.x, v.z));
+   }
+}
+
 void GenTrack::get_covers2(vector<Point<int> >& output) const
 {
-   float t = solve_cubic(
+   PointSet all;
+
+   for (int x = min(0, delta.x); x <= max(0, delta.x) + 1; x++) {
+      for (int y = min(0, delta.y); y <= max(0, delta.y) + 1; y++)
+         all.insert(origin + make_point(x, y));
+   }
+
+   copy(all.begin(), all.end(), back_inserter(output));
 }
 
 ITrackSegmentPtr GenTrack::merge_exit(Point<int> where, track::Direction dir)
