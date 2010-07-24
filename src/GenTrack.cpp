@@ -363,7 +363,13 @@ track::TravelToken GenTrack::get_travel_token(track::Position pos,
 
 xml::element GenTrack::to_xml() const
 {
-   return xml::element("gen-track");
+   return xml::element("gen-track")
+      .add_attribute("delta-x", delta.x)
+      .add_attribute("delta-y", delta.y)
+      .add_attribute("entry-dir-x", entry_dir.x)
+      .add_attribute("entry-dir-y", entry_dir.z)
+      .add_attribute("exit-dir-x", exit_dir.x)
+      .add_attribute("exit-dir-y", exit_dir.z);
 }
 
 ITrackSegmentPtr make_gen_track(Vector<int> delta,
