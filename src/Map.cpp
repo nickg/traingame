@@ -137,7 +137,7 @@ private:
    } *tiles;
 
    // Vertices on the terrain
-   struct Vertex {
+   struct HeightMap {
       Vector<float> pos, normal;
    } *height_map;
 
@@ -169,7 +169,7 @@ private:
       return tile_at(p.x, p.y);
    }
 
-   inline Vertex& height_at(int i) const
+   inline HeightMap& height_at(int i) const
    {
       assert(i >= 0 && i < (my_width + 1) * (my_depth + 1));
       return height_map[i];
@@ -401,12 +401,12 @@ void Map::reset_map(int a_width, int a_depth)
 
    if (height_map)
       delete[] height_map;
-   height_map = new Vertex[(a_width + 1) * (a_depth + 1)];
+   height_map = new HeightMap[(a_width + 1) * (a_depth + 1)];
    
    // Make a flat map
    for (int x = 0; x <= a_width; x++) {
       for (int y = 0; y <= a_depth; y++) {
-         Vertex& v = height_map[x + y*(a_width+1)];
+         HeightMap& v = height_map[x + y*(a_width+1)];
 
          const float xf = static_cast<float>(x) - 0.5f;
          const float yf = static_cast<float>(y) - 0.5f;
@@ -472,7 +472,7 @@ void Map::render_highlighted_tiles() const
       tile_vertices(point.x, point.y, indexes);
       
       for (int i = 0; i < 4; i++) {
-         Vertex& v = height_map[indexes[i]];
+         HeightMap& v = height_map[indexes[i]];
          glNormal3f(v.normal.x, v.normal.y, v.normal.z);
          glVertex3f(v.pos.x, v.pos.y + 0.1f, v.pos.z);
       }
@@ -630,7 +630,7 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
          };
          
          for (int i = 0; i < 6; i++) {
-            const Vertex& v = height_map[order[i]];
+            const HeightMap& v = height_map[order[i]];
             
             const float h = v.pos.y;
             tuple<float, Colour> hcol;
@@ -790,7 +790,7 @@ void Map::render_pick_sector(Point<int> bot_left, Point<int> top_right)
 
          glBegin(GL_QUADS);
          for (int i = 0; i < 4; i++) {
-            const Vertex& v = height_map[indexes[i]];
+            const HeightMap& v = height_map[indexes[i]];
             glNormal3f(v.normal.x, v.normal.y, v.normal.z);
             glVertex3f(v.pos.x, v.pos.y, v.pos.z);
          }
@@ -842,7 +842,7 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
             int indexes[4];
             tile_vertices(x, y, indexes);
             for (int i = 0; i < 4; i++) {
-               const Vertex& v = height_map[indexes[i]];
+               const HeightMap& v = height_map[indexes[i]];
                glVertex3f(v.pos.x, v.pos.y, v.pos.z);
             }
             
@@ -938,7 +938,7 @@ void Map::fix_normals(int x, int y)
 
    for (int n = 0; n < 4; n++) {
       const int i = indexes[n];
-      Vertex& v = height_map[i];
+      HeightMap& v = height_map[i];
 
       Vector<float> west, north, east, south;
       bool have_west = true, have_north = true,
