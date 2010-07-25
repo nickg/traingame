@@ -1757,7 +1757,6 @@ void MapLoader::handle_curved_track(const AttributeSet& attrs)
 #if 1
    ITrackSegmentPtr track;
    const int off = radius - 1;
-   Vector<int> delta = make_vector(radius - 1, radius - 1, 0);
    
    switch (start_angle) {
    case 0:

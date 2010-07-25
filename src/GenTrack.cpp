@@ -71,6 +71,7 @@ private:
    float height;
    Vector<int> delta;
    track::Direction entry_dir, exit_dir;
+   Polygon bounds;
 
    typedef tuple<Vector<int>,
                  track::Direction,
@@ -123,6 +124,8 @@ GenTrack::GenTrack(Vector<int> delta,
    }
    else
       rail_buf = (*it).second;
+
+   bounding_polygon(bounds);
 }
 
 float GenTrack::extend_from_center(track::Direction dir) const
@@ -174,18 +177,16 @@ void GenTrack::merge(IMeshBufferPtr buf) const
 
 void GenTrack::render() const
 {
-   Polygon p;
-   bounding_polygon(p);
-
    glPushMatrix();
 
    glTranslatef(origin.x, 0.0f, origin.y);
    glColor3f(0.1f, 0.1f, 0.8f);
    
    glBegin(GL_LINE_LOOP);
-   for (Polygon::const_iterator it = p.begin(); it != p.end(); ++it) {
+   for (Polygon::const_iterator it = bounds.begin();
+        it != bounds.end();
+        ++it)
       glVertex3f((*it).x, 0.1f, (*it).y);
-   }
    glEnd();
 
    glPopMatrix();
@@ -287,14 +288,11 @@ void GenTrack::bounding_polygon(Polygon& poly) const
 
 void GenTrack::get_covers2(vector<Point<int> >& output) const
 {
-   Polygon poly;
-   bounding_polygon(poly);
-   
    for (int x = min(0, delta.x); x <= max(0, delta.x) + 1; x++) {
       for (int y = min(0, delta.y); y <= max(0, delta.y) + 1; y++) {
 
          Point<int> p = make_point(x, y);
-         if (point_in_polygon(poly, point_cast<float>(p)))
+         if (point_in_polygon(bounds, point_cast<float>(p)))
             output.push_back(p + origin);
       }
    }
