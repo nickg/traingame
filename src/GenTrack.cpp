@@ -61,7 +61,8 @@ private:
    
    float extend_from_center(track::Direction dir) const;
    void ensure_valid_direction(track::Direction dir) const;
-   void transform(const track::TravelToken& token, float delta) const;
+   void transform(const track::TravelToken& token,
+                  float delta, bool backwards) const;
    float rotation_at(float delta) const;
    
    BezierCurve<float> curve;
@@ -229,8 +230,8 @@ track::Connection GenTrack::next_position(const track::TravelToken& token) const
       return make_pair(origin + off, exit_dir);
    }
    else {
-      Point<int> off = -make_point(exit_dir.x, exit_dir.z);
-      return make_pair(origin + off, exit_dir);
+      Point<int> off = -make_point(entry_dir.x, entry_dir.z);
+      return make_pair(origin + off, -entry_dir);
    }   
 }
 
@@ -322,23 +323,26 @@ float GenTrack::rotation_at(float curve_delta) const
       assert(false);
 }
 
-void GenTrack::transform(const track::TravelToken& token, float delta) const
+void GenTrack::transform(const track::TravelToken& token,
+                         float delta, bool backwards) const
 {
    assert(delta < curve.length);
 
-   const float curve_delta = delta / curve.length;
+   const float curve_delta =
+      (backwards ? curve.length - delta : delta) / curve.length;
 
    Vector<float> curve_value = curve(curve_delta);
 
-   const float angle = rotation_at(curve_delta);
-   
    glTranslatef(
       static_cast<float>(origin.x) + curve_value.x,
       height,
       static_cast<float>(origin.y) + curve_value.z);
-      
-   glRotatef(-angle, 0.0f, 1.0f, 0.0f);
 
+   float angle = rotation_at(curve_delta);
+   if (backwards)
+      angle += 180.0f;
+   
+   glRotatef(-angle, 0.0f, 1.0f, 0.0f);
 }
 
 track::TravelToken GenTrack::get_travel_token(track::Position pos,
@@ -348,10 +352,12 @@ track::TravelToken GenTrack::get_travel_token(track::Position pos,
 
    ensure_valid_direction(dir);
 
+   const bool backwards = dir == -exit_dir;
+
    track::TravelToken tok = {
       dir,
       pos,
-      bind(&GenTrack::transform, this, _1, _2),
+      bind(&GenTrack::transform, this, _1, _2, backwards),
       track::flat_gradient_func,
       1
    };
