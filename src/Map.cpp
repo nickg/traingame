@@ -139,6 +139,9 @@ private:
    // Vertices on the terrain
    struct HeightMap {
       Vector<float> pos, normal;
+
+      // How many track segments are locking the height at this node
+      int lock_count;
    } *height_map;
 
    static const unsigned TILE_NAME_BASE	= 1000;	  // Base of tile naming
@@ -197,6 +200,8 @@ private:
    void draw_start_location() const;
    void set_station_at(Point<int> point, IStationPtr a_station);
    void render_highlighted_tiles() const;
+   void lock_height_at(Point<int> p);
+   void unlock_height_at(Point<int> p);
 
    // Mesh modification
    void build_mesh(int id, Point<int> bot_left, Point<int> top_right);
@@ -276,6 +281,13 @@ void Map::erase_tile(int x, int y)
       // We have to be a bit careful since a piece of track has multiple
       // endpoints
 
+      vector<Point<int> > locked;      
+      tile.track->get()->get_covers2(locked);
+
+      for (vector<Point<int> >::iterator it = locked.begin();
+           it != locked.end(); ++it)
+         unlock_height_at(*it);
+      
       vector<Point<int> > covers;
       tile.track->get()->get_endpoints(covers);
       tile.track->get()->get_covers(covers);
@@ -325,6 +337,14 @@ void Map::set_track_at(const Point<int>& where, ITrackSegmentPtr track)
 
       dirty_tile((*it).x, (*it).y);
    }
+
+   // Lock every height node touched by this track segment
+   vector<Point<int> > locked;
+   track->get_covers2(locked);
+
+   for (vector<Point<int> >::iterator it = locked.begin();
+        it != locked.end(); ++it)
+      lock_height_at(*it);
 }
 
 bool Map::is_valid_track(const Point<int>& where) const
@@ -413,6 +433,7 @@ void Map::reset_map(int a_width, int a_depth)
 
          v.pos = make_vector(xf, 0.0f, yf);
          v.normal = make_vector(0.0f, 1.0f, 0.0f);
+         v.lock_count = 0;
       }
    }
    
@@ -1007,6 +1028,7 @@ void Map::tile_vertices(int x, int y, int* indexes) const
 // a piece of track
 bool Map::raise_will_cover_track(int x, int y) const
 {
+#if 0
    return tile_at(x, y).track
       || (x < my_width - 1 && tile_at(x + 1, y).track)
       || (x > 0 && tile_at(x - 1, y).track)
@@ -1016,6 +1038,18 @@ bool Map::raise_will_cover_track(int x, int y) const
       || (x > 0 && y < my_depth - 1 && tile_at(x - 1, y + 1).track)
       || (x > 0 && y > 0 && tile_at(x - 1, y - 1).track)
       || (x < my_width - 1 && y > 0 && tile_at(x + 1, y - 1).track);
+#else
+   int indexes[4];
+   tile_vertices(x, y, indexes);
+
+   bool ok = true;
+   for (int i = 0; i < 4; i++) {
+      debug() << height_map[indexes[i]].lock_count;
+      ok &= height_map[indexes[i]].lock_count == 0;
+   }
+   
+   return !ok;
+#endif
 }
 
 // Changes the height of a complete tile
@@ -1034,6 +1068,27 @@ void Map::raise_tile(int x, int y, float delta_height)
 
    fix_normals(x, y);
    dirty_tile(x, y);
+}
+
+void Map::lock_height_at(Point<int> p)
+{
+   assert(p.x <= my_width);
+   assert(p.y <= my_depth);
+
+   debug () << __func__ << " p=" << p;
+
+   height_map[p.x + (p.y * (my_depth+1))].lock_count++;
+}
+
+void Map::unlock_height_at(Point<int> p)
+{
+   assert(p.x <= my_width);
+   assert(p.y <= my_depth);
+
+   HeightMap& h = height_map[p.x + (p.y * (my_depth+1))];
+
+   assert(h.lock_count > 0);
+   h.lock_count--;
 }
 
 // Sets the absolute height of a tile
@@ -1419,9 +1474,11 @@ void Map::read_height_map(IResource::Handle a_handle)
          ("Binary file " + a_handle.file_name() + " dimensions are incorrect");
    }
 
-   for (int i = 0; i < (my_width + 1) * (my_depth + 1); i++)
+   for (int i = 0; i < (my_width + 1) * (my_depth + 1); i++) {
       is.read(reinterpret_cast<char*>(&height_map[i].pos.y),
-         sizeof(float));
+              sizeof(float));
+      height_map[i].lock_count = 0;
+   }
 
    for (int x = 0; x < my_width; x++) {
       for (int y = 0; y < my_depth; y++)
