@@ -1728,7 +1728,16 @@ void MapLoader::handle_s_bend_track(const AttributeSet attrs)
    attrs.get("offset", offset);
    attrs.get("straight", straight);
 
+#if 1
+   Vector<int> delta = axis == axis::X
+      ? make_vector(straight - 1, offset, 0)
+      : make_vector(offset, straight - 1, 0);      
+   
+   my_map->set_track_at(tile, make_gen_track(delta, axis, axis));
+#else
+   // Legacy S-bend track
    my_map->set_track_at(tile, makeSBend(axis, straight, offset));
+#endif
 }
    
 void MapLoader::handle_points(const AttributeSet& attrs)
