@@ -282,7 +282,7 @@ void Map::erase_tile(int x, int y)
       // endpoints
 
       vector<Point<int> > locked;      
-      tile.track->get()->get_covers2(locked);
+      tile.track->get()->get_height_locked(locked);
 
       for (vector<Point<int> >::iterator it = locked.begin();
            it != locked.end(); ++it)
@@ -340,7 +340,7 @@ void Map::set_track_at(const Point<int>& where, ITrackSegmentPtr track)
 
    // Lock every height node touched by this track segment
    vector<Point<int> > locked;
-   track->get_covers2(locked);
+   track->get_height_locked(locked);
 
    for (vector<Point<int> >::iterator it = locked.begin();
         it != locked.end(); ++it)
@@ -891,7 +891,7 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
 #if 1
             // Draw vertices covered by track
             vector<Point<int> > vertices;
-            tile.track->get()->get_covers2(vertices);
+            tile.track->get()->get_height_locked(vertices);
             for_each(vertices.begin(), vertices.end(),
                      bind(&Map::highlight_vertex, this, placeholders::_1,
                           make_colour(1.0f, 0.0f, 0.0f)));
@@ -1043,10 +1043,8 @@ bool Map::raise_will_cover_track(int x, int y) const
    tile_vertices(x, y, indexes);
 
    bool ok = true;
-   for (int i = 0; i < 4; i++) {
-      debug() << height_map[indexes[i]].lock_count;
+   for (int i = 0; i < 4; i++)
       ok &= height_map[indexes[i]].lock_count == 0;
-   }
    
    return !ok;
 #endif

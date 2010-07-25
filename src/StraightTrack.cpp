@@ -50,7 +50,7 @@ public:
    bool is_valid_direction(const Direction& a_direction) const;
    void get_endpoints(vector<Point<int> >& a_list) const;
    void get_covers(vector<Point<int> >& output) const { }
-   void get_covers2(vector<Point<int> >& output) const;
+   void get_height_locked(vector<Point<int> >& output) const;
    
    ITrackSegmentPtr merge_exit(Point<int> where, track::Direction dir);
    track::TravelToken get_travel_token(track::Position a_position,
@@ -184,7 +184,7 @@ void StraightTrack::get_endpoints(vector<Point<int> >& a_list) const
    a_list.push_back(origin);
 }
 
-void StraightTrack::get_covers2(vector<Point<int> >& output) const
+void StraightTrack::get_height_locked(vector<Point<int> >& output) const
 {
    output.push_back(origin + make_point(0, 0));
    output.push_back(origin + make_point(0, 1));

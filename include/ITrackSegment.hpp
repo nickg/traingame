@@ -137,7 +137,7 @@ struct ITrackSegment : IXMLSerialisable {
    virtual void get_covers(vector<Point<int> >& output) const = 0;
 
    // Covers are tile vertices covered by the track segment
-   virtual void get_covers2(vector<Point<int> >& output) const = 0;
+   virtual void get_height_locked(vector<Point<int> >& output) const = 0;
 
    // Add an exit to this section of track possibly generating
    // a new track segment

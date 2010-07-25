@@ -44,7 +44,7 @@ public:
    track::Connection next_position(const track::TravelToken& a_token) const;
    void get_endpoints(vector<Point<int> >& a_list) const;
    void get_covers(vector<Point<int> >& output) const;
-   void get_covers2(vector<Point<int> >& output) const;
+   void get_height_locked(vector<Point<int> >& output) const;
    ITrackSegmentPtr merge_exit(Point<int> where, track::Direction dir);
    track::TravelToken get_travel_token(track::Position a_position,
       track::Direction a_direction) const;
@@ -561,7 +561,7 @@ void Points::get_covers(vector<Point<int> >& output) const
       assert(false);
 }
 
-void Points::get_covers2(vector<Point<int> >& output) const
+void Points::get_height_locked(vector<Point<int> >& output) const
 {
 
 }

@@ -42,7 +42,7 @@ public:
    track::Connection next_position(const track::TravelToken& token) const;
    void get_endpoints(vector<Point<int> >& output) const;
    void get_covers(vector<Point<int> >& output) const;
-   void get_covers2(vector<Point<int> >& output) const;
+   void get_height_locked(vector<Point<int> >& output) const;
    ITrackSegmentPtr merge_exit(Point<int> where, track::Direction dir);
    track::TravelToken get_travel_token(track::Position pos,
                                        track::Direction dir) const;
@@ -287,7 +287,7 @@ void GenTrack::bounding_polygon(Polygon& poly) const
    }
 }
 
-void GenTrack::get_covers2(vector<Point<int> >& output) const
+void GenTrack::get_height_locked(vector<Point<int> >& output) const
 {
    for (int x = min(0, delta.x); x <= max(0, delta.x) + 1; x++) {
       for (int y = min(0, delta.y); y <= max(0, delta.y) + 1; y++) {
