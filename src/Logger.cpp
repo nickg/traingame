@@ -19,6 +19,8 @@
 
 #include <iostream>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #ifdef WIN32
 #include <io.h>   // For _isatty
@@ -45,6 +47,11 @@ LoggerImpl::LoggerImpl()
    is_stdoutTTY = (_isatty(_fileno(stdout)) != 0);
 #else
    is_stdoutTTY = (isatty(fileno(stdout)) != 0);
+
+   const char *term = getenv("TERM");
+   if (term != NULL && strcmp(term, "dumb") == 0)
+      is_stdoutTTY = false;
+
 #endif
 
    cout.precision(3);
