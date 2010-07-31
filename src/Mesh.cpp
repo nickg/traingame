@@ -128,7 +128,12 @@ void MeshBuffer::merge(IMeshBufferPtr other, Vector<float> off, float y_angle)
 
    for (size_t i = 0; i < obuf.indices.size(); i++) {
       Index orig = obuf.indices[i];
-      indices.push_back(orig + ibase);
+      Index merged = orig + ibase;
+      
+      assert(orig < obuf.vertices.size());
+      assert(merged < vertices.size());
+      
+      indices.push_back(merged);
    }
 }
 
@@ -177,7 +182,7 @@ void MeshBuffer::add(const Vertex& vertex, const Normal& normal)
 }         
 
 void MeshBuffer::add(const Vertex& vertex, const Normal& normal,
-   const Colour& colour)
+                     const Colour& colour)
 {
    if (has_texture)
       throw runtime_error("MeshBuffer::add called without texture coordinate "
@@ -190,8 +195,12 @@ void MeshBuffer::add(const Vertex& vertex, const Normal& normal,
    // See if this vertex has already been added
    for (vector<Index>::iterator it = indices.begin();
 	it != indices.end(); ++it) {
+      
+      assert(*it < vertices.size());
+      assert(*it < normals.size());
+      
       if (merge_vector(vertex, vertices[*it])
-	 && merge_vector(normal, normals[*it])) {
+          && merge_vector(normal, normals[*it])) {
 
 	 const Colour& other = colours[*it];
 	 if (abs(other.r - colour.r) < 0.01f
@@ -213,7 +222,7 @@ void MeshBuffer::add(const Vertex& vertex, const Normal& normal,
 }
 
 void MeshBuffer::add(const Vertex& vertex, const Normal& normal,
-   const TexCoord& a_tex_coord)
+                     const TexCoord& a_tex_coord)
 {
    if (!has_texture)
       throw runtime_error(
@@ -224,7 +233,7 @@ void MeshBuffer::add(const Vertex& vertex, const Normal& normal,
    for (vector<Index>::iterator it = indices.begin();
 	it != indices.end(); ++it) {
       if (merge_vector(vertex, vertices[*it])
-	 && merge_vector(normal, normals[*it])) {
+          && merge_vector(normal, normals[*it])) {
 	 TexCoord& tc = tex_coords[*it];
 	 if (abs(tc.x - a_tex_coord.x) < 0.001f
 	    && abs(tc.y - a_tex_coord.y) < 0.001f) {
@@ -243,7 +252,7 @@ void MeshBuffer::add(const Vertex& vertex, const Normal& normal,
 }
 
 void MeshBuffer::add_quad(Vertex a, Vertex b, Vertex c,
-   Vertex d, Colour colour)
+                          Vertex d, Colour colour)
 {
    Vector<float> n1 = surface_normal(b, c, d);
    Vector<float> n2 = surface_normal(d, a, b);
@@ -258,8 +267,8 @@ void MeshBuffer::add_quad(Vertex a, Vertex b, Vertex c,
 }
 
 void MeshBuffer::add_quad(Vertex a, Vertex b, Vertex c, Vertex d,
-   Normal na, Normal nb, Normal nc, Normal nd,
-   Colour colour)
+                          Normal na, Normal nb, Normal nc, Normal nd,
+                          Colour colour)
 {
    
    add(b, na, colour);

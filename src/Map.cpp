@@ -1073,9 +1073,7 @@ void Map::lock_height_at(Point<int> p)
    assert(p.x <= my_width);
    assert(p.y <= my_depth);
 
-   debug () << __func__ << " p=" << p;
-
-   height_map[p.x + (p.y * (my_depth+1))].lock_count++;
+   height_map[p.x + (p.y * (my_width+1))].lock_count++;
 }
 
 void Map::unlock_height_at(Point<int> p)
@@ -1083,7 +1081,7 @@ void Map::unlock_height_at(Point<int> p)
    assert(p.x <= my_width);
    assert(p.y <= my_depth);
 
-   HeightMap& h = height_map[p.x + (p.y * (my_depth+1))];
+   HeightMap& h = height_map[p.x + (p.y * (my_width+1))];
 
    assert(h.lock_count > 0);
    h.lock_count--;
