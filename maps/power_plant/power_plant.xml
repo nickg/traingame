@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map width="32" height="32">
+<name>No Name</name>
+
+<start x="5" y="14" dirX="0" dirY="-1"/>
+
+<heightmap>power_plant.bin</heightmap>
+
+<tileset>
+<tile x="5" y="7">
+<straight-track align="y"/>
+</tile>
+
+<tile x="5" y="8">
+<straight-track align="y"/>
+</tile>
+
+<tile x="5" y="9">
+<straight-track align="y"/>
+</tile>
+
+<tile x="5" y="10">
+<straight-track align="y"/>
+</tile>
+
+<tile x="5" y="11">
+<straight-track align="y"/>
+</tile>
+
+<tile x="5" y="12">
+<straight-track align="y"/>
+</tile>
+
+<tile x="5" y="13">
+<straight-track align="y"/>
+</tile>
+
+<tile x="5" y="14">
+<straight-track align="y"/>
+</tile>
+
+<tile x="5" y="15">
+<curved-track start-angle="270" finish-angle="360" radius="4"/>
+</tile>
+
+<tile x="6" y="7">
+<building angle="90" name="platform_end"/>
+</tile>
+
+<tile x="6" y="8">
+<building angle="90" name="platform_middle"/>
+</tile>
+
+<tile x="6" y="9">
+<building angle="90" name="platform_middle"/>
+</tile>
+
+<tile x="6" y="10">
+<building angle="90" name="platform_middle"/>
+</tile>
+
+<tile x="6" y="11">
+<building angle="270" name="platform_end"/>
+</tile>
+
+<tile x="8" y="3">
+<curved-track start-angle="180" finish-angle="270" radius="4"/>
+</tile>
+
+<tile x="8" y="8">
+<building angle="0" name="power_plant"/>
+</tile>
+
+<tile x="9" y="3">
+<straight-track align="x"/>
+</tile>
+
+<tile x="9" y="18">
+<straight-track align="x"/>
+</tile>
+
+<tile x="10" y="3">
+<straight-track align="x"/>
+</tile>
+
+<tile x="10" y="18">
+<straight-track align="x"/>
+</tile>
+
+<tile x="11" y="3">
+<straight-track align="x"/>
+</tile>
+
+<tile x="11" y="18">
+<straight-track align="x"/>
+</tile>
+
+<tile x="12" y="3">
+<straight-track align="x"/>
+</tile>
+
+<tile x="12" y="18">
+<straight-track align="x"/>
+</tile>
+
+<tile x="13" y="3">
+<straight-track align="x"/>
+</tile>
+
+<tile x="13" y="18">
+<straight-track align="x"/>
+</tile>
+
+<tile x="14" y="3">
+<straight-track align="x"/>
+</tile>
+
+<tile x="14" y="18">
+<straight-track align="x"/>
+</tile>
+
+<tile x="15" y="3">
+<straight-track align="x"/>
+</tile>
+
+<tile x="15" y="18">
+<straight-track align="x"/>
+</tile>
+
+<tile x="16" y="3">
+<straight-track align="x"/>
+</tile>
+
+<tile x="16" y="18">
+<straight-track align="x"/>
+</tile>
+
+<tile x="17" y="18">
+<curved-track start-angle="0" finish-angle="90" radius="5"/>
+</tile>
+
+<tile x="21" y="7">
+<curved-track start-angle="90" finish-angle="180" radius="5"/>
+</tile>
+
+<tile x="21" y="8">
+<straight-track align="y"/>
+</tile>
+
+<tile x="21" y="9">
+<straight-track align="y"/>
+</tile>
+
+<tile x="21" y="10">
+<straight-track align="y"/>
+</tile>
+
+<tile x="21" y="11">
+<straight-track align="y"/>
+</tile>
+
+<tile x="21" y="12">
+<straight-track align="y"/>
+</tile>
+
+<tile x="21" y="13">
+<straight-track align="y"/>
+</tile>
+</tileset>
+</map>
