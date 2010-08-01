@@ -45,12 +45,12 @@ public:
    void update(IPickBufferPtr a_pick_buffer, int a_delta);
    void on_key_down(SDLKey a_key);
    void on_key_up(SDLKey a_key);
-   void on_mouse_move(IPickBufferPtr a_pick_buffer, int x, int y, int xrel,
-      int yrel);
+   void on_mouse_move(IPickBufferPtr a_pick_buffer, int x, int y,
+                      int xrel, int yrel);
    void on_mouse_click(IPickBufferPtr a_pick_buffer, int x, int y,
-      MouseButton a_button);
+                       MouseButton a_button);
    void on_mouse_release(IPickBufferPtr a_pick_buffer, int x, int y,
-      MouseButton a_button) {}
+                         MouseButton a_button);
 private:
    void look_ahead();
    void near_station(IStationPtr s);
@@ -75,8 +75,9 @@ private:
    // Camera adjustment
    float cameraHTarget, cameraVTarget;
    float camera_speed;
+   bool panning;
 
-   enum CameraMode { CAMERA_FLOATING, CAMERA_FIXED, CAMERA_BIRD };
+   enum CameraMode { CAMERA_FLOATING, CAMERA_BIRD };
    CameraMode camera_mode;
    
    gui::ILayoutPtr layout;
@@ -88,7 +89,8 @@ Game::Game(IMapPtr a_map)
    : map(a_map),
      horiz_angle(M_PI/4.0f),
      vert_angle(M_PI/4.0f),
-     view_radius(20.0f)
+     view_radius(20.0f),
+     panning(false)
 {
    train = make_train(map);
    sun = make_sun_light();
@@ -349,8 +351,6 @@ void Game::on_key_down(SDLKey a_key)
       break;
    case SDLK_TAB:
       if (camera_mode == CAMERA_FLOATING)
-         camera_mode = CAMERA_FIXED;
-      else if (camera_mode == CAMERA_FIXED)
          switch_to_birdCamera();
       else
          camera_mode = CAMERA_FLOATING;
@@ -366,9 +366,12 @@ void Game::on_key_up(SDLKey a_key)
 }
 
 void Game::on_mouse_click(IPickBufferPtr a_pick_buffer, int x, int y,
-   MouseButton a_button)
+                          MouseButton a_button)
 {
    switch (a_button) {
+   case MOUSE_RIGHT:
+      panning = true;
+      break;
    case MOUSE_WHEEL_UP:
       view_radius = max(view_radius - 1.0f, 0.1f);
       break;
@@ -380,10 +383,22 @@ void Game::on_mouse_click(IPickBufferPtr a_pick_buffer, int x, int y,
    }
 }
 
+void Game::on_mouse_release(IPickBufferPtr pick_buffer, int x, int y,
+                            MouseButton a_button)
+{
+   switch (a_button) {
+   case MOUSE_RIGHT:
+      panning = false;
+      break;
+   default:
+      break;
+   }
+}
+   
 void Game::on_mouse_move(IPickBufferPtr a_pick_buffer, int x, int y,
    int xrel, int yrel)
 {
-   if (camera_mode == CAMERA_FLOATING) {
+   if (camera_mode == CAMERA_FLOATING && panning) {
       cameraHTarget -= xrel / 100.0f;
       cameraVTarget += yrel / 100.0f;
       
