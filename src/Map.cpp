@@ -128,9 +128,9 @@ private:
    // Tiles on the map
    struct Tile {
       // TODO: Better to use a boost::variant here?
-      TrackNodePtr track;    // Track at this location, if any
+      TrackAnchor track;    // Track at this location, if any
       IStationPtr station;   // Station on this tile, if any
-      ISceneryPtr scenery;   // Scenery, if any
+      SceneryAnchor scenery;   // Scenery, if any
    } *tiles;
 
    // Vertices on the terrain
@@ -250,7 +250,7 @@ Map::~Map()
 
 ITrackSegmentPtr Map::track_at(const Point<int>& a_point) const
 {
-   TrackNodePtr ptr = tile_at(a_point.x, a_point.y).track;
+   TrackAnchor ptr = tile_at(a_point.x, a_point.y).track;
    if (ptr)
       return ptr->get();
    else {
@@ -321,7 +321,7 @@ void Map::set_track_at(const Point<int>& where, ITrackSegmentPtr track)
    
    track->set_origin(where.x, where.y, lowest_height);
          
-   TrackNodePtr node(new Anchor<ITrackSegment>(track, where));  
+   TrackAnchor node(new Anchor<ITrackSegment>(track, where));  
 
    // Attach the track node to every tile it covers
    vector<Point<int> > covers;
@@ -367,7 +367,7 @@ void Map::set_start(int x, int y)
    };
    static int next_dir = 0;
    
-   TrackNodePtr track_node = tile_at(x, y).track;
+   TrackAnchor track_node = tile_at(x, y).track;
    if (!track_node) {
       warn() << "Must place start on track";
       return;
@@ -670,7 +670,7 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
          Tile& tile = tile_at(x, y);
          
          if (tile.scenery)
-            tile.scenery->merge(buf);
+            tile.scenery->get()->merge(buf);
 
          // Draw the track, if any
          if (tile.track && tile.track->needs_rendering(frame_num)) {
@@ -1331,7 +1331,9 @@ void Map::add_scenery(Point<int> where, ISceneryPtr s)
    if (tile_at(where.x, where.y).track)
       warn() << "Cannot place scenery on track";
    else {
-      tile_at(where.x, where.y).scenery = s;
+      SceneryAnchor indirect(new Anchor<IScenery>(s, where));
+      
+      tile_at(where.x, where.y).scenery = indirect;
       s->set_position(static_cast<float>(where.x),
          height_at(where),
          static_cast<float>(where.y));
@@ -1547,7 +1549,7 @@ void Map::save_to(ostream& of)
          }
 
          if (tile.scenery) {
-            tile_xml.add_child(tile.scenery->to_xml());
+            tile_xml.add_child(tile.scenery->get()->to_xml());
             useful = true;
          }
 
