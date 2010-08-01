@@ -79,7 +79,7 @@ bool SmokeTrail::move_particle(Particle& p, int a_delta)
    const float slowdown = 0.1f;
    const float x_wind = 0.02f;
    const float z_wind = 0.01f;
-   
+
    const float time = static_cast<float>(a_delta) / 1000.0f;
    
    p.x += p.xv + (x_wind * time);

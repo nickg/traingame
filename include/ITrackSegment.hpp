@@ -22,6 +22,7 @@
 #include "Maths.hpp"
 #include "IXMLSerialisable.hpp"
 #include "IMesh.hpp"
+#include "IRenderable.hpp"
 
 #include <vector>
 #include <set>
@@ -93,11 +94,8 @@ typedef shared_ptr<ITrackSegment> ITrackSegmentPtr;
 
 // A segment of track which fits over a number of tiles
 // Each track segment has an origin and one or more exits
-struct ITrackSegment : IXMLSerialisable {   
+struct ITrackSegment : IXMLSerialisable, IRenderable {   
    virtual ~ITrackSegment() {}
-
-   // Render the track with the origin in the centre
-   virtual void render() const = 0;
 
    // Merge this track segment's mesh into a scenery mesh buffer
    virtual void merge(IMeshBufferPtr buf) const = 0;

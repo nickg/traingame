@@ -21,12 +21,12 @@
 #include "Platform.hpp"
 #include "IXMLSerialisable.hpp"
 #include "IMesh.hpp"
+#include "IRenderable.hpp"
 
 // Static scenery such as trees
-struct IScenery : IXMLSerialisable {
+struct IScenery : IXMLSerialisable, IRenderable {
    virtual ~IScenery() {}
    
-   virtual void render() const = 0;
    virtual void set_position(float x, float y, float z) = 0;
    virtual void set_angle(float angle) = 0;
    virtual void merge(IMeshBufferPtr buf) = 0;
