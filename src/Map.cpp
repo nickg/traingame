@@ -42,32 +42,29 @@
 #include <boost/cstdint.hpp>
 #include <boost/lexical_cast.hpp>
 
-// A single piece of track may appear multiple times in the map - this
-// will be true for all track segments that cover multiple tiles.
-// For various map algorithms (e.g. drawing) it is useful to keep track
-// of which track segments have already been visited. So track segments
-// are wrapped inside TrackNode which is used to store map-specific
-// information about the track.
-class TrackNode {
+// A single piece of track, scenery, etc. may be connected to
+// more than one tile. Anchor<T> is the association class
+template <class T>
+class Anchor {
 public:
-   TrackNode(ITrackSegmentPtr a_track, int x, int y)
-      : track(a_track), last_frame(-1),
-        origin(make_point(x, y)) {}
+   Anchor(shared_ptr<T> obj, Point<int> origin)
+      : owned(obj), last_frame(-1), origin_(origin) {}
 
-   inline void rendered_on(int f) { last_frame = f; }
-   inline bool needs_rendering(int f) const { return f != last_frame; }
+   // These numbers don't necessarily refer to frames
+   void rendered_on(int f) { last_frame = f; }
+   bool needs_rendering(int f) const { return f != last_frame; }
 
-   inline ITrackSegmentPtr get() { return track; }
+   const Point<int>& origin() const { return origin_; }
 
-   inline int originX() const { return origin.x; }
-   inline int originY() const { return origin.y; }
+   inline shared_ptr<T> get() { return owned; }
 private:
-   ITrackSegmentPtr track;
+   shared_ptr<T> owned;
    int last_frame;
-   Point<int> origin;
+   Point<int> origin_;
 };
 
-typedef shared_ptr<TrackNode> TrackNodePtr;
+typedef shared_ptr<Anchor<ITrackSegment> > TrackAnchor;
+typedef shared_ptr<Anchor<IScenery> > SceneryAnchor;
 
 class Map : public IMap, public ISectorRenderable,
             public enable_shared_from_this<Map> {
@@ -324,7 +321,7 @@ void Map::set_track_at(const Point<int>& where, ITrackSegmentPtr track)
    
    track->set_origin(where.x, where.y, lowest_height);
          
-   TrackNodePtr node(new TrackNode(track, where.x, where.y));  
+   TrackNodePtr node(new Anchor<ITrackSegment>(track, where));  
 
    // Attach the track node to every tile it covers
    vector<Point<int> > covers;
@@ -1536,8 +1533,7 @@ void Map::save_to(ostream& of)
          tile_xml.add_attribute("y", y);
 
          if (tile.track
-            && tile.track->originX() == x
-            && tile.track->originY() == y) {
+             && tile.track->origin() == make_point(x, y)) {
 
             tile_xml.add_child(tile.track->get()->to_xml());
             useful = true;
