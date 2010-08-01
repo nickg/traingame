@@ -20,8 +20,6 @@
 #include "GameScreens.hpp"
 #include "ILogger.hpp"
 
-#include <boost/optional.hpp>
-
 class MessageArea : public IMessageArea {
 public:
    MessageArea();
@@ -39,28 +37,30 @@ private:
       int delay;
    };
    
-   boost::optional<Message> active;
+   Message active;
+   bool have_active;
    gui::IFontPtr font;
 
    static const int FADE_OUT_TIME = 1000;
 };
 
 MessageArea::MessageArea()
+   : have_active(false)
 {
    font = gui::load_font("fonts/Vera.ttf", 18);
 }
 
 void MessageArea::render() const
 {
-   if (active) {
-      const string& text = active.get().text;
+   if (have_active) {
+      const string& text = active.text;
 
       const int screenH = get_game_window()->height();
       const int screenW = get_game_window()->width();
       const int len = font->text_width(text);
 
       float alpha = 1.0f;
-      const int& delay = active.get().delay;
+      const int& delay = active.delay;
       if (delay < 0) {
          assert(delay >= -FADE_OUT_TIME);
 
@@ -75,12 +75,12 @@ void MessageArea::render() const
 
 void MessageArea::update(int delta)
 {
-   if (active) {
-      int& delay = active.get().delay;
+   if (have_active) {
+      int& delay = active.delay;
 
       delay -= delta;
       if (delay < -FADE_OUT_TIME)
-         active = boost::optional<Message>();
+         have_active = false;
    }
 }
 
@@ -89,7 +89,7 @@ void MessageArea::post(const string& mess, int priority, int delay)
    assert(priority >= 0 && priority <= 100);
    
    Message m = { mess, priority, delay };
-   if (!active || active.get().priority <= priority)
+   if (!have_active || active.priority <= priority)
       active = m;
 }
 
