@@ -51,7 +51,6 @@ private:
 
    struct ParserState {
       string model_file;
-      float scale;
    } *parser_state;
 };
 
@@ -60,16 +59,12 @@ Building::Building(IResourcePtr a_res)
 {
    static IXMLParserPtr parser = makeXMLParser("schemas/building.xsd");
 
-   parser_state = new ParserState;
-   parser_state->scale = 1.0f;
-   
+   parser_state = new ParserState;   
    parser->parse(a_res->xml_file_name(), *this);
 
    Vector<float> shift = -make_vector(0.5f, 0.0f, 0.5f);
-   model_ = load_model(a_res,
-                       parser_state->model_file,
-                       parser_state->scale,
-                       shift);
+   model_ = load_model(a_res, parser_state->model_file,
+                       1.0f, shift);
 
    Vector<float> dim = model_->dimensions();
    debug() << name_ << " " << dim;
@@ -102,8 +97,6 @@ void Building::text(const string& local_name, const string& a_string)
 {
    if (local_name == "name")
       name_ = a_string;
-   else if (local_name == "scale")
-      parser_state->scale = boost::lexical_cast<float>(a_string);
    else if (local_name == "model")
       parser_state->model_file = a_string;
 }
