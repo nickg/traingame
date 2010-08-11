@@ -65,7 +65,14 @@ Building::Building(IResourcePtr a_res)
    
    parser->parse(a_res->xml_file_name(), *this);
 
-   model_ = load_model(a_res, parser_state->model_file, parser_state->scale);
+   Vector<float> shift = -make_vector(0.5f, 0.0f, 0.5f);
+   model_ = load_model(a_res,
+                       parser_state->model_file,
+                       parser_state->scale,
+                       shift);
+
+   Vector<float> dim = model_->dimensions();
+   debug() << name_ << " " << dim;
 
    delete parser_state;
 }
@@ -88,7 +95,7 @@ void Building::render() const
 
 void Building::merge(IMeshBufferPtr buf)
 {
-   model_->merge(buf, position, angle);
+   model_->merge(buf, position/* + make_vector(-0.5f, 0.0f, -0.5f)*/, angle);
 }
 
 void Building::text(const string& local_name, const string& a_string)

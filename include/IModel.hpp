@@ -38,7 +38,9 @@ struct IModel {
 typedef shared_ptr<IModel> IModelPtr;
 
 // Load a model from a WaveFront .obj file
-IModelPtr load_model(IResourcePtr a_res, const string& a_file_name,
-                    float a_scale = 1.0f);
+IModelPtr load_model(IResourcePtr a_res,
+                     const string& a_file_name,
+                     float a_scale = 1.0f,
+                     Vector<float> shift = make_vector(0.0f, 0.0f, 0.0f));
 
 #endif

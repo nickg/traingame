@@ -166,7 +166,10 @@ void Model::compile_mesh() const
 }
 
 // Load a model from a resource
-IModelPtr load_model(IResourcePtr a_res, const string& a_file_name, float a_scale)
+IModelPtr load_model(IResourcePtr a_res,
+                     const string& a_file_name,
+                     float a_scale,
+                     Vector<float> shift)
 {
    // Make a unique cache name
    const string cache_name = a_res->name() + ":" + a_file_name;
@@ -219,6 +222,10 @@ IModelPtr load_model(IResourcePtr a_res, const string& a_file_name, float a_scal
          // Vertex
          float x, y, z;
          f >> x >> y >> z;
+
+         x += shift.x;
+         y += shift.y;
+         z += shift.z;
 
          x *= a_scale;
          y *= a_scale;
