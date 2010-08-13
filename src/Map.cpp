@@ -899,9 +899,15 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
             tile.track->rendered_on(frame_num);
          }
 
+#if 0
+         // Highlight tiles covered by scenery
+         if (tile.scenery)
+            highlight_tile(make_point(x, y), colour::WHITE);
+#endif
+
          // Draw the station, if any
          if (tile.station
-            && (should_draw_grid_lines || tile.station->highlight_visible()))
+             && (should_draw_grid_lines || tile.station->highlight_visible()))
             highlight_tile(make_point(x, y), tile.station->highlight_colour());
 
          // Draw the start location if it's on this tile
