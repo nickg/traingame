@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ struct IScenery : IXMLSerialisable {
    virtual void set_angle(float angle) = 0;
    virtual void merge(IMeshBufferPtr buf) = 0;
    virtual const string& name() const = 0;
+   virtual Point<int> size() const = 0;
 };
 
 typedef shared_ptr<IScenery> ISceneryPtr;

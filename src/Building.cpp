@@ -35,6 +35,7 @@ public:
    void set_angle(float a) { angle = a; }
    void set_position(float x, float y, float z);
    void merge(IMeshBufferPtr buf);
+   Point<int> size() const;
 
    // IXMLSerialisable interface
    xml::element to_xml() const;
@@ -66,10 +67,15 @@ Building::Building(IResourcePtr a_res)
    model_ = load_model(a_res, parser_state->model_file,
                        1.0f, shift);
 
-   Vector<float> dim = model_->dimensions();
-   debug() << name_ << " " << dim;
-
    delete parser_state;
+}
+
+Point<int> Building::size() const
+{
+   Vector<float> dim = model_->dimensions();
+
+   return make_point(max(static_cast<int>(round(dim.x)), 1),
+                     max(static_cast<int>(round(dim.z)), 1));
 }
 
 void Building::set_position(float x, float y, float z)

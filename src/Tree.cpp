@@ -40,6 +40,7 @@ public:
    void set_angle(float a) { angle = a; }
    const string& name() const { return name_; }
    void merge(IMeshBufferPtr buf);
+   Point<int> size() const;
 
    // IXMLCallback interface
    void text(const string& local_name, const string& content);
@@ -89,6 +90,11 @@ void Tree::text(const string& local_name, const string& content)
       else
          name_ = content;
    }
+}
+
+Point<int> Tree::size() const
+{
+   return make_point(1, 1);
 }
 
 void Tree::set_position(float x, float y, float z)

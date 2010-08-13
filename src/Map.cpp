@@ -669,15 +669,14 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
       for (int y = bot_left.y; y < top_right.y; y++) {
          Tile& tile = tile_at(x, y);
          
-         if (tile.scenery)
+         if (tile.scenery && tile.scenery->needs_rendering(frame_num)) {
             tile.scenery->get()->merge(buf);
+            tile.scenery->rendered_on(frame_num);
+         }
 
          // Draw the track, if any
          if (tile.track && tile.track->needs_rendering(frame_num)) {
-            // TODO: how will this work with track that spans
-            // multiple sectors?
             tile.track->get()->merge(buf);
-            
             tile.track->rendered_on(frame_num);
          }
       }
@@ -1332,13 +1331,19 @@ void Map::add_scenery(Point<int> where, ISceneryPtr s)
       warn() << "Cannot place scenery on track";
    else {
       SceneryAnchor indirect(new Anchor<IScenery>(s, where));
+
+      const Point<int> size = s->size();
       
-      tile_at(where.x, where.y).scenery = indirect;
+      for (int x = 0; x < size.x; x++) {
+         for (int y = 0; y < size.y; y++) {
+            tile_at(where.x + x, where.y + y).scenery = indirect;
+            dirty_tile(where.x, where.y);
+         }
+      }
+      
       s->set_position(static_cast<float>(where.x),
          height_at(where),
          static_cast<float>(where.y));
-
-      dirty_tile(where.x, where.y);
    }
 }
 
