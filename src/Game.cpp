@@ -56,7 +56,7 @@ private:
    void near_station(IStationPtr s);
    void left_station();
    Vector<float> camera_position(float a_radius) const;
-   void switch_to_birdCamera();
+   void switch_to_bird_camera();
    void stopped_at_station();
 
    enum TrackStateReq { NEXT, PREV };
@@ -103,7 +103,7 @@ Game::Game(IMapPtr a_map)
    render_stats = make_render_stats(layout, "/fps/fps_label");
 
    // Intial camera state is floating but in the bird position
-   switch_to_birdCamera();
+   switch_to_bird_camera();
    camera_mode = CAMERA_FLOATING;
 }
 
@@ -125,7 +125,7 @@ Vector<float> Game::camera_position(float a_radius) const
    return position;
 }
 
-void Game::switch_to_birdCamera()
+void Game::switch_to_bird_camera()
 {
    camera_mode = CAMERA_BIRD;
 
@@ -353,7 +353,7 @@ void Game::on_key_down(SDLKey a_key)
       break;
    case SDLK_TAB:
       if (camera_mode == CAMERA_FLOATING)
-         switch_to_birdCamera();
+         switch_to_bird_camera();
       else
          camera_mode = CAMERA_FLOATING;
       break;

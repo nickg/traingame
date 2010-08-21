@@ -178,6 +178,8 @@ void GenTrack::merge(IMeshBufferPtr buf) const
 
 void GenTrack::render() const
 {
+#if 0
+   // Draw the bounding polygon
    glPushMatrix();
 
    glTranslatef(origin.x, 0.0f, origin.y);
@@ -191,6 +193,7 @@ void GenTrack::render() const
    glEnd();
 
    glPopMatrix();
+#endif
 }     
 
 void GenTrack::set_origin(int x, int y, float h)
@@ -246,7 +249,20 @@ void GenTrack::get_endpoints(vector<Point<int> >& output) const
 
 void GenTrack::get_covers(vector<Point<int> >& output) const
 {
+   const Point<float> off = make_point(0.5f, 0.5f);
    
+   for (int x = min(0, delta.x); x <= max(0, delta.x) + 1; x++) {
+      for (int y = min(0, delta.y); y <= max(0, delta.y) + 1; y++) {
+         Point<int> p = make_point(x, y);
+
+         const bool is_origin = p == make_point(0, 0);
+         const bool is_delta = p == make_point(delta.x, delta.y);
+
+         if (point_in_polygon(bounds, point_cast<float>(p) + off)
+             && !(is_origin || is_delta))
+            output.push_back(p + origin);
+      }
+   }
 }
 
 bool GenTrack::point_in_polygon(const Polygon& poly, Point<float> p)

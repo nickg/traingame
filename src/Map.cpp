@@ -884,7 +884,7 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
                           make_colour(0.4f, 0.7f, 0.1f)));
 #endif
 
-#if 1
+#if 0
             // Draw vertices covered by track
             vector<Point<int> > vertices;
             tile.track->get()->get_height_locked(vertices);
