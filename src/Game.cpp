@@ -102,7 +102,9 @@ Game::Game(IMapPtr a_map)
    message_area = make_message_area();
    render_stats = make_render_stats(layout, "/fps/fps_label");
 
+   // Intial camera state is floating but in the bird position
    switch_to_birdCamera();
+   camera_mode = CAMERA_FLOATING;
 }
 
 Game::~Game()
