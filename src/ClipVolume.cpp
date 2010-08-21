@@ -21,26 +21,28 @@
 ClipVolume::ClipVolume(float x, float w, float z, float d)
 {
    glPushMatrix();
-   {   
-      glTranslatef(x - 0.05f, 0.0f, 0.0f);
+   {
+      const float overlap = 0.25f;
+      
+      glTranslatef(x - overlap, 0.0f, 0.0f);
       
       GLdouble eqn0[4] = { 1.0, 0.0, 0.0, 0.0 };
       glClipPlane(GL_CLIP_PLANE0, eqn0);
       glEnable(GL_CLIP_PLANE0);
       
-      glTranslatef(w + 0.1f, 0.0f, 0.0f);
+      glTranslatef(w + overlap * 2.0f, 0.0f, 0.0f);
 
       GLdouble eqn1[4] = { -1.0, 0.0, 0.0, 0.0 };
       glClipPlane(GL_CLIP_PLANE1, eqn1);
       glEnable(GL_CLIP_PLANE1);
       
-      glTranslatef(0.0f, 0.0f, z - 0.05f);
+      glTranslatef(0.0f, 0.0f, z - overlap);
    
       GLdouble eqn2[4] = { 0.0, 0.0, 1.0, 0.0 };
       glClipPlane(GL_CLIP_PLANE2, eqn2);
       glEnable(GL_CLIP_PLANE2);
       
-      glTranslatef(0.0f, 0.0f, d + 0.1f);
+      glTranslatef(0.0f, 0.0f, d + overlap * 2.0f);
 
       GLdouble eqn3[4] = { 0.0, 0.0, -1.0, 0.0 };
       glClipPlane(GL_CLIP_PLANE3, eqn3);
