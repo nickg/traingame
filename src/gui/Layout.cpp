@@ -84,7 +84,7 @@ private:
 
 Layout::Layout(const string& file_name)
 {   
-   IXMLParserPtr parser = makeXMLParser("schemas/layout.xsd");
+   IXMLParserPtr parser = make_xml_parser("schemas/layout.xsd");
    parser->parse(file_name, *this);
 
    log() << "Loaded UI layout from " << file_name;

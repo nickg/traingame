@@ -622,12 +622,12 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
 {
    static const tuple<float, Colour> colour_map[] = {
       //          Start height         colour
-      make_tuple(    7.0f,     makeRGB(238, 233, 233) ),
-      make_tuple(    5.0f,     makeRGB(124, 113, 36) ),
-      make_tuple(    3.0f,     makeRGB(129, 142, 57) ),
-      make_tuple(    0.0f,     makeRGB(103, 142, 57) ),
-      make_tuple(   -2.0f,     makeRGB(208, 207, 104)),
-      make_tuple(   -1e10f,    makeRGB(177, 176, 96) )
+      make_tuple(    7.0f,     make_rgb(238, 233, 233) ),
+      make_tuple(    5.0f,     make_rgb(124, 113, 36) ),
+      make_tuple(    3.0f,     make_rgb(129, 142, 57) ),
+      make_tuple(    0.0f,     make_rgb(103, 142, 57) ),
+      make_tuple(   -2.0f,     make_rgb(208, 207, 104)),
+      make_tuple(   -1e10f,    make_rgb(177, 176, 96) )
    };
 
    IMeshBufferPtr buf = make_mesh_buffer();
@@ -688,7 +688,7 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
    const float y1 = static_cast<float>(bot_left.y) - 0.5f;
    const float y2 = static_cast<float>(top_right.y) - 0.5f;
 
-   const Colour brown = makeRGB(104, 57, 12);
+   const Colour brown = make_rgb(104, 57, 12);
    const float depth = -3.0f;
    
    int index[4];
@@ -935,7 +935,7 @@ void Map::post_render_sector(IGraphicsPtr a_context, int id,
       const float trY = static_cast<float>(top_right.y);
       
       static const float sea_level = -0.6f;
-      gl::colour(makeRGB(0, 80, 160, 150));
+      gl::colour(make_rgb(0, 80, 160, 150));
       glNormal3f(0.0f, 1.0f, 0.0f);
       glBegin(GL_QUADS);
       glVertex3f(blX - 0.5f, sea_level, blY - 0.5f);
@@ -1896,7 +1896,7 @@ IMapPtr load_map(const string& a_res_id)
 
    log() << "Loading map from file " << res->xml_file_name();
 
-   static IXMLParserPtr xml_parser = makeXMLParser("schemas/map.xsd");
+   static IXMLParserPtr xml_parser = make_xml_parser("schemas/map.xsd");
 
    MapLoader loader(map, res);
    xml_parser->parse(res->xml_file_name(), loader);

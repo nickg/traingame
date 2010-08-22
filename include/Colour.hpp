@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2006-2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ inline Colour make_colour(float r, float g, float b, float a=1.0f)
    return c;
 }
 
-inline Colour makeRGB(int r, int g, int b, int a=255)
+inline Colour make_rgb(int r, int g, int b, int a=255)
 {
     return make_colour(
 	static_cast<float>(r) / 255.0f,

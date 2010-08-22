@@ -64,7 +64,7 @@ namespace {
             "Cannot parse colour attribute with value '"
             + str + "'");
 
-      return makeRGB(r, g, b);
+      return make_rgb(r, g, b);
    }
 
    template <class T>
@@ -92,7 +92,7 @@ public:
    }
 
    template <class T>
-   T get(const std::string& a_name) const
+   T get(const string& a_name) const
    {
       XMLCh* xml_name = xercesc::XMLString::transcode(a_name.c_str());
 
@@ -113,7 +113,7 @@ public:
    }
 
    template <class T>
-   void get(const std::string& a_name, T& aT) const
+   void get(const string& a_name, T& aT) const
    {
       aT = get<T>(a_name);
    }
@@ -144,13 +144,13 @@ struct IXMLCallback {
 struct IXMLParser {
    virtual ~IXMLParser() {}
 
-   virtual void parse(const std::string& a_file_name,
-      IXMLCallback& a_callback) = 0;
+   virtual void parse(const string& a_file_name,
+                      IXMLCallback& a_callback) = 0;
 };
 
 typedef shared_ptr<IXMLParser> IXMLParserPtr;
  
-IXMLParserPtr makeXMLParser(const std::string& a_schema_file);
+IXMLParserPtr make_xml_parser(const std::string& a_schema_file);
      
 #endif
 

@@ -64,7 +64,7 @@ private:
 
 Tree::Tree(IResourcePtr res)
 {
-   static IXMLParserPtr parser = makeXMLParser("schemas/tree.xsd");
+   static IXMLParserPtr parser = make_xml_parser("schemas/tree.xsd");
 
    parser_state = new ParserState;
    parser_state->res = res;

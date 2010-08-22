@@ -55,7 +55,7 @@ const float Waggon::MODEL_SCALE(0.4f);
 Waggon::Waggon(IResourcePtr a_res)
    : resource(a_res)
 {
-   static IXMLParserPtr parser = makeXMLParser("schemas/waggon.xsd");
+   static IXMLParserPtr parser = make_xml_parser("schemas/waggon.xsd");
 
    parser->parse(resource->xml_file_name(), *this);
 }

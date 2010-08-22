@@ -59,7 +59,7 @@ private:
 Building::Building(IResourcePtr a_res)
    : name_("???"), resource(a_res), angle(0.0f)
 {
-   static IXMLParserPtr parser = makeXMLParser("schemas/building.xsd");
+   static IXMLParserPtr parser = make_xml_parser("schemas/building.xsd");
 
    parser_state = new ParserState;   
    parser->parse(a_res->xml_file_name(), *this);

@@ -126,7 +126,7 @@ Engine::Engine(IResourcePtr a_res)
      have_stopped(true),
      resource(a_res)
 {
-   static IXMLParserPtr parser = makeXMLParser("schemas/engine.xsd");
+   static IXMLParserPtr parser = make_xml_parser("schemas/engine.xsd");
 
    parser->parse(resource->xml_file_name(), *this);
 }

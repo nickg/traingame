@@ -87,7 +87,7 @@ Config::Config()
    if (boost::filesystem::exists(config_file)) {
       log() << "Reading config from " << config_file;
 
-      IXMLParserPtr parser = makeXMLParser("schemas/config.xsd");
+      IXMLParserPtr parser = make_xml_parser("schemas/config.xsd");
       parser->parse(config_file, *this);
 
       // Ignore all the set() calls made by the XML parser

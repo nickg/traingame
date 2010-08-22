@@ -27,8 +27,6 @@
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 
-using namespace std;
-using namespace std::tr1;
 using namespace xercesc;
 
 // SAX2 handler to call our own methods
@@ -189,7 +187,7 @@ void XercesXMLParser::parse(const string& a_file_name, IXMLCallback& a_callback)
 }
 
 // Create a Xerces parser for a schema and return a handle to it
-IXMLParserPtr makeXMLParser(const std::string& a_schema_file)
+IXMLParserPtr make_xml_parser(const std::string& a_schema_file)
 {
    return IXMLParserPtr(new XercesXMLParser(a_schema_file));
 }
