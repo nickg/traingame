@@ -5,6 +5,27 @@
       <xs:sequence>
         <xs:element name="name" type="xs:string"/>      
         <xs:element name="model" type="xs:string"/>
+
+        <xs:element name="industry" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              
+              <xs:element name="produces" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:attribute name="cargo" type="xs:string" use="required"/>
+                </xs:complexType>
+              </xs:element>
+              
+              <xs:element name="consumes" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                <xs:attribute name="cargo" type="xs:string" use="required"/>
+                </xs:complexType>
+              </xs:element>
+
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
       </xs:sequence>
     </xs:complexType>
   </xs:element>

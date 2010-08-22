@@ -2,4 +2,7 @@
 <building>
   <name>Power Plant</name>
   <model>power_plant.obj</model>
+  <industry>
+    <consumes cargo="coal"/>
+  </industry>
 </building>

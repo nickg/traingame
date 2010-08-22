@@ -31,4 +31,6 @@ struct IIndustry {
 
 typedef shared_ptr<IIndustry> IIndustryPtr;
 
+IIndustryPtr make_industry(CargoType produces, CargoType consumes);
+
 #endif

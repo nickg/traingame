@@ -15,25 +15,29 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef INC_ICARGO_HPP
-#define INC_ICARGO_HPP
+#include "IIndustry.hpp"
 
-#include "Platform.hpp"
+class Industry : public IIndustry {
+public:
+   Industry(CargoType produces, CargoType consumes);
 
-enum CargoType {
-   NONE = 0,
-   COAL
+   // IIndustry interface
+   CargoType produces() const { return produces_; }
+   CargoType consumes() const { return consumes_; }
+
+private:
+   CargoType produces_, consumes_;
 };
 
-// A quantity of cargo loaded on a truck or waiting at a station
-struct ICargo {
-   virtual ~ICargo() {}
+Industry::Industry(CargoType produces, CargoType consumes)
+   : produces_(produces), consumes_(consumes)
+{
 
-   virtual CargoType type() const = 0;
-};
+}
 
-typedef shared_ptr<ICargo> ICargoPtr;
+IIndustryPtr make_industry(CargoType produces, CargoType consumes)
+{
+   return IIndustryPtr(new Industry(produces, consumes));
+}
 
-ICargoPtr make_cargo(CargoType type);
 
-#endif

@@ -43,16 +43,22 @@ public:
    
    // IXMLCallback interface
    void text(const string& local_name, const string& a_string);
+   void start_element(const string& local_name,
+                      const AttributeSet& attrs);
 
 private:
+   static CargoType cargo_from_xml(const AttributeSet& attrs);
+      
    IModelPtr model_;
    string name_;
    IResourcePtr resource;
    float angle;
    Vector<float> position;
+   IIndustryPtr industry_;
 
    struct ParserState {
       string model_file;
+      CargoType consumes, produces;
    } *parser_state;
 };
 
@@ -67,7 +73,8 @@ Building::Building(IResourcePtr a_res)
    Vector<float> shift = -make_vector(0.5f, 0.0f, 0.5f);
    model_ = load_model(a_res, parser_state->model_file,
                        1.0f, shift);
-
+   industry_ = make_industry(parser_state->produces, parser_state->consumes);
+   
    delete parser_state;
 }
 
@@ -111,6 +118,24 @@ void Building::text(const string& local_name, const string& a_string)
       name_ = a_string;
    else if (local_name == "model")
       parser_state->model_file = a_string;
+}
+
+CargoType Building::cargo_from_xml(const AttributeSet& attrs)
+{
+   const string type = attrs.get<string>("cargo");
+   if (type == "coal")
+      return COAL;
+   else
+      throw runtime_error("Invalid cargo type: " + type);
+}
+
+void Building::start_element(const string& local_name,
+                             const AttributeSet& attrs)
+{
+   if (local_name == "consumes")
+      parser_state->consumes = cargo_from_xml(attrs);
+   else if (local_name == "produces")
+      parser_state->produces = cargo_from_xml(attrs);
 }
 
 xml::element Building::to_xml() const
