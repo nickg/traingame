@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "Platform.hpp"
 #include "IController.hpp"
 #include "Maths.hpp"
+#include "ICargo.hpp"
 
 // Interface for various powered and unpowered parts of the train
 struct IRollingStock {
@@ -43,6 +44,9 @@ struct IRollingStock {
 
    // Return the mass of the vehicle in tons
    virtual double mass() const = 0;
+
+   // The cargo currently carried, if any
+   virtual ICargoPtr cargo() const = 0;
 };
 
 typedef shared_ptr<IRollingStock> IRollingStockPtr;

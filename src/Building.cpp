@@ -36,6 +36,7 @@ public:
    void set_position(float x, float y, float z);
    void merge(IMeshBufferPtr buf);
    Point<int> size() const;
+   IIndustryPtr industry() const;
 
    // IXMLSerialisable interface
    xml::element to_xml() const;
@@ -76,6 +77,11 @@ Point<int> Building::size() const
 
    return make_point(max(static_cast<int>(round(dim.x)), 1),
                      max(static_cast<int>(round(dim.z)), 1));
+}
+
+IIndustryPtr Building::industry() const
+{
+   return IIndustryPtr();
 }
 
 void Building::set_position(float x, float y, float z)

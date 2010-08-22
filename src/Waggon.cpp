@@ -39,6 +39,7 @@ public:
    double speed() const { return 0.0; }
    double mass() const { return 1.0; }
    float length() const { return model->dimensions().x; }
+   ICargoPtr cargo() const;
 
    // IXMLCallback interface
    void text(const string& local_name, const string& a_string);
@@ -57,6 +58,11 @@ Waggon::Waggon(IResourcePtr a_res)
    static IXMLParserPtr parser = makeXMLParser("schemas/waggon.xsd");
 
    parser->parse(resource->xml_file_name(), *this);
+}
+
+ICargoPtr Waggon::cargo() const
+{
+   return ICargoPtr();
 }
 
 // Load information from the XML file

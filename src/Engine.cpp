@@ -70,6 +70,7 @@ public:
    double mass() const { return my_mass; }
    IControllerPtr controller() { return shared_from_this(); }
    float length() const { return model->dimensions().x; }
+   ICargoPtr cargo() const;
    
    // IController interface
    void act_on(Action an_action);
@@ -227,6 +228,11 @@ void Engine::update(int delta, double gravity)
            << ", a=" << a << ", v=" << my_speed
            << " (delta=" << delta << " grad=" << gradient << ")";
 #endif
+}
+
+ICargoPtr Engine::cargo() const
+{
+   return ICargoPtr();
 }
 
 // User interface to the engine

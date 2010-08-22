@@ -41,6 +41,7 @@ public:
    const string& name() const { return name_; }
    void merge(IMeshBufferPtr buf);
    Point<int> size() const;
+   IIndustryPtr industry() const;
 
    // IXMLCallback interface
    void text(const string& local_name, const string& content);
@@ -73,6 +74,11 @@ Tree::Tree(IResourcePtr res)
    model = load_model(res, parser_state->model_file, parser_state->scale);
    
    delete parser_state;
+}
+
+IIndustryPtr Tree::industry() const
+{
+   return IIndustryPtr();
 }
 
 void Tree::text(const string& local_name, const string& content)

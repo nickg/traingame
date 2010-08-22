@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2010  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -33,17 +33,17 @@
 class Train : public ITrain {
 public:
    Train(IMapPtr a_map);
-   
+
+   // ITrain interface
    void render() const;
    void update(int a_delta);
-
    Vector<float> front() const;
    ITrackSegmentPtr track_segment() const;
    track::Direction direction() const;
    track::Position tile() const { return engine().travel_token.position; }
-   
    double speed() const { return parts.front().vehicle->speed(); }
    IControllerPtr controller() { return parts.front().vehicle->controller(); }
+   
 private:
    // The different parts of the train are on different track segments
    struct Part : boost::equality_comparable<Part> {
