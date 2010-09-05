@@ -290,17 +290,30 @@ void Map::erase_tile(int x, int y)
       tile.track->get()->get_covers(covers);
 
       for (vector<Point<int> >::iterator it = covers.begin();
-           it != covers.end(); ++it)
+           it != covers.end(); ++it) {
          tile_at((*it).x, (*it).y).track.reset();
+         dirty_tile(x, y);
+      }
    }
 
-   if (tile.scenery)
-      tile.scenery.reset();
+   if (tile.scenery) {
+      // Like track, scenery may cover multiple tiles
 
-   if (tile.station)
+      const Point<int> size = tile.scenery->get()->size();
+      const Point<int>& where = tile.scenery->origin();
+      
+      for (int x = 0; x < size.x; x++) {
+         for (int y = 0; y < size.y; y++) {
+            tile_at(where.x + x, where.y + y).scenery.reset();
+            dirty_tile(where.x + x, where.y + y);
+         }
+      }
+   }
+
+   if (tile.station) {
       tile.station.reset();
-
-   dirty_tile(x, y);
+      dirty_tile(x, y);
+   }
 }
 
 bool Map::empty_tile(Point<int> point) const
