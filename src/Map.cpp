@@ -1547,7 +1547,11 @@ void Map::save_to(ostream& of)
          .add_text(resource->name() + ".bin"));
 
    xml::element tileset("tileset");
-   
+
+   // We abuse the frame number to ensure all scenery, etc. is
+   // only written out once
+   ++frame_num;
+
    for (int x = 0; x < my_width; x++) {
       for (int y = 0; y < my_depth; y++) {
          const Tile& tile = tile_at(x, y);
@@ -1572,8 +1576,9 @@ void Map::save_to(ostream& of)
             useful = true;
          }
 
-         if (tile.scenery) {
+         if (tile.scenery && tile.scenery->needs_rendering(frame_num)) {
             tile_xml.add_child(tile.scenery->get()->to_xml());
+            tile.scenery->rendered_on(frame_num);
             useful = true;
          }
 

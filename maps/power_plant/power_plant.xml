@@ -40,7 +40,7 @@
 </tile>
 
 <tile x="5" y="15">
-<curved-track start-angle="270" finish-angle="360" radius="4"/>
+<gen-track delta-x="3" delta-y="3" entry-dir-x="0" entry-dir-y="1" exit-dir-x="1" exit-dir-y="0"/>
 </tile>
 
 <tile x="6" y="7">
@@ -64,7 +64,7 @@
 </tile>
 
 <tile x="8" y="3">
-<curved-track start-angle="180" finish-angle="270" radius="4"/>
+<gen-track delta-x="-3" delta-y="3" entry-dir-x="-1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="1"/>
 </tile>
 
 <tile x="8" y="8">
@@ -136,11 +136,11 @@
 </tile>
 
 <tile x="17" y="18">
-<curved-track start-angle="0" finish-angle="90" radius="5"/>
+<gen-track delta-x="4" delta-y="-4" entry-dir-x="1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="-1"/>
 </tile>
 
 <tile x="21" y="7">
-<curved-track start-angle="90" finish-angle="180" radius="5"/>
+<gen-track delta-x="-4" delta-y="-4" entry-dir-x="0" entry-dir-y="-1" exit-dir-x="-1" exit-dir-y="0"/>
 </tile>
 
 <tile x="21" y="8">
@@ -165,6 +165,10 @@
 
 <tile x="21" y="13">
 <straight-track align="y"/>
+</tile>
+
+<tile x="23" y="11">
+<building angle="0" name="coal_mine"/>
 </tile>
 </tileset>
 </map>

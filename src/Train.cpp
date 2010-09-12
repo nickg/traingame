@@ -108,7 +108,7 @@ Train::Train(IMapPtr a_map)
    // Bit of a hack to put the engine in the right place
    move(0.275);
 
-#if 0
+#if 1
    for (int i = 1; i <= 4; i++)
       add_part(load_waggon("coal_truck"));
 #endif
