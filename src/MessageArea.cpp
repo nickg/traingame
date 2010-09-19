@@ -89,8 +89,10 @@ void MessageArea::post(const string& mess, int priority, int delay)
    assert(priority >= 0 && priority <= 100);
    
    Message m = { mess, priority, delay };
-   if (!have_active || active.priority <= priority)
+   if (!have_active || active.priority <= priority) {
       active = m;
+      have_active = true;
+   }
 }
 
 IMessageAreaPtr make_message_area()
