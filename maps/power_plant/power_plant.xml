@@ -4,27 +4,45 @@
 
 <start x="5" y="14" dirX="0" dirY="-1"/>
 
+<station id="1">
+<name>Station1</name>
+</station>
+
+<station id="2">
+<name>Station2</name>
+</station>
+
 <heightmap>power_plant.bin</heightmap>
 
 <tileset>
 <tile x="5" y="7">
 <straight-track align="y"/>
+
+<station-part id="1"/>
 </tile>
 
 <tile x="5" y="8">
 <straight-track align="y"/>
+
+<station-part id="1"/>
 </tile>
 
 <tile x="5" y="9">
 <straight-track align="y"/>
+
+<station-part id="1"/>
 </tile>
 
 <tile x="5" y="10">
 <straight-track align="y"/>
+
+<station-part id="1"/>
 </tile>
 
 <tile x="5" y="11">
 <straight-track align="y"/>
+
+<station-part id="1"/>
 </tile>
 
 <tile x="5" y="12">
@@ -139,6 +157,26 @@
 <gen-track delta-x="4" delta-y="-4" entry-dir-x="1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="-1"/>
 </tile>
 
+<tile x="20" y="9">
+<building angle="90" name="platform_end"/>
+</tile>
+
+<tile x="20" y="10">
+<building angle="90" name="platform_middle"/>
+</tile>
+
+<tile x="20" y="11">
+<building angle="90" name="platform_middle"/>
+</tile>
+
+<tile x="20" y="12">
+<building angle="90" name="platform_middle"/>
+</tile>
+
+<tile x="20" y="13">
+<building angle="270" name="platform_end"/>
+</tile>
+
 <tile x="21" y="7">
 <gen-track delta-x="-4" delta-y="-4" entry-dir-x="0" entry-dir-y="-1" exit-dir-x="-1" exit-dir-y="0"/>
 </tile>
@@ -149,22 +187,32 @@
 
 <tile x="21" y="9">
 <straight-track align="y"/>
+
+<station-part id="2"/>
 </tile>
 
 <tile x="21" y="10">
 <straight-track align="y"/>
+
+<station-part id="2"/>
 </tile>
 
 <tile x="21" y="11">
 <straight-track align="y"/>
+
+<station-part id="2"/>
 </tile>
 
 <tile x="21" y="12">
 <straight-track align="y"/>
+
+<station-part id="2"/>
 </tile>
 
 <tile x="21" y="13">
 <straight-track align="y"/>
+
+<station-part id="2"/>
 </tile>
 
 <tile x="23" y="11">

@@ -253,7 +253,7 @@ void Train::enter_segment(Part& a_part, const track::Connection& a_connection)
    Point<int> pos;
    tie(pos, a_part.direction) = a_connection;
 
-#if 1
+#if 0
    debug() << "Train part entered segment at " << pos
            << " moving " << a_part.direction;
 #endif
