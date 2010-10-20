@@ -331,7 +331,7 @@ float GenTrack::rotation_at(float curve_delta) const
       return rad_to_deg<float>(atanf(deriv.z / deriv.x));
    else if (deriv.z > 0 && deriv.x <= 0)
       return 90 - rad_to_deg<float>(atanf(deriv.x / deriv.z));
-   else if (deriv.z < 0 && deriv.x <= 0)
+   else if (deriv.z <= 0 && deriv.x <= 0)
       return 270 - rad_to_deg<float>(atanf(deriv.x / deriv.z));
    else if (deriv.z <= 0 && deriv.x > 0)
       return rad_to_deg<float>(atanf(deriv.z / deriv.x));
