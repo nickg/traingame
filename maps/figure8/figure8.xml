@@ -88,7 +88,7 @@
 </tile>
 
 <tile x="3" y="14">
-<curved-track start-angle="270" finish-angle="360" radius="4"/>
+<gen-track delta-x="3" delta-y="3" entry-dir-x="0" entry-dir-y="1" exit-dir-x="1" exit-dir-y="0"/>
 </tile>
 
 <tile x="3" y="19">
@@ -112,7 +112,7 @@
 </tile>
 
 <tile x="6" y="2">
-<curved-track start-angle="180" finish-angle="270" radius="4"/>
+<gen-track delta-x="-3" delta-y="3" entry-dir-x="-1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="1"/>
 </tile>
 
 <tile x="6" y="3">
@@ -264,7 +264,7 @@
 </tile>
 
 <tile x="14" y="4">
-<curved-track start-angle="90" finish-angle="180" radius="3"/>
+<gen-track delta-x="-2" delta-y="-2" entry-dir-x="0" entry-dir-y="-1" exit-dir-x="-1" exit-dir-y="0"/>
 </tile>
 
 <tile x="14" y="5">
@@ -348,7 +348,7 @@
 </tile>
 
 <tile x="14" y="25">
-<curved-track start-angle="270" finish-angle="360" radius="5"/>
+<gen-track delta-x="4" delta-y="4" entry-dir-x="0" entry-dir-y="1" exit-dir-x="1" exit-dir-y="0"/>
 </tile>
 
 <tile x="14" y="31">
@@ -412,7 +412,7 @@
 </tile>
 
 <tile x="19" y="29">
-<curved-track start-angle="0" finish-angle="90" radius="6"/>
+<gen-track delta-x="5" delta-y="-5" entry-dir-x="1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="-1"/>
 </tile>
 
 <tile x="19" y="31">
@@ -476,15 +476,11 @@
 </tile>
 
 <tile x="24" y="22">
-<curved-track start-angle="90" finish-angle="180" radius="6"/>
+<gen-track delta-x="-5" delta-y="-5" entry-dir-x="0" entry-dir-y="-1" exit-dir-x="-1" exit-dir-y="0"/>
 </tile>
 
 <tile x="24" y="23">
 <straight-track align="y"/>
-</tile>
-
-<tile x="24" y="26">
-<tree angle="166.524" name="apple"/>
 </tile>
 
 <tile x="25" y="19">
@@ -521,10 +517,6 @@
 
 <tile x="28" y="6">
 <tree angle="54.4918" name="pine"/>
-</tile>
-
-<tile x="28" y="15">
-<tree angle="240.721" name="apple"/>
 </tile>
 
 <tile x="29" y="25">
