@@ -86,40 +86,38 @@ private:
 namespace {
    int the_frame_counter = 0;
    int the_last_fps = 0;
-
-   Uint32 updateFPS(Uint32 an_interval, void* thread);
-
-   // A wrapper around SDL times
-   struct FrameTimerThread {
-      FrameTimerThread()
-      {
-         my_timer = SDL_AddTimer(1000, updateFPS, this);
-      }
-
-      ~FrameTimerThread()
-      {
-         // Finalise properly when an exception is thrown
-         SDL_RemoveTimer(my_timer);
-      }
-
-      SDL_TimerID my_timer;
-   };
-
-   Uint32 updateFPS(Uint32 an_interval, void* thread)
-   {
-      the_last_fps = the_frame_counter;
-      the_frame_counter = 0;
-      
-      return an_interval;
-   }
-
-   void frame_complete()
-   {
-      the_frame_counter++;
-
-      update_render_stats();
-   }
 }
+
+static Uint32 updateFPS(Uint32 an_interval, void* thread)
+{
+   the_last_fps = the_frame_counter;
+   the_frame_counter = 0;
+   
+   return an_interval;
+}
+
+static void frame_complete()
+{
+   the_frame_counter++;
+   
+   update_render_stats();
+}
+
+// A wrapper around SDL times
+struct FrameTimerThread {
+   FrameTimerThread()
+   {
+      my_timer = SDL_AddTimer(1000, updateFPS, this);
+   }
+   
+   ~FrameTimerThread()
+   {
+      // Finalise properly when an exception is thrown
+      SDL_RemoveTimer(my_timer);
+   }
+   
+   SDL_TimerID my_timer;
+};
 
 // Create the game window
 SDLWindow::SDLWindow()

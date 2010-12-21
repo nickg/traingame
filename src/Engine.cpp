@@ -259,13 +259,11 @@ void Engine::act_on(Action an_action)
    }
 }
 
-namespace {
-   Engine* load_engine_xml(IResourcePtr a_res)
-   {
-      log() << "Loading engine from " << a_res->xml_file_name();
-
-      return new Engine(a_res);
-   }
+static Engine* load_engine_xml(IResourcePtr a_res)
+{
+   log() << "Loading engine from " << a_res->xml_file_name();
+   
+   return new Engine(a_res);
 }
 
 // Load an engine from a resource file

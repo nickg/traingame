@@ -103,40 +103,40 @@ namespace {
 
    typedef map<string, ResourceList> ResourceMap;
    ResourceMap the_resources;
+}
 
-   ResourceList& res_class_list(const string& a_class)
-   {
-      if (the_resources.find(a_class) == the_resources.end())
-         the_resources[a_class] = ResourceList();
-      return the_resources[a_class];
-   }
+static ResourceList& res_class_list(const string& a_class)
+{
+   if (the_resources.find(a_class) == the_resources.end())
+      the_resources[a_class] = ResourceList();
+   return the_resources[a_class];
+}
 
-   void add_resource(const string& a_class, IResourcePtr a_res)
-   {
-      res_class_list(a_class).push_back(a_res);         
-   }
+static void add_resource(const string& a_class, IResourcePtr a_res)
+{
+   res_class_list(a_class).push_back(a_res);         
+}
 
-   void add_resource_dir(const char* a_class, const path& a_path)
-   {
-      const path xml_file = a_path / (a_path.filename() + ".xml");
+static void add_resource_dir(const char* a_class, const path& a_path)
+{
+   const path xml_file = a_path / (a_path.filename() + ".xml");
 
-      if (!exists(xml_file))
-         warn() << "Missing resource XML file: " << xml_file;
-      else 
-         add_resource(a_class, IResourcePtr(new FilesystemResource(a_path)));
-   }
+   if (!exists(xml_file))
+      warn() << "Missing resource XML file: " << xml_file;
+   else 
+      add_resource(a_class, IResourcePtr(new FilesystemResource(a_path)));
+}
    
-   void look_in_dir(const path& a_path)
-   {
-      log() << "Looking for resources in " << a_path;
+static void look_in_dir(const path& a_path)
+{
+   log() << "Looking for resources in " << a_path;
 
-      for (const char** p = classes; *p != NULL; ++p) {
-         if (exists(a_path / *p)) {
-            for (directory_iterator it(a_path / *p);
-                 it != directory_iterator(); ++it)
-               if (is_directory(it->status()))
-                  add_resource_dir(*p, *it);
-         }
+   for (const char** p = classes; *p != NULL; ++p) {
+      if (exists(a_path / *p)) {
+         for (directory_iterator it(a_path / *p);
+              it != directory_iterator(); ++it)
+            if (is_directory(it->status()))
+               add_resource_dir(*p, *it);
       }
    }
 }
@@ -167,19 +167,18 @@ void enum_resources(const string& a_class, ResourceList& a_list)
    copy(lst.begin(), lst.end(), back_inserter(a_list));
 }
 
-namespace {
-   // Find a resource of a particular type
-   // Returns null pointer on failure
-   IResourcePtr maybe_find_resource(const string& a_res_id, const string& a_class)
-   {
-      ResourceList& rlist = res_class_list(a_class);
-      for (ResourceListIt it = rlist.begin(); it != rlist.end(); ++it) {
-         if ((*it)->name() == a_res_id)
-            return *it;
-      }
-
-      return IResourcePtr();
+// Find a resource of a particular type
+// Returns null pointer on failure
+static IResourcePtr maybe_find_resource(const string& a_res_id,
+                                        const string& a_class)
+{
+   ResourceList& rlist = res_class_list(a_class);
+   for (ResourceListIt it = rlist.begin(); it != rlist.end(); ++it) {
+      if ((*it)->name() == a_res_id)
+         return *it;
    }
+   
+   return IResourcePtr();
 }
 
 // Find a resource or throw an exception on failure

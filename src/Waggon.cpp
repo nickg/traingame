@@ -89,13 +89,11 @@ IControllerPtr Waggon::controller()
    throw runtime_error("Cannot control a waggon!");
 }
 
-namespace {
-   Waggon* load_waggon_xml(IResourcePtr a_res)
-   {
-      log() << "Loading waggon from " << a_res->xml_file_name();
-
-      return new Waggon(a_res);
-   }
+static Waggon* load_waggon_xml(IResourcePtr a_res)
+{
+   log() << "Loading waggon from " << a_res->xml_file_name();
+   
+   return new Waggon(a_res);
 }
 
 // Load a waggon from a resource file

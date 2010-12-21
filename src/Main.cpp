@@ -38,41 +38,41 @@ namespace {
    int new_map_height = 32;
    string map_file;
    string action;
+}
 
-   void parse_options(int argc, char** argv)
-   {
-      using namespace boost::program_options;
+static void parse_options(int argc, char** argv)
+{
+   using namespace boost::program_options;
 
-      options_description desc("Allowed options");
-      desc.add_options()
-         ("help", "Display this help message")
-         ("width", value<int>(&new_map_width), "Set new map width")
-         ("height", value<int>(&new_map_height), "Set new map height")
-         ("action", value<string>(&action), "Either `play' or `edit'")
-         ("map", value<string>(&map_file), "Name of map to load or create")
-         ;
+   options_description desc("Allowed options");
+   desc.add_options()
+      ("help", "Display this help message")
+      ("width", value<int>(&new_map_width), "Set new map width")
+      ("height", value<int>(&new_map_height), "Set new map height")
+      ("action", value<string>(&action), "Either `play' or `edit'")
+      ("map", value<string>(&map_file), "Name of map to load or create")
+      ;
 
-      positional_options_description p;
-      p.add("action", 1).add("map", 2);
+   positional_options_description p;
+   p.add("action", 1).add("map", 2);
 
-      variables_map vm;
-      try {
-         store(command_line_parser(argc, argv)
+   variables_map vm;
+   try {
+      store(command_line_parser(argc, argv)
             .options(desc).positional(p).run(), vm);
-      }
-      catch (const exception& e) {
-         cerr << "Error: " << e.what() << endl;
-         exit(EXIT_FAILURE);
-      }
-
-      notify(vm);
-
-      if (vm.count("help")) {
-         cout << desc << endl;
-         exit(EXIT_SUCCESS);
-      }
-
    }
+   catch (const exception& e) {
+      cerr << "Error: " << e.what() << endl;
+      exit(EXIT_FAILURE);
+   }
+
+   notify(vm);
+
+   if (vm.count("help")) {
+      cout << desc << endl;
+      exit(EXIT_SUCCESS);
+   }
+
 }
 
 IWindowPtr get_game_window()

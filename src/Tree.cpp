@@ -131,19 +131,17 @@ xml::element Tree::to_xml() const
       .add_attribute("name", name_);
 }
 
-namespace {
-   Tree* load_tree_xml(IResourcePtr res)
-   {
-      log() << "Loading tree from " << res->xml_file_name();
+static Tree* load_tree_xml(IResourcePtr res)
+{
+   log() << "Loading tree from " << res->xml_file_name();
    
-      return new Tree(res);
-   }
+   return new Tree(res);
+}
 
-   shared_ptr<Tree> load_tree_fromCache(const string& name)
-   {
-      static ResourceCache<Tree> cache(load_tree_xml, "trees");
-      return cache.load_copy(name);
-   }
+static shared_ptr<Tree> load_tree_fromCache(const string& name)
+{
+   static ResourceCache<Tree> cache(load_tree_xml, "trees");
+   return cache.load_copy(name);
 }
 
 ISceneryPtr load_tree(const string& name)

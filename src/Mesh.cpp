@@ -397,30 +397,28 @@ struct VertexData {
 
 BOOST_STATIC_ASSERT(sizeof(VertexData) == 64);
 
-namespace {
-   // Get the vertex data out of a mesh buffer into a VertexData array
-   void copy_vertex_data(const MeshBuffer* buf, VertexData* vertex_data)
-   {
-      for (size_t i = 0; i < buf->vertices.size(); i++) {
-	 VertexData* vd = &vertex_data[i];
+// Get the vertex data out of a mesh buffer into a VertexData array
+static void copy_vertex_data(const MeshBuffer* buf, VertexData* vertex_data)
+{
+   for (size_t i = 0; i < buf->vertices.size(); i++) {
+      VertexData* vd = &vertex_data[i];
+      
+      vd->x = buf->vertices[i].x;
+      vd->y = buf->vertices[i].y;
+      vd->z = buf->vertices[i].z;
          
-	 vd->x = buf->vertices[i].x;
-	 vd->y = buf->vertices[i].y;
-	 vd->z = buf->vertices[i].z;
-         
-	 vd->nx = buf->normals[i].x;
-	 vd->ny = buf->normals[i].y;
-	 vd->nz = buf->normals[i].z;
-         
-	 if (buf->has_texture) {
-	    vd->tx = buf->tex_coords[i].x;
-	    vd->ty = 1.0f - buf->tex_coords[i].y;
-	 }
-         else {
-	    vd->r = buf->colours[i].r;
-	    vd->g = buf->colours[i].g;
-	    vd->b = buf->colours[i].b;
-	 }
+      vd->nx = buf->normals[i].x;
+      vd->ny = buf->normals[i].y;
+      vd->nz = buf->normals[i].z;
+      
+      if (buf->has_texture) {
+         vd->tx = buf->tex_coords[i].x;
+         vd->ty = 1.0f - buf->tex_coords[i].y;
+      }
+      else {
+         vd->r = buf->colours[i].r;
+         vd->g = buf->colours[i].g;
+         vd->b = buf->colours[i].b;
       }
    }
 }

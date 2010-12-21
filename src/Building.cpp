@@ -145,13 +145,11 @@ xml::element Building::to_xml() const
       .add_attribute("name", resource->name());
 }
 
-namespace {
-   Building* load_building_xml(IResourcePtr a_res)
-   {      
-      log() << "Loading building from " << a_res->xml_file_name();
-
-      return new Building(a_res);
-   }
+static Building* load_building_xml(IResourcePtr a_res)
+{      
+   log() << "Loading building from " << a_res->xml_file_name();
+   
+   return new Building(a_res);
 }
 
 ISceneryPtr load_building(const string& a_res_id, float angle)
