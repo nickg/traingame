@@ -23,18 +23,6 @@
 #include "ITexture.hpp"
 #include "Colour.hpp"
 
-// Represent OpenGL materials
-struct Material {
-   Material();
-
-   void apply() const;
-   
-   float diffuseR, diffuseG, diffuseB;
-   float ambientR, ambientG, ambientB;
-   float specularR, specularG, specularB;
-   ITexturePtr texture;
-};
-
 // Represents the vertices, normals, etc. in a mesh
 struct IMeshBuffer {
    typedef Vector<float> Vertex;
@@ -46,17 +34,11 @@ struct IMeshBuffer {
 
    virtual size_t vertex_count() const = 0;
    
-   virtual void add(const Vertex& vertex, const Normal& normal) = 0;
-   
    virtual void add(const Vertex& vertex,
                     const Normal& normal,
-                    const TexCoord& a_tex_coord,
-                    const Colour& colour = make_colour(1.0f, 1.0f, 1.0f)) = 0;
+                    const Colour& colour = make_colour(1.0f, 1.0f, 1.0f),
+                    const TexCoord& tex_coord = make_point(0.0f, 0.0f)) = 0;
    
-   virtual void add(const Vertex& vertex,
-                    const Normal& normal,
-                    const Colour& colour) = 0;
-
    // Convenience functions
    virtual void add_quad(Vertex a, Vertex b, Vertex c, Vertex d,
       Colour colour) = 0;
@@ -64,7 +46,7 @@ struct IMeshBuffer {
       Normal na, Normal nb, Normal nc, Normal nd,
       Colour colour) = 0;
 
-   virtual void bind_material(const Material& a_material) = 0;
+   virtual void bind(ITexturePtr texture) = 0;
    
    virtual void print_stats() const = 0;
 

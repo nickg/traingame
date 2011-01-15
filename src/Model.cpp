@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2010  Nick Gasson
+//  Copyright (C) 2009-2011  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -41,6 +41,19 @@ namespace {
    typedef map<string, IModelPtr> ModelCache;
    ModelCache the_cache;
 }
+
+struct Material {
+   Material()
+      : diffuseR(1.0f), diffuseG(1.0f), diffuseB(1.0f),
+        ambientR(1.0f), ambientG(1.0f), ambientB(1.0f),
+        specularR(0.0f), specularG(0.0f), specularB(0.0f)
+   {}
+   
+   float diffuseR, diffuseG, diffuseB;
+   float ambientR, ambientG, ambientB;
+   float specularR, specularG, specularB;
+   ITexturePtr texture;
+};
 
 // Abstracts a WaveFront material file
 class MaterialFile {
@@ -195,6 +208,7 @@ IModelPtr load_model(IResourcePtr a_res,
    int face_count = 0;
 
    MaterialFilePtr material_file;
+   Material active_mtl;
 
    ifstream& f = h.rstream();
    
@@ -276,7 +290,7 @@ IModelPtr load_model(IResourcePtr a_res,
          
          if (material_file) {
             assert(buffer);
-            buffer->bind_material(material_file->get(material_name));
+            active_mtl = material_file->get(material_name);
          }
       }
       else if (first == "f") {
@@ -313,12 +327,16 @@ IModelPtr load_model(IResourcePtr a_res,
 
             assert(buffer);
             
+            const Colour col = make_colour(active_mtl.diffuseR,
+                                           active_mtl.diffuseG,
+                                           active_mtl.diffuseB);
+            
             if (vti - 1 < texture_offs.size()) {
                Point<float>& vt = texture_offs[vti - 1];
-               buffer->add(v, vn, vt);
+               buffer->add(v, vn, col, vt);
             }
             else
-               buffer->add(v, vn);
+               buffer->add(v, vn, col);
          }
 
          face_count++;

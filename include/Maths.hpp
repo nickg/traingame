@@ -81,6 +81,12 @@ struct EqTolerance<int> {
    static const int Value = 0;
 };
 
+template <typename T>
+inline bool approx_equal(T a, T b)
+{
+   return abs(a - b) <= EqTolerance<T>::Value;
+}
+
 // A generic 3D vector
 template <typename T>
 struct Vector {

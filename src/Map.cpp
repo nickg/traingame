@@ -645,9 +645,7 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
 
    IMeshBufferPtr buf = make_mesh_buffer();
 
-   Material m;
-   m.texture = load_texture("test.png");
-   buf->bind_material(m);
+   buf->bind(load_texture("test.png"));
    
    // Incrementing the frame counter here ensures that any track which spans
    // multiple sectors will be merged with each applicable mesh even when
@@ -686,7 +684,7 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
                hcol = colour_map[j++];
             } while (get<0>(hcol) > h);
 
-            buf->add(v.pos, v.normal, tex_order[i], get<1>(hcol));
+            buf->add(v.pos, v.normal, get<1>(hcol), tex_order[i]);
          }
       }			
    }
