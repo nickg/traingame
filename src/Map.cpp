@@ -644,6 +644,10 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
    };
 
    IMeshBufferPtr buf = make_mesh_buffer();
+
+   Material m;
+   m.texture = load_texture("test.png");
+   buf->bind_material(m);
    
    // Incrementing the frame counter here ensures that any track which spans
    // multiple sectors will be merged with each applicable mesh even when
@@ -659,6 +663,18 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
             indexes[1], indexes[2], indexes[3],
             indexes[3], indexes[0], indexes[1]
          };
+
+         const IMeshBuffer::TexCoord tex_coords[4] = {
+            make_point(0.0f, 1.0f),
+            make_point(1.0f, 1.0f),
+            make_point(1.0f, 0.0f),
+            make_point(0.0f, 0.0f)
+         };
+
+         const IMeshBuffer::TexCoord tex_order[6] = {
+            tex_coords[1], tex_coords[2], tex_coords[3],
+            tex_coords[3], tex_coords[0], tex_coords[1]
+         };
          
          for (int i = 0; i < 6; i++) {
             const HeightMap& v = height_map[order[i]];
@@ -670,13 +686,12 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
                hcol = colour_map[j++];
             } while (get<0>(hcol) > h);
 
-            buf->add(make_vector(v.pos.x, v.pos.y, v.pos.z),
-               make_vector(v.normal.x, v.normal.y, v.normal.z),
-               get<1>(hcol));
+            buf->add(v.pos, v.normal, tex_order[i], get<1>(hcol));
          }
       }			
    }
 
+#if 0
    // Merge any static scenery
    for (int x = top_right.x-1; x >= bot_left.x; x--) {
       for (int y = bot_left.y; y < top_right.y; y++) {
@@ -795,12 +810,21 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
    }
 
  below_sea_levelOut:
-   
+
    size_t min_size = id + 1;
    if (sea_sectors.size() < min_size)
       sea_sectors.resize(min_size);
    sea_sectors.at(id) = below_sea_level;
-   
+
+#else
+
+   terrain_meshes[id] = make_mesh(buf);
+
+   size_t min_size = id + 1;
+   if (sea_sectors.size() < min_size)
+      sea_sectors.resize(min_size);
+   sea_sectors.at(id) = false;
+#endif
    // Make sure we don't rebuild this mesh if any of the tiles are dirty
    have_mesh(id, bot_left, top_right);
 }

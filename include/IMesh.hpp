@@ -47,10 +47,15 @@ struct IMeshBuffer {
    virtual size_t vertex_count() const = 0;
    
    virtual void add(const Vertex& vertex, const Normal& normal) = 0;
-   virtual void add(const Vertex& vertex, const Normal& normal,
-      const TexCoord& a_tex_coord) = 0;
-   virtual void add(const Vertex& vertex, const Normal& normal,
-      const Colour& colour) = 0;
+   
+   virtual void add(const Vertex& vertex,
+                    const Normal& normal,
+                    const TexCoord& a_tex_coord,
+                    const Colour& colour = make_colour(1.0f, 1.0f, 1.0f)) = 0;
+   
+   virtual void add(const Vertex& vertex,
+                    const Normal& normal,
+                    const Colour& colour) = 0;
 
    // Convenience functions
    virtual void add_quad(Vertex a, Vertex b, Vertex c, Vertex d,

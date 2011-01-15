@@ -44,16 +44,18 @@ struct MeshBuffer : IMeshBuffer {
    size_t vertex_count() const { return vertices.size(); }
    
    void add(const Vertex& vertex, const Normal& normal);
+   void add(const Vertex& vertex,
+            const Normal& normal,
+            const TexCoord& a_tex_coord,
+            const Colour& colour);
    void add(const Vertex& vertex, const Normal& normal,
-      const TexCoord& a_tex_coord);
-   void add(const Vertex& vertex, const Normal& normal,
-      const Colour& colour);
+            const Colour& colour);
 
    void add_quad(Vertex a, Vertex b, Vertex c, Vertex d,
-      Colour colour);
+                 Colour colour);
    void add_quad(Vertex a, Vertex b, Vertex c, Vertex d,
-      Normal na, Normal nb, Normal nc, Normal nd,
-      Colour colour);
+                 Normal na, Normal nb, Normal nc, Normal nd,
+                 Colour colour);
       
    void bind_material(const Material& a_material);
    void merge(IMeshBufferPtr other, Vector<float> off, float y_angle);
@@ -141,10 +143,6 @@ void MeshBuffer::print_stats() const
 
 void MeshBuffer::add(const Vertex& vertex, const Normal& normal)
 {
-   if (has_texture)
-      throw runtime_error("MeshBuffer::add called without texture coordinate "
-	 "on a mesh which has a texture");
-
    if (!has_material)
       throw runtime_error("MeshBuffer::add called without colour on a mesh "
 	 " without a material");
@@ -180,6 +178,7 @@ void MeshBuffer::add(const Vertex& vertex, const Normal& normal)
 void MeshBuffer::add(const Vertex& vertex, const Normal& normal,
                      const Colour& colour)
 {
+#if 0
    if (has_texture)
       throw runtime_error("MeshBuffer::add called without texture coordinate "
 	 "on a mesh which has a texture");
@@ -187,6 +186,7 @@ void MeshBuffer::add(const Vertex& vertex, const Normal& normal,
    if (has_material)
       throw runtime_error("MeshBuffer::add called with a colour on a mesh "
 	 " with a material");
+#endif
    
    // See if this vertex has already been added
    for (vector<Index>::iterator it = indices.begin();
@@ -217,8 +217,10 @@ void MeshBuffer::add(const Vertex& vertex, const Normal& normal,
    indices.push_back(index);
 }
 
-void MeshBuffer::add(const Vertex& vertex, const Normal& normal,
-                     const TexCoord& a_tex_coord)
+void MeshBuffer::add(const Vertex& vertex,
+                     const Normal& normal,
+                     const TexCoord& a_tex_coord,
+                     const Colour& colour)
 {
    if (!has_texture)
       throw runtime_error(
@@ -244,6 +246,7 @@ void MeshBuffer::add(const Vertex& vertex, const Normal& normal,
    vertices.push_back(vertex);
    normals.push_back(normal);
    tex_coords.push_back(a_tex_coord);
+   colours.push_back(colour);
    indices.push_back(index);
 }
 
@@ -341,11 +344,10 @@ static void copy_vertex_data(const MeshBuffer* buf, VertexData* vertex_data)
          vd->tx = buf->tex_coords[i].x;
          vd->ty = 1.0f - buf->tex_coords[i].y;
       }
-      else {
-         vd->r = buf->colours[i].r;
-         vd->g = buf->colours[i].g;
-         vd->b = buf->colours[i].b;
-      }
+      
+      vd->r = buf->colours[i].r;
+      vd->g = buf->colours[i].g;
+      vd->b = buf->colours[i].b;
    }
 }
 
@@ -356,10 +358,9 @@ public:
    ~VertexArrayMesh();
 
    void render() const;
-private:
 
-   Material material;
-   bool has_material, has_texture;
+private:
+   ITexturePtr texture;
    size_t my_vertex_count;
    VertexData* my_vertex_data;
    size_t my_index_count;
@@ -370,9 +371,7 @@ VertexArrayMesh::VertexArrayMesh(IMeshBufferPtr a_buffer)
 {
    const MeshBuffer* buf = MeshBuffer::get(a_buffer);
 
-   material = buf->material;
-   has_material = buf->has_material;
-   has_texture = buf->has_texture;
+   texture = buf->material.texture;
  
    my_vertex_count = buf->vertices.size();
    my_vertex_data = new VertexData[my_vertex_count];
@@ -396,24 +395,30 @@ void VertexArrayMesh::render() const
    glPushAttrib(GL_ENABLE_BIT);
    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 
-   glDisable(GL_BLEND);
-   
-   if (has_material)
-      material.apply();
-   else {
-      glEnable(GL_COLOR_MATERIAL);
+   if (!glIsEnabled(GL_CULL_FACE))
+      glEnable(GL_CULL_FACE);
 
-      glEnableClientState(GL_COLOR_ARRAY);
-      glColorPointer(3, GL_FLOAT, sizeof(VertexData),
-	 reinterpret_cast<GLvoid*>(&my_vertex_data->r));
-   }
+   if (glIsEnabled(GL_BLEND))
+       glDisable(GL_BLEND);
    
-   if (has_texture) {
+   if (texture) {
+      glEnable(GL_TEXTURE_2D);
+      texture->bind();
+      
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
       glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData),
-	 reinterpret_cast<GLvoid*>(&my_vertex_data->tx));
+                        reinterpret_cast<GLvoid*>(&my_vertex_data->tx));
    }
-      
+   else {
+      glDisable(GL_TEXTURE_2D);
+   }       
+
+   glEnable(GL_COLOR_MATERIAL);
+       
+   glEnableClientState(GL_COLOR_ARRAY);
+   glColorPointer(3, GL_FLOAT, sizeof(VertexData),
+                  reinterpret_cast<GLvoid*>(&my_vertex_data->r));
+   
    glEnableClientState(GL_VERTEX_ARRAY);
    glEnableClientState(GL_NORMAL_ARRAY);
    glVertexPointer(3, GL_FLOAT, sizeof(VertexData),
@@ -508,19 +513,20 @@ void VBOMesh::render() const
       glEnable(GL_TEXTURE_2D);
       texture->bind();
       
-      glEnable(GL_COLOR_MATERIAL);
-      glColor3f(1.0f, 1.0f, 1.0f);
+      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+      glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData),
+                        reinterpret_cast<GLvoid*>(offsetof(VertexData, tx)));
    }
    else {
       glDisable(GL_TEXTURE_2D);
-      
-      glEnable(GL_COLOR_MATERIAL);
-      glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-
-      glEnableClientState(GL_COLOR_ARRAY);
-      glColorPointer(3, GL_FLOAT, sizeof(VertexData),
-	 reinterpret_cast<GLvoid*>(offsetof(VertexData, r)));
    }
+      
+   glEnable(GL_COLOR_MATERIAL);
+   glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+   
+   glEnableClientState(GL_COLOR_ARRAY);
+   glColorPointer(3, GL_FLOAT, sizeof(VertexData),
+                  reinterpret_cast<GLvoid*>(offsetof(VertexData, r)));
 
    glEnableClientState(GL_VERTEX_ARRAY);
    glEnableClientState(GL_NORMAL_ARRAY);
@@ -545,7 +551,7 @@ IMeshPtr make_mesh(IMeshBufferPtr a_buffer)
    //a_buffer->print_stats();
    
    // Prefer VBOs for all meshes
-   if (GLEW_ARB_vertex_buffer_object)
+   if (GLEW_ARB_vertex_buffer_object && false)
       return IMeshPtr(new VBOMesh(a_buffer));
    else
       return IMeshPtr(new VertexArrayMesh(a_buffer));
