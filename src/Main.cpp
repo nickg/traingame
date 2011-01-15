@@ -36,6 +36,7 @@ namespace {
    // Options set from command line
    int new_map_width = 32;
    int new_map_height = 32;
+   int run_cycles = 0;
    string map_file;
    string action;
 }
@@ -51,6 +52,7 @@ static void parse_options(int argc, char** argv)
       ("height", value<int>(&new_map_height), "Set new map height")
       ("action", value<string>(&action), "Either `play' or `edit'")
       ("map", value<string>(&map_file), "Name of map to load or create")
+      ("cycles", value<int>(&run_cycles), "Run for N frames")
       ;
 
    positional_options_description p;
@@ -122,7 +124,7 @@ int main(int argc, char** argv)
       else
          throw runtime_error("Unrecognised command: " + ::action);
          
-      ::window->run(screen);
+      ::window->run(screen, run_cycles);
 
       cfg->flush();
    }

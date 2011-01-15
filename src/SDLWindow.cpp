@@ -43,7 +43,7 @@ public:
    ~SDLWindow();
 
    // IWindow interface
-   void run(IScreenPtr a_screen);
+   void run(IScreenPtr a_screen, int frames);
    void switch_screen(IScreenPtr a_screen);
    void quit();
    void take_screen_shot();
@@ -181,8 +181,8 @@ void SDLWindow::switch_screen(IScreenPtr a_screen)
    will_skip_next_frame = true;
 }
 
-// Run the game until the user quits
-void SDLWindow::run(IScreenPtr a_screen)
+// Run the game until the user quits or the frame limit runs out
+void SDLWindow::run(IScreenPtr a_screen, int frames)
 {
    assert(!am_running);
    
@@ -219,6 +219,10 @@ void SDLWindow::run(IScreenPtr a_screen)
       if (will_take_screen_shot) {
          capture_frame();
          will_take_screen_shot = false;
+      }
+
+      if (frames > 0) {
+         am_running = (--frames > 0);
       }
 
       frame_complete();

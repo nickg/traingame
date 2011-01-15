@@ -12,3 +12,4 @@ install_manifest.txt
 GG/
 config.h
 core
+callgrind.out.*
