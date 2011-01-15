@@ -24,28 +24,75 @@
 #include <ostream>
 #include <cassert>
 
-#if 0
 template <typename T, int N>
-union Packed;
+struct Packed;
 
 template <>
-union Packed<float, 4> {
-   int __attribute__((mode(V4SF))) packed;
-   float unpacked[4];
+struct Packed<float, 4> {
+   typedef float __attribute__((vector_size (16))) Type;
 };
 
 template <>
-union Packed<float, 3> {
-   int __attribute__((mode(V3SF))) packed;
-   float unpacked[3];
+struct Packed<float, 3> {
+   typedef float __attribute__((vector_size (16))) Type;
+
+   static inline Type pack(float a, float b, float c)
+   {
+      union {
+         Type p;
+         float f[4];
+      } u;   
+      u.f[0] = a;
+      u.f[1] = b;
+      u.f[2] = c;
+      u.f[3] = 0.0f;
+      return u.p;
+   }
 };
-#endif
+
+template <>
+struct Packed<int, 3> {
+   typedef int __attribute__((vector_size (16))) Type;
+   
+   static inline Type pack(int a, int b, int c)
+   {
+      union Union {
+         Type p;
+         int i[4];
+      } u;
+      u.i[0] = a;
+      u.i[1] = b;
+      u.i[2] = c;
+      u.i[3] = 0;
+      return u.p;
+   }
+};
+
+template <typename T>
+struct EqTolerance;
+
+template <>
+struct EqTolerance<float> {
+   static const float Value = 0.01f;
+};
+
+template <>
+struct EqTolerance<int> {
+   static const int Value = 0;
+};
 
 // A generic 3D vector
 template <typename T>
 struct Vector {
-   inline Vector(T x, T y, T z) : x(x), y(y), z(z) {}
-   inline Vector() : x(0), y(0), z(0) {}
+   inline Vector(T x = 0, T y = 0, T z = 0)
+   {
+      packed = Packed<T, 3>::pack(x, y, z);
+   }
+
+   inline Vector(const typename Packed<T, 3>::Type& v)
+   {
+      packed = v;
+   }
 
    // Cross product
    inline Vector<T> operator*(const Vector<T>& v) const
@@ -59,70 +106,85 @@ struct Vector {
    // Multiply by a scalar
    inline Vector<T> operator*(T t) const
    {
-      return Vector<T>(x*t, y*t, z*t);
+      //return Vector<T>(comp.x*t, comp.y*t, comp.z*t);
+      return Vector<T>(packed * Packed<T, 3>::pack(t, t, t));
    }
 
    // Divide by a scalar
    inline Vector<T> operator/(T t) const
    {
-      return Vector<T>(x/t, y/t, z/t);
+      //return Vector<T>(comp.x/t, comp.y/t, comp.z/t);
+      return Vector<T>(packed / Packed<T, 3>::pack(t, t, t));
    }
 
    // Scalar product
    inline T dot(const Vector<T>&v) const
    {
-      return x*v.x + y*v.y + z*v.z;
+      //return comp.x*v.comp.x + comp.y*v.comp.y + comp.z*v.comp.z;
+      const Vector<T> tmp = packed * v.packed;
+      return tmp.x + tmp.y + tmp.z;
    }
 
    // Magnitude
    inline T length() const
    {
-      return sqrt(x*x + y*y + z*z);
+      const float prod = dot(*this);
+      return sqrt(prod);
    }
 
    inline Vector<T>& normalise()
    {
-      T m = length();
-      x /= m;
-      y /= m;
-      z /= m;
+      const T m = length();
+      //comp.x /= m;
+      //comp.y /= m;
+      //comp.z /= m;
+      packed /= Packed<T, 3>::pack(m, m, m);
       return *this;
    }
-
+   
    inline Vector<T> operator+(const Vector<T>& v) const
    {
-      return Vector<T>(x+v.x, y+v.y, z+v.z);
+      return Vector<T>(packed + v.packed);
    }
-
+   
    inline Vector<T>& operator+=(const Vector<T>& v)
    {
-      x += v.x;
-      y += v.y;
-      z += v.z;
+      packed += v.packed;
       return *this;
    }
    
    inline Vector<T> operator-(const Vector<T>& v) const
    {
-      return Vector<T>(x-v.x, y-v.y, z-v.z);
+      //return Vector<T>(comp.x-v.comp.x, comp.y-v.comp.y, comp.z-v.comp.z);
+      return Vector<T>(packed - v.packed);
    }
 
    inline Vector<T> operator-() const
    {
-      return Vector<T>(-x, -y, -z);
+      //return Vector<T>(-comp.x, -comp.y, -comp.z);
+      return Vector<T>(-packed);
    }
 
    inline Vector<T>& operator-=(const Vector<T>& v)
    {
-      x -= v.x;
-      y -= v.y;
-      z -= v.z;
+      packed -= v.packed;
       return *this;
    }
    
-   inline bool operator==(const Vector<T>& v) const
+   inline bool operator==(const Vector<T>& rhs) const
    {
-      return x == v.x && y == v.y && z == v.z;
+      //return (abs(rhs.comp.x - comp.x) < delta)
+      //  && (abs(rhs.comp.y - comp.y) < delta)
+      //   && (abs(rhs.comp.z - comp.z) < delta);
+
+      const typename Packed<T, 3>::Type diff = rhs.packed - packed;
+      const T delta2 = EqTolerance<T>::Value * EqTolerance<T>::Value;
+
+      const Vector<T> squared = diff * diff;
+      
+      return (squared.x <= delta2)
+         && (squared.y <= delta2)
+         && (squared.z <= delta2);
    }
 
    inline bool operator!=(const Vector<T>& v) const
@@ -137,22 +199,21 @@ struct Vector {
              && (y < rhs.y
                  || (y == rhs.y && z < rhs.z)));
    }
-   
-   bool approx_equal(const Vector<T>& rhs, T delta) const
-   {
-      return (abs(rhs.x - x) < delta)
-         && (abs(rhs.y - y) < delta)
-         && (abs(rhs.z - z) < delta);
-   }
-   
-   T x, y, z;
+
+   union {
+      typename Packed<T, 3>::Type packed;
+      struct {
+         T x, y, z;
+      };
+   };
 };
+
+typedef Vector<float> VectorF;
 
 template <typename T>
 std::ostream& operator<<(std::ostream& s, const Vector<T>& v)
 {
-   return s << "[" << v.x << " " << v.y
-            << " " << v.z << "]";
+   return s << "[" << v.x << " " << v.y << " " << v.z << "]";
 }
 
 template <typename T>
@@ -160,8 +221,6 @@ inline Vector<T> make_vector(T x, T y, T z)
 {
    return Vector<T>(x, y, z);
 }
-
-typedef Vector<float> VectorF;
 
 // Find a surface normal
 template <typename T>

@@ -42,7 +42,7 @@ include_directories (include ${FREETYPE_INCLUDE_DIRS})
 include_directories (include ${CMAKE_CURRENT_BINARY_DIR})
 
 if (NOT WIN32) # Unix
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -ffast-math")
   # "-Wconversion -Werror"
   if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "i686")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -mfpmath=sse")

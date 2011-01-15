@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2010  Nick Gasson
+//  Copyright (C) 2009-2011  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "ILogger.hpp"
 #include "BezierCurve.hpp"
 #include "Matrix.hpp"
+#include "OpenGLHelper.hpp"
 
 #include <cassert>
 
@@ -128,26 +129,26 @@ void Points::render_arrow() const
 
       for (float t = 0.0f; t < arrow_len; t += step) {
 
-         const Vector<float> v1 = curve(t);
-         const Vector<float> v2 = curve(t + step);
-
+         const VectorF v1 = curve(t);
+         const VectorF v2 = curve(t + step);
+         
          if (t >= arrow_len - step) {
             // Arrow head
             glBegin(GL_TRIANGLES);
             {
-               glVertex3f(v1.x, 0.0f, v1.z - head_width);
-               glVertex3f(v2.x, 0.0f, v2.z);
-               glVertex3f(v1.x, 0.0f, v1.z + head_width);
+               gl::vertex(make_vector(v1.x, 0.0f, v1.z - head_width));
+               gl::vertex(make_vector(v2.x, 0.0f, v2.z));
+               gl::vertex(make_vector(v1.x, 0.0f, v1.z + head_width));
             }
             glEnd();
          }
          else {
             glBegin(GL_QUADS);
             {
-               glVertex3f(v1.x, 0.0f, v1.z - 0.1f);
-               glVertex3f(v1.x, 0.0f, v1.z + 0.1f);
-               glVertex3f(v2.x, 0.0f, v2.z + 0.1f);
-               glVertex3f(v2.x, 0.0f, v2.z - 0.1f);
+               gl::vertex(make_vector(v1.x, 0.0f, v1.z - 0.1f));
+               gl::vertex(make_vector(v1.x, 0.0f, v1.z + 0.1f));
+               gl::vertex(make_vector(v2.x, 0.0f, v2.z + 0.1f));
+               gl::vertex(make_vector(v2.x, 0.0f, v2.z - 0.1f));
             }
             glEnd();
          }
@@ -217,11 +218,11 @@ void Points::merge(IMeshBufferPtr buf) const
 
    // Draw the curved sleepers
    for (float i = 0.25f; i < 1.0f; i += 0.08f) {
-      Vector<float> v = (reflected ? my_reflected_curve : my_curve)(i);
+      const VectorF v = (reflected ? my_reflected_curve : my_curve)(i);
 
-      Vector<float> t = make_vector(v.x - 0.5f, 0.0f, v.z);
-      Vector<float> soff = off + rotateY(t, y_angle);
-      const Vector<float> deriv =
+      const VectorF t = make_vector(v.x - 0.5f, 0.0f, v.z);
+      const VectorF soff = off + rotateY(t, y_angle);
+      const VectorF deriv =
          (reflected ? my_reflected_curve : my_curve).deriv(i);
       const float angle =
          rad_to_deg<float>(atanf(deriv.z / deriv.x));
@@ -354,11 +355,11 @@ void Points::transform(const track::TravelToken& a_token, float delta) const
       bool backwards = a_token.position == displaced_endpoint();
       
       const float f_value = backwards ? 1.0f - curve_delta : curve_delta;
-      const Vector<float> curve_value = my_curve(f_value);
+      const VectorF curve_value = my_curve(f_value);
       
       // Calculate the angle that the tangent to the curve at this
       // point makes to (one of) the axis at this point
-      const Vector<float> deriv = my_curve.deriv(f_value);
+      const VectorF deriv = my_curve.deriv(f_value);
       const float angle =
          rad_to_deg<float>(atanf(deriv.z / deriv.x));
 

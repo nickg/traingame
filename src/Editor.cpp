@@ -249,11 +249,11 @@ bool Editor::draw_track_tile(Point<int> where, track::Direction axis)
    }
    else {
       bool level;
-      Vector<float> slope = map->slope_at(where, axis, level);
+      const VectorF slope = map->slope_at(where, axis, level);
 
       bool b_valid, a_valid;
-      Vector<float> slope_before = map->slope_before(where, axis, b_valid);
-      Vector<float> slope_after = map->slope_after(where, axis, a_valid);
+      const VectorF slope_before = map->slope_before(where, axis, b_valid);
+      const VectorF slope_after = map->slope_after(where, axis, a_valid);
                
       if (level) {
          const bool flat =
@@ -275,7 +275,8 @@ bool Editor::draw_track_tile(Point<int> where, track::Direction axis)
                        << " before=" << slope_before
                        << " after=" << slope_after;
 
-               map->set_track_at(where,
+               map->set_track_at(
+                  where,
                   make_slope_track(axis, slope, slope_before, slope_after));
 
                return true;
@@ -297,7 +298,7 @@ void Editor::draw_dragged_straight(const track::Direction& an_axis, int a_length
 
    for (int i = 0; i < a_length; i++) {
       draw_track_tile(where, an_axis);
-      
+
       where.x += an_axis.x;
       where.y += an_axis.z;
    }
@@ -561,12 +562,12 @@ void Editor::on_mouse_move(IPickBufferPtr pick_buffer, int x, int y,
    }
    else if (am_scrolling) {
       const float speed = 0.05f;
-      
-      my_position.x -= static_cast<float>(xrel) * speed;
-      my_position.z -= static_cast<float>(xrel) * speed;
-      
-      my_position.x += static_cast<float>(yrel) * speed;
-      my_position.z -= static_cast<float>(yrel) * speed;      
+
+      const VectorF xrelv(-xrel * speed, 0.0f, -xrel * speed);
+      const VectorF yrelv(yrel * speed, 0.0f, -yrel * speed);
+
+      my_position += xrelv;
+      my_position += yrelv;
    }
 }
 
@@ -598,10 +599,10 @@ void Editor::on_mouse_click(IPickBufferPtr pick_buffer, int x, int y,
       }
    }
    else if (a_button == MOUSE_WHEEL_UP) {
-      my_position.y -= 0.5f;
+      my_position -= VectorF(0.0f, 0.5f, 0.0f);
    }
    else if (a_button == MOUSE_WHEEL_DOWN) {
-      my_position.y += 0.5f;
+      my_position += VectorF(0.0f, 0.5f, 0.0f);
    }
 }
 

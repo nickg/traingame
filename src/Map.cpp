@@ -1168,7 +1168,7 @@ Vector<float> Map::slope_at(Point<int> where,
       v2 = height_map[indexes[1]].pos - height_map[indexes[2]].pos;
    }
 
-   level = v1.approx_equal(v2, 0.001f);
+   level = (v1 == v2);
 
 #if 0
    debug() << "slope_at where=" << where

@@ -67,7 +67,7 @@ struct MeshBuffer : IMeshBuffer {
 
    static bool merge_vector(const Vector<float>& v1, const Vector<float>& v2)
    {
-      return v1.approx_equal(v2, 0.001f);
+      return v1 == v2;
    }
    
    vector<Vertex> vertices;
