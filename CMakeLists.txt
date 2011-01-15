@@ -44,8 +44,10 @@ include_directories (include ${CMAKE_CURRENT_BINARY_DIR})
 if (NOT WIN32) # Unix
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
   # "-Wconversion -Werror"
-endif (NOT WIN32)
-
+  if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "i686")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -mfpmath=sse")
+  endif ()
+endif ()
 
 # WIN32 makes a non-console application on Windows
 add_executable (${PROJECT_NAME} WIN32 ${folder_source})
@@ -53,6 +55,9 @@ add_executable (${PROJECT_NAME} WIN32 ${folder_source})
 target_link_libraries (${PROJECT_NAME} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY}
   ${OPENGL_LIBRARY} ${XERCES_LIBRARIES} ${Boost_LIBRARIES}
   ${FREETYPE_LIBRARIES} ${GLEW_LIBRARY})
+
+# Test tool
+add_executable (MathsTest EXCLUDE_FROM_ALL tools/MathsTest.cpp)
 
 # Profiling
 if (PROFILE)

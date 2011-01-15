@@ -67,11 +67,7 @@ struct MeshBuffer : IMeshBuffer {
 
    static bool merge_vector(const Vector<float>& v1, const Vector<float>& v2)
    {
-      const float tolerance = 0.001f;
-      
-      return abs(v1.x - v2.x) < tolerance
-	 && abs(v1.y - v2.y) < tolerance
-	 && abs(v1.z - v2.z) < tolerance;
+      return v1.approx_equal(v2, 0.001f);
    }
    
    vector<Vertex> vertices;

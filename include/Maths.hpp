@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2010  Nick Gasson
+//  Copyright (C) 2009-2011  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,14 +24,31 @@
 #include <ostream>
 #include <cassert>
 
+#if 0
+template <typename T, int N>
+union Packed;
+
+template <>
+union Packed<float, 4> {
+   int __attribute__((mode(V4SF))) packed;
+   float unpacked[4];
+};
+
+template <>
+union Packed<float, 3> {
+   int __attribute__((mode(V3SF))) packed;
+   float unpacked[3];
+};
+#endif
+
 // A generic 3D vector
 template <typename T>
 struct Vector {
-   Vector(T x, T y, T z) : x(x), y(y), z(z) {}
-   Vector() : x(0), y(0), z(0) {}
+   inline Vector(T x, T y, T z) : x(x), y(y), z(z) {}
+   inline Vector() : x(0), y(0), z(0) {}
 
    // Cross product
-   Vector<T> operator*(const Vector<T>& v) const
+   inline Vector<T> operator*(const Vector<T>& v) const
    {
       return Vector<T>(
          y*v.z - z*v.y,
@@ -40,30 +57,30 @@ struct Vector {
    }
 
    // Multiply by a scalar
-   Vector<T> operator*(T t) const
+   inline Vector<T> operator*(T t) const
    {
       return Vector<T>(x*t, y*t, z*t);
    }
 
    // Divide by a scalar
-   Vector<T> operator/(T t) const
+   inline Vector<T> operator/(T t) const
    {
       return Vector<T>(x/t, y/t, z/t);
    }
 
    // Scalar product
-   T dot(const Vector<T>&v) const
+   inline T dot(const Vector<T>&v) const
    {
       return x*v.x + y*v.y + z*v.z;
    }
 
    // Magnitude
-   T length() const
+   inline T length() const
    {
-      return static_cast<T>(sqrt(static_cast<double>(x*x + y*y + z*z)));
+      return sqrt(x*x + y*y + z*z);
    }
 
-   Vector<T>& normalise()
+   inline Vector<T>& normalise()
    {
       T m = length();
       x /= m;
@@ -72,12 +89,12 @@ struct Vector {
       return *this;
    }
 
-   Vector<T> operator+(const Vector<T>& v) const
+   inline Vector<T> operator+(const Vector<T>& v) const
    {
       return Vector<T>(x+v.x, y+v.y, z+v.z);
    }
 
-   Vector<T> operator+=(const Vector<T>& v)
+   inline Vector<T>& operator+=(const Vector<T>& v)
    {
       x += v.x;
       y += v.y;
@@ -85,17 +102,17 @@ struct Vector {
       return *this;
    }
    
-   Vector<T> operator-(const Vector<T>& v) const
+   inline Vector<T> operator-(const Vector<T>& v) const
    {
       return Vector<T>(x-v.x, y-v.y, z-v.z);
    }
 
-   Vector<T> operator-() const
+   inline Vector<T> operator-() const
    {
       return Vector<T>(-x, -y, -z);
    }
 
-   Vector<T> operator-=(const Vector<T>& v)
+   inline Vector<T>& operator-=(const Vector<T>& v)
    {
       x -= v.x;
       y -= v.y;
@@ -103,17 +120,17 @@ struct Vector {
       return *this;
    }
    
-   bool operator==(const Vector<T>& v) const
+   inline bool operator==(const Vector<T>& v) const
    {
       return x == v.x && y == v.y && z == v.z;
    }
 
-   bool operator!=(const Vector<T>& v) const
+   inline bool operator!=(const Vector<T>& v) const
    {
       return !(v == *this);
    }
 
-   bool operator<(const Vector<T>& rhs) const
+   inline bool operator<(const Vector<T>& rhs) const
    {
       return x < rhs.x
          || (x == rhs.x
@@ -132,25 +149,27 @@ struct Vector {
 };
 
 template <typename T>
-std::ostream& operator<<(std::ostream& a_stream, const Vector<T>& a_vector)
+std::ostream& operator<<(std::ostream& s, const Vector<T>& v)
 {
-   return a_stream << "[" << a_vector.x << " " << a_vector.y
-                  << " " << a_vector.z << "]";
+   return s << "[" << v.x << " " << v.y
+            << " " << v.z << "]";
 }
 
 template <typename T>
-Vector<T> make_vector(T x, T y, T z)
+inline Vector<T> make_vector(T x, T y, T z)
 {
    return Vector<T>(x, y, z);
 }
+
+typedef Vector<float> VectorF;
 
 // Find a surface normal
 template <typename T>
 Vector<T> surface_normal(const Vector<T>& a, const Vector<T>& b,
    const Vector<T>& c)
 {
-   Vector<T> v1 = b - a;
-   Vector<T> v2 = c - a;
+   const Vector<T> v1 = b - a;
+   const Vector<T> v2 = c - a;
    Vector<T> n = v1 * v2;
    n.normalise();
    return n;
@@ -158,7 +177,7 @@ Vector<T> surface_normal(const Vector<T>& a, const Vector<T>& b,
 
 // Useful debugging function
 void draw_normal(const Vector<float>& a_position,
-   const Vector<float>& a_normal);
+                 const Vector<float>& a_normal);
 
 // A 2D point in space
 template <typename T>
@@ -258,13 +277,13 @@ float approx_gradient(function<float (float)> a_func, float x);
 template <typename T>
 inline float deg_to_rad(T t)
 {
-   return static_cast<float>(t) * M_PI / 180.0;
+   return float(t) * M_PI / 180.0f;
 }
 
 template <typename T>
 inline T rad_to_deg(float r)
 {
-   return static_cast<T>(r * 180.0 / M_PI);
+   return T(r * 180.0f / M_PI);
 }
 
 #endif
