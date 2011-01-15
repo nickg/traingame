@@ -90,8 +90,7 @@ struct MeshBuffer : IMeshBuffer {
 MeshBuffer::MeshBuffer()
    : reused(0)
 {
-   // Create an initial chunk for the null texture
-   bind(ITexturePtr());
+   
 }
 
 void MeshBuffer::bind(ITexturePtr tex)
@@ -188,6 +187,11 @@ void MeshBuffer::add(const Vertex& vertex,
                      const Colour& colour,
                      const TexCoord& a_tex_coord)
 {
+   if (!active_chunk) {
+      // Create an initial chunk for the null texture
+      bind(ITexturePtr());
+   }
+   
    // See if this vertex has already been added
    for (vector<Index>::iterator it = active_chunk->indices.begin();
 	it != active_chunk->indices.end(); ++it) {
