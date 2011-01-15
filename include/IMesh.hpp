@@ -40,7 +40,7 @@ struct IMeshBuffer {
    typedef Vector<float> Vertex;
    typedef Vector<float> Normal;
    typedef Point<float> TexCoord;
-   typedef size_t Index;
+   typedef unsigned Index;
 
    virtual ~IMeshBuffer() {}
 
