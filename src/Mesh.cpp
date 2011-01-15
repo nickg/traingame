@@ -41,7 +41,8 @@ struct MeshBuffer : IMeshBuffer {
    MeshBuffer();
    ~MeshBuffer() {}
 
-   size_t vertex_count() const;
+   size_t vertex_count() const;   
+   size_t index_count() const;
    
    void add(const Vertex& vertex,
             const Normal& normal,
@@ -117,6 +118,17 @@ size_t MeshBuffer::vertex_count() const
    for (vector<ChunkPtr>::const_iterator it = chunks.begin();
         it != chunks.end(); ++it)
       sum += (*it)->vertices.size();
+
+   return sum;
+}
+
+size_t MeshBuffer::index_count() const
+{
+   size_t sum = 0;
+   
+   for (vector<ChunkPtr>::const_iterator it = chunks.begin();
+        it != chunks.end(); ++it)
+      sum += (*it)->indices.size();
 
    return sum;
 }
@@ -324,30 +336,6 @@ static void copy_index_data(const MeshBuffer *buf,
    }
 }
 
-static size_t count_chunk_vertices(const MeshBuffer *buf)
-{
-   size_t sum = 0;
-   
-   for (vector<MeshBuffer::ChunkPtr>::const_iterator it = buf->chunks.begin();
-        it != buf->chunks.end(); ++it) {
-      sum += (*it)->vertices.size();
-   }
-
-   return sum;
-}
-
-static size_t count_chunk_indices(const MeshBuffer *buf)
-{
-   size_t sum = 0;
-   
-   for (vector<MeshBuffer::ChunkPtr>::const_iterator it = buf->chunks.begin();
-        it != buf->chunks.end(); ++it) {
-      sum += (*it)->indices.size();
-   }
-
-   return sum;
-}
-
 // Implementation of meshes using client side vertex arrays
 class VertexArrayMesh : public IMesh {
 public:
@@ -368,10 +356,10 @@ VertexArrayMesh::VertexArrayMesh(IMeshBufferPtr a_buffer)
 {
    const MeshBuffer* buf = MeshBuffer::get(a_buffer);
 
-   my_index_count = count_chunk_indices(buf);
+   my_index_count = buf->index_count();
    my_indices = new GLushort[my_index_count];
    
-   my_vertex_count = count_chunk_vertices(buf);
+   my_vertex_count = buf->vertex_count();
    my_vertex_data = new VertexData[my_vertex_count];
 
    copy_vertex_data(buf, my_vertex_data);
