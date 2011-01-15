@@ -645,8 +645,6 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
 
    IMeshBufferPtr buf = make_mesh_buffer();
 
-   buf->bind(load_texture("test.png"));
-   
    // Incrementing the frame counter here ensures that any track which spans
    // multiple sectors will be merged with each applicable mesh even when
    // the meshes are built on the same frame
@@ -673,6 +671,11 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
             tex_coords[1], tex_coords[2], tex_coords[3],
             tex_coords[3], tex_coords[0], tex_coords[1]
          };
+
+         if (random() % 2 == 0)
+            buf->bind(load_texture("test2.png"));
+         else
+            buf->bind(load_texture("test.png"));   
          
          for (int i = 0; i < 6; i++) {
             const HeightMap& v = height_map[order[i]];

@@ -41,7 +41,7 @@ struct MeshBuffer : IMeshBuffer {
    MeshBuffer();
    ~MeshBuffer() {}
 
-   size_t vertex_count() const { return vertices.size(); }
+   size_t vertex_count() const;
    
    void add(const Vertex& vertex,
             const Normal& normal,
@@ -68,32 +68,66 @@ struct MeshBuffer : IMeshBuffer {
    {
       return v1 == v2;
    }
-   
-   vector<Vertex> vertices;
-   vector<Normal> normals;
-   vector<Colour> colours;
-   vector<Index> indices;
-   vector<TexCoord> tex_coords;
-   ITexturePtr texture;
+
+   // A chunk is a subset of the mesh bound to a particular texture
+   struct Chunk {
+      vector<Vertex> vertices;
+      vector<Normal> normals;
+      vector<Colour> colours;
+      vector<Index> indices;
+      vector<TexCoord> tex_coords;
+      ITexturePtr texture;
+   };
+   typedef shared_ptr<Chunk> ChunkPtr;
+
+   vector<ChunkPtr> chunks;
+   ChunkPtr active_chunk;
+      
    int reused;
 };
 
 MeshBuffer::MeshBuffer()
    : reused(0)
 {
-   
+   // Create an initial chunk for the null texture
+   bind(ITexturePtr());
 }
 
 void MeshBuffer::bind(ITexturePtr tex)
 {
-   texture = tex;
+   for (vector<ChunkPtr>::iterator it = chunks.begin();
+        it != chunks.end(); ++it) {
+      if ((*it)->texture == tex) {
+         active_chunk = *it;
+         return;
+      }
+   }
+   
+   // Must create new chunk for this texture
+   active_chunk = ChunkPtr(new Chunk);
+   active_chunk->texture = tex;
+
+   chunks.push_back(active_chunk);
+}
+
+size_t MeshBuffer::vertex_count() const
+{
+   size_t sum = 0;
+   
+   for (vector<ChunkPtr>::const_iterator it = chunks.begin();
+        it != chunks.end(); ++it)
+      sum += (*it)->vertices.size();
+
+   return sum;
 }
 
 void MeshBuffer::merge(IMeshBufferPtr other, Vector<float> off, float y_angle)
 {
+#if 0
+   // XXX
    const MeshBuffer& obuf = dynamic_cast<const MeshBuffer&>(*other);
    
-   const size_t ibase = vertices.size();
+   const size_t ibase = active_chunk->vertices.size();
 
    const Matrix<float, 4> translate =
       Matrix<float, 4>::translation(off.x, off.y, off.z);
@@ -106,8 +140,8 @@ void MeshBuffer::merge(IMeshBufferPtr other, Vector<float> off, float y_angle)
       const Vertex& v = obuf.vertices[i];
       const Normal& n = obuf.normals[i];
       
-      vertices.push_back(compose.transform(v));
-      normals.push_back(rotate.transform(n).normalise());
+      active_chunk->vertices.push_back(compose.transform(v));
+      active_chunk->normals.push_back(rotate.transform(n).normalise());
 
       if (obuf.texture) {
          colours.push_back(colour::WHITE);
@@ -127,12 +161,14 @@ void MeshBuffer::merge(IMeshBufferPtr other, Vector<float> off, float y_angle)
       
       indices.push_back(merged);
    }
+#endif
 }
 
 void MeshBuffer::print_stats() const
 {
-   debug() << "Mesh: " << vertices.size() << " vertices, "
-	   << reused << " reused";
+   debug() << "Mesh: " << vertex_count() << " vertices, "
+	   << reused << " reused; "
+           << chunks.size() << " chunks";
 }
 
 void MeshBuffer::add(const Vertex& vertex,
@@ -141,34 +177,34 @@ void MeshBuffer::add(const Vertex& vertex,
                      const TexCoord& a_tex_coord)
 {
    // See if this vertex has already been added
-   for (vector<Index>::iterator it = indices.begin();
-	it != indices.end(); ++it) {
-      if (merge_vector(vertex, vertices[*it])
-          && merge_vector(normal, normals[*it])) {
+   for (vector<Index>::iterator it = active_chunk->indices.begin();
+	it != active_chunk->indices.end(); ++it) {
+      if (merge_vector(vertex, active_chunk->vertices[*it])
+          && merge_vector(normal, active_chunk->normals[*it])) {
 
-	 const TexCoord& tc = tex_coords[*it];
+	 const TexCoord& tc = active_chunk->tex_coords[*it];
          const bool same_tc = (approx_equal(tc.x, a_tex_coord.x)
                                && approx_equal(tc.y, a_tex_coord.y));
 
-         const Colour& c = colours[*it];
+         const Colour& c = active_chunk->colours[*it];
 	 const bool same_col = (approx_equal(c.r, colour.r)
                                 && approx_equal(c.g, colour.g)
                                 && approx_equal(c.b, colour.b));
 
          if (same_col && same_tc) {
-            indices.push_back(*it);
+            active_chunk->indices.push_back(*it);
 	    reused++;
 	    return;
          }
       }
    }
    
-   const size_t index = vertices.size();
-   vertices.push_back(vertex);
-   normals.push_back(normal);
-   tex_coords.push_back(a_tex_coord);
-   colours.push_back(colour);
-   indices.push_back(index);
+   const size_t index = active_chunk->vertices.size();
+   active_chunk->vertices.push_back(vertex);
+   active_chunk->normals.push_back(normal);
+   active_chunk->tex_coords.push_back(a_tex_coord);
+   active_chunk->colours.push_back(colour);
+   active_chunk->indices.push_back(index);
 }
 
 void MeshBuffer::add_quad(Vertex a, Vertex b, Vertex c,
@@ -217,26 +253,99 @@ BOOST_STATIC_ASSERT(sizeof(VertexData) == 64);
 // Get the vertex data out of a mesh buffer into a VertexData array
 static void copy_vertex_data(const MeshBuffer* buf, VertexData* vertex_data)
 {
-   for (size_t i = 0; i < buf->vertices.size(); i++) {
-      VertexData* vd = &vertex_data[i];
-      
-      vd->x = buf->vertices[i].x;
-      vd->y = buf->vertices[i].y;
-      vd->z = buf->vertices[i].z;
+   size_t offset = 0;
+   
+   for (vector<MeshBuffer::ChunkPtr>::const_iterator it = buf->chunks.begin();
+        it != buf->chunks.end(); ++it) {
+   
+      for (size_t i = 0; i < (*it)->vertices.size(); i++) {
+         VertexData* vd = &vertex_data[offset + i];
          
-      vd->nx = buf->normals[i].x;
-      vd->ny = buf->normals[i].y;
-      vd->nz = buf->normals[i].z;
+         vd->x = (*it)->vertices[i].x;
+         vd->y = (*it)->vertices[i].y;
+         vd->z = (*it)->vertices[i].z;
+         
+         vd->nx = (*it)->normals[i].x;
+         vd->ny = (*it)->normals[i].y;
+         vd->nz = (*it)->normals[i].z;
       
-      if (buf->texture) {
-         vd->tx = buf->tex_coords[i].x;
-         vd->ty = 1.0f - buf->tex_coords[i].y;
+         if ((*it)->texture) {
+            vd->tx = (*it)->tex_coords[i].x;
+            vd->ty = 1.0f - (*it)->tex_coords[i].y;
+         }
+         
+         vd->r = (*it)->colours[i].r;
+         vd->g = (*it)->colours[i].g;
+         vd->b = (*it)->colours[i].b;
       }
-      
-      vd->r = buf->colours[i].r;
-      vd->g = buf->colours[i].g;
-      vd->b = buf->colours[i].b;
+
+      offset += (*it)->vertices.size();
    }
+}
+
+// Inputs to glDrawRangeElements
+struct ChunkDelim {
+   ITexturePtr texture;
+   GLsizei min, max;
+   size_t offset, count;
+};
+
+static void copy_index_data(const MeshBuffer *buf,
+                            vector<ChunkDelim>& delims,
+                            GLushort *index_data)
+{
+   size_t global_idx = 0;
+   GLushort offset = 0;
+
+   vector<MeshBuffer::ChunkPtr>::const_iterator chunk_it;
+   
+   for (chunk_it = buf->chunks.begin();
+        chunk_it != buf->chunks.end(); ++chunk_it) {
+
+      ChunkDelim delim;
+      delim.texture = (*chunk_it)->texture;
+      delim.count = (*chunk_it)->indices.size();
+      delim.offset = global_idx;
+
+      vector<IMeshBuffer::Index>::const_iterator it;
+      for (it = (*chunk_it)->indices.begin();
+           it != (*chunk_it)->indices.end(); ++it) {
+
+         index_data[global_idx++] = *it + offset;
+      }
+
+      delim.min = offset;
+
+      offset += (*chunk_it)->vertices.size();
+
+      delim.max = offset - 1;
+            
+      delims.push_back(delim);
+   }
+}
+
+static size_t count_chunk_vertices(const MeshBuffer *buf)
+{
+   size_t sum = 0;
+   
+   for (vector<MeshBuffer::ChunkPtr>::const_iterator it = buf->chunks.begin();
+        it != buf->chunks.end(); ++it) {
+      sum += (*it)->vertices.size();
+   }
+
+   return sum;
+}
+
+static size_t count_chunk_indices(const MeshBuffer *buf)
+{
+   size_t sum = 0;
+   
+   for (vector<MeshBuffer::ChunkPtr>::const_iterator it = buf->chunks.begin();
+        it != buf->chunks.end(); ++it) {
+      sum += (*it)->indices.size();
+   }
+
+   return sum;
 }
 
 // Implementation of meshes using client side vertex arrays
@@ -248,28 +357,25 @@ public:
    void render() const;
 
 private:
-   ITexturePtr texture;
    size_t my_vertex_count;
    VertexData* my_vertex_data;
    size_t my_index_count;
    GLushort* my_indices;
+   vector<ChunkDelim> chunks;
 };
 
 VertexArrayMesh::VertexArrayMesh(IMeshBufferPtr a_buffer)
 {
    const MeshBuffer* buf = MeshBuffer::get(a_buffer);
 
-   texture = buf->texture;
- 
-   my_vertex_count = buf->vertices.size();
+   my_index_count = count_chunk_indices(buf);
+   my_indices = new GLushort[my_index_count];
+   
+   my_vertex_count = count_chunk_vertices(buf);
    my_vertex_data = new VertexData[my_vertex_count];
 
    copy_vertex_data(buf, my_vertex_data);
-   
-   my_index_count = buf->indices.size();
-   my_indices = new GLushort[my_index_count];
-
-   copy(buf->indices.begin(), buf->indices.end(), my_indices);
+   copy_index_data(buf, chunks, my_indices);
 }
 
 VertexArrayMesh::~VertexArrayMesh()
@@ -288,39 +394,55 @@ void VertexArrayMesh::render() const
 
    if (glIsEnabled(GL_BLEND))
        glDisable(GL_BLEND);
-   
-   if (texture) {
-      glEnable(GL_TEXTURE_2D);
-      texture->bind();
-      
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData),
-                        reinterpret_cast<GLvoid*>(&my_vertex_data->tx));
-   }
-   else {
-      glDisable(GL_TEXTURE_2D);
-   }       
 
-   glEnable(GL_COLOR_MATERIAL);
-       
+   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+   glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData),
+                     reinterpret_cast<GLvoid*>(&my_vertex_data->tx));
+   
    glEnableClientState(GL_COLOR_ARRAY);
    glColorPointer(3, GL_FLOAT, sizeof(VertexData),
                   reinterpret_cast<GLvoid*>(&my_vertex_data->r));
-   
+      
    glEnableClientState(GL_VERTEX_ARRAY);
    glEnableClientState(GL_NORMAL_ARRAY);
    glVertexPointer(3, GL_FLOAT, sizeof(VertexData),
-      reinterpret_cast<GLvoid*>(my_vertex_data));
+                   reinterpret_cast<GLvoid*>(my_vertex_data));
    glNormalPointer(GL_FLOAT, sizeof(VertexData),
-      reinterpret_cast<GLvoid*>(&my_vertex_data->nx));
+                   reinterpret_cast<GLvoid*>(&my_vertex_data->nx));
+      
+   glEnable(GL_COLOR_MATERIAL);
+      
+   for (vector<ChunkDelim>::const_iterator it = chunks.begin();
+        it != chunks.end(); ++it) {
+      
+      if ((*it).texture) {
+         glEnable(GL_TEXTURE_2D);
+         (*it).texture->bind();
+         
+      }
+      else {
+         glDisable(GL_TEXTURE_2D);
+      }       
 
-   glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(my_index_count),
-      GL_UNSIGNED_SHORT, my_indices);
+#if 1
+      glDrawRangeElements(GL_TRIANGLES,
+                          (*it).min,
+                          (*it).max,
+                          (*it).count,
+                          GL_UNSIGNED_SHORT,
+                          my_indices + (*it).offset);
+#else
+      glDrawElements(GL_TRIANGLES,
+                     (*it).count,
+                     GL_UNSIGNED_SHORT,
+                     my_indices + (*it).offset);
+#endif
+   }
    
    glPopClientAttrib();
    glPopAttrib();
 }
-
+#if 0
 // Implementation of meshes using server side VBOs
 class VBOMesh : public IMesh {
 public:
@@ -433,15 +555,15 @@ void VBOMesh::render() const
 
    ::triangle_count += index_count / 3;
 }
-
+#endif
 IMeshPtr make_mesh(IMeshBufferPtr buffer)
 {
    buffer->print_stats();
    
    // Prefer VBOs for all meshes
-   if (GLEW_ARB_vertex_buffer_object)
-      return IMeshPtr(new VBOMesh(buffer));
-   else
+   //if (GLEW_ARB_vertex_buffer_object && false)
+   //   return IMeshPtr(new VBOMesh(buffer));
+   //else
       return IMeshPtr(new VertexArrayMesh(buffer));
 }
 
