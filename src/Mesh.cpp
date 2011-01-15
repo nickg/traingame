@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2010  Nick Gasson
+//  Copyright (C) 2009-2011  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -310,76 +310,6 @@ void Material::apply() const
       float emission[] = { 0, 0, 0, 1 };
       glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emission);
    }
-}
-
-// Simple implementation using display lists
-class DisplayListMesh : public IMesh {
-public:
-   DisplayListMesh(IMeshBufferPtr a_buffer);
-   ~DisplayListMesh();
-
-   void render() const;
-private:
-   GLuint my_display_list;
-};
-
-DisplayListMesh::DisplayListMesh(IMeshBufferPtr a_buffer)
-{
-   my_display_list = glGenLists(1);
-
-   glNewList(my_display_list, GL_COMPILE);
-
-   const MeshBuffer* buf = MeshBuffer::get(a_buffer);
-
-   if (buf->has_material)
-      buf->material.apply();
-   else
-      glEnable(GL_COLOR_MATERIAL);
-   
-   glBegin(GL_TRIANGLES);
-
-   vector<MeshBuffer::Index>::const_iterator it;
-   for (it = buf->indices.begin();
-	it != buf->indices.end(); ++it) {
-
-      if (!buf->has_material) {
-	 gl::colour(buf->colours[*it]);
-      }
-      
-      const MeshBuffer::Normal& n = buf->normals[*it];
-      glNormal3f(n.x, n.y, n.z);
-      
-      const MeshBuffer::Vertex& v = buf->vertices[*it];
-      glVertex3f(v.x, v.y, v.z);
-   }        
-           
-   glEnd();
-   
-   for (it = buf->indices.begin();
-	it != buf->indices.end(); ++it) {
-      const MeshBuffer::Vertex& v = buf->vertices[*it];
-      const MeshBuffer::Normal& n = buf->normals[*it];
-      draw_normal(v, n);
-   }     
-
-   glEndList();
-}
-
-DisplayListMesh::~DisplayListMesh()
-{
-   glDeleteLists(my_display_list, 1);
-}
-
-void DisplayListMesh::render() const
-{   
-   glPushAttrib(GL_ENABLE_BIT);
-
-   glDisable(GL_BLEND);
-   glEnable(GL_CULL_FACE);
-   
-   glCallList(my_display_list);
-
-   glPopAttrib();
 }
 
 // Packed vertex data used by vertex array and VBO mesh implementations
