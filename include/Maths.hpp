@@ -112,21 +112,18 @@ struct Vector {
    // Multiply by a scalar
    inline Vector<T> operator*(T t) const
    {
-      //return Vector<T>(comp.x*t, comp.y*t, comp.z*t);
       return Vector<T>(packed * Packed<T, 3>::pack(t, t, t));
    }
 
    // Divide by a scalar
    inline Vector<T> operator/(T t) const
    {
-      //return Vector<T>(comp.x/t, comp.y/t, comp.z/t);
       return Vector<T>(packed / Packed<T, 3>::pack(t, t, t));
    }
 
    // Scalar product
    inline T dot(const Vector<T>&v) const
    {
-      //return comp.x*v.comp.x + comp.y*v.comp.y + comp.z*v.comp.z;
       const Vector<T> tmp = packed * v.packed;
       return tmp.x + tmp.y + tmp.z;
    }
@@ -141,9 +138,6 @@ struct Vector {
    inline Vector<T>& normalise()
    {
       const T m = length();
-      //comp.x /= m;
-      //comp.y /= m;
-      //comp.z /= m;
       packed /= Packed<T, 3>::pack(m, m, m);
       return *this;
    }
@@ -161,13 +155,11 @@ struct Vector {
    
    inline Vector<T> operator-(const Vector<T>& v) const
    {
-      //return Vector<T>(comp.x-v.comp.x, comp.y-v.comp.y, comp.z-v.comp.z);
       return Vector<T>(packed - v.packed);
    }
 
    inline Vector<T> operator-() const
    {
-      //return Vector<T>(-comp.x, -comp.y, -comp.z);
       return Vector<T>(-packed);
    }
 
@@ -179,10 +171,6 @@ struct Vector {
    
    inline bool operator==(const Vector<T>& rhs) const
    {
-      //return (abs(rhs.comp.x - comp.x) < delta)
-      //  && (abs(rhs.comp.y - comp.y) < delta)
-      //   && (abs(rhs.comp.z - comp.z) < delta);
-
       const typename Packed<T, 3>::Type diff = rhs.packed - packed;
       const T delta2 = EqTolerance<T>::Value * EqTolerance<T>::Value;
 
