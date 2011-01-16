@@ -33,10 +33,10 @@ using namespace std::tr1;
 class Texture : public ITexture {
 public:
    Texture(const string &file);
-   virtual ~Texture();
+   ~Texture();
 
    GLuint texture() const { return my_texture; }
-   void bind() const;
+   void bind();
    
    int width() const { return my_width; }
    int height() const { return my_height; }
@@ -168,7 +168,7 @@ bool Texture::is_texture_sizeSupported(int width, int height, int ncols, GLenum 
    return height != 0 && width != 0;
 }
 
-void Texture::bind() const
+void Texture::bind()
 {
    glBindTexture(GL_TEXTURE_2D, my_texture);
 }

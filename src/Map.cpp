@@ -650,6 +650,8 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
    // the meshes are built on the same frame
    ++frame_num;
 
+   buf->bind(make_noise_texture(256, 256));
+   
    for (int x = top_right.x-1; x >= bot_left.x; x--) {
       for (int y = bot_left.y; y < top_right.y; y++) {
          int indexes[4];
@@ -671,11 +673,6 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
             tex_coords[1], tex_coords[2], tex_coords[3],
             tex_coords[3], tex_coords[0], tex_coords[1]
          };
-
-         if (random() % 2 == 0)
-            buf->bind(load_texture("test2.png"));
-         else
-            buf->bind(load_texture("test.png"));   
          
          for (int i = 0; i < 6; i++) {
             const HeightMap& v = height_map[order[i]];

@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2011  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ struct ITexture {
    virtual ~ITexture() {}
 
    // Bind this texture to the current OpenGL texture
-   virtual void bind() const = 0;
+   virtual void bind() = 0;
    
    virtual int width() const = 0;
    virtual int height() const = 0;
@@ -43,5 +43,8 @@ ITexturePtr load_texture(const string& a_file_name);
 
 // Load a texture from a resource
 ITexturePtr load_texture(IResourcePtr a_res, const string& a_file_name);
+
+// Generate Perlin noise
+ITexturePtr make_noise_texture(int width, int height);
 
 #endif
