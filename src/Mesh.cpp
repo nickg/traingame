@@ -438,25 +438,18 @@ void VertexArrayMesh::render() const
          glDisable(GL_TEXTURE_2D);
       }       
 
-#if 1
       glDrawRangeElements(GL_TRIANGLES,
                           (*it).min,
                           (*it).max,
                           (*it).count,
                           GL_UNSIGNED_SHORT,
                           my_indices + (*it).offset);
-#else
-      glDrawElements(GL_TRIANGLES,
-                     (*it).count,
-                     GL_UNSIGNED_SHORT,
-                     my_indices + (*it).offset);
-#endif
    }
    
    glPopClientAttrib();
    glPopAttrib();
 }
-#if 0
+
 // Implementation of meshes using server side VBOs
 class VBOMesh : public IMesh {
 public:
@@ -466,8 +459,8 @@ public:
    void render() const;
 private:
    GLuint vbo_buf, index_buf;
-   ITexturePtr texture;
    size_t index_count;
+   vector<ChunkDelim> chunks;
 };
 
 VBOMesh::VBOMesh(IMeshBufferPtr a_buffer)
@@ -475,9 +468,7 @@ VBOMesh::VBOMesh(IMeshBufferPtr a_buffer)
    // Get the data out of the buffer;
    const MeshBuffer* buf = MeshBuffer::get(a_buffer);
 
-   texture = buf->texture;
- 
-   const size_t vertex_count = buf->vertices.size();
+   const size_t vertex_count = buf->vertex_count();
    VertexData* p_vertex_data = new VertexData[vertex_count];
 
    copy_vertex_data(buf, p_vertex_data);
@@ -493,10 +484,10 @@ VBOMesh::VBOMesh(IMeshBufferPtr a_buffer)
       vertex_count * sizeof(VertexData), p_vertex_data);
 
    // Copy the indices into a temporary array
-   index_count = buf->indices.size();
-   GLshort* p_indices = new GLshort[index_count];
+   index_count = buf->index_count();
+   GLushort* p_indices = new GLushort[index_count];
 
-   copy(buf->indices.begin(), buf->indices.end(), p_indices);
+   copy_index_data(buf, chunks, p_indices);
    
    // Build the index buffer
    glGenBuffersARB(1, &index_buf);
@@ -530,24 +521,12 @@ void VBOMesh::render() const
    glBindBufferARB(GL_ARRAY_BUFFER, vbo_buf);
    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, index_buf);
 
-   if (glIsEnabled(GL_BLEND))
-      glDisable(GL_BLEND);
-
-   if (texture) {
-      glEnable(GL_TEXTURE_2D);
-      texture->bind();
-      
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData),
-                        reinterpret_cast<GLvoid*>(offsetof(VertexData, tx)));
-   }
-   else {
-      glDisable(GL_TEXTURE_2D);
-   }
-      
    glEnable(GL_COLOR_MATERIAL);
    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-   
+
+   if (glIsEnabled(GL_BLEND))
+      glDisable(GL_BLEND);
+     
    glEnableClientState(GL_COLOR_ARRAY);
    glColorPointer(3, GL_FLOAT, sizeof(VertexData),
                   reinterpret_cast<GLvoid*>(offsetof(VertexData, r)));
@@ -560,24 +539,46 @@ void VBOMesh::render() const
       reinterpret_cast<GLvoid*>(offsetof(VertexData, nx)));
    glVertexPointer(3, GL_FLOAT, sizeof(VertexData),
       reinterpret_cast<GLvoid*>(0));
-   
-   glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count),
-                  GL_UNSIGNED_SHORT, 0);
+      
+   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+   glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData),
+                     reinterpret_cast<GLvoid*>(offsetof(VertexData, tx)));
+
+   for (vector<ChunkDelim>::const_iterator it = chunks.begin();
+        it != chunks.end(); ++it) {
+      
+      if ((*it).texture) {
+         glEnable(GL_TEXTURE_2D);
+         (*it).texture->bind();
+      }
+      else {
+         glDisable(GL_TEXTURE_2D);
+      }
+
+      const size_t offset_ptr = (*it).offset * sizeof(GLushort);
+      
+      glDrawRangeElements(GL_TRIANGLES,
+                          (*it).min,
+                          (*it).max,
+                          (*it).count,
+                          GL_UNSIGNED_SHORT,
+                          reinterpret_cast<GLvoid*>(offset_ptr));
+   }
 
    glPopClientAttrib();
    glPopAttrib();
 
    ::triangle_count += index_count / 3;
 }
-#endif
+
 IMeshPtr make_mesh(IMeshBufferPtr buffer)
 {
    buffer->print_stats();
    
    // Prefer VBOs for all meshes
-   //if (GLEW_ARB_vertex_buffer_object && false)
-   //   return IMeshPtr(new VBOMesh(buffer));
-   //else
+   if (GLEW_ARB_vertex_buffer_object)
+      return IMeshPtr(new VBOMesh(buffer));
+   else
       return IMeshPtr(new VertexArrayMesh(buffer));
 }
 
