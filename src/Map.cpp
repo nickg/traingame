@@ -650,7 +650,10 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
    // the meshes are built on the same frame
    ++frame_num;
 
-   buf->bind(make_noise_texture(256, 256));
+   static ITexturePtr noise = make_noise_texture(50, 1024);
+   buf->bind(noise);
+
+   const float tmul = 1.0f / float(top_right.x - bot_left.x + 1);
    
    for (int x = top_right.x-1; x >= bot_left.x; x--) {
       for (int y = bot_left.y; y < top_right.y; y++) {
@@ -663,10 +666,10 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
          };
 
          const IMeshBuffer::TexCoord tex_coords[4] = {
-            make_point(0.0f, 1.0f),
-            make_point(1.0f, 1.0f),
-            make_point(1.0f, 0.0f),
-            make_point(0.0f, 0.0f)
+            make_point(x * tmul, (y + 1) * tmul),
+            make_point((x + 1) * tmul, (y + 1) * tmul),
+            make_point((x + 1) * tmul, y * tmul),
+            make_point(x * tmul, y * tmul)
          };
 
          const IMeshBuffer::TexCoord tex_order[6] = {

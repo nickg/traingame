@@ -45,6 +45,6 @@ ITexturePtr load_texture(const string& a_file_name);
 ITexturePtr load_texture(IResourcePtr a_res, const string& a_file_name);
 
 // Generate Perlin noise
-ITexturePtr make_noise_texture(int width, int height);
+ITexturePtr make_noise_texture(int size, int resolution);
 
 #endif

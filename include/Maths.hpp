@@ -90,12 +90,12 @@ inline bool approx_equal(T a, T b)
 // A generic 3D vector
 template <typename T>
 struct Vector {
-   inline Vector(T x = 0, T y = 0, T z = 0)
+   explicit inline Vector(T x = 0, T y = 0, T z = 0)
    {
       packed = Packed<T, 3>::pack(x, y, z);
    }
 
-   inline Vector(const typename Packed<T, 3>::Type& v)
+   explicit inline Vector(const typename Packed<T, 3>::Type& v)
    {
       packed = v;
    }
@@ -124,7 +124,7 @@ struct Vector {
    // Scalar product
    inline T dot(const Vector<T>&v) const
    {
-      const Vector<T> tmp = packed * v.packed;
+      const Vector<T> tmp(packed * v.packed);
       return tmp.x + tmp.y + tmp.z;
    }
 
@@ -174,7 +174,7 @@ struct Vector {
       const typename Packed<T, 3>::Type diff = rhs.packed - packed;
       const T delta2 = EqTolerance<T>::Value * EqTolerance<T>::Value;
 
-      const Vector<T> squared = diff * diff;
+      const Vector<T> squared(diff * diff);
       
       return (squared.x <= delta2)
          && (squared.y <= delta2)
