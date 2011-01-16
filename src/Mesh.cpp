@@ -41,6 +41,17 @@ struct MeshBuffer : IMeshBuffer {
    MeshBuffer();
    ~MeshBuffer() {}
 
+   // A chunk is a subset of the mesh bound to a particular texture
+   struct Chunk {
+      vector<Vertex> vertices;
+      vector<Normal> normals;
+      vector<Colour> colours;
+      vector<Index> indices;
+      vector<TexCoord> tex_coords;
+      ITexturePtr texture;
+   };
+   typedef shared_ptr<Chunk> ChunkPtr;
+
    size_t vertex_count() const;   
    size_t index_count() const;
    
@@ -59,6 +70,8 @@ struct MeshBuffer : IMeshBuffer {
    void merge(IMeshBufferPtr other, Vector<float> off, float y_angle);
    
    void print_stats() const;
+
+   ChunkPtr find_chunk(ITexturePtr tex) const;
    
    static MeshBuffer* get(IMeshBufferPtr a_ptr)
    {
@@ -69,17 +82,6 @@ struct MeshBuffer : IMeshBuffer {
    {
       return v1 == v2;
    }
-
-   // A chunk is a subset of the mesh bound to a particular texture
-   struct Chunk {
-      vector<Vertex> vertices;
-      vector<Normal> normals;
-      vector<Colour> colours;
-      vector<Index> indices;
-      vector<TexCoord> tex_coords;
-      ITexturePtr texture;
-   };
-   typedef shared_ptr<Chunk> ChunkPtr;
 
    vector<ChunkPtr> chunks;
    ChunkPtr active_chunk;
@@ -132,47 +134,67 @@ size_t MeshBuffer::index_count() const
    return sum;
 }
 
+MeshBuffer::ChunkPtr MeshBuffer::find_chunk(ITexturePtr tex) const
+{
+   for (vector<ChunkPtr>::const_iterator it = chunks.begin();
+          it != chunks.end(); ++it) {
+      if ((*it)->texture == tex)
+         return *it;
+   }
+
+   return ChunkPtr();
+}
+
 void MeshBuffer::merge(IMeshBufferPtr other, Vector<float> off, float y_angle)
 {
-#if 0
-   // XXX
    const MeshBuffer& obuf = dynamic_cast<const MeshBuffer&>(*other);
-   
-   const size_t ibase = active_chunk->vertices.size();
 
-   const Matrix<float, 4> translate =
-      Matrix<float, 4>::translation(off.x, off.y, off.z);
-   const Matrix<float, 4> rotate =
-      Matrix<float, 4>::rotation(y_angle, 0.0f, 1.0f, 0.0f);
+   for (vector<ChunkPtr>::const_iterator it = obuf.chunks.begin();
+        it != obuf.chunks.end(); ++it) {
 
-   const Matrix<float, 4> compose = translate * rotate;
-   
-   for (size_t i = 0; i < obuf.vertices.size(); i++) {
-      const Vertex& v = obuf.vertices[i];
-      const Normal& n = obuf.normals[i];
-      
-      active_chunk->vertices.push_back(compose.transform(v));
-      active_chunk->normals.push_back(rotate.transform(n).normalise());
-
-      if (obuf.texture) {
-         colours.push_back(colour::WHITE);
+      ChunkPtr target_chunk = find_chunk((*it)->texture);
+      if (!target_chunk) {
+         target_chunk = ChunkPtr(new Chunk);
+         target_chunk->texture = (*it)->texture;
+         
+         chunks.push_back(target_chunk);
       }
-      else {
-         const Colour& c = obuf.colours[i];
-         colours.push_back(c);
+         
+      const size_t ibase = target_chunk->vertices.size();
+
+      const Matrix<float, 4> translate =
+         Matrix<float, 4>::translation(off.x, off.y, off.z);
+      const Matrix<float, 4> rotate =
+         Matrix<float, 4>::rotation(y_angle, 0.0f, 1.0f, 0.0f);
+
+      const Matrix<float, 4> compose = translate * rotate;
+   
+      for (size_t i = 0; i < (*it)->vertices.size(); i++) {
+         const Vertex& v = (*it)->vertices[i];
+         const Normal& n = (*it)->normals[i];
+      
+         target_chunk->vertices.push_back(compose.transform(v));
+         target_chunk->normals.push_back(rotate.transform(n).normalise());
+
+         const TexCoord& tc = (*it)->tex_coords[i];
+         target_chunk->tex_coords.push_back(tc);
+
+         const Colour& c = (*it)->colours[i];
+         target_chunk->colours.push_back(c);
+      }
+
+      for (size_t i = 0; i < (*it)->indices.size(); i++) {
+         Index orig = (*it)->indices[i];
+         Index merged = orig + ibase;
+         
+         assert(orig < (*it)->vertices.size());
+         assert(merged < target_chunk->vertices.size());
+         
+         target_chunk->indices.push_back(merged);
       }
    }
 
-   for (size_t i = 0; i < obuf.indices.size(); i++) {
-      Index orig = obuf.indices[i];
-      Index merged = orig + ibase;
-      
-      assert(orig < obuf.vertices.size());
-      assert(merged < vertices.size());
-      
-      indices.push_back(merged);
-   }
-#endif
+   reused += obuf.reused;
 }
 
 void MeshBuffer::print_stats() const

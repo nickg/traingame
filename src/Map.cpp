@@ -692,7 +692,6 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
       }			
    }
 
-#if 0
    // Merge any static scenery
    for (int x = top_right.x-1; x >= bot_left.x; x--) {
       for (int y = bot_left.y; y < top_right.y; y++) {
@@ -719,6 +718,8 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
 
    const Colour brown = make_rgb(104, 57, 12);
    const float depth = -3.0f;
+
+   buf->bind(ITexturePtr());   // No texture on sides
    
    int index[4];
    
@@ -816,16 +817,7 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
    if (sea_sectors.size() < min_size)
       sea_sectors.resize(min_size);
    sea_sectors.at(id) = below_sea_level;
-
-#else
-
-   terrain_meshes[id] = make_mesh(buf);
-
-   size_t min_size = id + 1;
-   if (sea_sectors.size() < min_size)
-      sea_sectors.resize(min_size);
-   sea_sectors.at(id) = false;
-#endif
+   
    // Make sure we don't rebuild this mesh if any of the tiles are dirty
    have_mesh(id, bot_left, top_right);
 }
