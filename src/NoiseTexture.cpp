@@ -34,7 +34,7 @@ public:
 
 private:
    void build_gradients();
-   float noise3d(float x, float y, float z) const;
+   float noise2d(float x, float y) const;
    const VectorF& gradient(int x, int y) const;
    float ease_curve(float t) const;
    
@@ -47,7 +47,7 @@ NoiseTexture::NoiseTexture(int size, int res)
 {
    GLubyte* pixels = new GLubyte[res * res];
 
-   const int range = 20;
+   const int range = 15;
 
    const float step = float(size) / float(res);
 
@@ -60,11 +60,11 @@ NoiseTexture::NoiseTexture(int size, int res)
          float sum = 0.0f;
 
          for (int i = 0; i < 4; i++) {
-            sum += noise3d(xf * freq, yf * freq, 0.0f) / freq;
+            sum += noise2d(xf * freq, yf * freq) / freq;
             freq *= 2.0f;
          }
 
-         const int ni = min(255, max(0, 150 + int(float(range) * sum)));
+         const int ni = min(255, max(0, 180 + int(float(range) * sum)));
          pixels[x + (y * res)] = ni;
       }
    }
@@ -89,27 +89,28 @@ NoiseTexture::~NoiseTexture()
    glDeleteTextures(1, &texture);
 }
 
-static inline float fade(double t)
+static inline float fade(float t)
 {
    return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
-static inline float lerp(double t, double a, double b)
+static inline float lerp(float t, float a, float b)
 {
    return a + t * (b - a);
 }
 
-static inline float grad(int hash, double x, double y, double z)
+static inline float grad(int hash, float x, float y, float z)
 {
    int h = hash & 15;
-   double u = h<8 ? x : y,
+   float u = h<8 ? x : y,
       v = h<4 ? y : h==12||h==14 ? x : z;
    return ((h&1) == 0 ? u : -u) + ((h&2) == 0 ? v : -v);
 }
 
-float NoiseTexture::noise3d(float x, float y, float z) const
+float NoiseTexture::noise2d(float x, float y) const
 {
-   // Based on code at http://mrl.nyu.edu/~perlin/noise/
+   // Based on reference implementation at http://mrl.nyu.edu/~perlin/noise/
+   // with zero propagated through for z
    
    static const int p[512] = {
       151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,
@@ -150,28 +151,25 @@ float NoiseTexture::noise3d(float x, float y, float z) const
       138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180,
    };
    
-   int X = int(floorf(x)) & 255;
-   int Y = int(floorf(y)) & 255;
-   int Z = int(floorf(z)) & 255;
+   const int X = int(floorf(x)) & 255;
+   const int Y = int(floorf(y)) & 255;
    
    x -= floorf(x);
    y -= floorf(y);
-   z -= floorf(z);
    
-   float u = fade(x);
-   float v = fade(y);
-   float w = fade(z);
-   int A = p[X  ]+Y, AA = p[A]+Z, AB = p[A+1]+Z,
-      B = p[X+1]+Y, BA = p[B]+Z, BB = p[B+1]+Z;
+   const float u = fade(x);
+   const float v = fade(y);
+   const int A = p[X  ]+Y, AA = p[A], AB = p[A+1],
+      B = p[X+1]+Y, BA = p[B], BB = p[B+1];
 
-   return lerp(w, lerp(v, lerp(u, grad(p[AA  ], x  , y  , z   ),
-                                  grad(p[BA  ], x-1, y  , z   )),
-                          lerp(u, grad(p[AB  ], x  , y-1, z   ),
-                                  grad(p[BB  ], x-1, y-1, z   ))),
-                  lerp(v, lerp(u, grad(p[AA+1], x  , y  , z-1 ),
-                                  grad(p[BA+1], x-1, y  , z-1 )),
-                          lerp(u, grad(p[AB+1], x  , y-1, z-1 ),
-                                  grad(p[BB+1], x-1, y-1, z-1 ))));
+   return lerp(0.0f, lerp(v, lerp(u, grad(p[AA  ], x  , y  ,  0.0f ),
+                                     grad(p[BA  ], x-1, y  ,  0.0f )),
+                             lerp(u, grad(p[AB  ], x  , y-1,  0.0f ),
+                                     grad(p[BB  ], x-1, y-1,  0.0f ))),
+                     lerp(v, lerp(u, grad(p[AA+1], x  , y  , -1.0f ),
+                                     grad(p[BA+1], x-1, y  , -1.0f )),
+                             lerp(u, grad(p[AB+1], x  , y-1, -1.0f ),
+                                     grad(p[BB+1], x-1, y-1, -1.0f ))));
 }
 
 void NoiseTexture::bind()
