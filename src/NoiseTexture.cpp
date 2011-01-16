@@ -34,24 +34,21 @@ public:
 
 private:
    void build_gradients();
-   float noise2d(float x, float y) const;
+   float noise3d(float x, float y, float z) const;
    const VectorF& gradient(int x, int y) const;
    float ease_curve(float t) const;
    
    const int size, resolution;
    GLuint texture;
-   VectorF *gradients;
 };
 
 NoiseTexture::NoiseTexture(int size, int res)
-   : size(size), resolution(res), gradients(NULL)
+   : size(size), resolution(res)
 {
    GLubyte* pixels = new GLubyte[res * res];
 
-   const int range = 40;
+   const int range = 20;
 
-   build_gradients();
-   
    const float step = float(size) / float(res);
 
    float xf, yf;
@@ -62,8 +59,8 @@ NoiseTexture::NoiseTexture(int size, int res)
          float freq = 1.0f;
          float sum = 0.0f;
 
-         for (int i = 0; i < 8; i++) {
-            sum += noise2d(xf * freq, yf * freq) / freq;
+         for (int i = 0; i < 4; i++) {
+            sum += noise3d(xf * freq, yf * freq, 0.0f) / freq;
             freq *= 2.0f;
          }
 
@@ -84,9 +81,6 @@ NoiseTexture::NoiseTexture(int size, int res)
    glTexImage2D(GL_TEXTURE_2D, 0, 3, res, res, 0,
                 GL_LUMINANCE, GL_UNSIGNED_BYTE, pixels);
 
-   delete[] gradients;
-   gradients = NULL;
-   
    delete[] pixels;
 }
 
@@ -95,64 +89,89 @@ NoiseTexture::~NoiseTexture()
    glDeleteTextures(1, &texture);
 }
 
-void NoiseTexture::build_gradients()
+static inline float fade(double t)
 {
-   static Uniform<float> rnd(0.1f, 1.0f);
-   
-   gradients = new VectorF[size * size];
-
-   for (int x = 0; x < size; x++) {
-      for (int y = 0; y < size; y++) {
-         VectorF& v = gradients[x + y*size];
-         
-         v.x = rnd();
-         v.y = rnd();
-         v.z = 0.0f;
-
-         v.normalise();
-      }
-   }
+   return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
-float NoiseTexture::ease_curve(float t) const
+static inline float lerp(double t, double a, double b)
 {
-   assert(t >= 0.0f && t <= 1.0f);
-   return (3 * t * t) - (2 * t * t * t);      
+   return a + t * (b - a);
 }
 
-float NoiseTexture::noise2d(float x, float y) const
+static inline float grad(int hash, double x, double y, double z)
 {
-   // Perlin noise function
-   
-   const int ix = floorf(x);
-   const int iy = floorf(y);
-
-   const VectorF xy = make_vector(x, y, 0.0f);
-   const VectorF x0y0 = make_vector(float(ix), float(iy), 0.0f);
-   const VectorF x1y0 = make_vector(float(ix + 1), float(iy), 0.0f);
-   const VectorF x0y1 = make_vector(float(ix), float(iy + 1), 0.0f);
-   const VectorF x1y1 = make_vector(float(ix + 1), float(iy + 1), 0.0f);
-
-   const float s = gradient(ix, iy).dot(xy - x0y0);
-   const float t = gradient(ix + 1, iy).dot(xy - x1y0);
-   const float u = gradient(ix, iy + 1).dot(xy - x0y1);
-   const float v = gradient(ix + 1, iy + 1).dot(xy - x1y1);
-
-   const float sx = ease_curve(x - float(ix));
-   const float sy = ease_curve(y - float(iy));
-
-   const float a = s + sx * (t - s);
-   const float b = u + sx * (v - u);
-   
-   return (a + sy * (b - a));
+   int h = hash & 15;
+   double u = h<8 ? x : y,
+      v = h<4 ? y : h==12||h==14 ? x : z;
+   return ((h&1) == 0 ? u : -u) + ((h&2) == 0 ? v : -v);
 }
 
-const VectorF& NoiseTexture::gradient(int x, int y) const
+float NoiseTexture::noise3d(float x, float y, float z) const
 {
-   x = x % size;
-   y = y % size;
+   // Based on code at http://mrl.nyu.edu/~perlin/noise/
+   
+   static const int p[512] = {
+      151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,
+      69,142, 8,99,37,240,21,10,23,190,
+      6,148,247,120,234,75,0,26,197,62,94,252,219,203,
+      117,35,11,32,57,177,33,88,237,149,56,87,174,20,125,136,171,168,
+      68,175,74,
+      165,71,134,139,48,27,166,77,146,158,231,83,111,229,122,60,211,133,230,220,
+      105,92,41,55,46,245,40,244, 102,143,54, 65,25,63,161,
+      1,216,80,73,209,76,132, 187,208, 89,18,169,200,196,
+      135,130,116,188,159,86,164,100,109,198,173,186,
+      3,64,52,217,226,250,124,123,5,202,38,147,118,126,255,82,85,212,207,206,59,
+      227,47,16,58,17,182,189,28,42,223,183,170,213,119,248,152,
+      2,44,154,163, 70,221,153,101,155,167, 43,172,9,129,22,39,253,
+      19,98,108,110,79,113,224, 232,178,185, 112,104,218,246,97,228,
+      251,34,242,193,238,210,144,12,191,179,162,241,
+      81,51,145,235,249,14,239,107, 49,192,214, 31,181,199,106,157,184,
+      84,204,176,115,121,50,45,127, 4,150,254,
+      138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180,
+      151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,
+      69,142, 8,99,37,240,21,10,23,190,
+      6,148,247,120,234,75,0,26,197,62,94,252,219,203,
+      117,35,11,32,57,177,33,88,237,149,56,87,174,20,125,136,171,168,
+      68,175,74, 165,71,134,139,48,27,166,
+      77,146,158,231,83,111,229,122,60,211,133,230,220,
+      105,92,41,55,46,245,40,244, 102,143,54, 65,25,63,161,
+      1,216,80,73,209,76,132,187,208, 89,18,169,200,196,
+      135,130,116,188,159,86,164,100,109,198,173,186,
+      3,64,52,217,226,250,124,123,
+      5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,
+      189,28,42,
+      223,183,170,213,119,248,152, 2,44,154,163, 70,221,153,101,155,167,
+      43,172,9, 129,22,39,253, 19,98,108,110,79,113,224,232,178,185,
+      112,104,218,246,97,228,
+      251,34,242,193,238,210,144,12,191,179,162,241,
+      81,51,145,235,249,14,239,107, 49,192,214, 31,181,199,106,157,184,
+      84,204,176,115,121,50,45,127, 4,150,254,
+      138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180,
+   };
+   
+   int X = int(floorf(x)) & 255;
+   int Y = int(floorf(y)) & 255;
+   int Z = int(floorf(z)) & 255;
+   
+   x -= floorf(x);
+   y -= floorf(y);
+   z -= floorf(z);
+   
+   float u = fade(x);
+   float v = fade(y);
+   float w = fade(z);
+   int A = p[X  ]+Y, AA = p[A]+Z, AB = p[A+1]+Z,
+      B = p[X+1]+Y, BA = p[B]+Z, BB = p[B+1]+Z;
 
-   return gradients[x + (y * size)];
+   return lerp(w, lerp(v, lerp(u, grad(p[AA  ], x  , y  , z   ),
+                                  grad(p[BA  ], x-1, y  , z   )),
+                          lerp(u, grad(p[AB  ], x  , y-1, z   ),
+                                  grad(p[BB  ], x-1, y-1, z   ))),
+                  lerp(v, lerp(u, grad(p[AA+1], x  , y  , z-1 ),
+                                  grad(p[BA+1], x-1, y  , z-1 )),
+                          lerp(u, grad(p[AB+1], x  , y-1, z-1 ),
+                                  grad(p[BB+1], x-1, y-1, z-1 ))));
 }
 
 void NoiseTexture::bind()

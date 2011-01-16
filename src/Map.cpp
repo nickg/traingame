@@ -650,7 +650,7 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
    // the meshes are built on the same frame
    ++frame_num;
 
-   static ITexturePtr noise = make_noise_texture(50, 1024);
+   static ITexturePtr noise = make_noise_texture(50, 512);
    buf->bind(noise);
 
    const float tmul = 1.0f / float(top_right.x - bot_left.x + 1);
