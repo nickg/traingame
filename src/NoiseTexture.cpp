@@ -64,7 +64,7 @@ NoiseTexture::NoiseTexture(int size, int res)
             freq *= 2.0f;
          }
 
-         const int ni = min(255, max(0, 180 + int(float(range) * sum)));
+         const int ni = min(255, max(0, 190 + int(float(range) * sum)));
          pixels[x + (y * res)] = ni;
       }
    }
