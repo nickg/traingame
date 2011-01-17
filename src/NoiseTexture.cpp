@@ -19,12 +19,14 @@
 #include "ILogger.hpp"
 #include "OpenGLHelper.hpp"
 #include "Random.hpp"
+#include "Paths.hpp"
 
-#include <cstdlib> // XXX
+#include <sstream>
+#include <fstream>
 
 class NoiseTexture : public ITexture {
 public:
-   NoiseTexture(int size, int res);
+   NoiseTexture(int size, int res, int base, int range);
    ~NoiseTexture();
 
    // ITexture interface
@@ -33,40 +35,36 @@ public:
    int height() const { return resolution; }
 
 private:
-   void build_gradients();
+   void build_noise(GLubyte *pixels);
+   void save_noise(const GLubyte *pixels);
+   void load_noise(GLubyte *pixels);
    float noise2d(float x, float y) const;
-   const VectorF& gradient(int x, int y) const;
-   float ease_curve(float t) const;
+
+   boost::filesystem::path cache_name();
    
-   const int size, resolution;
+   const int size, resolution, base, range;
    GLuint texture;
 };
 
-NoiseTexture::NoiseTexture(int size, int res)
-   : size(size), resolution(res)
+NoiseTexture::NoiseTexture(int size, int res, int base, int range)
+   : size(size), resolution(res), base(base), range(range)
 {
+   using namespace boost::filesystem;
+      
    GLubyte* pixels = new GLubyte[res * res];
 
-   const int range = 15;
+   const path file = cache_name();
+   
+   if (exists(file)) {
+      log() << "Loading cached noise from " << file;
 
-   const float step = float(size) / float(res);
+      load_noise(pixels);
+   }
+   else {
+      log() << "Caching noise texture in " << file;
 
-   float xf, yf;
-   int x, y;
-   for (x = 0, xf = 0.0f; x < res; x++, xf += step) {
-      for (y = 0, yf = 0.0f; y < res; y++, yf += step) {
-
-         float freq = 1.0f;
-         float sum = 0.0f;
-
-         for (int i = 0; i < 4; i++) {
-            sum += noise2d(xf * freq, yf * freq) / freq;
-            freq *= 2.0f;
-         }
-
-         const int ni = min(255, max(0, 190 + int(float(range) * sum)));
-         pixels[x + (y * res)] = ni;
-      }
+      build_noise(pixels);
+      save_noise(pixels);
    }
 
    glGenTextures(1, &texture);
@@ -87,6 +85,63 @@ NoiseTexture::NoiseTexture(int size, int res)
 NoiseTexture::~NoiseTexture()
 {
    glDeleteTextures(1, &texture);
+}
+
+void NoiseTexture::build_noise(GLubyte* pixels)
+{   
+   const float step = float(size) / float(resolution);
+
+   float xf, yf;
+   int x, y;
+   for (x = 0, xf = 0.0f; x < resolution; x++, xf += step) {
+      for (y = 0, yf = 0.0f; y < resolution; y++, yf += step) {
+
+         float freq = 1.0f;
+         float sum = 0.0f;
+
+         for (int i = 0; i < 8; i++) {
+            sum += noise2d(xf * freq, yf * freq) / freq;
+            freq *= 2.0f;
+         }
+
+         const int ni = min(255, max(0, base + int(float(range) * sum)));
+         pixels[x + (y * resolution)] = ni;
+      }
+   }
+
+}
+
+void NoiseTexture::save_noise(const GLubyte* pixels)
+{
+   const string fname = cache_name().file_string();
+   
+   ofstream f;
+   f.open(fname.c_str(), ios::out | ios::binary);
+   if (!f.is_open())
+      throw runtime_error("Failed to create " + fname);
+
+   f.write(reinterpret_cast<const char*>(pixels), resolution * resolution);
+}
+
+void NoiseTexture::load_noise(GLubyte *pixels)
+{
+   const string fname = cache_name().file_string();
+
+   ifstream f;
+   f.open(fname.c_str(), ios::in | ios::binary);
+   if (!f.is_open())
+      throw runtime_error("Failed to open " + fname);
+
+   f.read(reinterpret_cast<char*>(pixels), resolution * resolution);
+}     
+
+boost::filesystem::path NoiseTexture::cache_name()
+{
+   ostringstream ss;
+   ss << "noise_" << size << "_" << resolution << "_"
+      << base << "_" << range << ".dat";
+   
+   return get_cache_dir() / ss.str();
 }
 
 static inline float fade(float t)
@@ -177,7 +232,7 @@ void NoiseTexture::bind()
    glBindTexture(GL_TEXTURE_2D, texture);
 }
 
-ITexturePtr make_noise_texture(int size, int resolution)
+ITexturePtr make_noise_texture(int size, int resolution, int base, int range)
 {
-   return ITexturePtr(new NoiseTexture(size, resolution));
+   return ITexturePtr(new NoiseTexture(size, resolution, base, range));
 }

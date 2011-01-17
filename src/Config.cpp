@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009-2011  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #include "ILogger.hpp"
 #include "IXMLParser.hpp"
 #include "XMLBuilder.hpp"
+#include "Paths.hpp"
 
 #include <map>
 #include <stdexcept>
@@ -57,7 +58,7 @@ public:
    void text(const string& local_name, const string& a_string);
    
 private:
-   static string config_file_name();
+   static boost::filesystem::path config_file_name();
 
    template <class T>
    void set_from_string(const string& a_key, const string& a_string);
@@ -68,7 +69,7 @@ private:
    typedef map<string, IConfig::Option> ConfigMap;
    ConfigMap config_map;
 
-   string config_file;
+   boost::filesystem::path config_file;
    bool am_dirty;
 
    // Used by the XML parser
@@ -88,7 +89,7 @@ Config::Config()
       log() << "Reading config from " << config_file;
 
       IXMLParserPtr parser = make_xml_parser("schemas/config.xsd");
-      parser->parse(config_file, *this);
+      parser->parse(config_file.file_string(), *this);
 
       // Ignore all the set() calls made by the XML parser
       am_dirty = false;
@@ -107,36 +108,9 @@ Config::~Config()
 }
 
 // Find the config file location on this platform
-string Config::config_file_name()
+boost::filesystem::path Config::config_file_name()
 {   
-#ifdef WIN32
-   throw runtime_error("TODO: find config dir on Win32");
-
-#else  // #ifdef WIN32
-
-   // This is based on the XDG standard
-   // See: http://standards.freedesktop.org/basedir-spec/latest/
-
-   ostringstream ss;
-   
-   char* XDG_CONFIG_HOME = getenv("XDG_CONFIG_HOME");
-   if (XDG_CONFIG_HOME == NULL || *XDG_CONFIG_HOME == '\0') {
-      warn() << "XDG_CONFIG_HOME not set: using ~/.config";
-
-      char* HOME = getenv("HOME");
-      if (HOME == NULL)
-         throw runtime_error("$HOME not set");
-
-      ss << HOME << "/.config";
-   }
-   else
-      ss << XDG_CONFIG_HOME;
-
-   ss << "/" PACKAGE "/config.xml";
-            
-   return ss.str();
-
-#endif // #ifdef WIN32
+   return get_config_dir() / "config.xml";
 }
 
 void Config::start_element(const string& local_name, const AttributeSet& attrs)
@@ -174,9 +148,7 @@ void Config::flush()
    
    log() << "Saving config to " << config_file;
 
-   create_directories(path(config_file).remove_filename());
-
-   ofstream ofs(config_file.c_str());
+   ofstream ofs(config_file.file_string().c_str());
    if (!ofs.good())
       throw runtime_error("Failed to write to config file");
 
