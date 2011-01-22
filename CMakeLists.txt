@@ -11,7 +11,22 @@ set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 # Make sure optimisation is always enabled
-set (CMAKE_BUILD_TYPE RelWithDebInfo)
+if (UNIX)
+  if (CMAKE_COMPILER_IS_GNUCC)
+    set (CMAKE_CXX_FLAGS "-g -Wall -ffast-math -O3")
+    # "-Wconversion -Werror"
+    if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "i686")
+      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -mfpmath=sse")
+    endif ()
+  else (CMAKE_COMPILER_IS_GNUCC)
+    # Just accept default options
+    # TODO: add support for Clang here
+    set (CMAKE_BUILD_TYPE RelWithDebInfo)
+  endif ()
+else (UNIX)
+  # Just accept default options
+  set (CMAKE_BUILD_TYPE RelWithDebInfo)
+endif (UNIX)
 
 # Find all the source files
 file (GLOB_RECURSE folder_source 
@@ -40,14 +55,6 @@ include_directories (include ${GLEW_INCLUDE_DIR})
 include_directories (include ${XERCES_INCLUDE_DIRS})
 include_directories (include ${FREETYPE_INCLUDE_DIRS})
 include_directories (include ${CMAKE_CURRENT_BINARY_DIR})
-
-if (NOT WIN32) # Unix
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -ffast-math")
-  # "-Wconversion -Werror"
-  if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "i686")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -mfpmath=sse")
-  endif ()
-endif ()
 
 # WIN32 makes a non-console application on Windows
 add_executable (${PROJECT_NAME} WIN32 ${folder_source})
