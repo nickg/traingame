@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2010  Nick Gasson
+//  Copyright (C) 2009-2011  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
    parse_options(argc, argv);
    
    cout << PACKAGE << " " << VERSION << "." << PATCH << endl << endl
-        << "Copyright (C) 2009-2010  Nick Gasson" << endl
+        << "Copyright (C) 2009-2011  Nick Gasson" << endl
         << "This program comes with ABSOLUTELY NO WARRANTY. "
         << "This is free software, and" << endl
         << "you are welcome to redistribute it under certain conditions. "
