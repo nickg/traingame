@@ -1,7 +1,7 @@
-#include "Maths.hpp"
-
 #include <iostream>
 #include <cassert>
+
+#include "Maths.hpp"
 
 /*
   Baseline:
@@ -387,6 +387,14 @@ int main(int argc, char **argv)
 
    vfnorm(a);
    assert(vflen(a) > 0.999f && vflen(a) < 1.001f);
+   
+   VectorI x = make_vector(1, 0, 0);
+   VectorI y = make_vector(0, 1, 0);
+
+   VectorI d = x - y;
+   d.normalise();
+
+   cout << d << endl;
    
    return 0;
 }

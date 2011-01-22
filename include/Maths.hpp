@@ -45,7 +45,7 @@ struct Packed<float, 3> {
       u.f[0] = a;
       u.f[1] = b;
       u.f[2] = c;
-      u.f[3] = 0.0f;
+      u.f[3] = 1.0f;
       return u.p;
    }
 };
@@ -63,7 +63,7 @@ struct Packed<int, 3> {
       u.i[0] = a;
       u.i[1] = b;
       u.i[2] = c;
-      u.i[3] = 0;
+      u.i[3] = 1;
       return u.p;
    }
 };
@@ -131,7 +131,7 @@ struct Vector {
    // Magnitude
    inline T length() const
    {
-      const float prod = dot(*this);
+      const T prod = dot(*this);
       return sqrt(prod);
    }
 
@@ -203,6 +203,8 @@ struct Vector {
 };
 
 typedef Vector<float> VectorF;
+typedef Vector<double> VectorD;
+typedef Vector<int> VectorI;
 
 template <typename T>
 std::ostream& operator<<(std::ostream& s, const Vector<T>& v)
