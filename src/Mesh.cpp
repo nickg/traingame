@@ -573,7 +573,7 @@ void VBOMesh::render() const
 
 IMeshPtr make_mesh(IMeshBufferPtr buffer)
 {
-   buffer->print_stats();
+   //buffer->print_stats();
    
    // Prefer VBOs for all meshes
    if (GLEW_ARB_vertex_buffer_object)
