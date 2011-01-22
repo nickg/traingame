@@ -78,11 +78,6 @@ struct MeshBuffer : IMeshBuffer {
       return polymorphic_cast<MeshBuffer*>(a_ptr.get());
    }
 
-   static bool merge_vector(const Vector<float>& v1, const Vector<float>& v2)
-   {
-      return v1 == v2;
-   }
-
    vector<ChunkPtr> chunks;
    ChunkPtr active_chunk;
       
@@ -217,8 +212,8 @@ void MeshBuffer::add(const Vertex& vertex,
    // See if this vertex has already been added
    for (vector<Index>::iterator it = active_chunk->indices.begin();
 	it != active_chunk->indices.end(); ++it) {
-      if (merge_vector(vertex, active_chunk->vertices[*it])
-          && merge_vector(normal, active_chunk->normals[*it])) {
+      if (vertex == active_chunk->vertices[*it]
+          && normal ==  active_chunk->normals[*it]) {
 
 	 const TexCoord& tc = active_chunk->tex_coords[*it];
          const bool same_tc = (approx_equal(tc.x, a_tex_coord.x)
