@@ -101,7 +101,7 @@ const double Train::SEPARATION(0.15);
 Train::Train(IMapPtr a_map)
    : map(a_map), velocity_vector(make_vector(0.0f, 0.0f, 0.0f))
 {
-   parts.push_front(Part(load_engine("saddle")));
+   parts.push_front(Part(load_engine("pclass")));
    
    enter_segment(engine(), a_map->start());
 

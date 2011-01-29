@@ -1,4 +1,4 @@
-# Exported from Wings 3D 0.99.06
+# Exported from Wings 3D 1.2
 newmtl base
 Ns 100.0
 d 1.0
@@ -24,6 +24,15 @@ illum 2
 Kd 0.24076 0.24076 0.24076
 Ka 0.29404 0.29404 0.29404
 Ks 0.2674 0.2674 0.2674
+Ke 0.0 0.0 0.0
+
+newmtl default
+Ns 100.0
+d 1.0
+illum 2
+Kd 1.0 1.0 1.0
+Ka 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
 Ke 0.0 0.0 0.0
 
 newmtl dirty yellow
