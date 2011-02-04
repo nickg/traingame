@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2010  Nick Gasson
+//  Copyright (C) 2009-2011  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,14 +24,13 @@
 #include "ISceneryPicker.hpp"
 #include "Random.hpp"
 #include "IRenderStats.hpp"
+#include "OpenGLHelper.hpp"
 
 #include "gui/ILayout.hpp"
 #include "gui/Label.hpp"
 
 #include <algorithm>
 #include <stdexcept>
-
-#include <GL/gl.h>
 
 // Concrete editor class
 class Editor : public IScreen {
@@ -87,7 +86,7 @@ private:
 
    // Variables for dragging track segments
    Point<int> drag_begin, drag_end;
-   bool am_dragging;
+   bool am_dragging, is_shift_down;
 
    // GUI elements
    gui::ILayoutPtr layout;
@@ -97,7 +96,8 @@ private:
 
 Editor::Editor(IMapPtr a_map) 
    : map(a_map), my_position(4.5f, -17.5f, -21.5f),
-     my_tool(TRACK_TOOL), am_scrolling(false), am_dragging(false)
+     my_tool(TRACK_TOOL), am_scrolling(false), am_dragging(false),
+     is_shift_down(false)
 {
    my_sun = make_sun_light();
 		
@@ -412,7 +412,8 @@ void Editor::draw_dragged_track()
       draw_track_tile(drag_begin, start_dir);
    }
    else if (xlen == 1)
-      draw_dragged_straight(drag_begin.y < drag_end.y ? axis::Y : -axis::Y, ylen);
+      draw_dragged_straight(drag_begin.y < drag_end.y ? axis::Y : -axis::Y,
+                            ylen);
    else if (ylen == 1)
       draw_dragged_straight(axis::X, xlen);
    else if (start_dir == end_dir) {
@@ -477,36 +478,39 @@ void Editor::draw_dragged_track()
 	 }
       }
 
-      track::Angle start_angle, end_angle;
       Point<int> where;
+      ITrackSegmentPtr track;
+
+      const int off = xlen - 1;
 
       if (start_dir == axis::X && end_dir == axis::Y) {
 	 if (drag_begin.y < drag_end.y) {
-	    start_angle = 90;
-	    end_angle = 180;
 	    where = drag_end;
+            track = make_gen_track(make_vector(-off, -off, 0),
+                                   make_vector(0, 0, -1),
+                                   make_vector(-1, 0, 0));
 	 }
 	 else {
-	    start_angle = 0;
-	    end_angle = 90;
 	    where = drag_begin;
+            track = make_gen_track(make_vector(off, -off, 0),
+                                   make_vector(1, 0, 0),
+                                   make_vector(0, 0, -1));
 	 }
       }
       else {
 	 if (drag_begin.y < drag_end.y) {
-	    start_angle = 270;
-	    end_angle = 360;
 	    where = drag_begin;
+            track = make_gen_track(make_vector(off, off, 0),
+                                   make_vector(0, 0, 1),
+                                   make_vector(1, 0, 0));
 	 }
 	 else {
-	    start_angle = 180;
-	    end_angle = 270;
 	    where = drag_end;
+            track = make_gen_track(make_vector(-off, off, 0),
+                                   make_vector(-1, 0, 0),
+                                   make_vector(0, 0, 1));
 	 }
       }
-
-      ITrackSegmentPtr track = make_curved_track(start_angle, end_angle, xlen);
-      track->set_origin(where.x, where.y, map->height_at(where));
 
       if (can_place_track(track))
 	 map->set_track_at(where, track);
@@ -607,7 +611,7 @@ void Editor::on_mouse_click(IPickBufferPtr pick_buffer, int x, int y,
 }
 
 void Editor::on_mouse_release(IPickBufferPtr pick_buffer, int x, int y,
-   MouseButton a_button)
+                              MouseButton a_button)
 {
    if (am_dragging) {
       // Stop dragging and perform the action
@@ -651,9 +655,16 @@ void Editor::on_mouse_release(IPickBufferPtr pick_buffer, int x, int y,
    }
 }
 
-void Editor::on_key_up(SDLKey a_key)
+void Editor::on_key_up(SDLKey key)
 {
-   
+   switch (key) {
+   case SDLK_LSHIFT:
+   case SDLK_RSHIFT:
+      is_shift_down = false;
+      break;
+   default:
+      break;
+   }
 }
 
 void Editor::on_key_down(SDLKey a_key)
@@ -662,6 +673,10 @@ void Editor::on_key_down(SDLKey a_key)
    case SDLK_g:
       // Toggle grid
       map->set_grid(true);
+      break;
+   case SDLK_LSHIFT:
+   case SDLK_RSHIFT:
+      is_shift_down = true;
       break;
    case SDLK_PRINT:
       get_game_window()->take_screen_shot();

@@ -324,7 +324,7 @@ bool Map::empty_tile(Point<int> point) const
 }
 
 void Map::set_track_at(const Point<int>& where, ITrackSegmentPtr track)
-{
+{   
    int indexes[4];
    tile_vertices(where.x, where.y, indexes);
 
