@@ -71,6 +71,7 @@ private:
    bool can_connect(const Point<int>& a_first_point,
       const Point<int>& a_second_point) const;
    bool can_place_track(ITrackSegmentPtr track);
+   bool guess_track_dir(const Point<int>& p, track::Direction& d) const;
    void drag_box_bounds(int& x_min, int& x_max, int &y_min, int& y_max) const;
    void delete_objects();
    void plant_trees();
@@ -210,7 +211,7 @@ void Editor::update(IPickBufferPtr pick_buffer, int a_delta)
 // True if the `a_first_point' is a valid track segment and it can
 // connect to `a_second_point'
 bool Editor::can_connect(const Point<int>& a_first_point,
-   const Point<int>& a_second_point) const
+                         const Point<int>& a_second_point) const
 {
    if (!map->is_valid_track(a_first_point))
       return false;
@@ -224,6 +225,28 @@ bool Editor::can_connect(const Point<int>& a_first_point,
 
    return track->is_valid_direction(dir)
       || track->is_valid_direction(-dir);
+}
+
+// Try to guess the direction of a track endpoint by looking at the
+// surrounding tiles
+bool Editor::guess_track_dir(const Point<int>& p, track::Direction& d) const
+{
+   if (can_connect(p.left(), p)) {
+      d = axis::X;
+   }
+   else if (can_connect(p.right(), p)) {
+      d = -axis::X;
+   }
+   else if (can_connect(p.up(), p)) {
+      d = -axis::Y;
+   }
+   else if (can_connect(p.down(), p)) {
+      d = axis::Y;
+   }
+   else
+      return false;
+   
+   return true;
 }
 
 // Draw a single tile of straight track and check for collisions
@@ -325,7 +348,7 @@ bool Editor::can_place_track(ITrackSegmentPtr track)
 // Called when the user has finished dragging a rectangle for track
 // Connect the beginning and end up in the simplest way possible
 void Editor::draw_dragged_track()
-{   
+{
    track::Direction straight;  // Orientation for straight track section
 
    int xmin, xmax, ymin, ymax;
@@ -353,39 +376,19 @@ void Editor::draw_dragged_track()
 	 return;
       }
    }
-      
+
+#if 0
    // Normalise the coordinates so the start is always the one with
    // the smallest x-coordinate
    if (drag_begin.x > drag_end.x)
       swap(drag_begin, drag_end);
+#endif
 
    track::Direction start_dir, end_dir;
-   bool start_was_guess = false;
-   bool end_was_guess = false;
+   bool start_was_guess = !guess_track_dir(drag_begin, start_dir);
+   bool end_was_guess = !guess_track_dir(drag_end, end_dir);
 
-   // Try to work out the direction of the track start
-   if (can_connect(drag_begin.left(), drag_begin)
-      || can_connect(drag_begin.right(), drag_begin)) {
-      start_dir = axis::X;
-   }
-   else if (can_connect(drag_begin.up(), drag_begin)
-      || can_connect(drag_begin.down(), drag_begin)) {
-      start_dir = axis::Y;
-   }
-   else
-      start_was_guess = true;
-
-   // Try to work out the direction of the track end
-   if (can_connect(drag_end.left(), drag_end)
-      || can_connect(drag_end.right(), drag_end)) {
-      end_dir = axis::X;
-   }
-   else if (can_connect(drag_end.up(), drag_end)
-      || can_connect(drag_end.down(), drag_end)) {
-      end_dir = axis::Y;
-   }
-   else
-      end_was_guess = true;
+   end_dir = -end_dir;
 
    // If we have to guess both orientations use a heuristic to decide
    // between S-bends and curves
@@ -402,20 +405,42 @@ void Editor::draw_dragged_track()
       }
    }
    // Otherwise always prefer curves to S-bends
-   else if (start_was_guess)
+   else if (start_was_guess) 
       start_dir = end_dir == axis::X ? axis::Y : axis::X;
    else if (end_was_guess)
       end_dir = start_dir == axis::X ? axis::Y : axis::X;
    
+   debug() << "start_dir=" << start_dir << " end_dir=" << end_dir;
+
    if (xlen == 1 && ylen == 1) {
       // A single tile
       draw_track_tile(drag_begin, start_dir);
    }
-   else if (xlen == 1)
+   else if (xlen == 1) {
       draw_dragged_straight(drag_begin.y < drag_end.y ? axis::Y : -axis::Y,
                             ylen);
-   else if (ylen == 1)
-      draw_dragged_straight(axis::X, xlen);
+   }
+   else if (ylen == 1) {
+      draw_dragged_straight(drag_begin.x < drag_end.x ? axis::X : -axis::X,
+                            xlen);
+   }
+   else {
+
+      ITrackSegmentPtr track = make_gen_track(make_vector(xlen - 1,
+                                                          ylen - 1,
+                                                          0),
+                                              start_dir,
+                                              end_dir);
+
+      Point<int> where = drag_begin;
+      track->set_origin(where.x, where.y, map->height_at(where));
+
+      if (can_place_track(track))
+         map->set_track_at(where, track);
+      
+   }
+   
+#if 0
    else if (start_dir == end_dir) {
       // An S-bend
 
@@ -515,6 +540,7 @@ void Editor::draw_dragged_track()
       if (can_place_track(track))
 	 map->set_track_at(where, track);
    }
+#endif
 }
 
 // Delete all objects in the area selected by the user
