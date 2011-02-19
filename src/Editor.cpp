@@ -377,13 +377,6 @@ void Editor::draw_dragged_track()
       }
    }
 
-#if 0
-   // Normalise the coordinates so the start is always the one with
-   // the smallest x-coordinate
-   if (drag_begin.x > drag_end.x)
-      swap(drag_begin, drag_end);
-#endif
-
    track::Direction start_dir, end_dir;
    bool start_was_guess = !guess_track_dir(drag_begin, start_dir);
    bool end_was_guess = !guess_track_dir(drag_end, end_dir);
@@ -405,11 +398,25 @@ void Editor::draw_dragged_track()
       }
    }
    // Otherwise always prefer curves to S-bends
-   else if (start_was_guess) 
-      start_dir = end_dir == axis::X ? axis::Y : axis::X;
-   else if (end_was_guess)
-      end_dir = start_dir == axis::X ? axis::Y : axis::X;
-   
+   else if (start_was_guess) {
+      if (end_dir == axis::X || end_dir == -axis::X) {
+         start_dir = drag_begin.y > drag_end.y ? -axis::Y : axis::Y;
+      }
+      else {
+         end_dir = drag_begin.x > drag_end.x ? -axis::X : axis::X;
+      }
+   }
+   else if (end_was_guess) {
+      if (start_dir == axis::X || start_dir == -axis::X) {
+         end_dir = drag_begin.y > drag_end.y ? -axis::Y : axis::Y;
+      }
+      else {
+         end_dir = drag_begin.x > drag_end.x ? -axis::X : axis::X;
+      }
+   }
+
+   debug() << "start_was_guess=" << start_was_guess
+           << " end_was_guess=" << end_was_guess;
    debug() << "start_dir=" << start_dir << " end_dir=" << end_dir;
 
    if (xlen == 1 && ylen == 1) {
@@ -425,10 +432,12 @@ void Editor::draw_dragged_track()
                             xlen);
    }
    else {
-
-      ITrackSegmentPtr track = make_gen_track(make_vector(xlen - 1,
-                                                          ylen - 1,
-                                                          0),
+      Point<int> delta = drag_end - drag_begin;
+      
+      VectorI off = make_vector(delta.x, delta.y, 0);
+      debug() << "off=" << off;
+      
+      ITrackSegmentPtr track = make_gen_track(off,
                                               start_dir,
                                               end_dir);
 
@@ -437,110 +446,7 @@ void Editor::draw_dragged_track()
 
       if (can_place_track(track))
          map->set_track_at(where, track);
-      
    }
-   
-#if 0
-   else if (start_dir == end_dir) {
-      // An S-bend
-
-      if (start_dir == axis::Y && drag_begin.y > drag_end.y)
-         swap(drag_begin, drag_end);
-      
-      const int straight =
-         (start_dir == axis::X
-            ? drag_end.x - drag_begin.x
-            : drag_end.y - drag_begin.y) + 1;
-      const int offset =
-         start_dir == axis::X
-         ? drag_end.y - drag_begin.y
-         : drag_end.x - drag_begin.x;
-      ITrackSegmentPtr track = makeSBend(start_dir, straight, offset);
-      const Point<int> where = drag_begin;
-      track->set_origin(where.x, where.y, map->height_at(where));
-
-      if (can_place_track(track))
-	 map->set_track_at(where, track);
-   }
-   else {
-      // Curves at the moment cannot be ellipses so lay track down
-      // until the dragged area is a square
-      while (xlen != ylen) {
-	 if (xlen > ylen) {
-	    // One of the ends must lie along the x-axis since all
-	    // curves are through 90 degrees so extend that one
-	    if (start_dir == axis::X) {
-	       draw_track_tile(drag_begin, axis::X);
-	       drag_begin.x++;
-	    }
-	    else {
-	       draw_track_tile(drag_end, axis::X);
-	       drag_end.x--;
-	    }
-	    xlen--;
-	 }
-	 else {
-	    // Need to draw track along y-axis
-	    if (start_dir == axis::Y) {
-	       draw_track_tile(drag_begin, axis::Y);
-
-	       // The y-coordinate for the drag points is not guaranteed
-	       // to be sorted
-	       if (drag_begin.y > drag_end.y)
-		  drag_begin.y--;
-	       else
-		  drag_begin.y++;
-	    }
-	    else {
-	       draw_track_tile(drag_end, axis::Y);
-                                    
-	       if (drag_begin.y > drag_end.y)
-		  drag_end.y++;
-	       else
-		  drag_end.y--;
-	    }
-	    ylen--;
-	 }
-      }
-
-      Point<int> where;
-      ITrackSegmentPtr track;
-
-      const int off = xlen - 1;
-
-      if (start_dir == axis::X && end_dir == axis::Y) {
-	 if (drag_begin.y < drag_end.y) {
-	    where = drag_end;
-            track = make_gen_track(make_vector(-off, -off, 0),
-                                   make_vector(0, 0, -1),
-                                   make_vector(-1, 0, 0));
-	 }
-	 else {
-	    where = drag_begin;
-            track = make_gen_track(make_vector(off, -off, 0),
-                                   make_vector(1, 0, 0),
-                                   make_vector(0, 0, -1));
-	 }
-      }
-      else {
-	 if (drag_begin.y < drag_end.y) {
-	    where = drag_begin;
-            track = make_gen_track(make_vector(off, off, 0),
-                                   make_vector(0, 0, 1),
-                                   make_vector(1, 0, 0));
-	 }
-	 else {
-	    where = drag_end;
-            track = make_gen_track(make_vector(-off, off, 0),
-                                   make_vector(-1, 0, 0),
-                                   make_vector(0, 0, 1));
-	 }
-      }
-
-      if (can_place_track(track))
-	 map->set_track_at(where, track);
-   }
-#endif
 }
 
 // Delete all objects in the area selected by the user
