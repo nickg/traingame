@@ -244,6 +244,10 @@ struct Point {
    Point right() const { return Point(x + 1, y); }
    Point up() const { return Point(x, y + 1); }
    Point down() const { return Point(x, y - 1); }
+   Point up_left() const { return Point(x - 1, y + 1); }
+   Point up_right() const { return Point(x + 1, y + 1); }
+   Point down_left() const { return Point(x - 1, y - 1); }
+   Point down_right() const { return Point(x + 1, y - 1); }
 
    bool operator==(const Point<T>& a_point) const
    {
