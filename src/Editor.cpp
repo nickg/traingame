@@ -400,23 +400,46 @@ void Editor::draw_dragged_track()
    // Otherwise always prefer curves to S-bends
    else if (start_was_guess) {
       if (end_dir == axis::X || end_dir == -axis::X) {
-         start_dir = drag_begin.y > drag_end.y ? -axis::Y : axis::Y;
+         if (is_shift_down)
+            start_dir = drag_begin.y > drag_end.y
+               ? make_vector(end_dir.x, 0, -1)
+               : make_vector(end_dir.x, 0, 1);
+         else
+            start_dir = drag_begin.y > drag_end.y ? -axis::Y : axis::Y;
       }
       else {
-         end_dir = drag_begin.x > drag_end.x ? -axis::X : axis::X;
+         if (is_shift_down)
+            start_dir = drag_begin.x > drag_end.x
+               ? make_vector(-1, 0, end_dir.z)
+               : make_vector(1, 0, end_dir.z);
+         else
+            start_dir = drag_begin.x > drag_end.x ? -axis::X : axis::X;
       }
    }
    else if (end_was_guess) {
       if (start_dir == axis::X || start_dir == -axis::X) {
-         end_dir = drag_begin.y > drag_end.y ? -axis::Y : axis::Y;
+         if (is_shift_down)
+            end_dir = drag_begin.y > drag_end.y
+               ? make_vector(start_dir.x, 0, -1)
+               : make_vector(start_dir.x, 0, 1);
+         else
+            end_dir = drag_begin.y > drag_end.y ? -axis::Y : axis::Y;
       }
       else {
-         end_dir = drag_begin.x > drag_end.x ? -axis::X : axis::X;
+         if (is_shift_down)
+            end_dir = drag_begin.x > drag_end.x
+               ? make_vector(-1, 0, start_dir.z)
+               : make_vector(1, 0, start_dir.z);
+         else
+            end_dir = drag_begin.x > drag_end.x ? -axis::X : axis::X;
       }
    }
 
+   debug();
    debug() << "start_was_guess=" << start_was_guess
            << " end_was_guess=" << end_was_guess;
+   debug() << "drag_begin=" << drag_begin
+           << " drag_end=" << drag_end;
    debug() << "start_dir=" << start_dir << " end_dir=" << end_dir;
 
    if (xlen == 1 && ylen == 1) {
