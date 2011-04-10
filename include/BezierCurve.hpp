@@ -48,7 +48,7 @@ struct BezierCurve {
 
          const Vector<T> diff = cur - prev;
          
-         length += sqrt(diff.x*diff.x + diff.y*diff.y + diff.z*diff.z);
+         length += diff.length();
       }
    }
 
@@ -100,7 +100,7 @@ struct BezierCurve {
          cur = operator()(t);
 
          const Vector<T> diff = cur - prev;
-         now += sqrt(diff.x*diff.x + diff.y*diff.y + diff.z*diff.z);
+         now += diff.length();
       }
 
       if (out)
