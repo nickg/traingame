@@ -25,7 +25,6 @@
 
 #include <cassert>
 
-#include <GL/gl.h>
 #include <boost/lexical_cast.hpp>
 
 // Forks in the track
@@ -218,12 +217,14 @@ void Points::merge(IMeshBufferPtr buf) const
 
    // Draw the curved sleepers
    for (float i = 0.25f; i < 1.0f; i += 0.08f) {
-      const VectorF v = (reflected ? my_reflected_curve : my_curve)(i);
+      float u_i;
+      const BezierCurve<float>& c = reflected ? my_reflected_curve : my_curve;
+      const VectorF v = c.uniform(i, &u_i);
 
       const VectorF t = make_vector(v.x - 0.5f, 0.0f, v.z);
       const VectorF soff = off + rotateY(t, y_angle);
       const VectorF deriv =
-         (reflected ? my_reflected_curve : my_curve).deriv(i);
+         (reflected ? my_reflected_curve : my_curve).deriv(u_i);
       const float angle =
          rad_to_deg<float>(atanf(deriv.z / deriv.x));
 
@@ -355,11 +356,12 @@ void Points::transform(const track::TravelToken& a_token, float delta) const
       bool backwards = a_token.position == displaced_endpoint();
       
       const float f_value = backwards ? 1.0f - curve_delta : curve_delta;
-      const VectorF curve_value = my_curve(f_value);
+      float u_f_value;
+      const VectorF curve_value = my_curve.uniform(f_value, &u_f_value);
       
       // Calculate the angle that the tangent to the curve at this
       // point makes to (one of) the axis at this point
-      const VectorF deriv = my_curve.deriv(f_value);
+      const VectorF deriv = my_curve.deriv(u_f_value);
       const float angle =
          rad_to_deg<float>(atanf(deriv.z / deriv.x));
 

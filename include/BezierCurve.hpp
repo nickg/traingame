@@ -38,13 +38,11 @@ struct BezierCurve {
       Vector<T> cur = operator()(0.0), prev;
 
       length = 0.0;
-
             
-      const T step = static_cast<T>(0.01);
-      const T min = static_cast<T>(0.1);
+      const T step = static_cast<T>(0.0001);
       const T max = static_cast<T>(1.0);
       
-      for (T t = min; t <= max; t += step) {
+      for (T t = step; t <= max; t += step) {
          prev = cur;
          cur = operator()(t);
 
@@ -81,6 +79,34 @@ struct BezierCurve {
           + p[2].z * 3 * t * t * (1 - t)
           + p[3].z * t * t * t
           );
+   }
+
+   // A slower approximation to the curve function that guarantees
+   // uniform(k).length() = curve_length * k
+   Vector<T> uniform(T s, T *out = NULL) const
+   {
+      Vector<T> cur = operator()(0.0), prev;
+
+      T now = static_cast<T>(0.0);
+      const T target = length * s;
+            
+      const T step = static_cast<T>(0.0001);
+      const T max = static_cast<T>(1.0);
+
+      // TODO: could speed this up using a lookup table
+      T t;
+      for (t = step; t <= max && now < target; t += step) {
+         prev = cur;
+         cur = operator()(t);
+
+         const Vector<T> diff = cur - prev;
+         now += sqrt(diff.x*diff.x + diff.y*diff.y + diff.z*diff.z);
+      }
+
+      if (out)
+         *out = std::max(static_cast<T>(0.0),
+                         std::min(t, static_cast<T>(1.0)));
+      return cur;
    }
 
    // The derivative with respect to t at a point

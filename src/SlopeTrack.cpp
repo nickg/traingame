@@ -122,11 +122,12 @@ void SlopeTrack::merge(IMeshBufferPtr buf) const
    
    // Draw the sleepers
    for (float t = 0.1f; t < 1.0f; t += 0.25f) {
-      const Vector<float> curve_value = curve(t);
+      float u_curve_value;
+      const Vector<float> curve_value = curve.uniform(t, &u_curve_value);
 
 #if 0
       // Should the sleepers be at the same angle as the slope?
-      const Vector<float> deriv = curve.deriv(t);
+      const Vector<float> deriv = curve.deriv(u_curve_value);
       const float angle =
          rad_to_deg<float>(atanf(deriv.y / deriv.x));
 #endif
@@ -229,7 +230,8 @@ void SlopeTrack::transform(const track::TravelToken& token, float delta) const
 
    const float curve_delta = delta / length;
 
-   const Vector<float> curve_value = curve(curve_delta);
+   float u_curve_delta;
+   const Vector<float> curve_value = curve.uniform(curve_delta, &u_curve_delta);
    
    const float x_trans = axis == axis::X ? curve_value.x : 0.0f;
    const float y_trans =curve_value.y;
@@ -247,7 +249,7 @@ void SlopeTrack::transform(const track::TravelToken& token, float delta) const
    if (token.direction == -axis)
       glRotated(-180.0, 0.0, 1.0, 0.0);
 
-   const Vector<float> deriv = curve.deriv(curve_delta);
+   const Vector<float> deriv = curve.deriv(u_curve_delta);
    const float angle =
       rad_to_deg<float>(atanf(deriv.y / deriv.x));
 

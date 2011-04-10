@@ -165,10 +165,11 @@ void GenTrack::merge(IMeshBufferPtr buf) const
   
    for (int i = 0; i <= n; i++) {
       float pos = (sleeper_sep / 2) + i * (sleeper_sep + delta);
-      
-      Vector<float> v = curve(pos / curve.length);
 
-      const Vector<float> deriv = curve.deriv(pos / curve.length);
+      float u_curve_delta;
+      Vector<float> v = curve.uniform(pos / curve.length, &u_curve_delta);
+
+      const Vector<float> deriv = curve.deriv(u_curve_delta);
       const float angle =
          rad_to_deg<float>(atanf(deriv.z / deriv.x));
 
@@ -347,14 +348,15 @@ void GenTrack::transform(const track::TravelToken& token,
    const float curve_delta =
       (backwards ? curve.length - delta : delta) / curve.length;
 
-   Vector<float> curve_value = curve(curve_delta);
+   float u_curve_delta;
+   Vector<float> curve_value = curve.uniform(curve_delta, &u_curve_delta);
 
    glTranslatef(
       static_cast<float>(origin.x) + curve_value.x,
       height,
       static_cast<float>(origin.y) + curve_value.z);
 
-   float angle = rotation_at(curve_delta);
+   float angle = rotation_at(u_curve_delta);
    if (backwards)
       angle += 180.0f;
    
