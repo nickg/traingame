@@ -83,7 +83,7 @@ struct BezierCurve {
 
    // A slower approximation to the curve function that guarantees
    // a linear relationship between s and the arc length
-   Vector<T> uniform(T s, T *out = NULL) const
+   Vector<T> linear(T s, T *out = NULL) const
    {
       Vector<T> cur = operator()(0.0), prev;
 

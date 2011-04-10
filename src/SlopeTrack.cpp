@@ -123,7 +123,7 @@ void SlopeTrack::merge(IMeshBufferPtr buf) const
    // Draw the sleepers
    for (float t = 0.1f; t < 1.0f; t += 0.25f) {
       float u_curve_value;
-      const Vector<float> curve_value = curve.uniform(t, &u_curve_value);
+      const Vector<float> curve_value = curve.linear(t, &u_curve_value);
 
 #if 0
       // Should the sleepers be at the same angle as the slope?
@@ -231,7 +231,7 @@ void SlopeTrack::transform(const track::TravelToken& token, float delta) const
    const float curve_delta = delta / length;
 
    float u_curve_delta;
-   const Vector<float> curve_value = curve.uniform(curve_delta, &u_curve_delta);
+   const Vector<float> curve_value = curve.linear(curve_delta, &u_curve_delta);
    
    const float x_trans = axis == axis::X ? curve_value.x : 0.0f;
    const float y_trans =curve_value.y;

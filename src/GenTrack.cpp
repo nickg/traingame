@@ -167,7 +167,7 @@ void GenTrack::merge(IMeshBufferPtr buf) const
       float pos = (sleeper_sep / 2) + i * (sleeper_sep + delta);
 
       float u_curve_delta;
-      Vector<float> v = curve.uniform(pos / curve.length, &u_curve_delta);
+      Vector<float> v = curve.linear(pos / curve.length, &u_curve_delta);
 
       const Vector<float> deriv = curve.deriv(u_curve_delta);
       const float angle =
@@ -367,7 +367,7 @@ void GenTrack::transform(const track::TravelToken& token,
       (backwards ? curve.length - delta : delta) / curve.length;
 
    float u_curve_delta;
-   Vector<float> curve_value = curve.uniform(curve_delta, &u_curve_delta);
+   Vector<float> curve_value = curve.linear(curve_delta, &u_curve_delta);
 
    glTranslatef(
       static_cast<float>(origin.x) + curve_value.x,

@@ -219,7 +219,7 @@ void Points::merge(IMeshBufferPtr buf) const
    for (float i = 0.25f; i < 1.0f; i += 0.08f) {
       float u_i;
       const BezierCurve<float>& c = reflected ? my_reflected_curve : my_curve;
-      const VectorF v = c.uniform(i, &u_i);
+      const VectorF v = c.linear(i, &u_i);
 
       const VectorF t = make_vector(v.x - 0.5f, 0.0f, v.z);
       const VectorF soff = off + rotateY(t, y_angle);
@@ -357,7 +357,7 @@ void Points::transform(const track::TravelToken& a_token, float delta) const
       
       const float f_value = backwards ? 1.0f - curve_delta : curve_delta;
       float u_f_value;
-      const VectorF curve_value = my_curve.uniform(f_value, &u_f_value);
+      const VectorF curve_value = my_curve.linear(f_value, &u_f_value);
       
       // Calculate the angle that the tangent to the curve at this
       // point makes to (one of) the axis at this point
