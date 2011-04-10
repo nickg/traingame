@@ -111,8 +111,8 @@ GenTrack::GenTrack(Vector<int> delta,
    const float exit_extend = extend_from_center(exit_dir);
 
    Vector<float> p1 = entry_dir_norm * -entry_extend;
-   Vector<float> p2 = entry_dir_norm * pinch_length;
-   Vector<float> p3 = delta_f - (exit_dir_norm * pinch_length);
+   Vector<float> p2 = entry_dir_norm * (pinch_length - entry_extend);
+   Vector<float> p3 = delta_f - (exit_dir_norm * (pinch_length - exit_extend));
    Vector<float> p4 = delta_f + (exit_dir_norm * exit_extend);
 
    curve = make_bezier_curve(p1, p2, p3, p4);
@@ -193,6 +193,24 @@ void GenTrack::render() const
       glVertex3f((*it).x, 0.1f, (*it).y);
    glEnd();
 
+   glPopMatrix();
+#endif
+
+#if 1
+   // Draw control points
+   glPushMatrix();
+   glPushAttrib(GL_LINE_BIT);
+
+   glTranslatef(origin.x, 0.0f, origin.y);
+   glColor3f(0.8f, 0.1f, 0.1f);
+   glLineWidth(4.0f);
+
+   glBegin(GL_LINES);
+   for (int i = 0; i < 4; i++)
+      gl::vertex(curve.p[i] + make_vector(0.0f, 0.2f, 0.0f));
+   glEnd();
+
+   glPopAttrib();
    glPopMatrix();
 #endif
 }     

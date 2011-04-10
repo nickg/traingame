@@ -25,7 +25,7 @@
 template <typename T>
 struct BezierCurve {
    Vector<T> p[4];
-   T length;  // A very rough approximation to the length
+   T length;  // Approximate
 
    BezierCurve(Vector<T> p1, Vector<T> p2, Vector<T> p3, Vector<T> p4)
    {
@@ -82,7 +82,7 @@ struct BezierCurve {
    }
 
    // A slower approximation to the curve function that guarantees
-   // uniform(k).length() = curve_length * k
+   // a linear relationship between s and the arc length
    Vector<T> uniform(T s, T *out = NULL) const
    {
       Vector<T> cur = operator()(0.0), prev;
