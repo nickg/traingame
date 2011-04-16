@@ -37,7 +37,8 @@ find_package (SDL REQUIRED)
 find_package (SDL_image REQUIRED)
 find_package (OpenGL REQUIRED)
 find_package (GLEW REQUIRED)
-find_package (Boost 1.37 REQUIRED COMPONENTS filesystem signals program_options) 
+find_package (Boost 1.37 REQUIRED 
+  COMPONENTS filesystem signals program_options system) 
 find_package (Freetype REQUIRED)
 
 if (NOT WIN32)
