@@ -36,20 +36,20 @@ public:
    }
    
    // IResource interface
-   string name() const { return my_path.filename(); }
+   string name() const { return my_path.filename().string(); }
    string xml_file_name() const
    {
-      return (my_path / (name() + ".xml")).file_string();
+      return (my_path / (name() + ".xml")).string();
    }
 
    Handle open_file(const string& a_file_name)
    {
-      return Handle((my_path / a_file_name).file_string(), Handle::READ);
+      return Handle((my_path / a_file_name).string(), Handle::READ);
    }
 
    Handle write_file(const string& a_file_name)
    {
-      return Handle((my_path / a_file_name).file_string(), Handle::WRITE);
+      return Handle((my_path / a_file_name).string(), Handle::WRITE);
    }
 private:
    const path my_path;
@@ -119,7 +119,7 @@ static void add_resource(const string& a_class, IResourcePtr a_res)
 
 static void add_resource_dir(const char* a_class, const path& a_path)
 {
-   const path xml_file = a_path / (a_path.filename() + ".xml");
+   const path xml_file = a_path / (a_path.filename().string() + ".xml");
 
    if (!exists(xml_file))
       warn() << "Missing resource XML file: " << xml_file;
@@ -208,8 +208,7 @@ IResourcePtr make_new_resource(const string& a_res_id, const string& a_class)
          + " in class " + a_class + ": already exists!");
 
    if (!create_directories(p))
-      throw runtime_error("Failed to create resource directory "
-         + p.file_string());
+      throw runtime_error("Failed to create resource directory " + p.string());
 
    IResourcePtr r = IResourcePtr(new FilesystemResource(p));
    add_resource(a_class, r);

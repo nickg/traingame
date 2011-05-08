@@ -113,7 +113,7 @@ void NoiseTexture::build_noise(GLubyte* pixels)
 
 void NoiseTexture::save_noise(const GLubyte* pixels)
 {
-   const string fname = cache_name().file_string();
+   const string fname = cache_name().string();
    
    ofstream f;
    f.open(fname.c_str(), ios::out | ios::binary);
@@ -125,7 +125,7 @@ void NoiseTexture::save_noise(const GLubyte* pixels)
 
 void NoiseTexture::load_noise(GLubyte *pixels)
 {
-   const string fname = cache_name().file_string();
+   const string fname = cache_name().string();
 
    ifstream f;
    f.open(fname.c_str(), ios::in | ios::binary);

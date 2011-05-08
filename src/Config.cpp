@@ -89,7 +89,7 @@ Config::Config()
       log() << "Reading config from " << config_file;
 
       IXMLParserPtr parser = make_xml_parser("schemas/config.xsd");
-      parser->parse(config_file.file_string(), *this);
+      parser->parse(config_file.string(), *this);
 
       // Ignore all the set() calls made by the XML parser
       am_dirty = false;
@@ -148,7 +148,7 @@ void Config::flush()
    
    log() << "Saving config to " << config_file;
 
-   ofstream ofs(config_file.file_string().c_str());
+   ofstream ofs(config_file.string().c_str());
    if (!ofs.good())
       throw runtime_error("Failed to write to config file");
 
