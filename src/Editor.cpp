@@ -454,21 +454,15 @@ void Editor::draw_dragged_track()
            << " drag_end=" << drag_end;
    debug() << "start_dir=" << start_dir << " end_dir=" << end_dir;
 
-   const bool simple =
-      (start_dir.x + start_dir.z == 1)
-      && (end_dir.x + end_dir.z == 1);
-
-   debug() << "simple=" << simple;
-
-   if (simple && xlen == 1 && ylen == 1) {
+   if (xlen == 1 && ylen == 1) {
       // A single tile
       draw_track_tile(drag_begin, start_dir);
    }
-   else if (simple && xlen == 1) {
+   else if (xlen == 1) {
       draw_dragged_straight(drag_begin.y < drag_end.y ? axis::Y : -axis::Y,
                             ylen);
    }
-   else if (simple && ylen == 1) {
+   else if (ylen == 1) {
       draw_dragged_straight(drag_begin.x < drag_end.x ? axis::X : -axis::X,
                             xlen);
    }
