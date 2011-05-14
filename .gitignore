@@ -13,3 +13,4 @@ GG/
 config.h
 core
 callgrind.out.*
+*.dot

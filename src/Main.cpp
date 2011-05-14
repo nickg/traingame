@@ -20,6 +20,7 @@
 #include "GameScreens.hpp"
 #include "IResource.hpp"
 #include "IConfig.hpp"
+#include "ITrackGraph.hpp"
 
 #include <stdexcept>
 #include <iostream>
@@ -39,6 +40,11 @@ namespace {
    int run_cycles = 0;
    string map_file;
    string action;
+}
+
+static void dump_track_graph(IMapPtr map)
+{
+   make_track_graph(map)->write_dot_file(map_file + ".dot");
 }
 
 static void parse_options(int argc, char** argv)
@@ -103,8 +109,11 @@ int main(int argc, char** argv)
       init_resources();
       
       IConfigPtr cfg = get_config();
-      
-      ::window = make_sdl_window();
+
+      bool no_window = action == "graph";
+
+      if (!no_window)
+         ::window = make_sdl_window();
       
       IScreenPtr screen;
       if (::action == "edit") {
@@ -121,10 +130,14 @@ int main(int argc, char** argv)
       else if (::action == "uidemo") {
          screen = makeUIDemo();
       }
+      else if (::action == "graph") {
+         dump_track_graph(load_map(::map_file));
+      }
       else
          throw runtime_error("Unrecognised command: " + ::action);
-         
-      ::window->run(screen, run_cycles);
+
+      if (::window)
+         ::window->run(screen, run_cycles);
 
       cfg->flush();
    }
