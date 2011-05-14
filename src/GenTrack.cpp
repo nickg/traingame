@@ -196,7 +196,7 @@ void GenTrack::render() const
    glPopMatrix();
 #endif
 
-#if 1
+#if 0
    // Draw control points
    glPushMatrix();
    glPushAttrib(GL_LINE_BIT);

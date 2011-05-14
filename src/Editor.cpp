@@ -447,12 +447,14 @@ void Editor::draw_dragged_track()
       }
    }
 
+#if 0
    debug();
    debug() << "start_was_guess=" << start_was_guess
            << " end_was_guess=" << end_was_guess;
    debug() << "drag_begin=" << drag_begin
            << " drag_end=" << drag_end;
    debug() << "start_dir=" << start_dir << " end_dir=" << end_dir;
+#endif
 
    if (xlen == 1 && ylen == 1) {
       // A single tile
@@ -470,7 +472,6 @@ void Editor::draw_dragged_track()
       Point<int> delta = drag_end - drag_begin;
       
       VectorI off = make_vector(delta.x, delta.y, 0);
-      debug() << "off=" << off;
       
       ITrackSegmentPtr track = make_gen_track(off,
                                               start_dir,

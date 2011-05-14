@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009, 2011  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -41,8 +41,6 @@ void ToggleBar::render(RenderContext& rc) const
 
 void ToggleBar::child_added(Widget* w)
 {
-   debug() << "Added " << w->name() << " to toggle bar";
-
    w->x(nextX);
    w->y(0);
    w->width(button_width);
