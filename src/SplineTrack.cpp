@@ -25,11 +25,11 @@
 #include <stdexcept>
 
 // A generic track implementation based on Bezier curves
-class GenTrack : public ITrackSegment,
-                 private SleeperHelper,
-                 private BezierHelper {
+class SplineTrack : public ITrackSegment,
+                    private SleeperHelper,
+                    private BezierHelper {
 public:
-   GenTrack(Vector<int> delta,
+   SplineTrack(Vector<int> delta,
             track::Direction entry_dir,
             track::Direction exit_dir);
 
@@ -81,11 +81,11 @@ private:
    static MeshCache mesh_cache;
 };
 
-GenTrack::MeshCache GenTrack::mesh_cache;
+SplineTrack::MeshCache SplineTrack::mesh_cache;
 
-GenTrack::GenTrack(Vector<int> delta,
-                   track::Direction entry_dir,
-                   track::Direction exit_dir)
+SplineTrack::SplineTrack(Vector<int> delta,
+                         track::Direction entry_dir,
+                         track::Direction exit_dir)
    : delta(delta),
      entry_dir(entry_dir),
      exit_dir(exit_dir)
@@ -129,7 +129,7 @@ GenTrack::GenTrack(Vector<int> delta,
    bounding_polygon(bounds);
 }
 
-float GenTrack::extend_from_center(track::Direction dir) const
+float SplineTrack::extend_from_center(track::Direction dir) const
 {   
    // Track must extend from the centre to the edge of a tile
    const float x_sq = static_cast<float>(dir.x * dir.x);
@@ -143,7 +143,7 @@ float GenTrack::extend_from_center(track::Direction dir) const
       return sqrtf(y_sq / x_sq + 1) * 0.5f;   
 }
 
-void GenTrack::merge(IMeshBufferPtr buf) const
+void SplineTrack::merge(IMeshBufferPtr buf) const
 {
    Vector<float> off = make_vector(
       static_cast<float>(origin.x),
@@ -177,7 +177,7 @@ void GenTrack::merge(IMeshBufferPtr buf) const
    }
 }
 
-void GenTrack::render() const
+void SplineTrack::render() const
 {
 #if 0
    // Draw the bounding polygon
@@ -215,23 +215,23 @@ void GenTrack::render() const
 #endif
 }     
 
-void GenTrack::set_origin(int x, int y, float h)
+void SplineTrack::set_origin(int x, int y, float h)
 {
    origin = make_point(x, y);
    height = h;
 }
 
-float GenTrack::segment_length(const track::TravelToken& token) const
+float SplineTrack::segment_length(const track::TravelToken& token) const
 {
    return curve.length;
 }
 
-bool GenTrack::is_valid_direction(const track::Direction& dir) const
+bool SplineTrack::is_valid_direction(const track::Direction& dir) const
 {
    return dir == entry_dir || dir == -exit_dir;
 }
 
-void GenTrack::ensure_valid_direction(track::Direction dir) const
+void SplineTrack::ensure_valid_direction(track::Direction dir) const
 {
    if (!is_valid_direction(dir))
       throw runtime_error(
@@ -242,7 +242,8 @@ void GenTrack::ensure_valid_direction(track::Direction dir) const
          + " or " + boost::lexical_cast<string>(-exit_dir) + ")");
 }
 
-track::Connection GenTrack::next_position(const track::TravelToken& token) const
+track::Connection
+SplineTrack::next_position(const track::TravelToken& token) const
 {
    ensure_valid_direction(token.direction);
 
@@ -257,7 +258,7 @@ track::Connection GenTrack::next_position(const track::TravelToken& token) const
    }   
 }
 
-void GenTrack::get_endpoints(vector<Point<int> >& output) const
+void SplineTrack::get_endpoints(vector<Point<int> >& output) const
 {
    output.push_back(origin);
 
@@ -266,7 +267,7 @@ void GenTrack::get_endpoints(vector<Point<int> >& output) const
          make_point(origin.x + delta.x, origin.y + delta.y));
 }
 
-void GenTrack::get_covers(vector<Point<int> >& output) const
+void SplineTrack::get_covers(vector<Point<int> >& output) const
 {
    const Point<float> off = make_point(0.5f, 0.5f);
    
@@ -284,7 +285,7 @@ void GenTrack::get_covers(vector<Point<int> >& output) const
    }
 }
 
-bool GenTrack::point_in_polygon(const Polygon& poly, Point<float> p)
+bool SplineTrack::point_in_polygon(const Polygon& poly, Point<float> p)
 {
    bool odd_nodes = false;
    const int n_sides = poly.size();
@@ -306,7 +307,7 @@ bool GenTrack::point_in_polygon(const Polygon& poly, Point<float> p)
    return odd_nodes;
 }
 
-void GenTrack::bounding_polygon(Polygon& poly) const
+void SplineTrack::bounding_polygon(Polygon& poly) const
 {
    const float step = 0.01f;
    const float fudge = 0.8f;
@@ -322,7 +323,7 @@ void GenTrack::bounding_polygon(Polygon& poly) const
    }
 }
 
-void GenTrack::get_height_locked(vector<Point<int> >& output) const
+void SplineTrack::get_height_locked(vector<Point<int> >& output) const
 {
    for (int x = min(0, delta.x); x <= max(0, delta.x) + 1; x++) {
       for (int y = min(0, delta.y); y <= max(0, delta.y) + 1; y++) {
@@ -334,12 +335,12 @@ void GenTrack::get_height_locked(vector<Point<int> >& output) const
    }
 }
 
-ITrackSegmentPtr GenTrack::merge_exit(Point<int> where, track::Direction dir)
+ITrackSegmentPtr SplineTrack::merge_exit(Point<int> where, track::Direction dir)
 {
    return ITrackSegmentPtr();
 }
 
-float GenTrack::rotation_at(float curve_delta) const
+float SplineTrack::rotation_at(float curve_delta) const
 {
    assert(curve_delta >= 0.0f && curve_delta <= 1.0f);
    
@@ -358,7 +359,7 @@ float GenTrack::rotation_at(float curve_delta) const
       assert(false);
 }
 
-void GenTrack::transform(const track::TravelToken& token,
+void SplineTrack::transform(const track::TravelToken& token,
                          float delta, bool backwards) const
 {
    assert(delta < curve.length);
@@ -381,7 +382,7 @@ void GenTrack::transform(const track::TravelToken& token,
    glRotatef(-angle, 0.0f, 1.0f, 0.0f);
 }
 
-track::TravelToken GenTrack::get_travel_token(track::Position pos,
+track::TravelToken SplineTrack::get_travel_token(track::Position pos,
                                               track::Direction dir) const
 {
    using namespace placeholders;
@@ -393,14 +394,14 @@ track::TravelToken GenTrack::get_travel_token(track::Position pos,
    track::TravelToken tok = {
       dir,
       pos,
-      bind(&GenTrack::transform, this, _1, _2, backwards),
+      bind(&SplineTrack::transform, this, _1, _2, backwards),
       track::flat_gradient_func,
       1
    };
    return tok;
 }
 
-xml::element GenTrack::to_xml() const
+xml::element SplineTrack::to_xml() const
 {
    return xml::element("gen-track")
       .add_attribute("delta-x", delta.x)
@@ -411,9 +412,9 @@ xml::element GenTrack::to_xml() const
       .add_attribute("exit-dir-y", exit_dir.z);
 }
 
-ITrackSegmentPtr make_gen_track(Vector<int> delta,
-                                track::Direction entry_dir,
-                                track::Direction exit_dir)
+ITrackSegmentPtr make_spline_track(Vector<int> delta,
+                                   track::Direction entry_dir,
+                                   track::Direction exit_dir)
 {
-   return ITrackSegmentPtr(new GenTrack(delta, entry_dir, exit_dir));
+   return ITrackSegmentPtr(new SplineTrack(delta, entry_dir, exit_dir));
 }

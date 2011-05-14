@@ -1830,10 +1830,10 @@ void MapLoader::handle_s_bend_track(const AttributeSet attrs)
       ? make_vector(straight - 1, offset, 0)
       : make_vector(offset, straight - 1, 0);      
    
-   my_map->set_track_at(tile, make_gen_track(delta, axis, axis));
+   my_map->set_track_at(tile, make_spline_track(delta, axis, axis));
 #else
    // Legacy S-bend track
-   my_map->set_track_at(tile, makeSBend(axis, straight, offset));
+   my_map->set_track_at(tile, make_s_bend(axis, straight, offset));
 #endif
 }
    
@@ -1866,24 +1866,24 @@ void MapLoader::handle_curved_track(const AttributeSet& attrs)
    
    switch (start_angle) {
    case 0:
-      track = make_gen_track(make_vector(off, -off, 0),
-                             make_vector(1, 0, 0),
-                             make_vector(0, 0, -1));
+      track = make_spline_track(make_vector(off, -off, 0),
+                                make_vector(1, 0, 0),
+                                make_vector(0, 0, -1));
       break;
    case 90:
-      track = make_gen_track(make_vector(-off, -off, 0),
-                             make_vector(0, 0, -1),
-                             make_vector(-1, 0, 0));
+      track = make_spline_track(make_vector(-off, -off, 0),
+                                make_vector(0, 0, -1),
+                                make_vector(-1, 0, 0));
       break;
    case 180:
-      track = make_gen_track(make_vector(-off, off, 0),
-                             make_vector(-1, 0, 0),
-                             make_vector(0, 0, 1));
+      track = make_spline_track(make_vector(-off, off, 0),
+                                make_vector(-1, 0, 0),
+                                make_vector(0, 0, 1));
       break;
    case 270:
-      track = make_gen_track(make_vector(off, off, 0),
-                             make_vector(0, 0, 1),
-                             make_vector(1, 0, 0));
+      track = make_spline_track(make_vector(off, off, 0),
+                                make_vector(0, 0, 1),
+                                make_vector(1, 0, 0));
       break;
       
    default:
@@ -1920,7 +1920,7 @@ void MapLoader::handle_gen_track(const AttributeSet& attrs)
    attrs.get("exit-dir-x", exit_dir.x);
    attrs.get("exit-dir-y", exit_dir.z);
 
-   my_map->set_track_at(tile, make_gen_track(delta, entry_dir, exit_dir));
+   my_map->set_track_at(tile, make_spline_track(delta, entry_dir, exit_dir));
 }
 
 IMapPtr load_map(const string& a_res_id)

@@ -110,11 +110,11 @@ struct ITrackSegment : IXMLSerialisable {
 
    // Get a travel token for this track segment starting at a particular
    // position and moving in a particular direciton
-   virtual track::TravelToken get_travel_token(track::Position a_position,
-      track::Direction a_direction) const = 0;
+   virtual track::TravelToken get_travel_token(track::Position pos,
+                                               track::Direction dir) const = 0;
                                       
    // True if a train can travel in this direction along the track
-   virtual bool is_valid_direction(const track::Direction& a_direction) const = 0;
+   virtual bool is_valid_direction(const track::Direction& dir) const = 0;
    
    // Return the position of the next segment of track and the
    // orientation of the train.
@@ -167,9 +167,9 @@ ITrackSegmentPtr make_crossover_track();
 ITrackSegmentPtr make_points(track::Direction a_direction, bool reflect);
 ITrackSegmentPtr make_slope_track(track::Direction axis, Vector<float> slope,
    Vector<float> slope_before, Vector<float> slope_after);
-ITrackSegmentPtr makeSBend(track::Direction dir, int straight, int off);
-ITrackSegmentPtr make_gen_track(Vector<int> delta,
-                                track::Direction entry_dir,
-                                track::Direction exit_dir);
+ITrackSegmentPtr make_s_bend(track::Direction dir, int straight, int off);
+ITrackSegmentPtr make_spline_track(Vector<int> delta,
+                                   track::Direction entry_dir,
+                                   track::Direction exit_dir);
 
 #endif

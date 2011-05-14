@@ -473,9 +473,9 @@ void Editor::draw_dragged_track()
       
       VectorI off = make_vector(delta.x, delta.y, 0);
       
-      ITrackSegmentPtr track = make_gen_track(off,
-                                              start_dir,
-                                              end_dir);
+      ITrackSegmentPtr track = make_spline_track(off,
+                                                 start_dir,
+                                                 end_dir);
 
       Point<int> where = drag_begin;
       track->set_origin(where.x, where.y, map->height_at(where));
