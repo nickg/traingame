@@ -1660,11 +1660,9 @@ private:
    void handle_station_part(const AttributeSet& attrs);
    void handle_straight_track(const AttributeSet& attrs);
    void handle_slope_track(const AttributeSet& attrs);
-   void handle_s_bend_track(const AttributeSet attrs);
    void handle_points(const AttributeSet& attrs);
-   void handle_curved_track(const AttributeSet& attrs);
    void handle_crossover_track(const AttributeSet& attrs);
-   void handle_gen_track(const AttributeSet& attrs);
+   void handle_spline_track(const AttributeSet& attrs);
    
    shared_ptr<Map> my_map;
    map<int, IStationPtr> my_stations;
@@ -1685,18 +1683,15 @@ void MapLoader::start_element(const string& local_name,
       handle_start(attrs);
    else if (local_name == "straight-track")
       handle_straight_track(attrs);
-   else if (local_name == "curved-track")
-      handle_curved_track(attrs);
    else if (local_name == "crossover-track")
       handle_crossover_track(attrs);
-   else if (local_name == "gen-track")
-      handle_gen_track(attrs);
+   else if (local_name == "gen-track"
+            || local_name == "spline-track")
+      handle_spline_track(attrs);
    else if (local_name == "points")
       handle_points(attrs);
    else if (local_name == "slope-track")
       handle_slope_track(attrs);
-   else if (local_name == "sbend-track")
-      handle_s_bend_track(attrs);
    else if (local_name == "station-part")
       handle_station_part(attrs);
    else if (local_name == "station")
@@ -1814,29 +1809,6 @@ void MapLoader::handle_slope_track(const AttributeSet& attrs)
                         make_slope_track(axis, slope, slope_before, slope_after));
 }
 
-void MapLoader::handle_s_bend_track(const AttributeSet attrs)
-{
-   string align;
-   attrs.get("align", align);
-
-   track::Direction axis = align == "x" ? axis::X : axis::Y;
-
-   int offset, straight;
-   attrs.get("offset", offset);
-   attrs.get("straight", straight);
-
-#if 1
-   Vector<int> delta = axis == axis::X
-      ? make_vector(straight - 1, offset, 0)
-      : make_vector(offset, straight - 1, 0);      
-   
-   my_map->set_track_at(tile, make_spline_track(delta, axis, axis));
-#else
-   // Legacy S-bend track
-   my_map->set_track_at(tile, make_s_bend(axis, straight, offset));
-#endif
-}
-   
 void MapLoader::handle_points(const AttributeSet& attrs)
 {
    string align;
@@ -1853,60 +1825,12 @@ void MapLoader::handle_points(const AttributeSet& attrs)
    my_map->set_track_at(tile, make_points(dir, reflect));
 }
 
-void MapLoader::handle_curved_track(const AttributeSet& attrs)
-{
-   int start_angle, finish_angle, radius;
-   attrs.get("start-angle", start_angle);
-   attrs.get("finish-angle", finish_angle);
-   attrs.get("radius", radius);
-
-#if 1
-   ITrackSegmentPtr track;
-   const int off = radius - 1;
-   
-   switch (start_angle) {
-   case 0:
-      track = make_spline_track(make_vector(off, -off, 0),
-                                make_vector(1, 0, 0),
-                                make_vector(0, 0, -1));
-      break;
-   case 90:
-      track = make_spline_track(make_vector(-off, -off, 0),
-                                make_vector(0, 0, -1),
-                                make_vector(-1, 0, 0));
-      break;
-   case 180:
-      track = make_spline_track(make_vector(-off, off, 0),
-                                make_vector(-1, 0, 0),
-                                make_vector(0, 0, 1));
-      break;
-   case 270:
-      track = make_spline_track(make_vector(off, off, 0),
-                                make_vector(0, 0, 1),
-                                make_vector(1, 0, 0));
-      break;
-      
-   default:
-      throw runtime_error("Invalid curved-track angle"
-                          + boost::lexical_cast<string>(start_angle));
-   }
-
-   my_map->set_track_at(tile, track);
-
-#else
-   // Legacy CurvedTrack
-   my_map->set_track_at(tile,
-                        make_curved_track(start_angle, finish_angle, radius));
-
-#endif
-}
-
 void MapLoader::handle_crossover_track(const AttributeSet& attrs)
 {
    my_map->set_track_at(tile, make_crossover_track());
 }
 
-void MapLoader::handle_gen_track(const AttributeSet& attrs)
+void MapLoader::handle_spline_track(const AttributeSet& attrs)
 {
    Vector<int> delta;
    track::Direction entry_dir, exit_dir;

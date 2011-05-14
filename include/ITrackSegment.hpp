@@ -161,13 +161,10 @@ struct ITrackSegment : IXMLSerialisable {
 };
 
 ITrackSegmentPtr make_straight_track(const track::Direction& a_direction);
-ITrackSegmentPtr make_curved_track(track::Angle a_start_angle,
-   track::Angle a_finish_angle, int a_radius);
 ITrackSegmentPtr make_crossover_track();
 ITrackSegmentPtr make_points(track::Direction a_direction, bool reflect);
 ITrackSegmentPtr make_slope_track(track::Direction axis, Vector<float> slope,
    Vector<float> slope_before, Vector<float> slope_after);
-ITrackSegmentPtr make_s_bend(track::Direction dir, int straight, int off);
 ITrackSegmentPtr make_spline_track(Vector<int> delta,
                                    track::Direction entry_dir,
                                    track::Direction exit_dir);

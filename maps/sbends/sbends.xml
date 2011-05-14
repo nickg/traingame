@@ -8,7 +8,7 @@
 
 <tileset>
 <tile x="1" y="26">
-<curved-track start-angle="270" finish-angle="360" radius="4"/>
+<gen-track delta-x="3" delta-y="3" entry-dir-x="0" entry-dir-y="1" exit-dir-x="1" exit-dir-y="0"/>
 </tile>
 
 <tile x="2" y="8">
@@ -24,7 +24,7 @@
 </tile>
 
 <tile x="2" y="11">
-<sbend-track align="y" offset="4" straight="6"/>
+<gen-track delta-x="4" delta-y="5" entry-dir-x="0" entry-dir-y="1" exit-dir-x="0" exit-dir-y="1"/>
 </tile>
 
 <tile x="5" y="29">
@@ -44,7 +44,7 @@
 </tile>
 
 <tile x="6" y="20">
-<sbend-track align="y" offset="-5" straight="6"/>
+<gen-track delta-x="-5" delta-y="5" entry-dir-x="0" entry-dir-y="1" exit-dir-x="0" exit-dir-y="1"/>
 </tile>
 
 <tile x="6" y="29">
@@ -52,15 +52,15 @@
 </tile>
 
 <tile x="7" y="2">
-<curved-track start-angle="180" finish-angle="270" radius="6"/>
+<gen-track delta-x="-5" delta-y="5" entry-dir-x="-1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="1"/>
 </tile>
 
 <tile x="7" y="29">
-<sbend-track align="x" offset="-4" straight="5"/>
+<gen-track delta-x="4" delta-y="-4" entry-dir-x="1" entry-dir-y="0" exit-dir-x="1" exit-dir-y="0"/>
 </tile>
 
 <tile x="8" y="2">
-<sbend-track align="x" offset="-1" straight="4"/>
+<gen-track delta-x="3" delta-y="-1" entry-dir-x="1" entry-dir-y="0" exit-dir-x="1" exit-dir-y="0"/>
 </tile>
 
 <tile x="12" y="1">
@@ -92,11 +92,11 @@
 </tile>
 
 <tile x="15" y="25">
-<sbend-track align="x" offset="5" straight="5"/>
+<gen-track delta-x="4" delta-y="5" entry-dir-x="1" entry-dir-y="0" exit-dir-x="1" exit-dir-y="0"/>
 </tile>
 
 <tile x="16" y="1">
-<sbend-track align="x" offset="4" straight="6"/>
+<gen-track delta-x="5" delta-y="4" entry-dir-x="1" entry-dir-y="0" exit-dir-x="1" exit-dir-y="0"/>
 </tile>
 
 <tile x="20" y="30">
@@ -104,7 +104,7 @@
 </tile>
 
 <tile x="21" y="30">
-<curved-track start-angle="0" finish-angle="90" radius="4"/>
+<gen-track delta-x="3" delta-y="-3" entry-dir-x="1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="-1"/>
 </tile>
 
 <tile x="22" y="5">
@@ -120,7 +120,7 @@
 </tile>
 
 <tile x="25" y="7">
-<curved-track start-angle="90" finish-angle="180" radius="3"/>
+<gen-track delta-x="-2" delta-y="-2" entry-dir-x="0" entry-dir-y="-1" exit-dir-x="-1" exit-dir-y="0"/>
 </tile>
 
 <tile x="25" y="8">
@@ -140,7 +140,7 @@
 </tile>
 
 <tile x="25" y="12">
-<sbend-track align="y" offset="2" straight="4"/>
+<gen-track delta-x="2" delta-y="3" entry-dir-x="0" entry-dir-y="1" exit-dir-x="0" exit-dir-y="1"/>
 </tile>
 
 <tile x="27" y="16">
@@ -164,7 +164,7 @@
 </tile>
 
 <tile x="27" y="21">
-<sbend-track align="y" offset="-3" straight="4"/>
+<gen-track delta-x="-3" delta-y="3" entry-dir-x="0" entry-dir-y="1" exit-dir-x="0" exit-dir-y="1"/>
 </tile>
 </tileset>
 </map>

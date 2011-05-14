@@ -172,7 +172,7 @@
 </tile>
 
 <tile x="2" y="27">
-<curved-track start-angle="270" finish-angle="360" radius="3"/>
+<gen-track delta-x="2" delta-y="2" entry-dir-x="0" entry-dir-y="1" exit-dir-x="1" exit-dir-y="0"/>
 </tile>
 
 <tile x="3" y="10">
@@ -204,7 +204,7 @@
 </tile>
 
 <tile x="4" y="2">
-<curved-track start-angle="180" finish-angle="270" radius="3"/>
+<gen-track delta-x="-2" delta-y="2" entry-dir-x="-1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="1"/>
 </tile>
 
 <tile x="4" y="5">
@@ -280,7 +280,7 @@
 </tile>
 
 <tile x="6" y="12">
-<curved-track start-angle="270" finish-angle="360" radius="3"/>
+<gen-track delta-x="2" delta-y="2" entry-dir-x="0" entry-dir-y="1" exit-dir-x="1" exit-dir-y="0"/>
 </tile>
 
 <tile x="6" y="16">
@@ -308,7 +308,7 @@
 </tile>
 
 <tile x="7" y="3">
-<curved-track start-angle="180" finish-angle="270" radius="2"/>
+<gen-track delta-x="-1" delta-y="1" entry-dir-x="-1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="1"/>
 </tile>
 
 <tile x="7" y="16">
@@ -350,7 +350,7 @@
 </tile>
 
 <tile x="9" y="28">
-<curved-track start-angle="0" finish-angle="90" radius="3"/>
+<gen-track delta-x="2" delta-y="-2" entry-dir-x="1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="-1"/>
 </tile>
 
 <tile x="9" y="29">
@@ -460,7 +460,7 @@
 </tile>
 
 <tile x="13" y="6">
-<curved-track start-angle="270" finish-angle="360" radius="3"/>
+<gen-track delta-x="2" delta-y="2" entry-dir-x="0" entry-dir-y="1" exit-dir-x="1" exit-dir-y="0"/>
 </tile>
 
 <tile x="13" y="14">
@@ -468,7 +468,7 @@
 </tile>
 
 <tile x="13" y="20">
-<curved-track start-angle="180" finish-angle="270" radius="3"/>
+<gen-track delta-x="-2" delta-y="2" entry-dir-x="-1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="1"/>
 </tile>
 
 <tile x="14" y="0">
@@ -512,7 +512,7 @@
 </tile>
 
 <tile x="15" y="3">
-<curved-track start-angle="180" finish-angle="270" radius="3"/>
+<gen-track delta-x="-2" delta-y="2" entry-dir-x="-1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="1"/>
 </tile>
 
 <tile x="15" y="20">
@@ -558,7 +558,7 @@
 </tile>
 
 <tile x="16" y="20">
-<curved-track start-angle="0" finish-angle="90" radius="3"/>
+<gen-track delta-x="2" delta-y="-2" entry-dir-x="1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="-1"/>
 </tile>
 
 <tile x="16" y="23">
@@ -618,7 +618,7 @@
 </tile>
 
 <tile x="18" y="10">
-<curved-track start-angle="90" finish-angle="180" radius="3"/>
+<gen-track delta-x="-2" delta-y="-2" entry-dir-x="0" entry-dir-y="-1" exit-dir-x="-1" exit-dir-y="0"/>
 </tile>
 
 <tile x="18" y="11">
@@ -714,7 +714,7 @@
 </tile>
 
 <tile x="19" y="28">
-<curved-track start-angle="0" finish-angle="90" radius="2"/>
+<gen-track delta-x="1" delta-y="-1" entry-dir-x="1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="-1"/>
 </tile>
 
 <tile x="19" y="29">
@@ -722,7 +722,7 @@
 </tile>
 
 <tile x="20" y="6">
-<curved-track start-angle="90" finish-angle="180" radius="4"/>
+<gen-track delta-x="-3" delta-y="-3" entry-dir-x="0" entry-dir-y="-1" exit-dir-x="-1" exit-dir-y="0"/>
 </tile>
 
 <tile x="20" y="7">
@@ -814,7 +814,7 @@
 </tile>
 
 <tile x="21" y="24">
-<curved-track start-angle="270" finish-angle="360" radius="3"/>
+<gen-track delta-x="2" delta-y="2" entry-dir-x="0" entry-dir-y="1" exit-dir-x="1" exit-dir-y="0"/>
 </tile>
 
 <tile x="21" y="29">
@@ -922,7 +922,7 @@
 </tile>
 
 <tile x="26" y="26">
-<curved-track start-angle="0" finish-angle="90" radius="3"/>
+<gen-track delta-x="2" delta-y="-2" entry-dir-x="1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="-1"/>
 </tile>
 
 <tile x="26" y="28">
@@ -942,7 +942,7 @@
 </tile>
 
 <tile x="27" y="29">
-<curved-track start-angle="0" finish-angle="90" radius="3"/>
+<gen-track delta-x="2" delta-y="-2" entry-dir-x="1" entry-dir-y="0" exit-dir-x="0" exit-dir-y="-1"/>
 </tile>
 
 <tile x="28" y="11">
@@ -970,7 +970,7 @@
 </tile>
 
 <tile x="29" y="7">
-<curved-track start-angle="90" finish-angle="180" radius="6"/>
+<gen-track delta-x="-5" delta-y="-5" entry-dir-x="0" entry-dir-y="-1" exit-dir-x="-1" exit-dir-y="0"/>
 </tile>
 
 <tile x="29" y="8">

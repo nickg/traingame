@@ -80,7 +80,27 @@
                       </xs:complexType>
                     </xs:element>
 
+                    <!-- REMOVE: just an alias for spline-track -->
                     <xs:element name="gen-track" minOccurs="0">
+                      <xs:complexType>
+                        <xs:attribute name="delta-x" use="required"
+                                      type="xs:integer"/>
+                        <xs:attribute name="delta-y" use="required"
+                                      type="xs:integer"/>
+
+                        <xs:attribute name="entry-dir-x" use="required"
+                                      type="xs:integer"/>
+                        <xs:attribute name="entry-dir-y" use="required"
+                                      type="xs:integer"/>
+
+                        <xs:attribute name="exit-dir-x" use="required"
+                                      type="xs:integer"/>
+                        <xs:attribute name="exit-dir-y" use="required"
+                                      type="xs:integer"/>
+                      </xs:complexType>
+                    </xs:element>
+
+                    <xs:element name="spline-track" minOccurs="0">
                       <xs:complexType>
                         <xs:attribute name="delta-x" use="required"
                                       type="xs:integer"/>
