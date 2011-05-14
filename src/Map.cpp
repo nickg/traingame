@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2010  Nick Gasson
+//  Copyright (C) 2009-2011  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -292,7 +292,7 @@ void Map::erase_tile(int x, int y)
       for (vector<Point<int> >::iterator it = covers.begin();
            it != covers.end(); ++it) {
          tile_at((*it).x, (*it).y).track.reset();
-         dirty_tile(x, y);
+         dirty_tile((*it).x, (*it).y);
       }
    }
 
