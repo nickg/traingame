@@ -61,7 +61,7 @@ include_directories (include ${CMAKE_CURRENT_BINARY_DIR})
 add_executable (${PROJECT_NAME} WIN32 ${folder_source})
 
 target_link_libraries (${PROJECT_NAME} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY}
-  ${OPENGL_LIBRARY} ${XERCES_LIBRARIES} ${Boost_LIBRARIES}
+  ${OPENGL_LIBRARY} ${OpenGL_GLU_LIBRARY} ${XERCES_LIBRARIES} ${Boost_LIBRARIES}
   ${FREETYPE_LIBRARIES} ${GLEW_LIBRARY})
 
 # Test tool
