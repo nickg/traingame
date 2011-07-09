@@ -218,6 +218,22 @@ inline Vector<T> make_vector(T x, T y, T z)
    return Vector<T>(x, y, z);
 }
 
+template <typename X, typename Y, typename Z>
+inline VectorI make_vector_i(X x, Y y, Z z)
+{
+   return make_vector(static_cast<int>(x),
+                      static_cast<int>(y),
+                      static_cast<int>(z));
+}
+
+template <typename X, typename Y, typename Z>
+inline VectorF make_vector_f(X x, Y y, Z z)
+{
+   return make_vector(static_cast<float>(x),
+                      static_cast<float>(y),
+                      static_cast<float>(z));
+}
+
 // Find a surface normal
 template <typename T>
 Vector<T> surface_normal(const Vector<T>& a, const Vector<T>& b,
