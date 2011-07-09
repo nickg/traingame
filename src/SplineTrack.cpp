@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2010  Nick Gasson
+//  Copyright (C) 2010-2011  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -360,7 +360,7 @@ float SplineTrack::rotation_at(float curve_delta) const
 }
 
 void SplineTrack::transform(const track::TravelToken& token,
-                         float delta, bool backwards) const
+                            float delta, bool backwards) const
 {
    assert(delta < curve.length);
 
@@ -383,7 +383,7 @@ void SplineTrack::transform(const track::TravelToken& token,
 }
 
 track::TravelToken SplineTrack::get_travel_token(track::Position pos,
-                                              track::Direction dir) const
+                                                 track::Direction dir) const
 {
    using namespace placeholders;
 
@@ -403,7 +403,7 @@ track::TravelToken SplineTrack::get_travel_token(track::Position pos,
 
 xml::element SplineTrack::to_xml() const
 {
-   return xml::element("gen-track")
+   return xml::element("spline-track")
       .add_attribute("delta-x", delta.x)
       .add_attribute("delta-y", delta.y)
       .add_attribute("entry-dir-x", entry_dir.x)
