@@ -66,16 +66,25 @@ private:
    void build_gui();
    void draw_dragged_track();
    bool draw_track_tile(Point<int> where, track::Direction axis);
-   void draw_dragged_straight(const track::Direction& an_axis, int a_length);
-   void draw_dragged_curve(int x_length, int y_length);
+   void draw_dragged_straight(const track::Direction& axis, int length);
+   void draw_diagonal_straight(const track::Direction& axis, int length);
+   void draw_initial_track();
+   void draw_unconstrained_track(const track::Direction& start_dir);
+   void draw_constrained_track(const track::Direction& start_dir,
+                               const track::Direction& end_dir);
+   void draw_curve(const track::Direction& entry_dir,
+                   const track::Direction& exit_dir);
+   void draw_s_bend(const track::Direction& dir);
    bool can_connect(const Point<int>& a_first_point,
-      const Point<int>& a_second_point) const;
+                    const Point<int>& a_second_point) const;
    bool can_place_track(ITrackSegmentPtr track);
    bool guess_track_dir(const Point<int>& p, track::Direction& d) const;
    void drag_box_bounds(int& x_min, int& x_max, int &y_min, int& y_max) const;
+   void drag_box_size(int& xlen, int& ylen) const;
    void delete_objects();
    void plant_trees();
    void save();
+   bool is_diagonal(const track::Direction& dir) const;
       
    IMapPtr map;
    
@@ -170,6 +179,15 @@ void Editor::drag_box_bounds(int& x_min, int& x_max, int &y_min, int& y_max) con
 
    y_min = min(drag_begin.y, drag_end.y);
    y_max = max(drag_begin.y, drag_end.y); 
+}
+
+void Editor::drag_box_size(int& xlen, int& ylen) const
+{
+   int xmin, xmax, ymin, ymax;
+   drag_box_bounds(xmin, xmax, ymin, ymax);
+
+   xlen = abs(xmax - xmin) + 1;
+   ylen = abs(ymax - ymin) + 1;
 }
 
 // Render the next frame
@@ -327,15 +345,31 @@ bool Editor::draw_track_tile(Point<int> where, track::Direction axis)
 
 // Special case where the user drags a rectangle of width 1
 // This just draws straight track along the rectangle
-void Editor::draw_dragged_straight(const track::Direction& an_axis, int a_length)
+void Editor::draw_dragged_straight(const track::Direction& axis, int length)
 {
    Point<int> where = drag_begin;
 
-   for (int i = 0; i < a_length; i++) {
-      draw_track_tile(where, an_axis);
+   for (int i = 0; i < length; i++) {
+      draw_track_tile(where, axis);
 
-      where.x += an_axis.x;
-      where.y += an_axis.z;
+      where.x += axis.x;
+      where.y += axis.z;
+   }
+}
+
+// The user draws a square and one of the corners meets a diagnonal
+// track segment
+void Editor::draw_diagonal_straight(const track::Direction& axis, int length)
+{
+   Point<int> where = drag_begin;
+
+   for (int i = 0; i < length; i++) {
+      VectorI delta = make_vector(axis.x, axis.z, 0);
+      ITrackSegmentPtr track = make_spline_track(delta, axis, axis);
+      map->set_track_at(where, track);
+
+      where.x += axis.x;
+      where.y += axis.z;
    }
 }
 
@@ -357,17 +391,191 @@ bool Editor::can_place_track(ITrackSegmentPtr track)
    return true;
 }
 
+bool Editor::is_diagonal(const track::Direction& dir) const
+{
+   return !(dir == axis::X || dir == axis::Y
+            || dir == -axis::X || dir == -axis::Y);
+}
+
+// The direction of neither endpoint is known
+void Editor::draw_initial_track()
+{
+   debug() << __func__ << ": drag_begin=" << drag_begin
+           << " drag_end=" << drag_end;
+
+   int xmin, xmax, ymin, ymax, xlen, ylen;
+   drag_box_bounds(xmin, xmax, ymin, ymax);
+   drag_box_size(xlen, ylen);
+   
+   if (xlen == 1)
+      draw_dragged_straight(drag_begin.y > drag_end.y ? -axis::Y : axis::Y,
+                            ylen);
+   else if (ylen == 1)
+      draw_dragged_straight(drag_begin.x > drag_end.x ? -axis::X : axis::X,
+                            xlen);
+   else if (is_shift_down && xlen == ylen)
+      warn() << "draw_diagonal_straight";
+   else
+      warn() << "cannot infer track";
+}
+
+void Editor::draw_curve(const track::Direction& entry_dir,
+                        const track::Direction& exit_dir)
+{
+   int xmin, xmax, ymin, ymax, xlen, ylen;
+   drag_box_bounds(xmin, xmax, ymin, ymax);
+   drag_box_size(xlen, ylen);
+
+   VectorI delta = make_vector(drag_end.x - drag_begin.x,
+                               drag_end.y - drag_begin.y,
+                               0);
+   ITrackSegmentPtr curve = make_spline_track(delta, entry_dir, exit_dir);
+   map->set_track_at(drag_begin, curve);
+}
+
+void Editor::draw_s_bend(const track::Direction& dir)
+{
+   draw_curve(dir, dir);
+}
+
+// The direction of the start is known but not the end
+void Editor::draw_unconstrained_track(const track::Direction& start_dir)
+{   
+   debug() << __func__ << ": drag_begin=" << drag_begin
+           << " drag_end=" << drag_end << " start_dir=" << start_dir;
+
+   int xmin, xmax, ymin, ymax, xlen, ylen;
+   drag_box_bounds(xmin, xmax, ymin, ymax);
+   drag_box_size(xlen, ylen);
+
+   bool start_is_ortho = (start_dir == axis::X || start_dir == axis::Y
+                          || start_dir == -axis::X || start_dir == -axis::Y);
+   bool could_be_curve = (xlen >= 3 && ylen >= 3);
+   bool could_be_90_curve = (start_is_ortho && could_be_curve
+                             && !is_shift_down);
+   bool could_be_45_curve = (could_be_curve && xlen != ylen
+                             && (!start_is_ortho || is_shift_down));
+   bool could_be_s_bend = (start_is_ortho && xlen != ylen && !is_shift_down);
+   bool could_be_straight = ((start_is_ortho && (xlen == 1 || ylen == 1))
+                             || (!start_is_ortho && xlen == ylen
+                                 && !is_shift_down));
+
+   if (could_be_straight) {
+      if (start_is_ortho)
+         draw_dragged_straight(start_dir, xlen == 1 ? ylen : xlen);
+      else
+         draw_diagonal_straight(start_dir, xlen);
+   }
+   else if (could_be_90_curve) {
+
+      track::Direction exit_dir;
+      if (start_dir == axis::X || start_dir == -axis::X) {
+         if (drag_end.y < drag_begin.y)
+            exit_dir = -axis::Y;
+         else
+            exit_dir = axis::Y;
+      }
+      else if (start_dir == axis::Y || start_dir == -axis::Y) {
+         if (drag_end.x < drag_begin.x)
+            exit_dir = -axis::X;
+         else
+            exit_dir = axis::X;
+      }
+      else
+         assert(false);
+
+      // Draw straight track until we have a square
+      while (xlen > ylen) {
+         if (start_dir == axis::X || start_dir == -axis::X) {
+            draw_track_tile(drag_begin, axis::X);
+            drag_begin += make_point(start_dir.x, 0);
+         }
+         else if (start_dir == axis::Y || start_dir == -axis::Y) {
+            draw_track_tile(drag_end, axis::X);
+            drag_end -= make_point(exit_dir.x, 0);
+         }
+         xlen--;
+      }
+      while (ylen > xlen) {
+         if (start_dir == axis::Y || start_dir == -axis::Y) {
+            draw_track_tile(drag_begin, axis::Y);
+            drag_begin += make_point(0, start_dir.z);
+         }
+         else if (start_dir == axis::X || start_dir == -axis::X) {
+            draw_track_tile(drag_end, axis::Y);
+            drag_end -= make_point(0, exit_dir.z);
+         }
+         ylen--;
+      }
+      
+      draw_curve(start_dir, exit_dir);
+   }
+   else if (could_be_45_curve) {
+      
+      track::Direction exit_dir;
+      if (start_dir == axis::X || start_dir == -axis::X) {
+         if (drag_end.y < drag_begin.y)
+            exit_dir = make_vector(start_dir.x, 0, -1);
+         else
+            exit_dir = make_vector(start_dir.x, 0, 1);
+      }
+      else if (start_dir == axis::Y || start_dir == -axis::Y) {
+         if (drag_end.x < drag_begin.x)
+            exit_dir = make_vector(-1, 0, start_dir.z);
+         else
+            exit_dir = make_vector(1, 0, start_dir.z);
+      }
+      else
+         assert(false);
+
+      draw_curve(start_dir, exit_dir);
+   }
+   else if (could_be_s_bend) {
+      draw_s_bend(start_dir);
+   }
+   else
+      warn() << "cannot infer track";
+      
+}
+
+// The direction of both endpoints is known
+void Editor::draw_constrained_track(const track::Direction& start_dir,
+                                    const track::Direction& end_dir)
+{
+   debug() << __func__ << ": drag_begin=" << drag_begin
+           << " drag_end=" << drag_end << " start_dir=" << start_dir
+           << " end_dir=" << end_dir;
+
+   int xlen, ylen;
+   drag_box_size(xlen, ylen);
+
+   bool start_is_ortho = (start_dir == axis::X || start_dir == axis::Y
+                          || start_dir == -axis::X || start_dir == -axis::Y);
+
+   bool is_straight = ((start_dir == end_dir || start_dir == -end_dir)
+                       && ((start_is_ortho && (xlen == 1 || ylen == 1))
+                           || (!start_is_ortho && xlen == ylen)));
+
+   if (is_straight) {
+      if (xlen == 1 || ylen == 1)
+         draw_dragged_straight(start_dir, max(xlen, ylen));
+      else
+         draw_diagonal_straight(start_dir, xlen);
+   }
+   else {
+      warn() << "TODO";
+   }
+}
+
 // Called when the user has finished dragging a rectangle for track
 // Connect the beginning and end up in the simplest way possible
 void Editor::draw_dragged_track()
 {
    track::Direction straight;  // Orientation for straight track section
 
-   int xmin, xmax, ymin, ymax;
+   int xmin, xmax, ymin, ymax, xlen, ylen;
    drag_box_bounds(xmin, xmax, ymin, ymax);
-   
-   int xlen = abs(xmax - xmin) + 1;
-   int ylen = abs(ymax - ymin) + 1;
+   drag_box_size(xlen, ylen);
 
    // Try to merge the start and end directly
    const track::Direction merge_axis =
@@ -393,6 +601,23 @@ void Editor::draw_dragged_track()
    bool start_was_guess = !guess_track_dir(drag_begin, start_dir);
    bool end_was_guess = !guess_track_dir(drag_end, end_dir);
 
+   if (start_was_guess) {
+      if (end_was_guess)
+         draw_initial_track();
+      else {
+         swap(drag_begin, drag_end);
+         draw_unconstrained_track(end_dir);
+      }         
+   }
+   else {
+      if (end_was_guess)
+         draw_unconstrained_track(start_dir);
+      else
+         draw_constrained_track(start_dir, end_dir);
+   }
+
+   
+#if 0
    end_dir = -end_dir;
 
    // If we have to guess both orientations use a heuristic to decide
@@ -447,7 +672,7 @@ void Editor::draw_dragged_track()
       }
    }
 
-#if 0
+#if 1
    debug();
    debug() << "start_was_guess=" << start_was_guess
            << " end_was_guess=" << end_was_guess;
@@ -483,6 +708,7 @@ void Editor::draw_dragged_track()
       if (can_place_track(track))
          map->set_track_at(where, track);
    }
+#endif
 }
 
 // Delete all objects in the area selected by the user

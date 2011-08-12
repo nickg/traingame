@@ -20,11 +20,36 @@
 
 #include "IMap.hpp"
 
+namespace graph {
+
+   struct Arc;
+
+   enum NodeType {
+      NODE_ROOT,
+      NODE_STATION,
+      NODE_POINTS
+   };
+   
+   struct Node {
+      unsigned id;
+      NodeType type;
+      vector<Arc> arcs;
+      ITrackSegmentPtr track;
+   };
+
+   struct Arc {
+      unsigned start, end;
+      float length;
+   };
+}
+
 struct ITrackGraph {
    virtual ~ITrackGraph() {}
 
-   // Dump the track graph in DOT format for rendering with Graphviz
    virtual void write_dot_file(const string& file) const = 0;
+   
+   virtual const graph::Node& root() const = 0;
+   virtual const graph::Node& node(unsigned n) const = 0;   
 };
 
 typedef shared_ptr<ITrackGraph> ITrackGraphPtr;
