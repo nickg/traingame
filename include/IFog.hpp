@@ -27,7 +27,7 @@ struct IFog {
    virtual void apply() const = 0;
 };
 
-typedef std::tr1::shared_ptr<IFog> IFogPtr;
+typedef shared_ptr<IFog> IFogPtr;
 
 // Construct a generic fog
 IFogPtr make_fog(float r, float g, float b,

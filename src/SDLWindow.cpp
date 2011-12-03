@@ -33,8 +33,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-using namespace boost;
-
 // Concrete implementation of SDL window
 class SDLWindow : public IWindow, public IGraphics, public IPickBuffer,
                   public enable_shared_from_this<SDLWindow> {
@@ -69,7 +67,7 @@ private:
    void process_input();
    MouseButton from_sdl_button(Uint8 aSDLButton) const;
    void capture_frame() const;
-   
+
    bool am_running;
    int width_, height_;
    IScreenPtr screen;
@@ -92,14 +90,14 @@ static Uint32 updateFPS(Uint32 an_interval, void* thread)
 {
    the_last_fps = the_frame_counter;
    the_frame_counter = 0;
-   
+
    return an_interval;
 }
 
 static void frame_complete()
 {
    the_frame_counter++;
-   
+
    update_render_stats();
 }
 
@@ -109,13 +107,13 @@ struct FrameTimerThread {
    {
       my_timer = SDL_AddTimer(1000, updateFPS, this);
    }
-   
+
    ~FrameTimerThread()
    {
       // Finalise properly when an exception is thrown
       SDL_RemoveTimer(my_timer);
    }
-   
+
    SDL_TimerID my_timer;
 };
 
@@ -125,7 +123,7 @@ SDLWindow::SDLWindow()
      will_take_screen_shot(false)
 {
    IConfigPtr cfg = get_config();
-      
+
    // Start SDL
    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
       ostringstream ss;
@@ -152,7 +150,7 @@ SDLWindow::SDLWindow()
 
    // Hide the window manager cursor
    //SDL_ShowCursor(SDL_DISABLE);
-   
+
    // Start OpenGL
    printGLVersion();
    initGL();
@@ -163,7 +161,7 @@ SDLWindow::SDLWindow()
 // Destroy the game window
 SDLWindow::~SDLWindow()
 {
-   
+
 }
 
 // Make a screen capture at the end of this frame
@@ -185,7 +183,7 @@ void SDLWindow::switch_screen(IScreenPtr a_screen)
 void SDLWindow::run(IScreenPtr a_screen, int frames)
 {
    assert(!am_running);
-   
+
    screen = a_screen;
 
    FrameTimerThread fps_timer;
@@ -194,7 +192,7 @@ void SDLWindow::run(IScreenPtr a_screen, int frames)
 
    // Wait a few milliseconds to get a reasonable tick delta
    SDL_Delay(1);
-   
+
    am_running = true;
    do {
       unsigned tick_start = SDL_GetTicks();
@@ -203,7 +201,7 @@ void SDLWindow::run(IScreenPtr a_screen, int frames)
       try {
          process_input();
          screen->update(shared_from_this(), delta);
-         
+
          if (!will_skip_next_frame) {
             drawGLScene(shared_from_this(), shared_from_this(), screen);
             SDL_GL_SwapBuffers();
@@ -230,7 +228,7 @@ void SDLWindow::run(IScreenPtr a_screen, int frames)
       last_tick = tick_start;
       update_render_stats();
    } while (am_running);
-   
+
    screen.reset();
 }
 
@@ -269,7 +267,7 @@ void SDLWindow::process_input()
          quit();
          log() << "Window closed";
          break;
-         
+
       case SDL_KEYDOWN:
          screen->on_key_down(e.key.keysym.sym);
          break;
@@ -286,7 +284,7 @@ void SDLWindow::process_input()
             have_sent_mouseMotion = true;
          }
          break;
-         
+
       case SDL_MOUSEBUTTONDOWN:
          screen->on_mouse_click(shared_from_this(),
                                 e.button.x, e.button.y,
@@ -302,7 +300,7 @@ void SDLWindow::process_input()
       case SDL_VIDEORESIZE:
          width_ = e.resize.w;
          height_ = e.resize.h;
-         
+
          resizeGLScene(shared_from_this());
          break;
       }
@@ -370,9 +368,9 @@ bool SDLWindow::point_in_view_frustum(float x, float y, float z)
 void SDLWindow::capture_frame() const
 {
    static int file_number = 1;
-   
+
    const string file_name
-      ("screenshot" + lexical_cast<string>(file_number++) + ".bmp");
+      ("screenshot" + boost::lexical_cast<string>(file_number++) + ".bmp");
 
    SDL_Surface* temp = SDL_CreateRGBSurface
       (SDL_SWSURFACE, width_, height_, 24,
@@ -408,5 +406,5 @@ int SDLWindow::get_fps() const
 // Construct and initialise an OpenGL SDL window
 IWindowPtr make_sdl_window()
 {
-   return std::tr1::shared_ptr<IWindow>(new SDLWindow);
+   return shared_ptr<IWindow>(new SDLWindow);
 }

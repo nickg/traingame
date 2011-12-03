@@ -27,9 +27,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-using namespace std;
-using namespace std::tr1;
-
 class Texture : public ITexture {
 public:
    Texture(const string &file);
@@ -37,14 +34,14 @@ public:
 
    GLuint texture() const { return my_texture; }
    void bind();
-   
+
    int width() const { return my_width; }
    int height() const { return my_height; }
-   
+
 private:
    GLuint my_texture;
    int my_width, my_height;
-   
+
    static bool is_power_ofTwo(int n);
    static bool is_texture_sizeSupported(int width, int height,
                                       int ncols = 4, GLenum format = GL_RGBA);
@@ -54,7 +51,7 @@ private:
 namespace {
    map<string, ITexturePtr> the_texture_cache;
 }
-  
+
 ITexturePtr load_texture(const string& a_file_name)
 {
    map<string, ITexturePtr>::iterator it =
@@ -66,7 +63,7 @@ ITexturePtr load_texture(const string& a_file_name)
       ITexturePtr ptr(new Texture(a_file_name));
       the_texture_cache[a_file_name] = ptr;
       return ptr;
-   }      
+   }
 }
 
 ITexturePtr load_texture(IResourcePtr a_res, const string& a_file_name)
@@ -123,7 +120,7 @@ Texture::Texture(const string &file)
 
    my_width = surface->w;
    my_height = surface->h;
-   
+
    glGenTextures(1, &my_texture);
    glBindTexture(GL_TEXTURE_2D, my_texture);
 

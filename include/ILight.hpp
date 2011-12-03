@@ -28,7 +28,7 @@ struct ILight {
    virtual void apply() const = 0;
 };
 
-typedef std::tr1::shared_ptr<ILight> ILightPtr;
+typedef shared_ptr<ILight> ILightPtr;
 
 // A weak non-directional light
 ILightPtr make_sun_light();

@@ -26,7 +26,7 @@
 // Interface to managing complete trains
 struct ITrain {
    virtual ~ITrain() {}
-   
+
    virtual void render() const = 0;
    virtual void update(int a_delta) = 0;
 
@@ -50,7 +50,7 @@ struct ITrain {
    virtual IControllerPtr controller() = 0;
 };
 
-typedef std::tr1::shared_ptr<ITrain> ITrainPtr;
+typedef shared_ptr<ITrain> ITrainPtr;
 
 ITrainPtr make_train(IMapPtr a_map);
 

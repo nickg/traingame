@@ -37,6 +37,6 @@ struct IGraphics {
                         const Vector<float> a_target_point) = 0;
 };
 
-typedef std::tr1::shared_ptr<IGraphics> IGraphicsPtr;
+typedef shared_ptr<IGraphics> IGraphicsPtr;
 
 #endif

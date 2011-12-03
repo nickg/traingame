@@ -28,11 +28,11 @@
 // First, make sure we get a decent TR1 implementation
 #if defined __GNUC__
 
-#include <tr1/memory>
-#include <tr1/tuple>
-#include <tr1/functional>
+#include <memory>
+#include <tuple>
+#include <functional>
 
-#elif (_MSVC_VER >= 1500)  
+#elif (_MSVC_VER >= 1500)
 
 // MSVC9 has TR1 available as an add-on pack
 
@@ -47,6 +47,8 @@
 #include <boost/tr1/memory.hpp>
 #include <boost/tr1/tuple.hpp>
 #include <boost/tr1/functional.hpp>
+
+using namespace std::tr1;
 
 #endif
 
@@ -64,6 +66,5 @@
 #endif
 
 using namespace std;
-using namespace std::tr1;
 
 #endif

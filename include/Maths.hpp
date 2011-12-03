@@ -41,7 +41,7 @@ struct Packed<float, 3> {
       union {
          Type p;
          float f[4];
-      } u;   
+      } u;
       u.f[0] = a;
       u.f[1] = b;
       u.f[2] = c;
@@ -53,7 +53,7 @@ struct Packed<float, 3> {
 template <>
 struct Packed<int, 3> {
    typedef int __attribute__((vector_size (16))) Type;
-   
+
    static inline Type pack(int a, int b, int c)
    {
       union Union {
@@ -73,7 +73,7 @@ struct EqTolerance;
 
 template <>
 struct EqTolerance<float> {
-   static const float Value = 0.01f;
+   static constexpr float Value = 0.01f;
 };
 
 template <>
@@ -141,18 +141,18 @@ struct Vector {
       packed /= Packed<T, 3>::pack(m, m, m);
       return *this;
    }
-   
+
    inline Vector<T> operator+(const Vector<T>& v) const
    {
       return Vector<T>(packed + v.packed);
    }
-   
+
    inline Vector<T>& operator+=(const Vector<T>& v)
    {
       packed += v.packed;
       return *this;
    }
-   
+
    inline Vector<T> operator-(const Vector<T>& v) const
    {
       return Vector<T>(packed - v.packed);
@@ -168,14 +168,14 @@ struct Vector {
       packed -= v.packed;
       return *this;
    }
-   
+
    inline bool operator==(const Vector<T>& rhs) const
    {
       const typename Packed<T, 3>::Type diff = rhs.packed - packed;
       const T delta2 = EqTolerance<T>::Value * EqTolerance<T>::Value;
 
       const Vector<T> squared(diff * diff);
-      
+
       return (squared.x <= delta2)
          && (squared.y <= delta2)
          && (squared.z <= delta2);
@@ -284,14 +284,14 @@ struct Point {
    {
       return Point(x - rhs.x, y - rhs.y);
    }
-   
+
    Point<T>& operator+=(const Point<T>& rhs)
    {
       x += rhs.x;
       y += rhs.y;
       return *this;
    }
-   
+
    Point<T>& operator-=(const Point<T>& rhs)
    {
       x -= rhs.x;
@@ -309,7 +309,7 @@ struct Point {
       return x < rhs.x
          || (x == rhs.x && y < rhs.y);
    }
-   
+
    T x, y;
 };
 
@@ -338,7 +338,7 @@ struct Frustum {
    bool cube_in_frustum(float x, float y, float z, float size);	// size = 0.5*side_length
    bool cuboid_in_frustum(float x,	  float y,	   float z,
       float sizeX, float sizeY, float sizeZ);
-   
+
    float planes[6][4];
 };
 

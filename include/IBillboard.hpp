@@ -33,7 +33,7 @@ struct IBillboard {
    virtual void set_colour(float r, float g, float b, float a) = 0;
 };
 
-typedef std::tr1::shared_ptr<IBillboard> IBillboardPtr;
+typedef shared_ptr<IBillboard> IBillboardPtr;
 
 IBillboardPtr make_cylindrical_billboard(ITexturePtr a_texture);
 IBillboardPtr make_spherical_billboard(ITexturePtr a_texture);

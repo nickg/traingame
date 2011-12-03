@@ -34,8 +34,6 @@
 
 #include <boost/lexical_cast.hpp>
 
-using namespace boost;
-
 // Cache of already loaded models
 namespace {
    typedef map<string, IModelPtr> ModelCache;
@@ -48,7 +46,7 @@ struct Material {
         ambientR(1.0f), ambientG(1.0f), ambientB(1.0f),
         specularR(0.0f), specularG(0.0f), specularB(0.0f)
    {}
-   
+
    float diffuseR, diffuseG, diffuseB;
    float ambientR, ambientG, ambientB;
    float specularR, specularG, specularB;
@@ -67,16 +65,16 @@ private:
    MaterialSet my_materials;
 };
 
-typedef std::tr1::shared_ptr<MaterialFile> MaterialFilePtr;
+typedef shared_ptr<MaterialFile> MaterialFilePtr;
 
 MaterialFile::MaterialFile(const string& a_file_name, IResourcePtr a_res)
 {
    IResource::Handle h = a_res->open_file(a_file_name);
-   
+
    log() << "Loading materials from " << h.file_name();
 
    istream& is = h.rstream();
-   
+
    string active_material;
    while (!is.eof()) {
       string word;
@@ -139,10 +137,10 @@ public:
    void cache();
    void merge(IMeshBufferPtr into, Vector<float> off, float y_angle) const;
    Vector<float> dimensions() const { return dimensions_; }
-   
+
 private:
    void compile_mesh() const;
-   
+
    Vector<float> dimensions_;
    mutable IMeshPtr mesh;
    const IMeshBufferPtr buffer;
@@ -150,7 +148,7 @@ private:
 
 Model::~Model()
 {
-   
+
 }
 
 void Model::cache()
@@ -163,14 +161,14 @@ void Model::render() const
 {
    if (!mesh)
       compile_mesh();
-   
+
    mesh->render();
 }
 
 void Model::merge(IMeshBufferPtr into, Vector<float> off, float y_angle) const
 {
    into->merge(buffer, off, y_angle);
-}   
+}
 
 void Model::compile_mesh() const
 {
@@ -211,7 +209,7 @@ IModelPtr load_model(IResourcePtr a_res,
    Material active_mtl;
 
    ifstream& f = h.rstream();
-   
+
    while (!f.eof()) {
       string first;
       f >> first;
@@ -228,7 +226,7 @@ IModelPtr load_model(IResourcePtr a_res,
          // Material file
          string file_name;
          f >> file_name;
-         
+
          material_file =
             MaterialFilePtr(new MaterialFile(file_name, a_res));
       }
@@ -269,7 +267,7 @@ IModelPtr load_model(IResourcePtr a_res,
          // Normal
          float x, y, z;
          f >> x >> y >> z;
-         
+
          normals.push_back(make_vector(x, y, z));
       }
       else if (first == "vt") {
@@ -287,7 +285,7 @@ IModelPtr load_model(IResourcePtr a_res,
          // Set the material for this group
          string material_name;
          f >> material_name;
-         
+
          if (material_file) {
             assert(buffer);
             active_mtl = material_file->get(material_name);
@@ -300,7 +298,7 @@ IModelPtr load_model(IResourcePtr a_res,
          istringstream ss(line);
 
          int v_in_thisFace = 0;
-         
+
          while (!ss.eof()) {
             char delim1, delim2;
             unsigned vi, vti, vni;
@@ -326,11 +324,11 @@ IModelPtr load_model(IResourcePtr a_res,
             Vector<float>& vn = normals[vni - 1];
 
             assert(buffer);
-            
+
             const Colour col = make_colour(active_mtl.diffuseR,
                                            active_mtl.diffuseG,
                                            active_mtl.diffuseB);
-            
+
             if (vti - 1 < texture_offs.size()) {
                Point<float>& vt = texture_offs[vti - 1];
                buffer->add(v, vn, col, vt);
@@ -340,7 +338,7 @@ IModelPtr load_model(IResourcePtr a_res,
          }
 
          face_count++;
-            
+
          // Don't discard the next line
          continue;
       }
@@ -350,10 +348,10 @@ IModelPtr load_model(IResourcePtr a_res,
    }
 
    Vector<float> dim = make_vector(xmax - xmin, ymax - ymin, zmax - zmin);
-   
+
    log() << "Model loaded: " << vertices.size() << " vertices, "
          << face_count << " faces";
-   
+
    IModelPtr ptr(new Model(dim, buffer));
 
    the_cache[cache_name] = ptr;

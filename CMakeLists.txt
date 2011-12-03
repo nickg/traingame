@@ -13,7 +13,7 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/"
 # Make sure optimisation is always enabled
 if (UNIX)
   if (CMAKE_COMPILER_IS_GNUCC)
-    set (CMAKE_CXX_FLAGS "-g -Wall -ffast-math -O2")
+    set (CMAKE_CXX_FLAGS "-g -Wall -ffast-math -O2 -std=c++0x")
     # "-Wconversion -Werror"
     if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "i686")
       set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -mfpmath=sse")

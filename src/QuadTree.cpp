@@ -31,7 +31,7 @@ public:
    ~QuadTree();
 
    void build_tree(int width, int height);
-   
+
    void render(IGraphicsPtr a_context);
    int leaf_size() const { return QT_LEAF_SIZE; }
 
@@ -48,7 +48,7 @@ private:
    int calc_num_sectors(int a_width);
    int build_node(int an_id, int a_parent, int x1, int y1, int x2, int y2);
    void visible_sectors(IGraphicsPtr a_context, list<Sector*>& a_list, int a_sector);
-   
+
    int size, num_sectors, used_sectors;
    ISectorRenderablePtr renderer;
 
@@ -68,7 +68,7 @@ QuadTree::QuadTree(ISectorRenderablePtr a_renderable)
      real_width(0), real_height(0),
      kill_count(0)
 {
-   
+
 }
 
 QuadTree::~QuadTree()
@@ -84,7 +84,7 @@ void QuadTree::render(IGraphicsPtr a_context)
    visible_sectors(a_context, visible, 0);
 
    list<Sector*>::const_iterator it;
-   
+
    for (it = visible.begin(); it != visible.end(); ++it)
       renderer->render_sector(a_context, (*it)->id,
          (*it)->bot_left, (*it)->top_right);
@@ -105,21 +105,21 @@ void QuadTree::build_tree(int width, int height)
    // Error checking
    if (size % QT_LEAF_SIZE != 0)
       throw runtime_error("Invalid QuadTree dimensions!");
-   
+
    // Allocate memory
    num_sectors = calc_num_sectors(size);
    used_sectors = 0;
    if (sectors)
       delete[] sectors;
    sectors = new Sector[num_sectors];
-   
+
    // Build the tree
    build_node(0, 0, 0, 0, size, size);
 }
 
 // Builds a node in the tree
 int QuadTree::build_node(int an_id, int a_parent, int x1, int y1, int x2, int y2)
-{   
+{
    // Store this sector's data
    sectors[an_id].id = an_id;
    sectors[an_id].bot_left.x = x1;
@@ -132,10 +132,10 @@ int QuadTree::build_node(int an_id, int a_parent, int x1, int y1, int x2, int y2
       sectors[an_id].type = QT_LEAF;
    else {
       sectors[an_id].type = QT_BRANCH;
-      
+
       int w = x2 - x1;
       int h = y2 - y1;
-      
+
       // Build children
       unsigned int* c = sectors[an_id].children;
       c[0] = build_node(++used_sectors, an_id, x1,		  y1,     x1+w/2, y1+h/2);
@@ -151,14 +151,14 @@ int QuadTree::build_node(int an_id, int a_parent, int x1, int y1, int x2, int y2
 int QuadTree::calc_num_sectors(int a_width)
 {
    int count = 0;
-   
+
    if (a_width > QT_LEAF_SIZE) {
       for (int i = 0; i < 4; i++)
          count += calc_num_sectors(a_width/2);
       return count + 1;
    }
    else
-      return 1;		
+      return 1;
 }
 
 // Find all the visible sectors
@@ -179,8 +179,8 @@ void QuadTree::visible_sectors(IGraphicsPtr a_context, list<Sector*>& a_list,
    if (bot_left_outside) {
       // A non-square map
       return;
-   }      
- 
+   }
+
    // See if it's a leaf
    if (s.type == QT_LEAF)
       a_list.push_back(&s);
@@ -189,10 +189,10 @@ void QuadTree::visible_sectors(IGraphicsPtr a_context, list<Sector*>& a_list,
       for (int i = 3; i >= 0; i--) {
          int childID = s.children[i];
          Sector* child = &sectors[childID];
-         
+
          int w = child->top_right.x - child->bot_left.x;
          int h = child->top_right.y - child->bot_left.y;
-         
+
          int x = child->bot_left.x + w/2;
          int y = child->bot_left.y + h/2;
 
@@ -211,7 +211,7 @@ void QuadTree::visible_sectors(IGraphicsPtr a_context, list<Sector*>& a_list,
 IQuadTreePtr make_quad_tree(ISectorRenderablePtr a_renderer,
                             int width, int height)
 {
-   auto_ptr<QuadTree> ptr(new QuadTree(a_renderer));
+   QuadTree *ptr = new QuadTree(a_renderer);
    ptr->build_tree(width, height);
    return IQuadTreePtr(ptr);
 }

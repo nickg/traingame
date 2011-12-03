@@ -29,7 +29,7 @@ struct PrintLine {
    std::ostream& stream;
 };
 
-typedef std::tr1::shared_ptr<PrintLine> PrintLinePtr;
+typedef shared_ptr<PrintLine> PrintLinePtr;
 
 template <typename T>
 inline PrintLinePtr operator<<(PrintLinePtr a_print_line, const T& a_thing)
@@ -47,11 +47,11 @@ enum LogMsgType {
 // Interface to logger class
 struct ILogger {
    virtual ~ILogger() {}
-   
+
    virtual PrintLinePtr write_msg(LogMsgType type = LOG_NORMAL) = 0;
 };
 
-typedef std::tr1::shared_ptr<ILogger> ILoggerPtr;
+typedef shared_ptr<ILogger> ILoggerPtr;
 
 ILoggerPtr get_logger();
 
