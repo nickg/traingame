@@ -542,6 +542,9 @@ void VBOMesh::render() const
    for (vector<ChunkDelim>::const_iterator it = chunks.begin();
         it != chunks.end(); ++it) {
 
+      if ((*it).count == 0)
+         continue;
+
       if ((*it).texture) {
          glEnable(GL_TEXTURE_2D);
          (*it).texture->bind();
