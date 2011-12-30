@@ -84,7 +84,7 @@ public:
    void set_start(int x, int y, int dirX, int dirY);
    void set_grid(bool on_off);
    void set_pick_mode(bool on_off) { in_pick_mode = on_off; }
-   
+
    track::Connection start() const;
    ITrackSegmentPtr track_at(const Point<int>& a_point) const;
    IStationPtr station_at(Point<int> a_point) const;
@@ -103,7 +103,7 @@ public:
       const Point<int>& a_finish_pos);
    void level_area(Point<int> a_start_pos, Point<int> a_finish_pos);
    void smooth_area(Point<int> start, Point<int> finish);
-   
+
    void save();
 
    IStationPtr extend_station(Point<int> a_start_pos,
@@ -117,13 +117,13 @@ public:
    Vector<float> slope_after(Point<int> where,
       track::Direction axis, bool &valid) const;
    void add_scenery(Point<int> where, ISceneryPtr s);
-   
+
    // ISectorRenderable interface
    void render_sector(IGraphicsPtr a_context, int id,
       Point<int> bot_left, Point<int> top_right);
    void post_render_sector(IGraphicsPtr a_context, int id,
       Point<int> bot_left, Point<int> top_right);
-   
+
 private:
    // Tiles on the map
    struct Tile {
@@ -147,13 +147,13 @@ private:
 
    // Meshes for each terrain sector
    vector<IMeshPtr> terrain_meshes;
-   
+
    inline int index(int x, int y) const
    {
       assert(x < my_width && y < my_depth && x >= 0 && y >= 0);
       return x + y*my_width;
    }
-   
+
    inline int tile_name(int x, int z) const
    {
       return TILE_NAME_BASE + index(x, z);
@@ -174,7 +174,7 @@ private:
       assert(i >= 0 && i < (my_width + 1) * (my_depth + 1));
       return height_map[i];
    }
-   
+
    bool is_valid_tileName(unsigned a_name) const
    {
       return a_name >= TILE_NAME_BASE
@@ -182,9 +182,9 @@ private:
    }
 
    Point<int> pick_position(unsigned a_name) const
-   {      
+   {
       assert(is_valid_tileName(a_name));
-      
+
       int a = a_name - TILE_NAME_BASE;
       return make_point(a % my_width, a / my_width);
    }
@@ -204,7 +204,7 @@ private:
    void build_mesh(int id, Point<int> bot_left, Point<int> top_right);
    bool have_mesh(int id, Point<int> bot_left, Point<int> top_right);
    void dirty_tile(int x, int y);
-      
+
    // Terrain modification
    void change_area_height(const Point<int>& a_start_pos,
       const Point<int>& a_finish_pos, float a_height_delta);
@@ -212,7 +212,7 @@ private:
    void set_tile_height(int x, int y, float h);
    void fix_normals(int x, int y);
    bool raise_will_cover_track(int x, int y) const;
-   
+
    int my_width, my_depth;
    Point<int> start_location;
    track::Direction start_direction;
@@ -278,13 +278,13 @@ void Map::erase_tile(int x, int y)
       // We have to be a bit careful since a piece of track has multiple
       // endpoints
 
-      vector<Point<int> > locked;      
+      vector<Point<int> > locked;
       tile.track->get()->get_height_locked(locked);
 
       for (vector<Point<int> >::iterator it = locked.begin();
            it != locked.end(); ++it)
          unlock_height_at(*it);
-      
+
       vector<Point<int> > covers;
       tile.track->get()->get_endpoints(covers);
       tile.track->get()->get_covers(covers);
@@ -301,7 +301,7 @@ void Map::erase_tile(int x, int y)
 
       const Point<int> size = tile.scenery->get()->size();
       const Point<int>& where = tile.scenery->origin();
-      
+
       for (int x = 0; x < size.x; x++) {
          for (int y = 0; y < size.y; y++) {
             tile_at(where.x + x, where.y + y).scenery.reset();
@@ -324,17 +324,17 @@ bool Map::empty_tile(Point<int> point) const
 }
 
 void Map::set_track_at(const Point<int>& where, ITrackSegmentPtr track)
-{   
+{
    int indexes[4];
    tile_vertices(where.x, where.y, indexes);
 
    float lowest_height = 1.0e20f;
    for (int i = 0; i < 4; i++)
       lowest_height = min(height_map[indexes[i]].pos.y, lowest_height);
-   
+
    track->set_origin(where.x, where.y, lowest_height);
-         
-   TrackAnchor node(new Anchor<ITrackSegment>(track, where));  
+
+   TrackAnchor node(new Anchor<ITrackSegment>(track, where));
 
    // Attach the track node to every tile it covers
    vector<Point<int> > covers;
@@ -379,7 +379,7 @@ void Map::set_start(int x, int y)
       axis::X, axis::Y, -axis::X, -axis::Y
    };
    static int next_dir = 0;
-   
+
    TrackAnchor track_node = tile_at(x, y).track;
    if (!track_node) {
       warn() << "Must place start on track";
@@ -420,10 +420,10 @@ void Map::set_grid(bool on_off)
 }
 
 void Map::reset_map(int a_width, int a_depth)
-{   
+{
    my_width = a_width;
    my_depth = a_depth;
-   
+
    // Allocate memory
    if (tiles)
       delete[] tiles;
@@ -432,7 +432,7 @@ void Map::reset_map(int a_width, int a_depth)
    if (height_map)
       delete[] height_map;
    height_map = new HeightMap[(a_width + 1) * (a_depth + 1)];
-   
+
    // Make a flat map
    for (int x = 0; x <= a_width; x++) {
       for (int y = 0; y <= a_depth; y++) {
@@ -446,7 +446,7 @@ void Map::reset_map(int a_width, int a_depth)
          v.lock_count = 0;
       }
    }
-   
+
    // Create quad tree
    quad_tree = make_quad_tree(shared_from_this(), my_width, my_depth);
 }
@@ -457,10 +457,10 @@ void Map::highlight_vertex(Point<int> point, Colour colour) const
           && point.y >= 0 && point.y < my_depth);
 
    int index = point.x + (point.y * (my_width + 1));
-   
+
    gl::colour(colour);
    glPointSize(5.0f);
-  
+
    glBegin(GL_POINTS);
    glVertex3f(static_cast<float>(point.x) - 0.5f,
               height_map[index].pos.y + 0.01f,
@@ -477,44 +477,44 @@ void Map::render_highlighted_tiles() const
 {
    // At the end of the render loop, draw the highlighted tiles over
    // the top of all others - this is to get the transparency working
-   
+
    glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
-   
+
    glDisable(GL_TEXTURE_2D);
    glEnable(GL_BLEND);
    glDisable(GL_LIGHTING);
-   
+
    glDepthMask(GL_FALSE);
-      
+
    vector<tuple<Point<int>, Colour> >::const_iterator it;
    for (it = highlighted_tiles.begin(); it != highlighted_tiles.end(); ++it) {
 
       const Point<int>& point = get<0>(*it);
       Colour colour = get<1>(*it);
-      
+
       // User should be able to click on the highlight as well
       glPushName(tile_name(point.x, point.y));
 
       colour.a = 0.5f;
       gl::colour(colour);
       glBegin(GL_POLYGON);
-      
+
       int indexes[4];
       tile_vertices(point.x, point.y, indexes);
-      
+
       for (int i = 0; i < 4; i++) {
          HeightMap& v = height_map[indexes[i]];
          glNormal3f(v.normal.x, v.normal.y, v.normal.z);
          glVertex3f(v.pos.x, v.pos.y + 0.1f, v.pos.z);
       }
-      
+
       glEnd();
-      
+
       glPopName();
    }
 
    glPopAttrib();
-   
+
    highlighted_tiles.clear();
 }
 
@@ -523,9 +523,9 @@ void Map::render(IGraphicsPtr a_context) const
    // The `frame_num' counter is used to ensure we draw each
    // track segment at most once per frame
    frame_num++;
-   
+
    fog->apply();
-   
+
    glPushAttrib(GL_ALL_ATTRIB_BITS);
 
    // Thick lines for grid
@@ -537,14 +537,13 @@ void Map::render(IGraphicsPtr a_context) const
 
    glDisable(GL_TEXTURE_2D);
    glEnable(GL_CULL_FACE);
-   
+
    glPushMatrix();
    quad_tree->render(a_context);
    glPopMatrix();
-   
 
    render_highlighted_tiles();
-   
+
    glPopAttrib();
 }
 
@@ -565,8 +564,8 @@ void Map::draw_start_location() const
       avg_height += height_map[indexes[i]].pos.y;
    avg_height /= 4.0f;
 
-   glTranslatef(static_cast<float>(start_location.x), 
-      avg_height + 0.1f, 
+   glTranslatef(static_cast<float>(start_location.x),
+      avg_height + 0.1f,
       static_cast<float>(start_location.y));
 
    if (start_direction == axis::X)
@@ -577,14 +576,14 @@ void Map::draw_start_location() const
       glRotatef(270.0f, 0.0f, 1.0f, 0.0f);
 
    glColor4f(0.0f, 0.9f, 0.0f, 0.8f);
-   
+
    glBegin(GL_TRIANGLES);
    glNormal3f(0.0f, 1.0f, 0.0f);
    glVertex3f(0.5f, 0.0f, -0.5f);
    glVertex3f(-0.5f, 0.0f, -0.5f);
    glVertex3f(0.0f, 0.0f, 0.5f);
    glEnd();
-   
+
    glPopMatrix();
    glPopAttrib();
 }
@@ -595,7 +594,7 @@ bool Map::have_mesh(int id, Point<int> bot_left, Point<int> top_right)
 {
    if (id >= static_cast<int>(terrain_meshes.size()))
       terrain_meshes.resize(id + 1);
-   
+
    bool ok = terrain_meshes[id];
    list<Point<int> >::iterator it = dirty_tiles.begin();
 
@@ -605,7 +604,7 @@ bool Map::have_mesh(int id, Point<int> bot_left, Point<int> top_right)
          && (*it).x <= top_right.x
          && (*it).y >= bot_left.y
          && (*it).y <= top_right.y;
-         
+
       if (covered) {
          ok = false;
          it = dirty_tiles.erase(it);
@@ -613,7 +612,7 @@ bool Map::have_mesh(int id, Point<int> bot_left, Point<int> top_right)
       else
          ++it;
    }
-   
+
    return ok;
 }
 
@@ -654,12 +653,12 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
    buf->bind(noise);
 
    const float tmul = 1.0f / float(top_right.x - bot_left.x + 1);
-   
+
    for (int x = top_right.x-1; x >= bot_left.x; x--) {
       for (int y = bot_left.y; y < top_right.y; y++) {
          int indexes[4];
          tile_vertices(x, y, indexes);
-         
+
          const int order[6] = {
             indexes[1], indexes[2], indexes[3],
             indexes[3], indexes[0], indexes[1]
@@ -676,10 +675,10 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
             tex_coords[1], tex_coords[2], tex_coords[3],
             tex_coords[3], tex_coords[0], tex_coords[1]
          };
-         
+
          for (int i = 0; i < 6; i++) {
             const HeightMap& v = height_map[order[i]];
-            
+
             const float h = v.pos.y;
             tuple<float, Colour> hcol;
             int j = 0;
@@ -689,14 +688,14 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
 
             buf->add(v.pos, v.normal, get<1>(hcol), tex_order[i]);
          }
-      }			
+      }
    }
 
    // Merge any static scenery
    for (int x = top_right.x-1; x >= bot_left.x; x--) {
       for (int y = bot_left.y; y < top_right.y; y++) {
          Tile& tile = tile_at(x, y);
-         
+
          if (tile.scenery && tile.scenery->needs_rendering(frame_num)) {
             tile.scenery->get()->merge(buf);
             tile.scenery->rendered_on(frame_num);
@@ -720,18 +719,18 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
    const float depth = -3.0f;
 
    buf->bind(ITexturePtr());   // No texture on sides
-   
+
    int index[4];
-   
+
    if (bot_left.x == 0) {
       for (int y = bot_left.y; y < top_right.y; y++) {
          const float yf = static_cast<float>(y) - 0.5f;
 
          tile_vertices(0, y, index);
-         
+
          const float h1 = height_at(index[3]).pos.y;
          const float h2 = height_at(index[0]).pos.y;
-         
+
          buf->add_quad(make_vector(x1, h1, yf),
             make_vector(x1, depth, yf),
             make_vector(x1, depth, yf + 1.0f),
@@ -748,7 +747,7 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
 
          const float h1 = height_at(index[2]).pos.y;
          const float h2 = height_at(index[1]).pos.y;
-         
+
          buf->add_quad(make_vector(x2, depth, yf),
             make_vector(x2, h1, yf),
             make_vector(x2, h2, yf + 1.0f),
@@ -760,12 +759,12 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
    if (bot_left.y == 0) {
       for (int x = bot_left.x; x < top_right.x; x++) {
          const float xf = static_cast<float>(x) - 0.5f;
-         
+
          tile_vertices(x, 0, index);
-       
+
          const float h1 = height_at(index[3]).pos.y;
          const float h2 = height_at(index[2]).pos.y;
-         
+
          buf->add_quad(make_vector(xf, depth, y1),
             make_vector(xf, h1, y1),
             make_vector(xf + 1.0f, h2, y1),
@@ -773,16 +772,16 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
             brown);
       }
    }
-   
+
    if (top_right.y == my_depth) {
       for (int x = bot_left.x; x < top_right.x; x++) {
          const float xf = static_cast<float>(x) - 0.5f;
-         
+
          tile_vertices(x, my_depth - 1, index);
-       
+
          const float h1 = height_at(index[0]).pos.y;
          const float h2 = height_at(index[1]).pos.y;
-      
+
          buf->add_quad(make_vector(xf, h1, y2),
             make_vector(xf, depth, y2),
             make_vector(xf + 1.0f, depth, y2),
@@ -799,7 +798,7 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
       for (int y = bot_left.y; y < top_right.y; y++) {
          int index[4];
          tile_vertices(x, y, index);
-   
+
          below_sea_level |=
             height_at(index[0]).pos.y < 0.0f
             || height_at(index[1]).pos.y < 0.0f
@@ -817,7 +816,7 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
    if (sea_sectors.size() < min_size)
       sea_sectors.resize(min_size);
    sea_sectors.at(id) = below_sea_level;
-   
+
    // Make sure we don't rebuild this mesh if any of the tiles are dirty
    have_mesh(id, bot_left, top_right);
 }
@@ -826,7 +825,7 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
 void Map::render_pick_sector(Point<int> bot_left, Point<int> top_right)
 {
    glColor3f(1.0f, 1.0f, 1.0f);
-   
+
    for (int x = top_right.x-1; x >= bot_left.x; x--) {
       for (int y = bot_left.y; y < top_right.y; y++) {
          // Name this tile
@@ -842,9 +841,9 @@ void Map::render_pick_sector(Point<int> bot_left, Point<int> top_right)
             glVertex3f(v.pos.x, v.pos.y, v.pos.z);
          }
          glEnd();
-         
+
          glPopName();
-      }			
+      }
    }
 }
 
@@ -856,20 +855,20 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
       render_pick_sector(bot_left, top_right);
       return;
    }
-   
+
    if (!have_mesh(id, bot_left, top_right))
       build_mesh(id, bot_left, top_right);
 
    {
       // Parts of track may extend outside the sector so these
       // are clipped off
-      
+
       const float x = bot_left.x - 0.5f;
       const float w = quad_tree->leaf_size();
       const float z = bot_left.y - 0.5f;
       const float d = quad_tree->leaf_size();
       ClipVolume clip(x, w, z, d);
-      
+
       terrain_meshes[id]->render();
    }
 
@@ -880,7 +879,7 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
          //   const Vertex& v = height_map[indexes[i]];
          //   draw_normal(v.pos, v.normal);
          //}
-         
+
          if (should_draw_grid_lines) {
             // Render grid lines
             glColor3f(0.0f, 0.0f, 0.0f);
@@ -892,12 +891,12 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
                const HeightMap& v = height_map[indexes[i]];
                glVertex3f(v.pos.x, v.pos.y, v.pos.z);
             }
-            
+
             glEnd();
          }
 
          Tile& tile = tile_at(x, y);
-         
+
          if (tile.track && tile.track->needs_rendering(frame_num)) {
 #if 0
             // Draw the endpoints for debugging
@@ -922,10 +921,10 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
                      bind(&Map::highlight_vertex, this, placeholders::_1,
                           make_colour(1.0f, 0.0f, 0.0f)));
 #endif
-            
+
             // Draw track highlights
             tile.track->get()->render();
-            
+
             tile.track->rendered_on(frame_num);
          }
 
@@ -944,8 +943,10 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
          if (start_location.x == x && start_location.y == y
             && should_draw_grid_lines)
             draw_start_location();
-      }			
+      }
    }
+
+   assert(glGetError() == GL_NO_ERROR);
 }
 
 // Render the semi-transparent overlays such as water
@@ -963,7 +964,7 @@ void Map::post_render_sector(IGraphicsPtr a_context, int id,
       const float blY = static_cast<float>(bot_left.y);
       const float trX = static_cast<float>(top_right.x);
       const float trY = static_cast<float>(top_right.y);
-      
+
       static const float sea_level = -0.6f;
       gl::colour(make_rgb(0, 80, 160, 150));
       glNormal3f(0.0f, 1.0f, 0.0f);
@@ -996,12 +997,12 @@ void Map::fix_normals(int x, int y)
       Vector<float> west, north, east, south;
       bool have_west = true, have_north = true,
          have_east = true, have_south = true;
-      
+
       if (i > 0 && i % (my_width + 1) > 0)
          west = height_at(i-1).pos;
       else
          have_west = false;
-         
+
       if (i < (my_width + 1) * my_depth - 1)
          north = height_at(i + (my_width + 1)).pos;
       else
@@ -1012,7 +1013,7 @@ void Map::fix_normals(int x, int y)
          east = height_at(i + 1).pos;
       else
          have_east = false;
-      
+
       if (i > (my_width + 1))
          south = height_at(i - (my_width + 1)).pos;
       else
@@ -1036,7 +1037,7 @@ void Map::fix_normals(int x, int y)
       else
          count -= 1.0f;
 
-      if (have_west && have_south)      
+      if (have_west && have_south)
          avg += surface_normal(west, v.pos, south);
       else
          count -= 1.0f;
@@ -1049,7 +1050,7 @@ void Map::fix_normals(int x, int y)
 void Map::tile_vertices(int x, int y, int* indexes) const
 {
    assert(x >= 0 && x < my_width && y >= 0 && y < my_depth);
-          
+
    indexes[3] = x + (y * (my_width+1));         // (X, Y)
    indexes[2] = (x+1) + (y * (my_width+1));     // (X+1, Y)
    indexes[1] = (x+1) + ((y+1) * (my_width+1)); // (X+1, Y+1)
@@ -1077,7 +1078,7 @@ bool Map::raise_will_cover_track(int x, int y) const
    bool ok = true;
    for (int i = 0; i < 4; i++)
       ok &= height_map[indexes[i]].lock_count == 0;
-   
+
    return !ok;
 #endif
 }
@@ -1089,7 +1090,7 @@ void Map::raise_tile(int x, int y, float delta_height)
       warn() << "Cannot raise terrain over track";
       return;
    }
-   
+
    int indexes[4];
    tile_vertices(x, y, indexes);
 
@@ -1123,7 +1124,7 @@ void Map::unlock_height_at(Point<int> p)
 void Map::set_tile_height(int x, int y, float h)
 {
    bool track_affected = raise_will_cover_track(x, y);
-   
+
    int indexes[4];
    tile_vertices(x, y, indexes);
 
@@ -1132,11 +1133,11 @@ void Map::set_tile_height(int x, int y, float h)
          && abs(height_map[indexes[i]].pos.y - h) > 0.01f) {
          warn() << "Cannot level terrain under track";
          return;
-      }        
+      }
       else
          height_map[indexes[i]].pos.y = h;
    }
-   
+
    fix_normals(x, y);
    dirty_tile(x, y);
 }
@@ -1161,7 +1162,7 @@ float Map::height_at(Point<int> where) const
    float avg = 0.0f;
    for (int i = 0; i < 4; i++)
       avg += height_map[indexes[i]].pos.y;
-   
+
    return avg / 4.0f;
 }
 
@@ -1193,7 +1194,7 @@ Vector<float> Map::slope_at(Point<int> where,
            << " v1=" << v1 << " v2=" << v2
            << " level=" << level;
 #endif
-   
+
    return v1;
 }
 
@@ -1206,13 +1207,13 @@ Vector<float> Map::slope_before(Point<int> where,
       before = where + make_point(-1, 0);
    else
       before = where + make_point(0, -1);
-            
+
    const bool off_edge =
       (axis == axis::X && before.x < 0)
       || (axis == axis::Y && before.y < 0);
 
    valid = !off_edge;
-         
+
    if (off_edge)
       return make_vector(0.0f, 0.0f, 0.0f);
    else {
@@ -1230,13 +1231,13 @@ Vector<float> Map::slope_after(Point<int> where,
       after = where + make_point(1, 0);
    else
       after = where + make_point(0, 1);
-            
+
    const bool off_edge =
       (axis == axis::X && after.x >= width())
       || (axis == axis::Y && after.y >= depth());
 
    valid = !off_edge;
-   
+
    if (off_edge)
       return make_vector(0.0f, 0.0f, 0.0f);
    else {
@@ -1254,7 +1255,7 @@ void Map::change_area_height(const Point<int>& a_start_pos,
 
    const int ymin = min(a_start_pos.y, a_finish_pos.y);
    const int ymax = max(a_start_pos.y, a_finish_pos.y);
-   
+
    for (int x = xmin; x <= xmax; x++) {
       for (int y = ymin; y <= ymax; y++)
          raise_tile(x, y, a_height_delta);
@@ -1276,7 +1277,7 @@ void Map::level_area(Point<int> a_start_pos, Point<int> a_finish_pos)
    for (int i = 0; i < 4; i++)
       avg_height += height_map[indexes[i]].pos.y;
    avg_height /= 4.0f;
-   
+
    for (int x = xmin; x <= xmax; x++) {
       for (int y = ymin; y <= ymax; y++)
          set_tile_height(x, y, avg_height);
@@ -1317,7 +1318,7 @@ void Map::smooth_area(Point<int> start, Point<int> finish)
    int i = 0;
    for (Point<int> it = abs_start; it != abs_finish; i++, it += step) {
       const bool track_affected = raise_will_cover_track(it.x, it.y);
-      
+
       int indexes[4];
       tile_vertices(it.x, it.y, indexes);
 
@@ -1330,23 +1331,23 @@ void Map::smooth_area(Point<int> start, Point<int> finish)
          targets[0] = 1;
          targets[1] = 2;
       }
-      
+
       for (int j = 0; j < 2; j++) {
          const float new_height = height_start - (i * drop);
-         
+
          if (track_affected
             && abs(height_map[indexes[targets[j]]].pos.y - new_height) > 0.01f) {
             warn() << "Cannot change terrain under track";
             return;
-         }        
+         }
          else
             height_map[indexes[targets[j]]].pos.y = new_height;
       }
-      
+
       fix_normals(it.x, it.y);
       dirty_tile(it.x, it.y);
    }
-      
+
 }
 
 void Map::raise_area(const Point<int>& a_start_pos,
@@ -1369,14 +1370,14 @@ void Map::add_scenery(Point<int> where, ISceneryPtr s)
       SceneryAnchor indirect(new Anchor<IScenery>(s, where));
 
       const Point<int> size = s->size();
-      
+
       for (int x = 0; x < size.x; x++) {
          for (int y = 0; y < size.y; y++) {
             tile_at(where.x + x, where.y + y).scenery = indirect;
             dirty_tile(where.x, where.y);
          }
       }
-      
+
       s->set_position(static_cast<float>(where.x),
          height_at(where),
          static_cast<float>(where.y));
@@ -1413,7 +1414,7 @@ IStationPtr Map::extend_station(Point<int> a_start_pos, Point<int> a_finish_pos)
    // See if any of these track segments are adjacent to a station
    for (PointList::const_iterator it = track_in_area.begin();
         it != track_in_area.end(); ++it) {
-      
+
       const Point<int> near[] = {
          make_point(0, 0),
          make_point(1, 0),
@@ -1421,7 +1422,7 @@ IStationPtr Map::extend_station(Point<int> a_start_pos, Point<int> a_finish_pos)
          make_point(-1, 0),
          make_point(0, -1)
       };
-      
+
       for (int i = 0; i < 5; i++) {
          Point<int> neighbour = *it + near[i];
          if (neighbour.x >= 0 && neighbour.x < my_width
@@ -1429,7 +1430,7 @@ IStationPtr Map::extend_station(Point<int> a_start_pos, Point<int> a_finish_pos)
             && tile_at(neighbour.x, neighbour.y).station) {
 
             IStationPtr candidate = tile_at(neighbour.x, neighbour.y).station;
-            
+
             // Maybe extend this station
             if (station && station != candidate) {
                warn() << "Cannot merge stations";
@@ -1450,11 +1451,11 @@ IStationPtr Map::extend_station(Point<int> a_start_pos, Point<int> a_finish_pos)
 
       station = make_station();
    }
-   
+
    for (PointList::iterator it = track_in_area.begin();
         it != track_in_area.end(); ++it)
       tile_at((*it).x, (*it).y).station = station;
-   
+
    return station;
 }
 
@@ -1473,12 +1474,12 @@ void Map::write_height_map() const
 
    try {
       ofstream& of = h.wstream();
-      
+
       const int32_t wl = static_cast<int32_t>(my_width);
       const int32_t dl = static_cast<int32_t>(my_depth);
       of.write(reinterpret_cast<const char*>(&wl), sizeof(int32_t));
       of.write(reinterpret_cast<const char*>(&dl), sizeof(int32_t));
-      
+
       for (int i = 0; i < (my_width + 1) * (my_depth + 1); i++)
          of.write(reinterpret_cast<const char*>(&height_map[i].pos.y),
             sizeof(float));
@@ -1497,7 +1498,7 @@ void Map::read_height_map(IResource::Handle a_handle)
    log() << "Reading height map from " << a_handle.file_name();
 
    istream& is = a_handle.rstream();
-   
+
    // Check the dimensions of the binary file match the XML file
    int32_t wl, dl;
    is.read(reinterpret_cast<char*>(&wl), sizeof(int32_t));
@@ -1529,7 +1530,7 @@ void Map::save_to(ostream& of)
    root.add_attribute("height", my_depth);
 
    root.add_child(xml::element("name").add_text("No Name"));
-   
+
    root.add_child
       (xml::element("start")
          .add_attribute("x", start_location.x)
@@ -1539,7 +1540,7 @@ void Map::save_to(ostream& of)
 
    // Write out all the stations
    set<IStationPtr> seen_stations;
-   
+
    for (int x = 0; x < my_width; x++) {
       for (int y = 0; y < my_depth; y++) {
          IStationPtr s = tile_at(x, y).station;
@@ -1555,7 +1556,7 @@ void Map::save_to(ostream& of)
          }
       }
    }
-   
+
    // Generate the height map
    write_height_map();
 
@@ -1605,7 +1606,7 @@ void Map::save_to(ostream& of)
    }
 
    root.add_child(tileset);
-   
+
    of << xml::document(root);
 }
 
@@ -1615,7 +1616,7 @@ void Map::save()
    using namespace boost::filesystem;
 
    IResource::Handle h = resource->write_file(resource->name() + ".xml");
-   
+
    log() << "Saving map to " << h.file_name();
 
    ofstream& of = h.wstream();
@@ -1632,7 +1633,7 @@ void Map::save()
 IMapPtr make_empty_map(const string& a_res_id, int a_width, int a_depth)
 {
    IResourcePtr res = make_new_resource(a_res_id, "maps");
-   
+
    shared_ptr<Map> ptr(new Map(res));
    ptr->reset_map(a_width, a_depth);
    ptr->save();
@@ -1649,7 +1650,7 @@ public:
    void start_element(const string& local_name, const AttributeSet& attrs);
    void end_element(const string& local_name);
    void text(const string& local_name, const string& a_string);
-   
+
 private:
    void handle_map(const AttributeSet& attrs);
    void handle_building(const AttributeSet& attrs);
@@ -1663,7 +1664,7 @@ private:
    void handle_points(const AttributeSet& attrs);
    void handle_crossover_track(const AttributeSet& attrs);
    void handle_spline_track(const AttributeSet& attrs);
-   
+
    shared_ptr<Map> my_map;
    map<int, IStationPtr> my_stations;
    IStationPtr my_active_station;
@@ -1706,8 +1707,8 @@ void MapLoader::end_element(const string& local_name)
 {
    if (local_name == "station")
       my_active_station.reset();
-}                   
-   
+}
+
 void MapLoader::text(const string& local_name, const string& a_string)
 {
    if (local_name == "heightmap")
@@ -1736,7 +1737,7 @@ void MapLoader::handle_tree(const AttributeSet& attrs)
 {
    my_map->add_scenery(tile, load_tree(attrs));
 }
-   
+
 void MapLoader::handle_station(const AttributeSet& attrs)
 {
    my_active_station = make_station();
@@ -1747,7 +1748,7 @@ void MapLoader::handle_station(const AttributeSet& attrs)
 
    my_stations[id] = my_active_station;
 }
-   
+
 void MapLoader::handle_start(const AttributeSet& attrs)
 {
    int x, y, dirX, dirY;
@@ -1755,7 +1756,7 @@ void MapLoader::handle_start(const AttributeSet& attrs)
    attrs.get("y", y);
    attrs.get("dirX", dirX);
    attrs.get("dirY", dirY);
-      
+
    my_map->set_start(x, y, dirX, dirY);
 }
 
@@ -1792,12 +1793,12 @@ void MapLoader::handle_slope_track(const AttributeSet& attrs)
 {
    string align;
    attrs.get("align", align);
-      
+
    track::Direction axis = align == "x" ? axis::X : axis::Y;
 
    bool level;
    Vector<float> slope = my_map->slope_at(tile, axis, level);
-         
+
    bool a_valid, b_valid;
    Vector<float> slope_before = my_map->slope_before(tile, axis, b_valid);
    Vector<float> slope_after = my_map->slope_after(tile, axis, a_valid);
@@ -1813,7 +1814,7 @@ void MapLoader::handle_points(const AttributeSet& attrs)
 {
    string align;
    attrs.get("align", align);
-   
+
    bool reflect;
    attrs.get("reflect", reflect);
 
@@ -1821,7 +1822,7 @@ void MapLoader::handle_points(const AttributeSet& attrs)
       align == "x" ? axis::X
       : (align == "-x" ? -axis::X
          : (align == "y" ? axis::Y : -axis::Y));
-   
+
    my_map->set_track_at(tile, make_points(dir, reflect));
 }
 
@@ -1840,7 +1841,7 @@ void MapLoader::handle_spline_track(const AttributeSet& attrs)
 
    attrs.get("entry-dir-x", entry_dir.x);
    attrs.get("entry-dir-y", entry_dir.z);
-   
+
    attrs.get("exit-dir-x", exit_dir.x);
    attrs.get("exit-dir-y", exit_dir.z);
 
@@ -1850,7 +1851,7 @@ void MapLoader::handle_spline_track(const AttributeSet& attrs)
 IMapPtr load_map(const string& a_res_id)
 {
    IResourcePtr res = find_resource(a_res_id, "maps");
-   
+
    shared_ptr<Map> map(new Map(res));
 
    log() << "Loading map from file " << res->xml_file_name();
@@ -1859,6 +1860,6 @@ IMapPtr load_map(const string& a_res_id)
 
    MapLoader loader(map, res);
    xml_parser->parse(res->xml_file_name(), loader);
-      
+
    return IMapPtr(map);
 }

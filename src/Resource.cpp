@@ -34,9 +34,9 @@ public:
    {
 
    }
-   
+
    // IResource interface
-   string name() const { return my_path.filename().string(); }
+   string name() const { return my_path.filename(); }
    string xml_file_name() const
    {
       return (my_path / (name() + ".xml")).string();
@@ -60,14 +60,14 @@ IResource::Handle::Handle(const string& file_name, Mode mode)
 {
    if (mode == READ) {
       read_stream = shared_ptr<ifstream>(new ifstream(file_name.c_str()));
-           
+
       if (!read_stream->good())
          throw runtime_error("Failed to open resource file " + file_name);
    }
    else if (mode == WRITE) {
-      const string tmp = tmp_file_name();   
+      const string tmp = tmp_file_name();
       write_stream = shared_ptr<ofstream>(new ofstream(tmp.c_str()));
-           
+
       if (!write_stream->good())
          throw runtime_error("Failed to open resource file " + file_name);
    }
@@ -114,19 +114,19 @@ static ResourceList& res_class_list(const string& a_class)
 
 static void add_resource(const string& a_class, IResourcePtr a_res)
 {
-   res_class_list(a_class).push_back(a_res);         
+   res_class_list(a_class).push_back(a_res);
 }
 
 static void add_resource_dir(const char* a_class, const path& a_path)
 {
-   const path xml_file = a_path / (a_path.filename().string() + ".xml");
+   const path xml_file = a_path / (a_path.filename() + ".xml");
 
    if (!exists(xml_file))
       warn() << "Missing resource XML file: " << xml_file;
-   else 
+   else
       add_resource(a_class, IResourcePtr(new FilesystemResource(a_path)));
 }
-   
+
 static void look_in_dir(const path& a_path)
 {
    log() << "Looking for resources in " << a_path;
@@ -148,7 +148,7 @@ void init_resources()
 
    ostringstream ss;
    ss << "Found ";
-   
+
    for (const char **it = classes; *it; ++it) {
       const ResourceList& lst = res_class_list(*it);
 
@@ -177,7 +177,7 @@ static IResourcePtr maybe_find_resource(const string& a_res_id,
       if ((*it)->name() == a_res_id)
          return *it;
    }
-   
+
    return IResourcePtr();
 }
 
@@ -187,7 +187,7 @@ IResourcePtr find_resource(const string& a_res_id, const string& a_class)
    IResourcePtr r = maybe_find_resource(a_res_id, a_class);
    if (r)
       return r;
-   else 
+   else
       throw runtime_error("Failed to find resource " + a_res_id
          + " in class " + a_class);
 }

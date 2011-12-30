@@ -41,7 +41,7 @@ RenderContext::~RenderContext()
    glPopAttrib();
 
    assert(origin_stack.empty());
-   
+
    IWindowPtr wnd = get_game_window();
    glScissor(0, 0, wnd->width(), wnd->height());
 }
@@ -56,7 +56,7 @@ void RenderContext::push_origin(const Widget* w)
 void RenderContext::pop_origin()
 {
    assert(!origin_stack.empty());
-   
+
    const Widget* top = origin_stack.top();
    origin_x -= top->x() + top->border();
    origin_y -= top->y() + top->border();
@@ -73,22 +73,20 @@ void RenderContext::rectangle(int x, int y, int w, int h, Colour c)
 {
    offset(x, y);
    gl::colour(c);
-   
+
    glBegin(GL_QUADS);
    glVertex2i(x, y);
    glVertex2i(x + w, y);
    glVertex2i(x + w, y + h);
    glVertex2i(x, y + h);
    glEnd();
-
-   assert(glGetError() == GL_NO_ERROR);
 }
 
 void RenderContext::border(int x, int y, int w, int h, Colour c)
 {
    offset(x, y);
    gl::colour(c);
-   
+
    glBegin(GL_LINE_LOOP);
    glVertex2f(x + 0.1f, y + 0.1f);
    glVertex2f(x + w - 0.1f, y + 0.1f);
@@ -104,7 +102,7 @@ void RenderContext::image(int x, int y, int w, int h, ITexturePtr tex)
 
    offset(x, y);
 
-   tex->bind();   
+   tex->bind();
    glColor3f(1.0f, 1.0f, 1.0f);
 
    glBegin(GL_QUADS);
@@ -117,7 +115,7 @@ void RenderContext::image(int x, int y, int w, int h, ITexturePtr tex)
    glTexCoord2i(0, 1);
    glVertex2i(x, y + h);
    glEnd();
-   
+
    glPopAttrib();
 }
 
@@ -140,7 +138,7 @@ void RenderContext::scissor(Widget* w)
    }
    else
       max_w = max_h = 100000;
-   
+
    int x = w->x() - 1;
    int y = w->y() - 1;
    offset(x, y);
@@ -149,7 +147,7 @@ void RenderContext::scissor(Widget* w)
 
    x = max(x, 0);
    y = max(y, 0);
-   
+
    int width = min(w->width() + 1, max_w);
    int height = min(w->height(), max_h);
 

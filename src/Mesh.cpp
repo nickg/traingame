@@ -52,9 +52,9 @@ struct MeshBuffer : IMeshBuffer {
    };
    typedef shared_ptr<Chunk> ChunkPtr;
 
-   size_t vertex_count() const;   
+   size_t vertex_count() const;
    size_t index_count() const;
-   
+
    void add(const Vertex& vertex,
             const Normal& normal,
             const Colour& colour,
@@ -65,14 +65,14 @@ struct MeshBuffer : IMeshBuffer {
    void add_quad(Vertex a, Vertex b, Vertex c, Vertex d,
                  Normal na, Normal nb, Normal nc, Normal nd,
                  Colour colour);
-      
+
    void bind(ITexturePtr texture);
    void merge(IMeshBufferPtr other, Vector<float> off, float y_angle);
-   
+
    void print_stats() const;
 
    ChunkPtr find_chunk(ITexturePtr tex) const;
-   
+
    static MeshBuffer* get(IMeshBufferPtr a_ptr)
    {
       return polymorphic_cast<MeshBuffer*>(a_ptr.get());
@@ -80,14 +80,14 @@ struct MeshBuffer : IMeshBuffer {
 
    vector<ChunkPtr> chunks;
    ChunkPtr active_chunk;
-      
+
    int reused;
 };
 
 MeshBuffer::MeshBuffer()
    : reused(0)
 {
-   
+
 }
 
 void MeshBuffer::bind(ITexturePtr tex)
@@ -99,7 +99,7 @@ void MeshBuffer::bind(ITexturePtr tex)
          return;
       }
    }
-   
+
    // Must create new chunk for this texture
    active_chunk = ChunkPtr(new Chunk);
    active_chunk->texture = tex;
@@ -110,7 +110,7 @@ void MeshBuffer::bind(ITexturePtr tex)
 size_t MeshBuffer::vertex_count() const
 {
    size_t sum = 0;
-   
+
    for (vector<ChunkPtr>::const_iterator it = chunks.begin();
         it != chunks.end(); ++it)
       sum += (*it)->vertices.size();
@@ -121,7 +121,7 @@ size_t MeshBuffer::vertex_count() const
 size_t MeshBuffer::index_count() const
 {
    size_t sum = 0;
-   
+
    for (vector<ChunkPtr>::const_iterator it = chunks.begin();
         it != chunks.end(); ++it)
       sum += (*it)->indices.size();
@@ -151,10 +151,10 @@ void MeshBuffer::merge(IMeshBufferPtr other, Vector<float> off, float y_angle)
       if (!target_chunk) {
          target_chunk = ChunkPtr(new Chunk);
          target_chunk->texture = (*it)->texture;
-         
+
          chunks.push_back(target_chunk);
       }
-         
+
       const size_t ibase = target_chunk->vertices.size();
 
       const Matrix<float, 4> translate =
@@ -163,11 +163,11 @@ void MeshBuffer::merge(IMeshBufferPtr other, Vector<float> off, float y_angle)
          Matrix<float, 4>::rotation(y_angle, 0.0f, 1.0f, 0.0f);
 
       const Matrix<float, 4> compose = translate * rotate;
-   
+
       for (size_t i = 0; i < (*it)->vertices.size(); i++) {
          const Vertex& v = (*it)->vertices[i];
          const Normal& n = (*it)->normals[i];
-      
+
          target_chunk->vertices.push_back(compose.transform(v));
          target_chunk->normals.push_back(rotate.transform(n).normalise());
 
@@ -181,10 +181,10 @@ void MeshBuffer::merge(IMeshBufferPtr other, Vector<float> off, float y_angle)
       for (size_t i = 0; i < (*it)->indices.size(); i++) {
          Index orig = (*it)->indices[i];
          Index merged = orig + ibase;
-         
+
          assert(orig < (*it)->vertices.size());
          assert(merged < target_chunk->vertices.size());
-         
+
          target_chunk->indices.push_back(merged);
       }
    }
@@ -208,7 +208,7 @@ void MeshBuffer::add(const Vertex& vertex,
       // Create an initial chunk for the null texture
       bind(ITexturePtr());
    }
-   
+
    // See if this vertex has already been added
    for (vector<Index>::iterator it = active_chunk->indices.begin();
 	it != active_chunk->indices.end(); ++it) {
@@ -231,7 +231,7 @@ void MeshBuffer::add(const Vertex& vertex,
          }
       }
    }
-   
+
    const size_t index = active_chunk->vertices.size();
    active_chunk->vertices.push_back(vertex);
    active_chunk->normals.push_back(normal);
@@ -247,7 +247,7 @@ void MeshBuffer::add_quad(Vertex a, Vertex b, Vertex c,
    Vector<float> n2 = surface_normal(d, a, b);
 
    const TexCoord nulltc = make_point(0.0f, 0.0f);
-   
+
    add(b, n1, colour, nulltc);
    add(c, n1, colour, nulltc);
    add(d, n1, colour, nulltc);
@@ -262,7 +262,7 @@ void MeshBuffer::add_quad(Vertex a, Vertex b, Vertex c, Vertex d,
                           Colour colour)
 {
    const TexCoord nulltc = make_point(0.0f, 0.0f);
-      
+
    add(b, na, colour, nulltc);
    add(c, nb, colour, nulltc);
    add(d, nc, colour, nulltc);
@@ -287,26 +287,26 @@ BOOST_STATIC_ASSERT(sizeof(VertexData) == 64);
 static void copy_vertex_data(const MeshBuffer* buf, VertexData* vertex_data)
 {
    size_t offset = 0;
-   
+
    for (vector<MeshBuffer::ChunkPtr>::const_iterator it = buf->chunks.begin();
         it != buf->chunks.end(); ++it) {
-   
+
       for (size_t i = 0; i < (*it)->vertices.size(); i++) {
          VertexData* vd = &vertex_data[offset + i];
-         
+
          vd->x = (*it)->vertices[i].x;
          vd->y = (*it)->vertices[i].y;
          vd->z = (*it)->vertices[i].z;
-         
+
          vd->nx = (*it)->normals[i].x;
          vd->ny = (*it)->normals[i].y;
          vd->nz = (*it)->normals[i].z;
-      
+
          if ((*it)->texture) {
             vd->tx = (*it)->tex_coords[i].x;
             vd->ty = 1.0f - (*it)->tex_coords[i].y;
          }
-         
+
          vd->r = (*it)->colours[i].r;
          vd->g = (*it)->colours[i].g;
          vd->b = (*it)->colours[i].b;
@@ -331,7 +331,7 @@ static void copy_index_data(const MeshBuffer *buf,
    GLushort offset = 0;
 
    vector<MeshBuffer::ChunkPtr>::const_iterator chunk_it;
-   
+
    for (chunk_it = buf->chunks.begin();
         chunk_it != buf->chunks.end(); ++chunk_it) {
 
@@ -352,7 +352,7 @@ static void copy_index_data(const MeshBuffer *buf,
       offset += (*chunk_it)->vertices.size();
 
       delim.max = offset - 1;
-            
+
       delims.push_back(delim);
    }
 }
@@ -379,7 +379,7 @@ VertexArrayMesh::VertexArrayMesh(IMeshBufferPtr a_buffer)
 
    my_index_count = buf->index_count();
    my_indices = new GLushort[my_index_count];
-   
+
    my_vertex_count = buf->vertex_count();
    my_vertex_data = new VertexData[my_vertex_count];
 
@@ -407,31 +407,31 @@ void VertexArrayMesh::render() const
    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
    glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData),
                      reinterpret_cast<GLvoid*>(&my_vertex_data->tx));
-   
+
    glEnableClientState(GL_COLOR_ARRAY);
    glColorPointer(3, GL_FLOAT, sizeof(VertexData),
                   reinterpret_cast<GLvoid*>(&my_vertex_data->r));
-      
+
    glEnableClientState(GL_VERTEX_ARRAY);
    glEnableClientState(GL_NORMAL_ARRAY);
    glVertexPointer(3, GL_FLOAT, sizeof(VertexData),
                    reinterpret_cast<GLvoid*>(my_vertex_data));
    glNormalPointer(GL_FLOAT, sizeof(VertexData),
                    reinterpret_cast<GLvoid*>(&my_vertex_data->nx));
-      
+
    glEnable(GL_COLOR_MATERIAL);
-      
+
    for (vector<ChunkDelim>::const_iterator it = chunks.begin();
         it != chunks.end(); ++it) {
-      
+
       if ((*it).texture) {
          glEnable(GL_TEXTURE_2D);
          (*it).texture->bind();
-         
+
       }
       else {
          glDisable(GL_TEXTURE_2D);
-      }       
+      }
 
       glDrawRangeElements(GL_TRIANGLES,
                           (*it).min,
@@ -440,7 +440,7 @@ void VertexArrayMesh::render() const
                           GL_UNSIGNED_SHORT,
                           my_indices + (*it).offset);
    }
-   
+
    glPopClientAttrib();
    glPopAttrib();
 }
@@ -468,7 +468,7 @@ VBOMesh::VBOMesh(IMeshBufferPtr a_buffer)
 
    copy_vertex_data(buf, p_vertex_data);
 
-   // Generate the VBO   
+   // Generate the VBO
    glGenBuffersARB(1, &vbo_buf);
    glBindBufferARB(GL_ARRAY_BUFFER, vbo_buf);
    glBufferDataARB(GL_ARRAY_BUFFER, vertex_count * sizeof(VertexData),
@@ -483,7 +483,7 @@ VBOMesh::VBOMesh(IMeshBufferPtr a_buffer)
    GLushort* p_indices = new GLushort[index_count];
 
    copy_index_data(buf, chunks, p_indices);
-   
+
    // Build the index buffer
    glGenBuffersARB(1, &index_buf);
    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, index_buf);
@@ -494,7 +494,7 @@ VBOMesh::VBOMesh(IMeshBufferPtr a_buffer)
 
    glBindBufferARB(GL_ARRAY_BUFFER, 0);
    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
-   
+
    delete[] p_vertex_data;
    delete[] p_indices;
 }
@@ -521,7 +521,7 @@ void VBOMesh::render() const
 
    if (glIsEnabled(GL_BLEND))
       glDisable(GL_BLEND);
-     
+
    glEnableClientState(GL_COLOR_ARRAY);
    glColorPointer(3, GL_FLOAT, sizeof(VertexData),
                   reinterpret_cast<GLvoid*>(offsetof(VertexData, r)));
@@ -534,14 +534,14 @@ void VBOMesh::render() const
       reinterpret_cast<GLvoid*>(offsetof(VertexData, nx)));
    glVertexPointer(3, GL_FLOAT, sizeof(VertexData),
       reinterpret_cast<GLvoid*>(0));
-      
+
    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
    glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData),
                      reinterpret_cast<GLvoid*>(offsetof(VertexData, tx)));
 
    for (vector<ChunkDelim>::const_iterator it = chunks.begin();
         it != chunks.end(); ++it) {
-      
+
       if ((*it).texture) {
          glEnable(GL_TEXTURE_2D);
          (*it).texture->bind();
@@ -551,7 +551,7 @@ void VBOMesh::render() const
       }
 
       const size_t offset_ptr = (*it).offset * sizeof(GLushort);
-      
+
       glDrawRangeElements(GL_TRIANGLES,
                           (*it).min,
                           (*it).max,
@@ -569,7 +569,7 @@ void VBOMesh::render() const
 IMeshPtr make_mesh(IMeshBufferPtr buffer)
 {
    //buffer->print_stats();
-   
+
    // Prefer VBOs for all meshes
    if (GLEW_ARB_vertex_buffer_object)
       return IMeshPtr(new VBOMesh(buffer));
