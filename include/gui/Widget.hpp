@@ -32,6 +32,7 @@ namespace gui {
    class Widget {
    public:
       Widget(const AttributeSet& attrs);
+      virtual ~Widget() {}
 
       const string& name() const { return name_; }
       int x() const { return x_; }
@@ -58,27 +59,27 @@ namespace gui {
 
       virtual void render(RenderContext& rc) const = 0;
       virtual void adjust_for_theme(const Theme& theme) {}
-      
+
       virtual bool handle_click(int x, int y);
 
       void dump_location() const;
-      
+
    protected:
       void raise(Signal sig);
 
    private:
       static string unique_name();
-      
+
       string name_;
       int x_, y_, width_, height_;
       bool visible_;
       int border_;
 
       map<Signal, SignalHandler> handlers;
-            
+
       static int our_unique_id;
    };
- 
+
 }
 
 #endif

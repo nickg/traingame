@@ -38,7 +38,7 @@ public:
    Editor(IMapPtr a_map);
    Editor(const string& a_map_name);
    ~Editor();
-   
+
    void display(IGraphicsPtr a_context) const;
    void overlay() const;
    void update(IPickBufferPtr pick_buffer, int a_delta);
@@ -50,7 +50,7 @@ public:
       MouseButton a_button);
    void on_mouse_release(IPickBufferPtr pick_buffer, int x, int y,
       MouseButton a_button);
-   
+
    // Different tools the user can be using
    enum Tool {
       TRACK_TOOL, RAISE_TOOL, LOWER_TOOL, DELETE_TOOL,
@@ -61,7 +61,7 @@ public:
 
    IMapPtr get_map() { return map; }
    void set_map(IMapPtr a_map);
-   
+
 private:
    void build_gui();
    void draw_dragged_track();
@@ -85,9 +85,9 @@ private:
    void plant_trees();
    void save();
    bool is_diagonal(const track::Direction& dir) const;
-      
+
    IMapPtr map;
-   
+
    ILightPtr my_sun;
    Vector<float> my_position;
 
@@ -104,31 +104,31 @@ private:
    IRenderStatsPtr render_stats;
 };
 
-Editor::Editor(IMapPtr a_map) 
+Editor::Editor(IMapPtr a_map)
    : map(a_map), my_position(4.5f, -17.5f, -21.5f),
      my_tool(TRACK_TOOL), am_scrolling(false), am_dragging(false),
      is_shift_down(false)
 {
    my_sun = make_sun_light();
-		
+
    build_gui();
-		
+
    map->set_grid(true);
-		
+
    log() << "Editing " << a_map->name();
 }
 
 Editor::~Editor()
 {
-   
+
 }
 
 void Editor::build_gui()
 {
    using namespace placeholders;
-    
+
    layout = gui::make_layout("layouts/editor.xml");
-    
+
    layout->get("/tool_wnd/tools/track").connect(gui::Widget::SIG_CLICK,
       bind(&Editor::set_tool, this, TRACK_TOOL));
    layout->get("/tool_wnd/tools/raise").connect(gui::Widget::SIG_CLICK,
@@ -149,10 +149,10 @@ void Editor::build_gui()
       bind(&Editor::set_tool, this, TREE_TOOL));
    layout->get("/tool_wnd/tools/smooth").connect(gui::Widget::SIG_CLICK,
       bind(&Editor::set_tool, this, SMOOTH_TOOL));
-    
+
    layout->get("/lower/action_wnd/save").connect(gui::Widget::SIG_CLICK,
       bind(&Editor::save, this));
-    
+
    building_picker = make_building_picker(layout);
    tree_picker = make_tree_picker(layout);
 
@@ -178,7 +178,7 @@ void Editor::drag_box_bounds(int& x_min, int& x_max, int &y_min, int& y_max) con
    x_max = max(drag_begin.x, drag_end.x);
 
    y_min = min(drag_begin.y, drag_end.y);
-   y_max = max(drag_begin.y, drag_end.y); 
+   y_max = max(drag_begin.y, drag_end.y);
 }
 
 void Editor::drag_box_size(int& xlen, int& ylen) const
@@ -195,22 +195,22 @@ void Editor::display(IGraphicsPtr a_context) const
 {
    if (!map)
       return;
-   
+
    a_context->set_camera(my_position, make_vector(45.0f, 45.0f, 0.0f));
- 
+
    my_sun->apply();
 
    // Draw the highlight if we are dragging track
    if (am_dragging) {
       int xmin, xmax, ymin, ymax;
       drag_box_bounds(xmin, xmax, ymin, ymax);
-      
+
       for (int x = xmin; x <= xmax; x++) {
 	 for (int y = ymin; y <= ymax; y++)
 	    map->highlight_tile(make_point(x, y), colour::WHITE);
-      }         
+      }
    }
-      
+
    map->render(a_context);
 }
 
@@ -235,7 +235,7 @@ bool Editor::can_connect(const Point<int>& a_first_point,
       return false;
 
    ITrackSegmentPtr track = map->track_at(a_first_point);
-   
+
    Vector<int> dir = make_vector(
       a_first_point.x - a_second_point.x,
       0,
@@ -275,7 +275,7 @@ bool Editor::guess_track_dir(const Point<int>& p, track::Direction& d) const
    }
    else
       return false;
-   
+
    return true;
 }
 
@@ -288,7 +288,7 @@ bool Editor::draw_track_tile(Point<int> where, track::Direction axis)
       axis = axis::X;
    else if (axis == -axis::Y)
       axis = axis::Y;
-   
+
    if (map->is_valid_track(where)) {
       ITrackSegmentPtr merged = map->track_at(where)->merge_exit(where, axis);
       if (merged) {
@@ -307,13 +307,13 @@ bool Editor::draw_track_tile(Point<int> where, track::Direction axis)
       bool b_valid, a_valid;
       const VectorF slope_before = map->slope_before(where, axis, b_valid);
       const VectorF slope_after = map->slope_after(where, axis, a_valid);
-               
+
       if (level) {
          const bool flat =
             abs(slope.y) < 0.001f
             && (!b_valid || abs(slope_before.y) < 0.001f)
             && (!a_valid || abs(slope_after.y) < 0.001);
-         
+
          if (flat) {
             map->set_track_at(where, make_straight_track(axis));
             return true;
@@ -379,7 +379,7 @@ bool Editor::can_place_track(ITrackSegmentPtr track)
    vector<Point<int> > covered;
    track->get_endpoints(covered);
    track->get_covers(covered);
-   
+
    for (vector<Point<int> >::iterator it = covered.begin();
         it != covered.end(); ++it) {
       if (map->is_valid_track(*it)) {
@@ -406,7 +406,7 @@ void Editor::draw_initial_track()
    int xmin, xmax, ymin, ymax, xlen, ylen;
    drag_box_bounds(xmin, xmax, ymin, ymax);
    drag_box_size(xlen, ylen);
-   
+
    if (xlen == 1)
       draw_dragged_straight(drag_begin.y > drag_end.y ? -axis::Y : axis::Y,
                             ylen);
@@ -440,7 +440,7 @@ void Editor::draw_s_bend(const track::Direction& dir)
 
 // The direction of the start is known but not the end
 void Editor::draw_unconstrained_track(const track::Direction& start_dir)
-{   
+{
    debug() << __func__ << ": drag_begin=" << drag_begin
            << " drag_end=" << drag_end << " start_dir=" << start_dir;
 
@@ -507,11 +507,11 @@ void Editor::draw_unconstrained_track(const track::Direction& start_dir)
          }
          ylen--;
       }
-      
+
       draw_curve(start_dir, exit_dir);
    }
    else if (could_be_45_curve) {
-      
+
       track::Direction exit_dir;
       if (start_dir == axis::X || start_dir == -axis::X) {
          if (drag_end.y < drag_begin.y)
@@ -535,7 +535,7 @@ void Editor::draw_unconstrained_track(const track::Direction& start_dir)
    }
    else
       warn() << "cannot infer track";
-      
+
 }
 
 // The direction of both endpoints is known
@@ -591,7 +591,7 @@ void Editor::draw_dragged_track()
 	    for (int y = ymin; y <= ymax; y++)
 	       map->erase_tile(x, y);
 	 }
-         
+
 	 map->set_track_at(drag_end, merged);
 	 return;
       }
@@ -607,7 +607,7 @@ void Editor::draw_dragged_track()
       else {
          swap(drag_begin, drag_end);
          draw_unconstrained_track(end_dir);
-      }         
+      }
    }
    else {
       if (end_was_guess)
@@ -616,7 +616,7 @@ void Editor::draw_dragged_track()
          draw_constrained_track(start_dir, end_dir);
    }
 
-   
+
 #if 0
    end_dir = -end_dir;
 
@@ -695,9 +695,9 @@ void Editor::draw_dragged_track()
    }
    else {
       Point<int> delta = drag_end - drag_begin;
-      
+
       VectorI off = make_vector(delta.x, delta.y, 0);
-      
+
       ITrackSegmentPtr track = make_spline_track(off,
                                                  start_dir,
                                                  end_dir);
@@ -733,11 +733,11 @@ void Editor::plant_trees()
    const float threshold = 0.9f;
 
    static Uniform<float> tree_rand(0.0f, 1.0f);
-    
+
    for (int x = xmin; x <= xmax; x++) {
       for (int y = ymin; y <= ymax; y++) {
          const Point<int> p = make_point(x, y);
-         
+
          if ((is_single_tile || tree_rand() > threshold) && map->empty_tile(p))
             map->add_scenery(p, tree_picker->get());
       }
@@ -771,7 +771,7 @@ void Editor::on_mouse_move(IPickBufferPtr pick_buffer, int x, int y,
 
 void Editor::on_mouse_click(IPickBufferPtr pick_buffer, int x, int y,
    MouseButton a_button)
-{   
+{
    if (a_button == MOUSE_RIGHT) {
       // Start scrolling
       am_scrolling = true;
@@ -786,11 +786,11 @@ void Editor::on_mouse_click(IPickBufferPtr pick_buffer, int x, int y,
 	 display(pick_context);
 	 int id = pick_buffer->end_pick();
 	 map->set_pick_mode(false);
-         
+
 	 if (id > 0) {
 	    // Begin dragging a selection rectangle
 	    Point<int> where = map->pick_position(id);
-         
+
 	    drag_begin = drag_end = where;
 	    am_dragging = true;
 	 }
@@ -841,7 +841,7 @@ void Editor::on_mouse_release(IPickBufferPtr pick_buffer, int x, int y,
          map->smooth_area(drag_begin, drag_end);
          break;
       }
-         
+
       am_dragging = false;
    }
    else if (am_scrolling) {

@@ -542,7 +542,6 @@ void Map::render(IGraphicsPtr a_context) const
    quad_tree->render(a_context);
    glPopMatrix();
 
-
    render_highlighted_tiles();
 
    glPopAttrib();
@@ -946,6 +945,8 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
             draw_start_location();
       }
    }
+
+   assert(glGetError() == GL_NO_ERROR);
 }
 
 // Render the semi-transparent overlays such as water

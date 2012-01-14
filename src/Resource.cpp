@@ -117,14 +117,14 @@ static void add_resource(const string& a_class, IResourcePtr a_res)
    res_class_list(a_class).push_back(a_res);
 }
 
-static void add_resource_dir(const char* a_class, const path& a_path)
+static void add_resource_dir(const char* a_class, const path& p)
 {
-   const path xml_file = a_path / (a_path.filename().string() + ".xml");
+   const path xml_file = p / (p.filename().replace_extension(".xml"));
 
    if (!exists(xml_file))
       warn() << "Missing resource XML file: " << xml_file;
    else
-      add_resource(a_class, IResourcePtr(new FilesystemResource(a_path)));
+      add_resource(a_class, IResourcePtr(new FilesystemResource(p)));
 }
 
 static void look_in_dir(const path& a_path)
