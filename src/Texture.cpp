@@ -42,9 +42,9 @@ private:
    GLuint my_texture;
    int my_width, my_height;
 
-   static bool is_power_ofTwo(int n);
-   static bool is_texture_sizeSupported(int width, int height,
-                                      int ncols = 4, GLenum format = GL_RGBA);
+   static bool is_power_of_two(int n);
+   static bool is_texture_size_supported(
+      int width, int height, int ncols = 4, GLenum format = GL_RGBA);
 };
 
 // Texture cache
@@ -89,12 +89,12 @@ Texture::Texture(const string &file)
       throw runtime_error(os.str());
    }
 
-   if (!is_power_ofTwo(surface->w))
+   if (!is_power_of_two(surface->w))
       warn() << file << " width not a power of 2";
-   if (!is_power_ofTwo(surface->h))
+   if (!is_power_of_two(surface->h))
       warn() << file << " height not a power of 2";
 
-   if (!is_texture_sizeSupported(surface->w, surface->h))
+   if (!is_texture_size_supported(surface->w, surface->h))
       warn() << file << " bigger than max OpenGL texture";
 
    int ncols = surface->format->BytesPerPixel;
@@ -143,19 +143,13 @@ Texture::~Texture()
    glDeleteTextures(1, &my_texture);
 }
 
-bool Texture::is_power_ofTwo(int n)
+bool Texture::is_power_of_two(int n)
 {
-   int pop = 0;
-   for (unsigned i = 0, bit = 1;
-        i < sizeof(int)*8;
-        i++, bit <<= 1) {
-      if (n & bit)
-         pop++;
-   }
-   return pop == 1;
+   return (n & (n - 1)) == 0;
 }
 
-bool Texture::is_texture_sizeSupported(int width, int height, int ncols, GLenum format)
+bool Texture::is_texture_size_supported(int width, int height, int ncols,
+                                        GLenum format)
 {
    glTexImage2D(GL_PROXY_TEXTURE_2D, 0, ncols, width, height, 0, format,
                 GL_UNSIGNED_BYTE, NULL);
