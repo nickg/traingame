@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2011  Nick Gasson
+//  Copyright (C) 2009-2012  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -251,6 +251,12 @@ void draw_normal(const Vector<float>& a_position,
                  const Vector<float>& a_normal);
 
 // A 2D point in space
+template <typename T>
+struct Point;
+
+template <typename T>
+Point<T> make_point(T x, T y);
+
 template <typename T>
 struct Point {
    Point(T _x, T _y) : x(_x), y(_y) {}

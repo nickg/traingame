@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009, 2012  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ namespace {
       bool result;
 
       ss >> boolalpha >> result;  // Is boolalpha affected by locale?
-      
+
       if (ss.fail())
          throw runtime_error(
             "Cannot parse Boolean attribute with value '"
@@ -72,7 +72,7 @@ namespace {
    {
       return boost::lexical_cast<T>(str);
    }
-   
+
 }
 
 // Container for attributes
@@ -98,7 +98,7 @@ public:
 
       int index = my_attrs.getIndex(xml_name);
       xercesc::XMLString::release(&xml_name);
-      
+
       if (index != -1) {
          char* ascii = xercesc::XMLString::transcode(
             my_attrs.getValue(index));
@@ -124,7 +124,7 @@ public:
    {
       return has(name) ? get<T>(name) : def;
    }
-   
+
 private:
    const xercesc::Attributes& my_attrs;
 };
@@ -149,8 +149,8 @@ struct IXMLParser {
 };
 
 typedef shared_ptr<IXMLParser> IXMLParserPtr;
- 
+
 IXMLParserPtr make_xml_parser(const std::string& a_schema_file);
-     
+
 #endif
 

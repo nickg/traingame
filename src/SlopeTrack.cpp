@@ -51,7 +51,7 @@ public:
    void get_covers(vector<Point<int> >& output) const {};
    void get_height_locked(vector<Point<int> >& output) const;
    ITrackSegmentPtr merge_exit(Point<int> where, track::Direction dir);
-   
+
    bool has_multiple_states() const { return false; }
    void next_state() {}
    void prev_state() {}
@@ -64,7 +64,7 @@ private:
    void ensure_valid_direction(const track::Direction& dir) const;
    void transform(const track::TravelToken& token, float delta) const;
    float gradient(const track::TravelToken& token, float delta) const;
-   
+
    Point<int> origin;
    float height;
    IMeshBufferPtr rail_buf;
@@ -80,7 +80,7 @@ SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
    const float OFF = 0.1f;
 
    assert(axis == axis::X || axis == axis::Y);
-   
+
    const Vector<float> avg_before = (slope + slope_before) / 2.0f;
    const Vector<float> avg_after = (slope + slope_after) / 2.0f;
 
@@ -95,7 +95,7 @@ SlopeTrack::SlopeTrack(track::Direction axis, Vector<float> slope,
 
    const float x_delta1 = h_factor1;
    const float y_delta1 = h_factor1 * avg_after.y;
-   
+
    Vector<float> p1 = make_vector(0.0f, 0.0f, 0.0f);
    Vector<float> p2 = make_vector(x_delta0, y_delta0, 0.0f);
    Vector<float> p3 = make_vector(1.0f - x_delta1, slope.y - y_delta1, 0.0f);
@@ -117,9 +117,9 @@ void SlopeTrack::merge(IMeshBufferPtr buf) const
    float y_angle = axis == axis::Y ? -90.0f : 0.0f;
 
    off += rotateY(make_vector(-0.5f, 0.0f, 0.0f), y_angle);
-   
+
    buf->merge(rail_buf, off, y_angle);
-   
+
    // Draw the sleepers
    for (float t = 0.1f; t < 1.0f; t += 0.25f) {
       float u_curve_value;
@@ -132,9 +132,9 @@ void SlopeTrack::merge(IMeshBufferPtr buf) const
          rad_to_deg<float>(atanf(deriv.y / deriv.x));
 #endif
 
-      Vector<float> t = make_vector(curve_value.x, curve_value.y, 0.0f);
+      Vector<float> v = make_vector(curve_value.x, curve_value.y, 0.0f);
 
-      merge_sleeper(buf, off + rotateY(t, y_angle), y_angle);
+      merge_sleeper(buf, off + rotateY(v, y_angle), y_angle);
    }
 }
 
@@ -188,7 +188,7 @@ track::TravelToken SlopeTrack::get_travel_token(track::Position pos,
       track::Direction dir) const
 {
    using namespace placeholders;
-   
+
    ensure_valid_direction(dir);
 
    track::TravelToken tok = {
@@ -204,7 +204,7 @@ track::TravelToken SlopeTrack::get_travel_token(track::Position pos,
 float SlopeTrack::gradient(const track::TravelToken& token, float delta) const
 {
    assert(delta < length && delta >= 0.0f);
-   
+
    if (token.direction == -axis)
       delta = length - delta;
 
@@ -224,7 +224,7 @@ void SlopeTrack::transform(const track::TravelToken& token, float delta) const
            << " f'(0.5)=" << curve.deriv(0.5f)
            << " f'(1.0)=" << curve.deriv(1.0f);
 #endif
-   
+
    if (token.direction == -axis)
       delta = length - delta;
 
@@ -232,11 +232,11 @@ void SlopeTrack::transform(const track::TravelToken& token, float delta) const
 
    float u_curve_delta;
    const Vector<float> curve_value = curve.linear(curve_delta, &u_curve_delta);
-   
+
    const float x_trans = axis == axis::X ? curve_value.x : 0.0f;
    const float y_trans =curve_value.y;
    const float z_trans = axis == axis::Y ? curve_value.x : 0.0f;
-   
+
    glTranslated(static_cast<double>(origin.x) + x_trans,
       height + y_trans,
       static_cast<double>(origin.y) + z_trans);
@@ -245,7 +245,7 @@ void SlopeTrack::transform(const track::TravelToken& token, float delta) const
       glRotated(-90.0, 0.0, 1.0, 0.0);
 
    glTranslated(-0.5, 0.0, 0.0);
-   
+
    if (token.direction == -axis)
       glRotated(-180.0, 0.0, 1.0, 0.0);
 
