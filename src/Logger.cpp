@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009  Nick Gasson
+//  Copyright (C) 2009, 2012  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@
 
 #ifdef WIN32
 #include <io.h>   // For _isatty
+#else
+#include <unistd.h>
 #endif
 
 using namespace std;
@@ -33,7 +35,7 @@ class LoggerImpl : public ILogger {
    friend struct PrintLine;
 public:
    LoggerImpl();
-   
+
    PrintLinePtr write_msg(LogMsgType type);
 };
 
@@ -61,7 +63,7 @@ PrintLinePtr LoggerImpl::write_msg(LogMsgType type)
 {
    if (is_stdoutTTY)
       cout << "\x1B[1m";
-   
+
    switch (type) {
    case LOG_NORMAL:
       cout << "[INFO ] ";
@@ -88,14 +90,14 @@ PrintLinePtr LoggerImpl::write_msg(LogMsgType type)
 PrintLine::PrintLine(ostream& a_stream)
    : stream(a_stream)
 {
-   
+
 }
 
 PrintLine::~PrintLine()
 {
    if (is_stdoutTTY)
       cout << "\x1B[0m";
-   
+
    stream << endl;
 }
 

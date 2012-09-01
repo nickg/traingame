@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2010  Nick Gasson
+//  Copyright (C) 2009-2012  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -39,19 +39,19 @@ class StraightTrack : public ITrackSegment,
 public:
    StraightTrack(const Direction& a_direction);
    ~StraightTrack();
-   
+
    void render() const {}
    void merge(IMeshBufferPtr buf) const;
-   
+
    void set_origin(int x, int y, float h);
    float segment_length(const track::TravelToken& token) const { return 1.0f; }
 
    Connection next_position(const track::TravelToken& a_direction) const;
    bool is_valid_direction(const Direction& a_direction) const;
-   void get_endpoints(vector<Point<int> >& a_list) const;
-   void get_covers(vector<Point<int> >& output) const { }
-   void get_height_locked(vector<Point<int> >& output) const;
-   
+   void get_endpoints(PointList& a_list) const;
+   void get_covers(PointList& output) const { }
+   void get_height_locked(PointList& output) const;
+
    ITrackSegmentPtr merge_exit(Point<int> where, track::Direction dir);
    track::TravelToken get_travel_token(track::Position a_position,
       track::Direction a_direction) const;
@@ -63,11 +63,11 @@ public:
 
    // IXMLSerialisable interface
    xml::element to_xml() const;
-   
+
 private:
    void transform(const track::TravelToken& a_token, float delta) const;
    void ensure_valid_direction(const track::Direction& a_direction) const;
-   
+
    Point<int> origin;  // Absolute position
    Direction direction;
    float height;
@@ -76,12 +76,12 @@ private:
 StraightTrack::StraightTrack(const Direction& a_direction)
    : direction(a_direction), height(0.0f)
 {
-   
+
 }
 
 StraightTrack::~StraightTrack()
 {
-   
+
 }
 
 void StraightTrack::set_origin(int x, int y, float h)
@@ -125,7 +125,7 @@ void StraightTrack::transform(const track::TravelToken& a_token,
       glRotated(-90.0, 0.0, 1.0, 0.0);
 
    glTranslated(-0.5, 0.0, 0.0);
-   
+
    if (a_token.direction == -direction)
       glRotated(-180.0, 0.0, 1.0, 0.0);
 }
@@ -166,7 +166,7 @@ ITrackSegmentPtr StraightTrack::merge_exit(Point<int> where,
       else if (where == origin + make_point(-1, 2))
          return make_points(axis::Y, false);
    }
-   
+
    // Not possible to merge
    return ITrackSegmentPtr();
 }
@@ -179,12 +179,12 @@ bool StraightTrack::is_valid_direction(const Direction& a_direction) const
       return a_direction == axis::Y || -a_direction == axis::Y;
 }
 
-void StraightTrack::get_endpoints(vector<Point<int> >& a_list) const
+void StraightTrack::get_endpoints(PointList& a_list) const
 {
    a_list.push_back(origin);
 }
 
-void StraightTrack::get_height_locked(vector<Point<int> >& output) const
+void StraightTrack::get_height_locked(PointList& output) const
 {
    output.push_back(origin + make_point(0, 0));
    output.push_back(origin + make_point(0, 1));
@@ -232,12 +232,12 @@ void StraightTrack::merge(IMeshBufferPtr buf) const
    y_angle += 90.0f;
 
    off += rotate(make_vector(-0.4f, 0.0f, 0.0f), y_angle, 0.0f, 1.0f, 0.0f);
-   
+
    for (int i = 0; i < 4; i++) {
       merge_sleeper(buf, off, y_angle);
 
       off += rotate(make_vector(0.25f, 0.0f, 0.0f), y_angle, 0.0f, 1.0f, 0.0f);
-   }  
+   }
 }
 
 xml::element StraightTrack::to_xml() const
@@ -249,7 +249,7 @@ xml::element StraightTrack::to_xml() const
 ITrackSegmentPtr make_straight_track(const Direction& a_direction)
 {
    Direction real_dir(a_direction);
-   
+
    // Direction must either be along axis::X or axis::Y but we
    // allow the opositite direction here too
    if (real_dir == -axis::X || real_dir == -axis::Y)
@@ -258,6 +258,6 @@ ITrackSegmentPtr make_straight_track(const Direction& a_direction)
    if (real_dir != axis::X && real_dir != axis::Y)
       throw runtime_error("Illegal straight track direction: "
          + lexical_cast<string>(a_direction));
-   
+
    return ITrackSegmentPtr(new StraightTrack(real_dir));
 }

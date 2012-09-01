@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2010  Nick Gasson
+//  Copyright (C) 2009-2012  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ namespace track {
    // separate layer field - but will do for now
    typedef Point<int> Position;
    typedef Vector<int> Direction;
-   
+
    // Uniquely identifies the location of a train and its orientation
    // along a piece of track
    // Used for verifying whether bits of track can join together
@@ -69,7 +69,7 @@ namespace track {
       int num_exits;
 
       // Wrappers for the above functions
-      
+
       void transform(float delta) const
       {
          transformer(*this, delta);
@@ -91,11 +91,13 @@ namespace axis {
 struct ITrackSegment;
 typedef shared_ptr<ITrackSegment> ITrackSegmentPtr;
 
+typedef vector<PointI> PointList;
+
 // A segment of track which fits over a number of tiles
 // Each track segment has an origin and one or more exits
-struct ITrackSegment : IXMLSerialisable {   
+struct ITrackSegment : IXMLSerialisable {
    virtual ~ITrackSegment() {}
-   
+
    // Render the track with the origin in the centre
    virtual void render() const = 0;
 
@@ -112,10 +114,10 @@ struct ITrackSegment : IXMLSerialisable {
    // position and moving in a particular direciton
    virtual track::TravelToken get_travel_token(track::Position pos,
                                                track::Direction dir) const = 0;
-                                      
+
    // True if a train can travel in this direction along the track
    virtual bool is_valid_direction(const track::Direction& dir) const = 0;
-   
+
    // Return the position of the next segment of track and the
    // orientation of the train.
    // Note that this may not actually be a valid track segment!
@@ -130,14 +132,14 @@ struct ITrackSegment : IXMLSerialisable {
    // Note that an endpoint is not the same as what is returned
    // from `next_position' - e.g. a straight track that takes up
    // one tile has a single endpoint which is its origin
-   virtual void get_endpoints(vector<Point<int> >& a_list) const = 0;
+   virtual void get_endpoints(PointList& list) const = 0;
 
    // Similar to endpoints, the `covers' of a track are the tiles
    // which are not endpoints but are underneath the track
-   virtual void get_covers(vector<Point<int> >& output) const = 0;
+   virtual void get_covers(PointList& output) const = 0;
 
    // Covers are tile vertices covered by the track segment
-   virtual void get_height_locked(vector<Point<int> >& output) const = 0;
+   virtual void get_height_locked(PointList& output) const = 0;
 
    // Add an exit to this section of track possibly generating
    // a new track segment
@@ -146,7 +148,7 @@ struct ITrackSegment : IXMLSerialisable {
    // may be bigger than the origin segment
    // The track may already have an exit here in which case
    // a pointer to itself will be returned
-   virtual ITrackSegmentPtr merge_exit(Point<int> where,
+   virtual ITrackSegmentPtr merge_exit(PointI where,
                                        track::Direction dir) = 0;
 
    // Some track segments may have several states - e.g. points
@@ -163,9 +165,9 @@ struct ITrackSegment : IXMLSerialisable {
 ITrackSegmentPtr make_straight_track(const track::Direction& a_direction);
 ITrackSegmentPtr make_crossover_track();
 ITrackSegmentPtr make_points(track::Direction a_direction, bool reflect);
-ITrackSegmentPtr make_slope_track(track::Direction axis, Vector<float> slope,
-   Vector<float> slope_before, Vector<float> slope_after);
-ITrackSegmentPtr make_spline_track(Vector<int> delta,
+ITrackSegmentPtr make_slope_track(track::Direction axis, VectorF slope,
+   VectorF slope_before, VectorF slope_after);
+ITrackSegmentPtr make_spline_track(VectorI delta,
                                    track::Direction entry_dir,
                                    track::Direction exit_dir);
 

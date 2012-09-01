@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2010-2011  Nick Gasson
+//  Copyright (C) 2010-2012  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -29,9 +29,9 @@ class SplineTrack : public ITrackSegment,
                     private SleeperHelper,
                     private BezierHelper {
 public:
-   SplineTrack(Vector<int> delta,
-            track::Direction entry_dir,
-            track::Direction exit_dir);
+   SplineTrack(VectorI delta,
+               track::Direction entry_dir,
+               track::Direction exit_dir);
 
    // ITrackSegment interface
    void render() const;
@@ -40,10 +40,10 @@ public:
    float segment_length(const track::TravelToken& token) const;
    bool is_valid_direction(const track::Direction& dir) const;
    track::Connection next_position(const track::TravelToken& token) const;
-   void get_endpoints(vector<Point<int> >& output) const;
-   void get_covers(vector<Point<int> >& output) const;
-   void get_height_locked(vector<Point<int> >& output) const;
-   ITrackSegmentPtr merge_exit(Point<int> where, track::Direction dir);
+   void get_endpoints(PointList& output) const;
+   void get_covers(PointList& output) const;
+   void get_height_locked(PointList& output) const;
+   ITrackSegmentPtr merge_exit(PointI where, track::Direction dir);
    track::TravelToken get_travel_token(track::Position pos,
                                        track::Direction dir) const;
    void next_state() {}
@@ -53,37 +53,37 @@ public:
 
    // IXMLSerialisable interface
    xml::element to_xml() const;
-   
+
 private:
    typedef vector<Point<float> > Polygon;
    void bounding_polygon(Polygon& poly) const;
    static bool point_in_polygon(const Polygon& poly, Point<float> p);
-   
+
    float extend_from_center(track::Direction dir) const;
    void ensure_valid_direction(track::Direction dir) const;
    void transform(const track::TravelToken& token,
                   float delta, bool backwards) const;
    float rotation_at(float delta) const;
-   
+
    BezierCurve<float> curve;
    IMeshBufferPtr rail_buf;
 
-   Point<int> origin;
+   PointI origin;
    float height;
-   Vector<int> delta;
+   VectorI delta;
    track::Direction entry_dir, exit_dir;
    Polygon bounds;
 
-   typedef tuple<Vector<int>,
+   typedef tuple<VectorI,
                  track::Direction,
                  track::Direction> Parameters;
-   typedef map<Parameters, IMeshBufferPtr> MeshCache; 
+   typedef map<Parameters, IMeshBufferPtr> MeshCache;
    static MeshCache mesh_cache;
 };
 
 SplineTrack::MeshCache SplineTrack::mesh_cache;
 
-SplineTrack::SplineTrack(Vector<int> delta,
+SplineTrack::SplineTrack(VectorI delta,
                          track::Direction entry_dir,
                          track::Direction exit_dir)
    : delta(delta),
@@ -99,7 +99,7 @@ SplineTrack::SplineTrack(Vector<int> delta,
       static_cast<float>(entry_dir.x),
       0.0f,
       static_cast<float>(entry_dir.z)).normalise();
-   
+
    Vector<float> exit_dir_norm = make_vector(
       static_cast<float>(exit_dir.x),
       0.0f,
@@ -116,7 +116,7 @@ SplineTrack::SplineTrack(Vector<int> delta,
    Vector<float> p4 = delta_f + (exit_dir_norm * exit_extend);
 
    curve = make_bezier_curve(p1, p2, p3, p4);
-   
+
    Parameters parms = make_tuple(delta, entry_dir, exit_dir);
    MeshCache::iterator it = mesh_cache.find(parms);
    if (it == mesh_cache.end()) {
@@ -130,17 +130,17 @@ SplineTrack::SplineTrack(Vector<int> delta,
 }
 
 float SplineTrack::extend_from_center(track::Direction dir) const
-{   
+{
    // Track must extend from the centre to the edge of a tile
    const float x_sq = static_cast<float>(dir.x * dir.x);
    const float y_sq = static_cast<float>(dir.z * dir.z);
-   
+
    if (abs(dir.x) == abs(dir.z))
       return sqrtf(2.0f) * 0.5f;
    else if (abs(dir.x) < abs(dir.z))
       return sqrtf(x_sq / y_sq + 1) * 0.5f;
    else
-      return sqrtf(y_sq / x_sq + 1) * 0.5f;   
+      return sqrtf(y_sq / x_sq + 1) * 0.5f;
 }
 
 void SplineTrack::merge(IMeshBufferPtr buf) const
@@ -162,7 +162,7 @@ void SplineTrack::merge(IMeshBufferPtr buf) const
       ++n;
       delta = ((curve.length - sleeper_sep) / n) - sleeper_sep;
    } while (delta > sleeper_sep / n);
-  
+
    for (int i = 0; i <= n; i++) {
       float pos = (sleeper_sep / 2) + i * (sleeper_sep + delta);
 
@@ -185,7 +185,7 @@ void SplineTrack::render() const
 
    glTranslatef(origin.x, 0.0f, origin.y);
    glColor3f(0.1f, 0.1f, 0.8f);
-   
+
    glBegin(GL_LINE_LOOP);
    for (Polygon::const_iterator it = bounds.begin();
         it != bounds.end();
@@ -213,7 +213,7 @@ void SplineTrack::render() const
    glPopAttrib();
    glPopMatrix();
 #endif
-}     
+}
 
 void SplineTrack::set_origin(int x, int y, float h)
 {
@@ -248,17 +248,17 @@ SplineTrack::next_position(const track::TravelToken& token) const
    ensure_valid_direction(token.direction);
 
    if (token.direction == entry_dir) {
-      Point<int> off =
+      PointI off =
          make_point(exit_dir.x, exit_dir.z) + make_point(delta.x, delta.y);
       return make_pair(origin + off, exit_dir);
    }
    else {
-      Point<int> off = -make_point(entry_dir.x, entry_dir.z);
+      PointI off = -make_point(entry_dir.x, entry_dir.z);
       return make_pair(origin + off, -entry_dir);
-   }   
+   }
 }
 
-void SplineTrack::get_endpoints(vector<Point<int> >& output) const
+void SplineTrack::get_endpoints(PointList& output) const
 {
    output.push_back(origin);
 
@@ -267,13 +267,13 @@ void SplineTrack::get_endpoints(vector<Point<int> >& output) const
          make_point(origin.x + delta.x, origin.y + delta.y));
 }
 
-void SplineTrack::get_covers(vector<Point<int> >& output) const
+void SplineTrack::get_covers(PointList& output) const
 {
    const Point<float> off = make_point(0.5f, 0.5f);
-   
+
    for (int x = min(0, delta.x); x <= max(0, delta.x) + 1; x++) {
       for (int y = min(0, delta.y); y <= max(0, delta.y) + 1; y++) {
-         Point<int> p = make_point(x, y);
+         PointI p = make_point(x, y);
 
          const bool is_origin = p == make_point(0, 0);
          const bool is_delta = p == make_point(delta.x, delta.y);
@@ -311,7 +311,7 @@ void SplineTrack::bounding_polygon(Polygon& poly) const
 {
    const float step = 0.01f;
    const float fudge = 0.8f;
-   
+
    for (float t = 0.0f; t <= 1.0f; t += step) {
       Vector<float> v = curve.offset(t, fudge);
       poly.push_back(make_point(v.x, v.z));
@@ -323,19 +323,19 @@ void SplineTrack::bounding_polygon(Polygon& poly) const
    }
 }
 
-void SplineTrack::get_height_locked(vector<Point<int> >& output) const
+void SplineTrack::get_height_locked(PointList& output) const
 {
    for (int x = min(0, delta.x); x <= max(0, delta.x) + 1; x++) {
       for (int y = min(0, delta.y); y <= max(0, delta.y) + 1; y++) {
 
-         Point<int> p = make_point(x, y);
+         PointI p = make_point(x, y);
          if (point_in_polygon(bounds, point_cast<float>(p)))
             output.push_back(p + origin);
       }
    }
 }
 
-ITrackSegmentPtr SplineTrack::merge_exit(Point<int> where, track::Direction dir)
+ITrackSegmentPtr SplineTrack::merge_exit(PointI where, track::Direction dir)
 {
    return ITrackSegmentPtr();
 }
@@ -343,7 +343,7 @@ ITrackSegmentPtr SplineTrack::merge_exit(Point<int> where, track::Direction dir)
 float SplineTrack::rotation_at(float curve_delta) const
 {
    assert(curve_delta >= 0.0f && curve_delta <= 1.0f);
-   
+
    const Vector<float> deriv = curve.deriv(curve_delta);
 
    // Derivation of angle depends on quadrant
@@ -378,7 +378,7 @@ void SplineTrack::transform(const track::TravelToken& token,
    float angle = rotation_at(u_curve_delta);
    if (backwards)
       angle += 180.0f;
-   
+
    glRotatef(-angle, 0.0f, 1.0f, 0.0f);
 }
 
@@ -412,7 +412,7 @@ xml::element SplineTrack::to_xml() const
       .add_attribute("exit-dir-y", exit_dir.z);
 }
 
-ITrackSegmentPtr make_spline_track(Vector<int> delta,
+ITrackSegmentPtr make_spline_track(VectorI delta,
                                    track::Direction entry_dir,
                                    track::Direction exit_dir)
 {

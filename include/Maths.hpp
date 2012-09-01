@@ -337,6 +337,9 @@ Point<T> make_point(T x, T y)
    return Point<T>(x, y);
 }
 
+typedef Point<int> PointI;
+typedef Point<float> PointF;
+
 // A frustum
 struct Frustum {
    bool point_in_frustum(float x, float y, float z);
