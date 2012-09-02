@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2011  Nick Gasson
+//  Copyright (C) 2009-2012  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -32,8 +32,8 @@
 
 namespace {
    typedef tuple<const char*, IConfig::Option> Default;
-   
-   // All valid options   
+
+   // All valid options
    const Default defaults[] = {
       Default("XRes", 800),
       Default("YRes", 600),
@@ -56,16 +56,16 @@ public:
    // IXMLCallback interface
    void start_element(const string& local_name, const AttributeSet& attrs);
    void text(const string& local_name, const string& a_string);
-   
+
 private:
    static boost::filesystem::path config_file_name();
 
    template <class T>
    void set_from_string(const string& a_key, const string& a_string);
-   
+
    template <class T>
    void bind_next_option(const AttributeSet& attrs);
-   
+
    typedef map<string, IConfig::Option> ConfigMap;
    ConfigMap config_map;
 
@@ -109,7 +109,7 @@ Config::~Config()
 
 // Find the config file location on this platform
 boost::filesystem::path Config::config_file_name()
-{   
+{
    return get_config_dir() / "config.xml";
 }
 
@@ -142,10 +142,10 @@ void Config::flush()
 {
    using namespace boost::filesystem;
    using namespace boost;
-   
+
    if (!am_dirty)
       return;
-   
+
    log() << "Saving config to " << config_file;
 
    ofstream ofs(config_file.string().c_str());
@@ -187,10 +187,10 @@ void Config::flush()
       xml::element type(type_name);
       type.add_text(text);
       option.add_child(type);
-      
+
       root.add_child(option);
    }
-   
+
    ofs << xml::document(root);
 
    am_dirty = false;

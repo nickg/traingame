@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2011  Nick Gasson
+//  Copyright (C) 2009-2012  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -47,26 +47,27 @@
 template <class T>
 class Anchor {
 public:
-   Anchor(shared_ptr<T> obj, Point<int> origin)
+   Anchor(shared_ptr<T> obj, PointI origin)
       : owned(obj), last_frame(-1), origin_(origin) {}
 
    // These numbers don't necessarily refer to frames
    void rendered_on(int f) { last_frame = f; }
    bool needs_rendering(int f) const { return f != last_frame; }
 
-   const Point<int>& origin() const { return origin_; }
+   const PointI& origin() const { return origin_; }
 
    inline shared_ptr<T> get() { return owned; }
 private:
    shared_ptr<T> owned;
    int last_frame;
-   Point<int> origin_;
+   PointI origin_;
 };
 
 typedef shared_ptr<Anchor<ITrackSegment> > TrackAnchor;
 typedef shared_ptr<Anchor<IScenery> > SceneryAnchor;
 
-class Map : public IMap, public ISectorRenderable,
+class Map : public IMap,
+            public ISectorRenderable,
             public enable_shared_from_this<Map> {
    friend class MapLoader;
 public:
@@ -86,64 +87,63 @@ public:
    void set_pick_mode(bool on_off) { in_pick_mode = on_off; }
 
    track::Connection start() const;
-   ITrackSegmentPtr track_at(const Point<int>& a_point) const;
-   IStationPtr station_at(Point<int> a_point) const;
-   void set_track_at(const Point<int>& a_point, ITrackSegmentPtr a_track);
-   bool is_valid_track(const Point<int>& a_point) const;
+   ITrackSegmentPtr track_at(const PointI& a_point) const;
+   IStationPtr station_at(PointI a_point) const;
+   void set_track_at(const PointI& a_point, ITrackSegmentPtr a_track);
+   bool is_valid_track(const PointI& a_point) const;
    void render(IGraphicsPtr a_context) const;
-   void highlight_tile(Point<int> point, Colour colour) const;
-   void highlight_vertex(Point<int> point, Colour colour) const;
+   void highlight_tile(PointI point, Colour colour) const;
+   void highlight_vertex(PointI point, Colour colour) const;
    void reset_map(int a_width, int a_depth);
    void erase_tile(int x, int y);
-   bool empty_tile(Point<int> tile) const;
+   bool empty_tile(PointI tile) const;
 
-   void raise_area(const Point<int>& a_start_pos,
-      const Point<int>& a_finish_pos);
-   void lower_area(const Point<int>& a_start_pos,
-      const Point<int>& a_finish_pos);
-   void level_area(Point<int> a_start_pos, Point<int> a_finish_pos);
-   void smooth_area(Point<int> start, Point<int> finish);
+   void raise_area(const PointI& a_start_pos,
+                   const PointI& a_finish_pos);
+   void lower_area(const PointI& a_start_pos,
+                   const PointI& a_finish_pos);
+   void level_area(PointI a_start_pos, PointI a_finish_pos);
+   void smooth_area(PointI start, PointI finish);
 
    void save();
 
-   IStationPtr extend_station(Point<int> a_start_pos,
-      Point<int> a_finish_pos);
+   IStationPtr extend_station(PointI a_start_pos,
+                              PointI a_finish_pos);
    float height_at(float x, float y) const;
-   float height_at(Point<int> where) const;
-   Vector<float> slope_at(Point<int> where, track::Direction axis,
-      bool& level) const;
-   Vector<float> slope_before(Point<int> where,
-      track::Direction axis, bool &valid) const;
-   Vector<float> slope_after(Point<int> where,
-      track::Direction axis, bool &valid) const;
-   void add_scenery(Point<int> where, ISceneryPtr s);
+   float height_at(PointI where) const;
+   VectorF slope_at(PointI where, track::Direction axis, bool& level) const;
+   VectorF slope_before(PointI where,
+                        track::Direction axis, bool &valid) const;
+   VectorF slope_after(PointI where,
+                       track::Direction axis, bool &valid) const;
+   void add_scenery(PointI where, ISceneryPtr s);
 
    // ISectorRenderable interface
    void render_sector(IGraphicsPtr a_context, int id,
-      Point<int> bot_left, Point<int> top_right);
+                      PointI bot_left, PointI top_right);
    void post_render_sector(IGraphicsPtr a_context, int id,
-      Point<int> bot_left, Point<int> top_right);
+                           PointI bot_left, PointI top_right);
 
 private:
    // Tiles on the map
    struct Tile {
       // TODO: Better to use a boost::variant here?
-      TrackAnchor track;    // Track at this location, if any
-      IStationPtr station;   // Station on this tile, if any
+      TrackAnchor   track;     // Track at this location, if any
+      IStationPtr   station;   // Station on this tile, if any
       SceneryAnchor scenery;   // Scenery, if any
    } *tiles;
 
    // Vertices on the terrain
    struct HeightMap {
-      Vector<float> pos, normal;
+      VectorF pos, normal;
 
       // How many track segments are locking the height at this node
       int lock_count;
    } *height_map;
 
-   static const unsigned TILE_NAME_BASE	= 1000;	  // Base of tile naming
-   static const unsigned NULL_OBJECT	= 0;	  // Non-existant object
-   static const float TILE_HEIGHT;	   // Standard height increment
+   static const unsigned TILE_NAME_BASE	= 1000;	 // Base of tile naming
+   static const unsigned NULL_OBJECT	= 0;	 // Non-existent object
+   static const float TILE_HEIGHT;	         // Standard height increment
 
    // Meshes for each terrain sector
    vector<IMeshPtr> terrain_meshes;
@@ -164,7 +164,7 @@ private:
       return tiles[index(x, z)];
    }
 
-   inline Tile& tile_at(const Point<int>& p) const
+   inline Tile& tile_at(const PointI& p) const
    {
       return tile_at(p.x, p.y);
    }
@@ -181,7 +181,7 @@ private:
          && a_name < TILE_NAME_BASE + my_width * my_depth;
    }
 
-   Point<int> pick_position(unsigned a_name) const
+   PointI pick_position(unsigned a_name) const
    {
       assert(is_valid_tileName(a_name));
 
@@ -193,39 +193,39 @@ private:
    void save_to(ostream& of);
    void read_height_map(IResource::Handle a_handle);
    void tile_vertices(int x, int y, int* indexes) const;
-   void render_pick_sector(Point<int> bot_left, Point<int> top_right);
+   void render_pick_sector(PointI bot_left, PointI top_right);
    void draw_start_location() const;
-   void set_station_at(Point<int> point, IStationPtr a_station);
+   void set_station_at(PointI point, IStationPtr a_station);
    void render_highlighted_tiles() const;
-   void lock_height_at(Point<int> p);
-   void unlock_height_at(Point<int> p);
+   void lock_height_at(PointI p);
+   void unlock_height_at(PointI p);
 
    // Mesh modification
-   void build_mesh(int id, Point<int> bot_left, Point<int> top_right);
-   bool have_mesh(int id, Point<int> bot_left, Point<int> top_right);
+   void build_mesh(int id, PointI bot_left, PointI top_right);
+   bool have_mesh(int id, PointI bot_left, PointI top_right);
    void dirty_tile(int x, int y);
 
    // Terrain modification
-   void change_area_height(const Point<int>& a_start_pos,
-      const Point<int>& a_finish_pos, float a_height_delta);
+   void change_area_height(const PointI& a_start_pos,
+      const PointI& a_finish_pos, float a_height_delta);
    void raise_tile(int x, int y, float delta_height);
    void set_tile_height(int x, int y, float h);
    void fix_normals(int x, int y);
    bool raise_will_cover_track(int x, int y) const;
 
-   int my_width, my_depth;
-   Point<int> start_location;
+   int           my_width, my_depth;
+   PointI        start_location;
    track::Direction start_direction;
-   IQuadTreePtr quad_tree;
-   IFogPtr fog;
-   bool should_draw_grid_lines, in_pick_mode;
-   list<Point<int> > dirty_tiles;
-   IResourcePtr resource;
-   vector<bool> sea_sectors;
+   IQuadTreePtr  quad_tree;
+   IFogPtr       fog;
+   bool          should_draw_grid_lines, in_pick_mode;
+   list<PointI>  dirty_tiles;
+   IResourcePtr  resource;
+   vector<bool>  sea_sectors;
 
    // Variables used during rendering
    mutable int frame_num;
-   mutable vector<tuple<Point<int>, Colour> > highlighted_tiles;
+   mutable vector<tuple<PointI, Colour> > highlighted_tiles;
 };
 
 const float Map::TILE_HEIGHT(0.2f);
@@ -237,10 +237,11 @@ Map::Map(IResourcePtr a_res)
      should_draw_grid_lines(false), in_pick_mode(false),
      resource(a_res), frame_num(0)
 {
-   const float far_clip = get_config()->get<float>("FarClip");
-   fog = make_fog(0.005f,         // Density
-      3.0f * far_clip / 4.0f,     // Start
-      far_clip);                  // End distance
+   float far_clip;
+   get_config()->get("FarClip", far_clip);
+   fog = make_fog(0.005f,                  // Density
+                  3.0f * far_clip / 4.0f,  // Start
+                  far_clip);               // End distance
 }
 
 Map::~Map()
@@ -248,26 +249,26 @@ Map::~Map()
    delete tiles;
 }
 
-ITrackSegmentPtr Map::track_at(const Point<int>& a_point) const
+ITrackSegmentPtr Map::track_at(const PointI& point) const
 {
-   TrackAnchor ptr = tile_at(a_point.x, a_point.y).track;
+   TrackAnchor ptr = tile_at(point.x, point.y).track;
    if (ptr)
       return ptr->get();
    else {
       ostringstream ss;
-      ss << "No track segment at " << a_point;
+      ss << "No track segment at " << point;
       throw runtime_error(ss.str());
    }
 }
 
-IStationPtr Map::station_at(Point<int> a_point) const
+IStationPtr Map::station_at(PointI point) const
 {
-   return tile_at(a_point.x, a_point.y).station;
+   return tile_at(point.x, point.y).station;
 }
 
-void Map::set_station_at(Point<int> point, IStationPtr a_station)
+void Map::set_station_at(PointI point, IStationPtr station)
 {
-   tile_at(point).station = a_station;
+   tile_at(point).station = station;
 }
 
 void Map::erase_tile(int x, int y)
@@ -278,18 +279,18 @@ void Map::erase_tile(int x, int y)
       // We have to be a bit careful since a piece of track has multiple
       // endpoints
 
-      vector<Point<int> > locked;
+      PointList locked;
       tile.track->get()->get_height_locked(locked);
 
-      for (vector<Point<int> >::iterator it = locked.begin();
+      for (PointList::iterator it = locked.begin();
            it != locked.end(); ++it)
          unlock_height_at(*it);
 
-      vector<Point<int> > covers;
+      PointList covers;
       tile.track->get()->get_endpoints(covers);
       tile.track->get()->get_covers(covers);
 
-      for (vector<Point<int> >::iterator it = covers.begin();
+      for (PointList::iterator it = covers.begin();
            it != covers.end(); ++it) {
          tile_at((*it).x, (*it).y).track.reset();
          dirty_tile((*it).x, (*it).y);
@@ -299,8 +300,8 @@ void Map::erase_tile(int x, int y)
    if (tile.scenery) {
       // Like track, scenery may cover multiple tiles
 
-      const Point<int> size = tile.scenery->get()->size();
-      const Point<int>& where = tile.scenery->origin();
+      const PointI size = tile.scenery->get()->size();
+      const PointI& where = tile.scenery->origin();
 
       for (int x = 0; x < size.x; x++) {
          for (int y = 0; y < size.y; y++) {
@@ -316,14 +317,14 @@ void Map::erase_tile(int x, int y)
    }
 }
 
-bool Map::empty_tile(Point<int> point) const
+bool Map::empty_tile(PointI point) const
 {
    Tile& tile = tile_at(point);
 
    return !(tile.track || tile.scenery);
 }
 
-void Map::set_track_at(const Point<int>& where, ITrackSegmentPtr track)
+void Map::set_track_at(const PointI& where, ITrackSegmentPtr track)
 {
    int indexes[4];
    tile_vertices(where.x, where.y, indexes);
@@ -337,11 +338,11 @@ void Map::set_track_at(const Point<int>& where, ITrackSegmentPtr track)
    TrackAnchor node(new Anchor<ITrackSegment>(track, where));
 
    // Attach the track node to every tile it covers
-   vector<Point<int> > covers;
+   PointList covers;
    track->get_endpoints(covers);
    track->get_covers(covers);
 
-   for (vector<Point<int> >::iterator it = covers.begin();
+   for (PointList::iterator it = covers.begin();
         it != covers.end(); ++it) {
       tile_at((*it).x, (*it).y).track = node;
 
@@ -349,15 +350,15 @@ void Map::set_track_at(const Point<int>& where, ITrackSegmentPtr track)
    }
 
    // Lock every height node touched by this track segment
-   vector<Point<int> > locked;
+   PointList locked;
    track->get_height_locked(locked);
 
-   for (vector<Point<int> >::iterator it = locked.begin();
+   for (PointList::iterator it = locked.begin();
         it != locked.end(); ++it)
       lock_height_at(*it);
 }
 
-bool Map::is_valid_track(const Point<int>& where) const
+bool Map::is_valid_track(const PointI& where) const
 {
    if (where.x < 0 || where.y < 0
       || where.x >= my_width || where.y >= my_depth)
@@ -451,7 +452,7 @@ void Map::reset_map(int a_width, int a_depth)
    quad_tree = make_quad_tree(shared_from_this(), my_width, my_depth);
 }
 
-void Map::highlight_vertex(Point<int> point, Colour colour) const
+void Map::highlight_vertex(PointI point, Colour colour) const
 {
    assert(point.x >= 0 && point.x < my_width
           && point.y >= 0 && point.y < my_depth);
@@ -468,7 +469,7 @@ void Map::highlight_vertex(Point<int> point, Colour colour) const
    glEnd();
 }
 
-void Map::highlight_tile(Point<int> point, Colour colour) const
+void Map::highlight_tile(PointI point, Colour colour) const
 {
    highlighted_tiles.push_back(make_tuple(point, colour));
 }
@@ -486,10 +487,10 @@ void Map::render_highlighted_tiles() const
 
    glDepthMask(GL_FALSE);
 
-   vector<tuple<Point<int>, Colour> >::const_iterator it;
+   vector<tuple<PointI, Colour> >::const_iterator it;
    for (it = highlighted_tiles.begin(); it != highlighted_tiles.end(); ++it) {
 
-      const Point<int>& point = get<0>(*it);
+      const PointI& point = get<0>(*it);
       Colour colour = get<1>(*it);
 
       // User should be able to click on the highlight as well
@@ -564,9 +565,9 @@ void Map::draw_start_location() const
       avg_height += height_map[indexes[i]].pos.y;
    avg_height /= 4.0f;
 
-   glTranslatef(static_cast<float>(start_location.x),
-      avg_height + 0.1f,
-      static_cast<float>(start_location.y));
+   glTranslatef(start_location.x,
+                avg_height + 0.1f,
+                start_location.y);
 
    if (start_direction == axis::X)
       glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
@@ -590,13 +591,13 @@ void Map::draw_start_location() const
 
 // Check to see if the given id contains a valid mesh and ensure the
 // array is large enough to hold it
-bool Map::have_mesh(int id, Point<int> bot_left, Point<int> top_right)
+bool Map::have_mesh(int id, PointI bot_left, PointI top_right)
 {
    if (id >= static_cast<int>(terrain_meshes.size()))
       terrain_meshes.resize(id + 1);
 
    bool ok = static_cast<bool>(terrain_meshes[id]);
-   list<Point<int> >::iterator it = dirty_tiles.begin();
+   list<PointI >::iterator it = dirty_tiles.begin();
 
    while (it != dirty_tiles.end()) {
       bool covered =
@@ -630,7 +631,7 @@ void Map::dirty_tile(int x, int y)
 }
 
 // Generate a terrain mesh for a particular sector
-void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
+void Map::build_mesh(int id, PointI bot_left, PointI top_right)
 {
    static const tuple<float, Colour> colour_map[] = {
       //          Start height         colour
@@ -822,7 +823,7 @@ void Map::build_mesh(int id, Point<int> bot_left, Point<int> top_right)
 }
 
 // A special rendering mode when selecting tiles
-void Map::render_pick_sector(Point<int> bot_left, Point<int> top_right)
+void Map::render_pick_sector(PointI bot_left, PointI top_right)
 {
    glColor3f(1.0f, 1.0f, 1.0f);
 
@@ -849,7 +850,7 @@ void Map::render_pick_sector(Point<int> bot_left, Point<int> top_right)
 
 // Render a small part of the map as directed by the quad tree
 void Map::render_sector(IGraphicsPtr a_context, int id,
-                        Point<int> bot_left, Point<int> top_right)
+                        PointI bot_left, PointI top_right)
 {
    if (in_pick_mode) {
       render_pick_sector(bot_left, top_right);
@@ -900,7 +901,7 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
          if (tile.track && tile.track->needs_rendering(frame_num)) {
 #if 0
             // Draw the endpoints for debugging
-            vector<Point<int> > tiles;
+            vector<PointI > tiles;
             tile.track->get()->get_endpoints(tiles);
             for_each(tiles.begin(), tiles.end(),
                     bind(&Map::highlight_tile, this, placeholders::_1,
@@ -915,7 +916,7 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
 
 #if 0
             // Draw vertices covered by track
-            vector<Point<int> > vertices;
+            vector<PointI > vertices;
             tile.track->get()->get_height_locked(vertices);
             for_each(vertices.begin(), vertices.end(),
                      bind(&Map::highlight_vertex, this, placeholders::_1,
@@ -951,7 +952,7 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
 
 // Render the semi-transparent overlays such as water
 void Map::post_render_sector(IGraphicsPtr a_context, int id,
-   Point<int> bot_left, Point<int> top_right)
+                             PointI bot_left, PointI top_right)
 {
    // Draw the water
    if (!in_pick_mode && sea_sectors.at(id)) {
@@ -994,7 +995,7 @@ void Map::fix_normals(int x, int y)
       const int i = indexes[n];
       HeightMap& v = height_map[i];
 
-      Vector<float> west, north, east, south;
+      VectorF west, north, east, south;
       bool have_west = true, have_north = true,
          have_east = true, have_south = true;
 
@@ -1020,7 +1021,7 @@ void Map::fix_normals(int x, int y)
          have_south = false;
 
       float count = 4.0f;
-      Vector<float> avg = make_vector(0.0f, 0.0f, 0.0f);
+      VectorF avg = make_vector(0.0f, 0.0f, 0.0f);
 
       if (have_west && have_north)
          avg += surface_normal(north, v.pos, west);
@@ -1101,7 +1102,7 @@ void Map::raise_tile(int x, int y, float delta_height)
    dirty_tile(x, y);
 }
 
-void Map::lock_height_at(Point<int> p)
+void Map::lock_height_at(PointI p)
 {
    assert(p.x <= my_width);
    assert(p.y <= my_depth);
@@ -1109,7 +1110,7 @@ void Map::lock_height_at(Point<int> p)
    height_map[p.x + (p.y * (my_width+1))].lock_count++;
 }
 
-void Map::unlock_height_at(Point<int> p)
+void Map::unlock_height_at(PointI p)
 {
    assert(p.x <= my_width);
    assert(p.y <= my_depth);
@@ -1150,7 +1151,7 @@ float Map::height_at(float x, float y) const
    return height_at(make_point(x_floor, y_floor));
 }
 
-float Map::height_at(Point<int> where) const
+float Map::height_at(PointI where) const
 {
    if (where.x < 0 || where.y < 0
       || where.x >= my_width || where.y >= my_depth)
@@ -1166,8 +1167,7 @@ float Map::height_at(Point<int> where) const
    return avg / 4.0f;
 }
 
-Vector<float> Map::slope_at(Point<int> where,
-   track::Direction axis, bool &level) const
+VectorF Map::slope_at(PointI where, track::Direction axis, bool& level) const
 {
    int indexes[4];
    tile_vertices(where.x, where.y, indexes);
@@ -1175,7 +1175,7 @@ Vector<float> Map::slope_at(Point<int> where,
    // This is slightly consfusing since the track Y axis
    // is the Z axis in the height map
 
-   Vector<float> v1, v2;
+   VectorF v1, v2;
 
    if (axis == axis::X) {
       v1 = height_map[indexes[2]].pos - height_map[indexes[3]].pos;
@@ -1198,10 +1198,10 @@ Vector<float> Map::slope_at(Point<int> where,
    return v1;
 }
 
-Vector<float> Map::slope_before(Point<int> where,
-   track::Direction axis, bool &valid) const
+VectorF Map::slope_before(PointI where,
+                          track::Direction axis, bool& valid) const
 {
-   Point<int> before;
+   PointI before;
 
    if (axis == axis::X)
       before = where + make_point(-1, 0);
@@ -1222,10 +1222,10 @@ Vector<float> Map::slope_before(Point<int> where,
    }
 }
 
-Vector<float> Map::slope_after(Point<int> where,
-   track::Direction axis, bool &valid) const
+VectorF Map::slope_after(PointI where,
+                         track::Direction axis, bool &valid) const
 {
-   Point<int> after;
+   PointI after;
 
    if (axis == axis::X)
       after = where + make_point(1, 0);
@@ -1246,9 +1246,9 @@ Vector<float> Map::slope_after(Point<int> where,
    }
 }
 
-void Map::change_area_height(const Point<int>& a_start_pos,
-   const Point<int>& a_finish_pos,
-   float a_height_delta)
+void Map::change_area_height(const PointI& a_start_pos,
+                             const PointI& a_finish_pos,
+                             float a_height_delta)
 {
    const int xmin = min(a_start_pos.x, a_finish_pos.x);
    const int xmax = max(a_start_pos.x, a_finish_pos.x);
@@ -1262,7 +1262,7 @@ void Map::change_area_height(const Point<int>& a_start_pos,
    }
 }
 
-void Map::level_area(Point<int> a_start_pos, Point<int> a_finish_pos)
+void Map::level_area(PointI a_start_pos, PointI a_finish_pos)
 {
    const int xmin = min(a_start_pos.x, a_finish_pos.x);
    const int xmax = max(a_start_pos.x, a_finish_pos.x);
@@ -1284,7 +1284,7 @@ void Map::level_area(Point<int> a_start_pos, Point<int> a_finish_pos)
    }
 }
 
-void Map::smooth_area(Point<int> start, Point<int> finish)
+void Map::smooth_area(PointI start, PointI finish)
 {
    const int xmin = min(start.x, finish.x);
    const int xmax = max(start.x, finish.x);
@@ -1292,7 +1292,7 @@ void Map::smooth_area(Point<int> start, Point<int> finish)
    const int ymin = min(start.y, finish.y);
    const int ymax = max(start.y, finish.y);
 
-   Point<int> step;
+   PointI step;
    if (xmin == xmax)
       step = make_point(0, 1);
    else if (ymin == ymax)
@@ -1302,8 +1302,8 @@ void Map::smooth_area(Point<int> start, Point<int> finish)
       return;
    }
 
-   const Point<int> abs_start = make_point(xmin, ymin);
-   const Point<int> abs_finish = make_point(xmax, ymax);
+   const PointI abs_start = make_point(xmin, ymin);
+   const PointI abs_finish = make_point(xmax, ymax);
 
    const float height_start = height_at(abs_start);
    const float height_finish = height_at(abs_finish);
@@ -1316,7 +1316,7 @@ void Map::smooth_area(Point<int> start, Point<int> finish)
    debug() << "drop=" << drop;
 
    int i = 0;
-   for (Point<int> it = abs_start; it != abs_finish; i++, it += step) {
+   for (PointI it = abs_start; it != abs_finish; i++, it += step) {
       const bool track_affected = raise_will_cover_track(it.x, it.y);
 
       int indexes[4];
@@ -1350,26 +1350,26 @@ void Map::smooth_area(Point<int> start, Point<int> finish)
 
 }
 
-void Map::raise_area(const Point<int>& a_start_pos,
-   const Point<int>& a_finish_pos)
+void Map::raise_area(const PointI& a_start_pos,
+                     const PointI& a_finish_pos)
 {
    change_area_height(a_start_pos, a_finish_pos, 0.1f);
 }
 
-void Map::lower_area(const Point<int>& a_start_pos,
-   const Point<int>& a_finish_pos)
+void Map::lower_area(const PointI& a_start_pos,
+                     const PointI& a_finish_pos)
 {
    change_area_height(a_start_pos, a_finish_pos, -0.1f);
 }
 
-void Map::add_scenery(Point<int> where, ISceneryPtr s)
+void Map::add_scenery(PointI where, ISceneryPtr s)
 {
    if (tile_at(where.x, where.y).track)
       warn() << "Cannot place scenery on track";
    else {
       SceneryAnchor indirect(new Anchor<IScenery>(s, where));
 
-      const Point<int> size = s->size();
+      const PointI size = s->size();
 
       for (int x = 0; x < size.x; x++) {
          for (int y = 0; y < size.y; y++) {
@@ -1386,7 +1386,7 @@ void Map::add_scenery(Point<int> where, ISceneryPtr s)
 
 // Either extend an existing station which borders this area
 // or build a new station
-IStationPtr Map::extend_station(Point<int> a_start_pos, Point<int> a_finish_pos)
+IStationPtr Map::extend_station(PointI a_start_pos, PointI a_finish_pos)
 {
    const int xmin = min(a_start_pos.x, a_finish_pos.x);
    const int xmax = max(a_start_pos.x, a_finish_pos.x);
@@ -1395,7 +1395,7 @@ IStationPtr Map::extend_station(Point<int> a_start_pos, Point<int> a_finish_pos)
    const int ymax = max(a_start_pos.y, a_finish_pos.y);
 
    // Find all the tiles containing track in this region
-   typedef list<Point<int> > PointList;
+   typedef list<PointI > PointList;
    PointList track_in_area;
    for (int x = xmin; x <= xmax; x++) {
       for (int y = ymin; y <= ymax; y++) {
@@ -1415,7 +1415,7 @@ IStationPtr Map::extend_station(Point<int> a_start_pos, Point<int> a_finish_pos)
    for (PointList::const_iterator it = track_in_area.begin();
         it != track_in_area.end(); ++it) {
 
-      const Point<int> near[] = {
+      const PointI near[] = {
          make_point(0, 0),
          make_point(1, 0),
          make_point(0, 1),
@@ -1424,7 +1424,7 @@ IStationPtr Map::extend_station(Point<int> a_start_pos, Point<int> a_finish_pos)
       };
 
       for (int i = 0; i < 5; i++) {
-         Point<int> neighbour = *it + near[i];
+         PointI neighbour = *it + near[i];
          if (neighbour.x >= 0 && neighbour.x < my_width
             && neighbour.y >= 0 && neighbour.y < my_depth
             && tile_at(neighbour.x, neighbour.y).station) {
@@ -1668,7 +1668,7 @@ private:
    shared_ptr<Map> my_map;
    map<int, IStationPtr> my_stations;
    IStationPtr my_active_station;
-   Point<int> tile;
+   PointI tile;
 
    IResourcePtr resource;
 };
@@ -1797,11 +1797,11 @@ void MapLoader::handle_slope_track(const AttributeSet& attrs)
    track::Direction axis = align == "x" ? axis::X : axis::Y;
 
    bool level;
-   Vector<float> slope = my_map->slope_at(tile, axis, level);
+   VectorF slope = my_map->slope_at(tile, axis, level);
 
    bool a_valid, b_valid;
-   Vector<float> slope_before = my_map->slope_before(tile, axis, b_valid);
-   Vector<float> slope_after = my_map->slope_after(tile, axis, a_valid);
+   VectorF slope_before = my_map->slope_before(tile, axis, b_valid);
+   VectorF slope_after = my_map->slope_after(tile, axis, a_valid);
 
    if (!a_valid || !b_valid || !level)
       throw runtime_error("SlopeTrack in invalid location");
@@ -1833,7 +1833,7 @@ void MapLoader::handle_crossover_track(const AttributeSet& attrs)
 
 void MapLoader::handle_spline_track(const AttributeSet& attrs)
 {
-   Vector<int> delta;
+   VectorI delta;
    track::Direction entry_dir, exit_dir;
 
    attrs.get("delta-x", delta.x);
