@@ -73,6 +73,36 @@ namespace gl {
       glNormal3f(v.x, v.y, v.z);
    }
 
+   template <class T>
+   inline void point(const Vector<T>& v)
+   {
+      glBegin(GL_POINTS);
+      vertex(v);
+      glEnd();
+   }
+
+   template <class T>
+   inline void quad(const Vector<T>& a, const Vector<T>& b,
+                    const Vector<T>& c, const Vector<T>& d)
+   {
+      glBegin(GL_QUADS);
+      vertex(a);
+      vertex(b);
+      vertex(c);
+      vertex(d);
+      glEnd();
+   }
+
+   template <class T>
+   inline void triangle(const Vector<T>& a, const Vector<T>& b,
+                        const Vector<T>& c)
+   {
+      glBegin(GL_TRIANGLES);
+      vertex(a);
+      vertex(b);
+      vertex(c);
+      glEnd();
+   }
 }
 
 #endif

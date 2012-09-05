@@ -461,12 +461,9 @@ void Map::highlight_vertex(PointI point, Colour colour) const
 
    gl::colour(colour);
    glPointSize(5.0f);
-
-   glBegin(GL_POINTS);
-   glVertex3f(static_cast<float>(point.x) - 0.5f,
-              height_map[index].pos.y + 0.01f,
-              static_cast<float>(point.y) - 0.5f);
-   glEnd();
+   gl::point(make_vector_f(point.x - 0.5f,
+                           height_map[index].pos.y + 0.01f,
+                           point.y - 0.5f));
 }
 
 void Map::highlight_tile(PointI point, Colour colour) const
@@ -505,8 +502,8 @@ void Map::render_highlighted_tiles() const
 
       for (int i = 0; i < 4; i++) {
          HeightMap& v = height_map[indexes[i]];
-         glNormal3f(v.normal.x, v.normal.y, v.normal.z);
-         glVertex3f(v.pos.x, v.pos.y + 0.1f, v.pos.z);
+         gl::normal(v.normal);
+         gl::vertex(v.pos + make_vector(0.0f, 0.1f, 0.0f));
       }
 
       glEnd();
@@ -890,7 +887,7 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
             tile_vertices(x, y, indexes);
             for (int i = 0; i < 4; i++) {
                const HeightMap& v = height_map[indexes[i]];
-               glVertex3f(v.pos.x, v.pos.y, v.pos.z);
+               gl::vertex(v.pos);
             }
 
             glEnd();
@@ -916,7 +913,7 @@ void Map::render_sector(IGraphicsPtr a_context, int id,
 
 #if 0
             // Draw vertices covered by track
-            vector<PointI > vertices;
+            vector<PointI> vertices;
             tile.track->get()->get_height_locked(vertices);
             for_each(vertices.begin(), vertices.end(),
                      bind(&Map::highlight_vertex, this, placeholders::_1,
