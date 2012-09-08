@@ -39,7 +39,7 @@ class Game : public IScreen {
 public:
    Game(IMapPtr a_map);
    ~Game();
-   
+
    void display(IGraphicsPtr a_context) const;
    void overlay() const;
    void update(IPickBufferPtr a_pick_buffer, int a_delta);
@@ -61,7 +61,7 @@ private:
 
    enum TrackStateReq { NEXT, PREV };
    void alter_track_state(TrackStateReq req);
-    
+
    IMapPtr map;
    ITrainPtr train;
    ILightPtr sun;
@@ -79,7 +79,7 @@ private:
 
    enum CameraMode { CAMERA_FLOATING, CAMERA_BIRD };
    CameraMode camera_mode;
-   
+
    gui::ILayoutPtr layout;
    IMessageAreaPtr message_area;
    IRenderStatsPtr render_stats;
@@ -109,7 +109,7 @@ Game::Game(IMapPtr a_map)
 
 Game::~Game()
 {
-   
+
 }
 
 Vector<float> Game::camera_position(float a_radius) const
@@ -140,12 +140,12 @@ void Game::display(IGraphicsPtr a_context) const
    Vector<float> train_pos = train->front();
 
    Vector<float> position = camera_position(view_radius);
-   
+
    a_context->look_at(position, train_pos);
    set_billboard_cameraOrigin(position);
-   
+
    sun->apply();
-   
+
    map->render(a_context);
    train->render();
 
@@ -167,13 +167,13 @@ void Game::update(IPickBufferPtr a_pick_buffer, int a_delta)
 {
    message_area->update(a_delta);
    render_stats->update(a_delta);
-   
+
    train->update(a_delta);
 
    // Update the GUI elements
    layout->cast<gui::ThrottleMeter>("/throttle_meter").value(
       train->controller()->throttle());
-   
+
    const double ms_toMPH = 2.237;
    layout->cast<gui::Label>("/speed_label").format(
       "Speed: %.1lfmph", abs(train->speed()) * ms_toMPH);
@@ -181,7 +181,7 @@ void Game::update(IPickBufferPtr a_pick_buffer, int a_delta)
    IControllerPtr ctrl = train->controller();
    layout->get("/brake_label").visible(ctrl->brake_on());
    layout->get("/reverse_label").visible(ctrl->reverse_on());
-   
+
    look_ahead();
 
    // Move the camera vertically if it's currently underground
@@ -194,12 +194,12 @@ void Game::update(IPickBufferPtr a_pick_buffer, int a_delta)
    const float MIN_HEIGHT = 0.25f;
    float h = map->height_at(clip_position.x, clip_position.z);
 
-   if (h + MIN_HEIGHT > clip_position.y) {    
+   if (h + MIN_HEIGHT > clip_position.y) {
       cameraVTarget -= 0.001f * static_cast<float>(a_delta);
       camera_speed = 200.0f;
    }
 #endif
-   
+
    // Bounce the camera if we need to
    vert_angle -= (vert_angle - cameraVTarget) / camera_speed;
    horiz_angle -= (horiz_angle - cameraHTarget) / camera_speed;
@@ -246,7 +246,7 @@ void Game::look_ahead()
          stopped_at_station();
       else
          message_area->post("Stop here for station " + it.station->name());
-      
+
       return;
    }
 
@@ -256,7 +256,7 @@ void Game::look_ahead()
 
       if (it.status != TRACK_OK) {
          bool clear_station = true;
-         
+
          switch (it.status) {
          case TRACK_STATION:
             message_area->post("Approaching station " + it.station->name());
@@ -279,7 +279,7 @@ void Game::look_ahead()
          return;
       }
    }
-   
+
    // We're not approaching any station
    left_station();
 }
@@ -297,7 +297,7 @@ void Game::alter_track_state(TrackStateReq req)
       // Skip over the first section of track which may be some
       // points - we don't want to alter the track we're on!
       it = it.next();
-    
+
       if (it.status == TRACK_CHOICE) {
          switch (req) {
          case NEXT:
@@ -307,7 +307,7 @@ void Game::alter_track_state(TrackStateReq req)
             it.track->prev_state();
             break;
          }
-		
+
          return;
       }
    }
@@ -316,7 +316,7 @@ void Game::alter_track_state(TrackStateReq req)
 }
 
 void Game::on_key_down(SDLKey a_key)
-{   
+{
    switch (a_key) {
    case SDLK_PAGEUP:
       view_radius = max(view_radius - 0.2f, 0.1f);
@@ -363,8 +363,8 @@ void Game::on_key_down(SDLKey a_key)
 }
 
 void Game::on_key_up(SDLKey a_key)
-{   
- 
+{
+
 }
 
 void Game::on_mouse_click(IPickBufferPtr a_pick_buffer, int x, int y,
@@ -396,19 +396,19 @@ void Game::on_mouse_release(IPickBufferPtr pick_buffer, int x, int y,
       break;
    }
 }
-   
+
 void Game::on_mouse_move(IPickBufferPtr a_pick_buffer, int x, int y,
    int xrel, int yrel)
 {
    if (camera_mode == CAMERA_FLOATING && panning) {
       cameraHTarget -= xrel / 100.0f;
       cameraVTarget += yrel / 100.0f;
-      
+
       // Don't allow the camera to go under the ground
       const float ground = (M_PI / 2.0f) - 0.01f;
       if (cameraVTarget > ground)
          cameraVTarget = ground;
-      
+
       // Don't let the camera flip over the top
       const float top = 0.01f;
       if (cameraVTarget < top)

@@ -45,11 +45,11 @@ public:
    void on_key_down(SDLKey a_key);
    void on_key_up(SDLKey a_key);
    void on_mouse_move(IPickBufferPtr pick_buffer,
-      int x, int y, int xrel, int yrel);
+                      int x, int y, int xrel, int yrel);
    void on_mouse_click(IPickBufferPtr pick_buffer, int x, int y,
-      MouseButton a_button);
+                       MouseButton a_button);
    void on_mouse_release(IPickBufferPtr pick_buffer, int x, int y,
-      MouseButton a_button);
+                         MouseButton a_button);
 
    // Different tools the user can be using
    enum Tool {
@@ -65,7 +65,7 @@ public:
 private:
    void build_gui();
    void draw_dragged_track();
-   bool draw_track_tile(Point<int> where, track::Direction axis);
+   bool draw_track_tile(PointI where, track::Direction axis);
    void draw_dragged_straight(const track::Direction& axis, int length);
    void draw_diagonal_straight(const track::Direction& axis, int length);
    void draw_initial_track();
@@ -75,10 +75,10 @@ private:
    void draw_curve(const track::Direction& entry_dir,
                    const track::Direction& exit_dir);
    void draw_s_bend(const track::Direction& dir);
-   bool can_connect(const Point<int>& a_first_point,
-                    const Point<int>& a_second_point) const;
+   bool can_connect(const PointI& a_first_point,
+                    const PointI& a_second_point) const;
    bool can_place_track(ITrackSegmentPtr track);
-   bool guess_track_dir(const Point<int>& p, track::Direction& d) const;
+   bool guess_track_dir(const PointI& p, track::Direction& d) const;
    void drag_box_bounds(int& x_min, int& x_max, int &y_min, int& y_max) const;
    void drag_box_size(int& xlen, int& ylen) const;
    void delete_objects();
@@ -95,7 +95,7 @@ private:
    bool am_scrolling;
 
    // Variables for dragging track segments
-   Point<int> drag_begin, drag_end;
+   PointI drag_begin, drag_end;
    bool am_dragging, is_shift_down;
 
    // GUI elements
@@ -228,8 +228,8 @@ void Editor::update(IPickBufferPtr pick_buffer, int a_delta)
 
 // True if the `a_first_point' is a valid track segment and it can
 // connect to `a_second_point'
-bool Editor::can_connect(const Point<int>& a_first_point,
-                         const Point<int>& a_second_point) const
+bool Editor::can_connect(const PointI& a_first_point,
+                         const PointI& a_second_point) const
 {
    if (!map->is_valid_track(a_first_point))
       return false;
@@ -247,7 +247,7 @@ bool Editor::can_connect(const Point<int>& a_first_point,
 
 // Try to guess the direction of a track endpoint by looking at the
 // surrounding tiles
-bool Editor::guess_track_dir(const Point<int>& p, track::Direction& d) const
+bool Editor::guess_track_dir(const PointI& p, track::Direction& d) const
 {
    if (can_connect(p.left(), p)) {
       d = axis::X;
@@ -281,7 +281,7 @@ bool Editor::guess_track_dir(const Point<int>& p, track::Direction& d) const
 
 // Draw a single tile of straight track and check for collisions
 // Returns `false' if track cannot be placed here
-bool Editor::draw_track_tile(Point<int> where, track::Direction axis)
+bool Editor::draw_track_tile(PointI where, track::Direction axis)
 {
    // Ensure axis is only in the positive direction
    if (axis == -axis::X)
@@ -347,7 +347,7 @@ bool Editor::draw_track_tile(Point<int> where, track::Direction axis)
 // This just draws straight track along the rectangle
 void Editor::draw_dragged_straight(const track::Direction& axis, int length)
 {
-   Point<int> where = drag_begin;
+   PointI where = drag_begin;
 
    for (int i = 0; i < length; i++) {
       draw_track_tile(where, axis);
@@ -361,7 +361,7 @@ void Editor::draw_dragged_straight(const track::Direction& axis, int length)
 // track segment
 void Editor::draw_diagonal_straight(const track::Direction& axis, int length)
 {
-   Point<int> where = drag_begin;
+   PointI where = drag_begin;
 
    for (int i = 0; i < length; i++) {
       VectorI delta = make_vector(axis.x, axis.z, 0);
@@ -376,11 +376,11 @@ void Editor::draw_diagonal_straight(const track::Direction& axis, int length)
 // True if a track segment could be placed in its present location
 bool Editor::can_place_track(ITrackSegmentPtr track)
 {
-   vector<Point<int> > covered;
+   PointList covered;
    track->get_endpoints(covered);
    track->get_covers(covered);
 
-   for (vector<Point<int> >::iterator it = covered.begin();
+   for (PointList::iterator it = covered.begin();
         it != covered.end(); ++it) {
       if (map->is_valid_track(*it)) {
          warn() << "Cannot place track here";
@@ -563,7 +563,11 @@ void Editor::draw_constrained_track(const track::Direction& start_dir,
          draw_diagonal_straight(start_dir, xlen);
    }
    else {
-      warn() << "TODO";
+      VectorI delta = make_vector(drag_end.x - drag_begin.x,
+                                  drag_end.y - drag_begin.y,
+                                  0);
+      ITrackSegmentPtr curve = make_spline_track(delta, start_dir, -end_dir);
+      map->set_track_at(drag_begin, curve);
    }
 }
 
@@ -694,7 +698,7 @@ void Editor::draw_dragged_track()
                             xlen);
    }
    else {
-      Point<int> delta = drag_end - drag_begin;
+      PointI delta = drag_end - drag_begin;
 
       VectorI off = make_vector(delta.x, delta.y, 0);
 
@@ -702,7 +706,7 @@ void Editor::draw_dragged_track()
                                                  start_dir,
                                                  end_dir);
 
-      Point<int> where = drag_begin;
+      PointI where = drag_begin;
       track->set_origin(where.x, where.y, map->height_at(where));
 
       if (can_place_track(track))
@@ -736,7 +740,7 @@ void Editor::plant_trees()
 
    for (int x = xmin; x <= xmax; x++) {
       for (int y = ymin; y <= ymax; y++) {
-         const Point<int> p = make_point(x, y);
+         const PointI p = make_point(x, y);
 
          if ((is_single_tile || tree_rand() > threshold) && map->empty_tile(p))
             map->add_scenery(p, tree_picker->get());
@@ -789,7 +793,7 @@ void Editor::on_mouse_click(IPickBufferPtr pick_buffer, int x, int y,
 
 	 if (id > 0) {
 	    // Begin dragging a selection rectangle
-	    Point<int> where = map->pick_position(id);
+	    PointI where = map->pick_position(id);
 
 	    drag_begin = drag_end = where;
 	    am_dragging = true;
