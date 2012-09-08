@@ -25,10 +25,6 @@
 #include <GL/gl.h>
 
 //
-//    READ THIS FIRST: physics model used by the steam engine
-//
-// Note: everything here uses SI units unless otherwise stated
-//
 // The "tractive effort" is a measure of the power of a steam engine
 // at a given velocity: P(v). Note: the value usually quoted on the
 // Wikipedia entry for trains is the /starting/ tractive effort
@@ -65,13 +61,13 @@ public:
    // IRollingStock interface
    void render() const;
    void update(int delta, double gravity);
-   
+
    double speed() const { return my_speed; }
    double mass() const { return my_mass; }
    IControllerPtr controller() { return shared_from_this(); }
    float length() const { return model->dimensions().x; }
    ICargoPtr cargo() const;
-   
+
    // IController interface
    void act_on(Action an_action);
    int throttle() const { return my_throttle; }
@@ -87,7 +83,7 @@ private:
    double tractive_effort() const;
    double resistance() const;
    double brake_force() const;
-   
+
    IModelPtr model;
 
    double my_speed, my_mass, my_boiler_pressure, my_fire_temp;
@@ -101,7 +97,7 @@ private:
    MovingAverage<double, 1000> my_boiler_delay;
 
    IResourcePtr resource;
-   
+
    static const float MODEL_SCALE;
    static const double TRACTIVE_EFFORT_KNEE;
 
@@ -142,7 +138,7 @@ void Engine::text(const string& local_name, const string& a_string)
 
 // Draw the engine model
 void Engine::render() const
-{        
+{
    model->render();
 }
 
@@ -150,7 +146,7 @@ void Engine::render() const
 double Engine::tractive_effort() const
 {
    const double dir = reverse ? -1.0 : 1.0;
-   
+
    if (abs(my_speed) < TRACTIVE_EFFORT_KNEE)
       return stat_tractive_effort * dir;
    else
@@ -163,13 +159,13 @@ double Engine::tractive_effort() const
 double Engine::resistance() const
 {
    const double sign = my_speed < 0.0 ? -1.0 : 1.0;
-   
+
    const double a = 4.0;
    const double b = 0.05;
    const double c = 0.006;
 
    const double abs_speed = abs(my_speed);
-   
+
    return sign * (a + b*abs_speed + c*abs_speed*abs_speed);
 }
 
@@ -188,7 +184,7 @@ double Engine::brake_force() const
 
    if (abs(my_speed) < STOP_SPEED)
       return 0.0;
-   else 
+   else
       return my_mass * g * beta * dir;
 }
 
@@ -199,12 +195,12 @@ void Engine::update(int delta, double gravity)
    // The fire temperature is delayed and then used to increase it
    my_boiler_delay << my_fire_temp;
    my_boiler_pressure = my_boiler_delay.value();
-   
+
    const double P = tractive_effort();
    const double Q = resistance();
    const double B = is_brake_on ? brake_force() : 0.0;
-   const double G = gravity;   
-   
+   const double G = gravity;
+
    // The applied tractive effort is controlled by the throttle
    const double netP = P * static_cast<double>(my_throttle) / 10.0;
 
@@ -218,9 +214,9 @@ void Engine::update(int delta, double gravity)
    }
    else
       have_stopped = false;
-   
+
    my_speed += a;
-     
+
 #if 0
    debug() << "P=" << netP << ", Q=" << Q
            << ", B=" << B
@@ -262,7 +258,7 @@ void Engine::act_on(Action an_action)
 static Engine* load_engine_xml(IResourcePtr a_res)
 {
    log() << "Loading engine from " << a_res->xml_file_name();
-   
+
    return new Engine(a_res);
 }
 

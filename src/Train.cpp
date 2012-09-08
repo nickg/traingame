@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2010  Nick Gasson
+//  Copyright (C) 2009-2012  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,13 +20,13 @@
 #include "ILogger.hpp"
 #include "TrackCommon.hpp"
 #include "ISmokeTrail.hpp"
+#include "OpenGLHelper.hpp"
 
 #include <stdexcept>
 #include <cassert>
 #include <queue>
 #include <sstream>
 
-#include <GL/gl.h>
 #include <boost/operators.hpp>
 
 // Concrete implementation of trains
@@ -37,20 +37,20 @@ public:
    // ITrain interface
    void render() const;
    void update(int a_delta);
-   Vector<float> front() const;
+   VectorF front() const;
    ITrackSegmentPtr track_segment() const;
    track::Direction direction() const;
    track::Position tile() const { return engine().travel_token.position; }
    double speed() const { return parts.front().vehicle->speed(); }
    IControllerPtr controller() { return parts.front().vehicle->controller(); }
-   
+
 private:
    // The different parts of the train are on different track segments
    struct Part : boost::equality_comparable<Part> {
       explicit Part(IRollingStockPtr a_vehicle)
          : vehicle(a_vehicle), segment_delta(0.0), movement_sign(1.0)
       {}
-      
+
       IRollingStockPtr vehicle;
 
       // The length of a track segment can be found by calling
@@ -59,7 +59,7 @@ private:
       ITrackSegmentPtr segment;
       float segment_delta;
       track::TravelToken travel_token;
-      
+
       // Direction train part is travelling along the track
       Vector<int> direction;
 
@@ -77,21 +77,21 @@ private:
    Part& engine();
    void move(double a_distance);
    void add_part(IRollingStockPtr a_vehicle);
-   Vector<float> part_position(const Part& a_part) const;
+   VectorF part_position(const Part& a_part) const;
    void update_smoke_position(int a_delta);
    void move_part(Part& part, double distance);
 
    static track::Connection reverse_token(const track::TravelToken& token);
    static void transform_to_part(const Part& p);
-   
+
    IMapPtr map;
    ISmokeTrailPtr smoke_trail;
-   
-   Vector<float> velocity_vector;
+
+   VectorF velocity_vector;
 
    // Move part of the train across a connection
    void enter_segment(Part& a_part, const track::Connection& a_connection);
-   
+
    // Seperation between waggons
    static const double SEPARATION;
 };
@@ -101,8 +101,8 @@ const double Train::SEPARATION(0.15);
 Train::Train(IMapPtr a_map)
    : map(a_map), velocity_vector(make_vector(0.0f, 0.0f, 0.0f))
 {
-   parts.push_front(Part(load_engine("pclass")));
-   
+   parts.push_front(Part(load_engine("tank")));
+
    enter_segment(engine(), a_map->start());
 
    // Bit of a hack to put the engine in the right place
@@ -120,10 +120,10 @@ void Train::add_part(IRollingStockPtr a_vehicle)
 {
    Part part(a_vehicle);
    enter_segment(part, map->start());
-   
+
    // Push the rest of the train along some
    move(part.vehicle->length() + SEPARATION);
-   
+
    parts.push_back(part);
 }
 
@@ -145,13 +145,13 @@ void Train::move_part(Part& part, double distance)
    double d = abs(distance);
    double sign = (distance >= 0.0 ? 1.0 : -1.0) * part.movement_sign;
    const double step = 0.25;
-   
+
    //debug() << "move d=" << distance << " s=" << sign
    //        << " ms=" << part.movement_sign;
-   
+
    do {
       part.segment_delta += min(step, d) * sign;
-      
+
       const double segment_length =
          part.segment->segment_length(part.travel_token);
       if (part.segment_delta >= segment_length) {
@@ -166,7 +166,7 @@ void Train::move_part(Part& part, double distance)
          part.segment_delta *= -1.0;
          part.movement_sign *= -1.0;
       }
-      
+
       d -= step;
    } while (d > 0.0);
 }
@@ -175,7 +175,7 @@ void Train::move_part(Part& part, double distance)
 void Train::move(double a_distance)
 {
    using namespace placeholders;
-   
+
    for (list<Part>::iterator it = parts.begin();
         it != parts.end(); ++it)
       move_part(*it, a_distance);
@@ -192,7 +192,7 @@ void Train::update_smoke_position(int a_delta)
    const float smoke_offX = 0.63f;
    const float smoke_offY = 1.04f;
    glTranslatef(smoke_offX, smoke_offY, 0.0f);
-                
+
    float matrix[16];
    glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
 
@@ -234,12 +234,12 @@ void Train::update(int delta)
       (*it).vehicle->update(delta, gravity_sum);
 
    update_smoke_position(delta);
-   
+
    // How many metres does a tile correspond to?
    const double M_PER_UNIT = 5.0;
 
-   const Vector<float> old_pos = part_position(engine());
-   
+   const VectorF old_pos = part_position(engine());
+
    const double delta_seconds = static_cast<float>(delta) / 1000.0f;
    move(engine().vehicle->speed() * delta_seconds / M_PER_UNIT);
 
@@ -250,7 +250,7 @@ void Train::update(int delta)
 // Resets the delta and gets the length of the new segment
 void Train::enter_segment(Part& a_part, const track::Connection& a_connection)
 {
-   Point<int> pos;
+   PointI pos;
    tie(pos, a_part.direction) = a_connection;
 
 #if 0
@@ -269,7 +269,7 @@ void Train::enter_segment(Part& a_part, const track::Connection& a_connection)
 void Train::transform_to_part(const Part& p)
 {
    p.travel_token.transform(p.segment_delta);
-   
+
    // If we're going backwards, flip the train around
    if (p.movement_sign < 0.0)
       glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
@@ -280,12 +280,12 @@ void Train::render() const
    for (list<Part>::const_iterator it = parts.begin();
         it != parts.end(); ++it) {
       glPushMatrix();
-      
+
       transform_to_part(*it);
       glTranslatef(0.0f, track::RAIL_HEIGHT, 0.0f);
-      
+
       (*it).vehicle->render();
-      
+
       glPopMatrix();
    }
 
@@ -297,7 +297,7 @@ ITrackSegmentPtr Train::track_segment() const
    return engine().segment;
 }
 
-Vector<float> Train::front() const
+VectorF Train::front() const
 {
    return part_position(engine());
 }
@@ -308,17 +308,17 @@ track::Direction Train::direction() const
 }
 
 // Calculate the position of any train part
-Vector<float> Train::part_position(const Part& a_part) const
+VectorF Train::part_position(const Part& a_part) const
 {
    // Call the transformer to compute the world location
    glPushMatrix();
    glLoadIdentity();
-   
+
    a_part.travel_token.transform(a_part.segment_delta);
 
    float matrix[16];
    glGetFloatv(GL_MODELVIEW_MATRIX, matrix);
-   
+
    glPopMatrix();
 
    return make_vector(matrix[12], matrix[13], matrix[14]);
@@ -334,7 +334,7 @@ track::Connection Train::reverse_token(const track::TravelToken& token)
 
    track::Direction dir = -token.direction;
 
-   return make_pair(pos, dir);      
+   return make_pair(pos, dir);
 }
 
 // Make an empty train

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <engine>
-  <name>SECR P Class</name>
-  <model>pclass.obj</model>
+  <name>Tank Engine</name>
+  <model>tank.obj</model>
 </engine>

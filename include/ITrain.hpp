@@ -32,7 +32,7 @@ struct ITrain {
 
    // Return a vector of the absolute position of the front of
    // the train
-   virtual Vector<float> front() const = 0;
+   virtual VectorF front() const = 0;
 
    // Return the track segment occupied by the front of the train
    virtual ITrackSegmentPtr track_segment() const = 0;
