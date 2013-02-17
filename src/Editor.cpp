@@ -89,7 +89,7 @@ private:
    IMapPtr map;
 
    ILightPtr my_sun;
-   Vector<float> my_position;
+   VectorF my_position;
 
    Tool my_tool;
    bool am_scrolling;
@@ -128,7 +128,7 @@ void Editor::build_gui()
    using namespace placeholders;
 
    layout = gui::make_layout("layouts/editor.xml");
-
+ 
    layout->get("/tool_wnd/tools/track").connect(gui::Widget::SIG_CLICK,
       bind(&Editor::set_tool, this, TRACK_TOOL));
    layout->get("/tool_wnd/tools/raise").connect(gui::Widget::SIG_CLICK,
@@ -380,8 +380,7 @@ bool Editor::can_place_track(ITrackSegmentPtr track)
    track->get_endpoints(covered);
    track->get_covers(covered);
 
-   for (PointList::iterator it = covered.begin();
-        it != covered.end(); ++it) {
+   for (auto it = covered.begin(); it != covered.end(); ++it) {
       if (map->is_valid_track(*it)) {
          warn() << "Cannot place track here";
          return false;

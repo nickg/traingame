@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2011  Nick Gasson
+//  Copyright (C) 2009-2013  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -91,30 +91,30 @@ IWindowPtr get_game_window()
 int main(int argc, char** argv)
 {
    parse_options(argc, argv);
-   
+
    cout << PACKAGE << " " << VERSION << "." << PATCH << endl << endl
-        << "Copyright (C) 2009-2011  Nick Gasson" << endl
+        << "Copyright (C) 2009-2013  Nick Gasson" << endl
         << "This program comes with ABSOLUTELY NO WARRANTY. "
         << "This is free software, and" << endl
         << "you are welcome to redistribute it under certain conditions. "
         << "See the GNU" << endl
         << "General Public Licence for details." << endl << endl;
-   
+
    log() << "Program started";
 
    try {
       if (::action == "" || (::map_file == "" && ::action != "uidemo"))
          throw runtime_error("Usage: TrainGame (edit|play) [map]");
-      
+
       init_resources();
-      
+
       IConfigPtr cfg = get_config();
 
       bool no_window = action == "graph";
 
       if (!no_window)
          ::window = make_sdl_window();
-      
+
       IScreenPtr screen;
       if (::action == "edit") {
          if (resource_exists(map_file, "maps"))
@@ -149,6 +149,6 @@ int main(int argc, char** argv)
 #endif
    }
 
-   log() << "Finished";   
+   log() << "Finished";
    return 0;
 }

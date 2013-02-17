@@ -46,20 +46,24 @@
 // more than one tile. Anchor<T> is the association class
 template <class T>
 class Anchor {
+   typedef shared_ptr<T> TPtr;
 public:
-   Anchor(shared_ptr<T> obj, PointI origin)
-      : owned(obj), last_frame(-1), origin_(origin) {}
+   Anchor(TPtr obj, PointI origin)
+      : owned_(obj),
+        last_frame_(-1),
+        origin_(origin)
+   {}
 
    // These numbers don't necessarily refer to frames
-   void rendered_on(int f) { last_frame = f; }
-   bool needs_rendering(int f) const { return f != last_frame; }
+   void rendered_on(int f) { last_frame_ = f; }
+   bool needs_rendering(int f) const { return f != last_frame_; }
 
    const PointI& origin() const { return origin_; }
 
-   inline shared_ptr<T> get() { return owned; }
+   inline TPtr get() { return owned_; }
 private:
-   shared_ptr<T> owned;
-   int last_frame;
+   TPtr   owned_;
+   int    last_frame_;
    PointI origin_;
 };
 
@@ -594,7 +598,7 @@ bool Map::have_mesh(int id, PointI bot_left, PointI top_right)
       terrain_meshes.resize(id + 1);
 
    bool ok = static_cast<bool>(terrain_meshes[id]);
-   list<PointI >::iterator it = dirty_tiles.begin();
+   list<PointI>::iterator it = dirty_tiles.begin();
 
    while (it != dirty_tiles.end()) {
       bool covered =
