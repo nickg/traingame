@@ -50,7 +50,7 @@ struct MeshBuffer : IMeshBuffer {
       vector<TexCoord> tex_coords;
       ITexturePtr texture;
    };
-   typedef shared_ptr<Chunk> ChunkPtr;
+   typedef std::shared_ptr<Chunk> ChunkPtr;
 
    size_t vertex_count() const;
    size_t index_count() const;
