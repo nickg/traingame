@@ -30,51 +30,6 @@
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/util/XMLString.hpp>
 
-namespace {
-
-   template <class T>
-   T xml_attr_cast(const string& str);
-
-   template <>
-   bool xml_attr_cast(const string& str)
-   {
-      istringstream ss(str);
-      bool result;
-
-      ss >> boolalpha >> result;  // Is boolalpha affected by locale?
-
-      if (ss.fail())
-         throw runtime_error(
-            "Cannot parse Boolean attribute with value '"
-            + str + "'");
-
-      return result;
-   }
-
-   template <>
-   Colour xml_attr_cast(const string& str)
-   {
-      istringstream ss(str);
-      int r, g, b;
-
-      ss >> r >> g >> b;
-
-      if (ss.fail())
-         throw runtime_error(
-            "Cannot parse colour attribute with value '"
-            + str + "'");
-
-      return make_rgb(r, g, b);
-   }
-
-   template <class T>
-   T xml_attr_cast(const string& str)
-   {
-      return boost::lexical_cast<T>(str);
-   }
-
-}
-
 // Container for attributes
 class AttributeSet {
 public:
@@ -127,7 +82,21 @@ public:
 
 private:
    const xercesc::Attributes& my_attrs;
+
+   template <class T>
+   static T xml_attr_cast(const string& str)
+   {
+      return boost::lexical_cast<T>(str);
+   }
+
 };
+
+template <>
+bool AttributeSet::xml_attr_cast(const string& str);
+
+template <>
+Colour AttributeSet::xml_attr_cast(const string& str);
+
 
 // SAX-like interface to XML parsing
 struct IXMLCallback {
@@ -153,4 +122,3 @@ typedef shared_ptr<IXMLParser> IXMLParserPtr;
 IXMLParserPtr make_xml_parser(const std::string& a_schema_file);
 
 #endif
-

@@ -31,9 +31,9 @@ using namespace xercesc;
 
 // SAX2 handler to call our own methods
 struct SAX2WrapperHandler : public DefaultHandler {
-   
+
    SAX2WrapperHandler() : callback_ptr(NULL) {}
-   
+
    void startElement(const XMLCh* const uri,
                      const XMLCh* const localname,
                      const XMLCh* const qname,
@@ -42,7 +42,7 @@ struct SAX2WrapperHandler : public DefaultHandler {
       char* ch_localname = XMLString::transcode(localname);
 
       callback_ptr->start_element(ch_localname, AttributeSet(attrs));
-      
+
       XMLString::release(&ch_localname);
    }
 
@@ -67,10 +67,10 @@ struct SAX2WrapperHandler : public DefaultHandler {
       }
 
       callback_ptr->end_element(ch_localname);
-      
+
       XMLString::release(&ch_localname);
    }
-   
+
    void error(const SAXParseException& e) { throw e; }
    void fatalError(const SAXParseException& e) { throw e; }
 
@@ -111,14 +111,14 @@ XercesXMLParser::XercesXMLParser(const string& a_schema_file)
 
          throw runtime_error("Cannot continue");
       }
-      
+
       atexit(XMLPlatformUtils::Terminate);
 
       log() << "Xerces initialised";
-   }   
+   }
 
    my_reader = XMLReaderFactory::createXMLReader();
-   
+
    my_reader->setFeature(XMLUni::fgSAX2CoreValidation, true);
    my_reader->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
    my_reader->setFeature(XMLUni::fgXercesValidationErrorAsFatal, true);
@@ -190,4 +190,36 @@ void XercesXMLParser::parse(const string& a_file_name, IXMLCallback& a_callback)
 IXMLParserPtr make_xml_parser(const std::string& a_schema_file)
 {
    return IXMLParserPtr(new XercesXMLParser(a_schema_file));
+}
+
+template <>
+bool AttributeSet::xml_attr_cast(const string& str)
+{
+   istringstream ss(str);
+   bool result;
+
+   ss >> boolalpha >> result;  // Is boolalpha affected by locale?
+
+   if (ss.fail())
+      throw runtime_error(
+         "Cannot parse Boolean attribute with value '"
+         + str + "'");
+
+   return result;
+}
+
+template <>
+Colour AttributeSet::xml_attr_cast(const string& str)
+{
+   istringstream ss(str);
+   int r, g, b;
+
+   ss >> r >> g >> b;
+
+   if (ss.fail())
+      throw runtime_error(
+         "Cannot parse colour attribute with value '"
+         + str + "'");
+
+   return make_rgb(r, g, b);
 }
