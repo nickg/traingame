@@ -27,6 +27,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 #include <signal.h>
 
 using namespace boost::filesystem;
@@ -141,12 +142,18 @@ int main(int argc, char** argv)
 
       cfg->flush();
    }
-   catch (const runtime_error& e) {
+   catch (const exception& e) {
       error() << "Fatal: " << e.what();
 
 #ifdef WIN32
       MessageBox(NULL, e.what(), "Fatal error", MB_ICONERROR | MB_OK);
 #endif
+   }
+   catch (const boost::exception& e) {
+      error() << "Boost Exception: " << boost::diagnostic_information(e);
+   }
+   catch (...) {
+      error() << "Unhandled exception";
    }
 
    log() << "Finished";
