@@ -215,5 +215,5 @@ xml::element CrossoverTrack::to_xml() const
 
 ITrackSegmentPtr make_crossover_track()
 {
-   return ITrackSegmentPtr(static_cast<ITrackSegment *>(new CrossoverTrack));
+   return ITrackSegmentPtr(new CrossoverTrack);
 }

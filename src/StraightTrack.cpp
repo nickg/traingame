@@ -259,5 +259,5 @@ ITrackSegmentPtr make_straight_track(const Direction& a_direction)
       throw runtime_error("Illegal straight track direction: "
          + lexical_cast<string>(a_direction));
 
-   return ITrackSegmentPtr(static_cast<ITrackSegment *>(new StraightTrack(real_dir)));
+   return ITrackSegmentPtr(new StraightTrack(real_dir));
 }
