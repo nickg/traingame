@@ -406,5 +406,5 @@ int SDLWindow::get_fps() const
 // Construct and initialise an OpenGL SDL window
 IWindowPtr make_sdl_window()
 {
-   return shared_ptr<IWindow>(new SDLWindow);
+   return make_shared<SDLWindow>();
 }

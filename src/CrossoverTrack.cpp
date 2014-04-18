@@ -39,10 +39,10 @@ public:
    ~CrossoverTrack() {}
 
    void set_origin(int x, int y, float h);
-   
+
    void render() const {}
    void merge(IMeshBufferPtr buf) const;
-   
+
    float segment_length(const track::TravelToken& a_token) const;
    bool is_valid_direction(const track::Direction& a_direction) const;
    track::Connection next_position(const track::TravelToken& a_token) const;
@@ -59,10 +59,10 @@ public:
 
    // IXMLSerialisable interface
    xml::element to_xml() const;
-   
+
 private:
    void transform(const track::TravelToken& a_token, float delta) const;
-   
+
    Point<int> origin;
    float height;
 };
@@ -70,16 +70,16 @@ private:
 void CrossoverTrack::merge(IMeshBufferPtr buf) const
 {
    // Render the y-going rails and sleepers
-   {    
+   {
       Vector<float> off = make_vector(
          static_cast<float>(origin.x),
          height,
          static_cast<float>(origin.y));
-      
+
       merge_straight_rail(buf, off, 0.0f);
 
       off += make_vector(0.0f, 0.0f, -0.4f);
-            
+
       for (int i = 0; i < 4; i++) {
          merge_sleeper(buf, off, 90.0f);
          off += make_vector(0.0f, 0.0f, 0.25f);
@@ -92,11 +92,11 @@ void CrossoverTrack::merge(IMeshBufferPtr buf) const
          static_cast<float>(origin.x),
          height,
          static_cast<float>(origin.y));
-      
+
       merge_straight_rail(buf, off, 90.0f);
-      
+
       off += make_vector(-0.4f, 0.0f, 0.0f);
-            
+
       for (int i = 0; i < 4; i++) {
          merge_sleeper(buf, off, 0.0f);
          off += make_vector(0.25f, 0.0f, 0.0f);
@@ -137,7 +137,7 @@ void CrossoverTrack::transform(const track::TravelToken& a_token,
    float delta) const
 {
    assert(delta < 1.0);
-   
+
    bool backwards = a_token.direction== -axis::X || a_token.direction == -axis::Y;
 
    if (backwards) {
@@ -157,7 +157,7 @@ void CrossoverTrack::transform(const track::TravelToken& a_token,
       glRotated(-90.0, 0.0, 1.0, 0.0);
 
    glTranslated(-0.5, 0.0, 0.0);
-   
+
    if (backwards)
       glRotated(-180.0, 0.0, 1.0, 0.0);
 }
@@ -190,7 +190,7 @@ void CrossoverTrack::get_endpoints(vector<Point<int> >& a_list) const
 }
 
 void CrossoverTrack::get_height_locked(vector<Point<int> >& output) const
-{   
+{
    output.push_back(origin + make_point(0, 0));
    output.push_back(origin + make_point(0, 1));
    output.push_back(origin + make_point(1, 1));
@@ -215,5 +215,5 @@ xml::element CrossoverTrack::to_xml() const
 
 ITrackSegmentPtr make_crossover_track()
 {
-   return ITrackSegmentPtr(new CrossoverTrack);
+   return make_shared<CrossoverTrack>();
 }
