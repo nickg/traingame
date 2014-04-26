@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2012  Nick Gasson
+//  Copyright (C) 2009-2014  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -286,18 +286,16 @@ void Map::erase_tile(int x, int y)
       PointList locked;
       tile.track->get()->get_height_locked(locked);
 
-      for (PointList::iterator it = locked.begin();
-           it != locked.end(); ++it)
-         unlock_height_at(*it);
+      for (auto& p : locked)
+         unlock_height_at(p);
 
       PointList covers;
       tile.track->get()->get_endpoints(covers);
       tile.track->get()->get_covers(covers);
 
-      for (PointList::iterator it = covers.begin();
-           it != covers.end(); ++it) {
-         tile_at((*it).x, (*it).y).track.reset();
-         dirty_tile((*it).x, (*it).y);
+      for (auto& p : covers) {
+         tile_at(p.x, p.y).track.reset();
+         dirty_tile(p.x, p.y);
       }
    }
 

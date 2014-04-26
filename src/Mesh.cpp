@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2011  Nick Gasson
+//  Copyright (C) 2009-2014  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -210,22 +210,21 @@ void MeshBuffer::add(const Vertex& vertex,
    }
 
    // See if this vertex has already been added
-   for (vector<Index>::iterator it = active_chunk->indices.begin();
-	it != active_chunk->indices.end(); ++it) {
-      if (vertex == active_chunk->vertices[*it]
-          && normal ==  active_chunk->normals[*it]) {
+   for (auto& it : active_chunk->indices) {
+      if (vertex == active_chunk->vertices[it]
+          && normal ==  active_chunk->normals[it]) {
 
-	 const TexCoord& tc = active_chunk->tex_coords[*it];
+	 const TexCoord& tc = active_chunk->tex_coords[it];
          const bool same_tc = (approx_equal(tc.x, a_tex_coord.x)
                                && approx_equal(tc.y, a_tex_coord.y));
 
-         const Colour& c = active_chunk->colours[*it];
+         const Colour& c = active_chunk->colours[it];
 	 const bool same_col = (approx_equal(c.r, colour.r)
                                 && approx_equal(c.g, colour.g)
                                 && approx_equal(c.b, colour.b));
 
          if (same_col && same_tc) {
-            active_chunk->indices.push_back(*it);
+            active_chunk->indices.push_back(it);
 	    reused++;
 	    return;
          }
@@ -288,31 +287,29 @@ static void copy_vertex_data(const MeshBuffer* buf, VertexData* vertex_data)
 {
    size_t offset = 0;
 
-   for (vector<MeshBuffer::ChunkPtr>::const_iterator it = buf->chunks.begin();
-        it != buf->chunks.end(); ++it) {
-
-      for (size_t i = 0; i < (*it)->vertices.size(); i++) {
+   for (auto& chunk : buf->chunks) {
+      for (size_t i = 0; i < chunk->vertices.size(); i++) {
          VertexData* vd = &vertex_data[offset + i];
 
-         vd->x = (*it)->vertices[i].x;
-         vd->y = (*it)->vertices[i].y;
-         vd->z = (*it)->vertices[i].z;
+         vd->x = chunk->vertices[i].x;
+         vd->y = chunk->vertices[i].y;
+         vd->z = chunk->vertices[i].z;
 
-         vd->nx = (*it)->normals[i].x;
-         vd->ny = (*it)->normals[i].y;
-         vd->nz = (*it)->normals[i].z;
+         vd->nx = chunk->normals[i].x;
+         vd->ny = chunk->normals[i].y;
+         vd->nz = chunk->normals[i].z;
 
-         if ((*it)->texture) {
-            vd->tx = (*it)->tex_coords[i].x;
-            vd->ty = 1.0f - (*it)->tex_coords[i].y;
+         if (chunk->texture) {
+            vd->tx = chunk->tex_coords[i].x;
+            vd->ty = 1.0f - chunk->tex_coords[i].y;
          }
 
-         vd->r = (*it)->colours[i].r;
-         vd->g = (*it)->colours[i].g;
-         vd->b = (*it)->colours[i].b;
+         vd->r = chunk->colours[i].r;
+         vd->g = chunk->colours[i].g;
+         vd->b = chunk->colours[i].b;
       }
 
-      offset += (*it)->vertices.size();
+      offset += chunk->vertices.size();
    }
 }
 
@@ -421,12 +418,10 @@ void VertexArrayMesh::render() const
 
    glEnable(GL_COLOR_MATERIAL);
 
-   for (vector<ChunkDelim>::const_iterator it = chunks.begin();
-        it != chunks.end(); ++it) {
-
-      if ((*it).texture) {
+   for (auto& delim : chunks) {
+      if (delim.texture) {
          glEnable(GL_TEXTURE_2D);
-         (*it).texture->bind();
+         delim.texture->bind();
 
       }
       else {
@@ -434,11 +429,11 @@ void VertexArrayMesh::render() const
       }
 
       glDrawRangeElements(GL_TRIANGLES,
-                          (*it).min,
-                          (*it).max,
-                          (*it).count,
+                          delim.min,
+                          delim.max,
+                          delim.count,
                           GL_UNSIGNED_SHORT,
-                          my_indices + (*it).offset);
+                          my_indices + delim.offset);
    }
 
    glPopClientAttrib();
@@ -539,26 +534,24 @@ void VBOMesh::render() const
    glTexCoordPointer(2, GL_FLOAT, sizeof(VertexData),
                      reinterpret_cast<GLvoid*>(offsetof(VertexData, tx)));
 
-   for (vector<ChunkDelim>::const_iterator it = chunks.begin();
-        it != chunks.end(); ++it) {
-
-      if ((*it).count == 0)
+   for (auto& delim : chunks) {
+      if (delim.count == 0)
          continue;
 
-      if ((*it).texture) {
+      if (delim.texture) {
          glEnable(GL_TEXTURE_2D);
-         (*it).texture->bind();
+         delim.texture->bind();
       }
       else {
          glDisable(GL_TEXTURE_2D);
       }
 
-      const size_t offset_ptr = (*it).offset * sizeof(GLushort);
+      const size_t offset_ptr = delim.offset * sizeof(GLushort);
 
       glDrawRangeElements(GL_TRIANGLES,
-                          (*it).min,
-                          (*it).max,
-                          (*it).count,
+                          delim.min,
+                          delim.max,
+                          delim.count,
                           GL_UNSIGNED_SHORT,
                           reinterpret_cast<GLvoid*>(offset_ptr));
    }
