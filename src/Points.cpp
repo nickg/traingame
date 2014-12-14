@@ -1,5 +1,5 @@
 //
-//  Copyright (C) 2009-2011  Nick Gasson
+//  Copyright (C) 2009-2014  Nick Gasson
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -479,7 +479,7 @@ track::Connection Points::next_position(const track::TravelToken& a_token) const
       }
    }
    else
-      assert(false);
+      return make_pair(make_point(myX, myY), my_axis);
 }
 
 // Get the endpoint that follows the curve
@@ -496,7 +496,7 @@ PointI Points::displaced_endpoint() const
    else if (my_axis == -axis::Y)
       return make_point(myX + 1*reflect, myY - 2);
    else
-      assert(false);
+      return make_point(myX, myY);
 }
 
 // Get the endpoint that follows the straight track
@@ -511,7 +511,7 @@ PointI Points::straight_endpoint() const
    else if (my_axis == -axis::Y)
       return make_point(myX, myY - 2);
    else
-      assert(false);
+      return make_point(myX, myY);
 }
 
 void Points::get_endpoints(PointList& a_list) const

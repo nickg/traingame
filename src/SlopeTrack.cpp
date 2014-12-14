@@ -181,7 +181,7 @@ track::Connection SlopeTrack::next_position(
    else if (token.direction == -axis::Y)
       return make_pair(make_point(origin.x, origin.y - 1), -axis::Y);
    else
-      assert(false);
+      return make_pair(make_point(origin.x, origin.y), token.direction);
 }
 
 track::TravelToken SlopeTrack::get_travel_token(track::Position pos,

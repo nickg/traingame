@@ -356,7 +356,7 @@ float SplineTrack::rotation_at(float curve_delta) const
    else if (deriv.z <= 0 && deriv.x > 0)
       return rad_to_deg<float>(atanf(deriv.z / deriv.x));
    else
-      assert(false);
+      return 0.0f;
 }
 
 void SplineTrack::transform(const track::TravelToken& token,

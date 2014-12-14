@@ -215,7 +215,7 @@ Connection StraightTrack::next_position(const track::TravelToken& a_token) const
    else if (a_token.direction == -axis::Y)
       return make_pair(make_point(origin.x, origin.y - 1), -axis::Y);
    else
-      assert(false);
+      return make_pair(make_point(origin.x, origin.y), a_token.direction);
 }
 
 void StraightTrack::merge(IMeshBufferPtr buf) const
