@@ -231,12 +231,12 @@ void StraightTrack::merge(IMeshBufferPtr buf) const
 
    y_angle += 90.0f;
 
-   off += rotate(make_vector(-0.4f, 0.0f, 0.0f), y_angle, 0.0f, 1.0f, 0.0f);
+   off += rotate(make_vector(-0.4f, 0.0f, 0.0f), y_angle, MatrixF4::AXIS_Y);
 
    for (int i = 0; i < 4; i++) {
       merge_sleeper(buf, off, y_angle);
 
-      off += rotate(make_vector(0.25f, 0.0f, 0.0f), y_angle, 0.0f, 1.0f, 0.0f);
+      off += rotate(make_vector(0.25f, 0.0f, 0.0f), y_angle, MatrixF4::AXIS_Y);
    }
 }
 

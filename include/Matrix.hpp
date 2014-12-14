@@ -49,9 +49,9 @@ struct Matrix {
             entries[i][j] = rhs.entries[i][j];
       }
    }
-    
+
    // TODO: these factories should work for N != 4
-    
+
    static Matrix<T, 4> identity()
    {
       const T data[4][4] = {
@@ -74,41 +74,50 @@ struct Matrix {
       return Matrix<T, 4>(data);
    }
 
-   static Matrix<T, 4> rotation(float a, int x, int y, int z)
+   enum Axis {
+      AXIS_X,
+      AXIS_Y,
+      AXIS_Z
+   };
+
+   static Matrix<T, 4> rotation(float a, Axis axis)
    {
       a *= M_PI / 180;
 
-      assert(x + y + z == 1);
-	
-      if (x == 1) { 
-         const T data[4][4] = {
-            { 1, 0,       0,      0 },
-            { 0, cos(a), -sin(a), 0 },
-            { 0, sin(a),  cos(a), 0 },
-            { 0, 0,       0,      1 }
-         };
-         return Matrix<T, 4>(data);
+      switch (axis) {
+      case AXIS_X:
+         {
+            const T data[4][4] = {
+               { 1, 0,       0,      0 },
+               { 0, cos(a), -sin(a), 0 },
+               { 0, sin(a),  cos(a), 0 },
+               { 0, 0,       0,      1 }
+            };
+            return Matrix<T, 4>(data);
+         }
+
+      case AXIS_Y:
+         {
+            const T data[4][4] = {
+               {  cos(a), 0,  sin(a), 0 },
+               {  0,      1,  0,      0 },
+               { -sin(a), 0,  cos(a), 0 },
+               {  0,      0,  0,      1 }
+            };
+            return Matrix<T, 4>(data);
+         }
+
+      case AXIS_Z:
+         {
+            const T data[4][4] = {
+               { cos(a), -sin(a), 0, 0 },
+               { sin(a),  cos(a), 0, 0 },
+               { 0,       0,      1, 0 },
+               { 0,       0,      0, 1 }
+            };
+            return Matrix<T, 4>(data);
+         }
       }
-      else if (y == 1) {
-         const T data[4][4] = {
-            {  cos(a), 0,  sin(a), 0 },
-            {  0,      1,  0,      0 },
-            { -sin(a), 0,  cos(a), 0 },
-            {  0,      0,  0,      1 }
-         };
-         return Matrix<T, 4>(data);
-      }
-      else if (z == 1) {
-         const T data[4][4] = {
-            { cos(a), -sin(a), 0, 0 },
-            { sin(a),  cos(a), 0, 0 },
-            { 0,       0,      1, 0 },
-            { 0,       0,      0, 1 }
-         };
-         return Matrix<T, 4>(data);
-      }
-      else
-         assert(false);
    }
 
    Vector<T> transform(const Vector<T>& v) const
@@ -130,7 +139,7 @@ struct Matrix {
    {
       return *this = *this * rhs;
    }
-    
+
    Matrix<T, N> operator*(const Matrix<T, N>& rhs) const
    {
       // Lame matrix multiplication algorithm
@@ -150,10 +159,12 @@ struct Matrix {
    T entries[N][N];  // Square matrices only
 };
 
+typedef Matrix<float, 4> MatrixF4;
+
 template <typename T>
-Vector<T> rotate(Vector<T> v, T a, T x, T y, T z)
+Vector<T> rotate(Vector<T> v, float a, typename Matrix<T, 4>::Axis axis)
 {
-   Matrix<T, 4> r = Matrix<T, 4>::rotation(a, x, y, z);
+   Matrix<T, 4> r = Matrix<T, 4>::rotation(a, axis);
    return r.transform(v);
 }
 
@@ -166,7 +177,7 @@ inline Vector<T> rotateX(Vector<T> v, T a)
 template <typename T>
 inline Vector<T> rotateY(Vector<T> v, T a)
 {
-   return rotate(v, a, 0.0f, 1.0f, 0.0f);
+   return rotate(v, a, Matrix<T, 4>::AXIS_Y);
 }
 
 template <typename T>
@@ -187,4 +198,3 @@ ostream& operator<<(ostream& os, const Matrix<T, N>& m)
 }
 
 #endif
-

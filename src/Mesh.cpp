@@ -157,12 +157,10 @@ void MeshBuffer::merge(IMeshBufferPtr other, Vector<float> off, float y_angle)
 
       const size_t ibase = target_chunk->vertices.size();
 
-      const Matrix<float, 4> translate =
-         Matrix<float, 4>::translation(off.x, off.y, off.z);
-      const Matrix<float, 4> rotate =
-         Matrix<float, 4>::rotation(y_angle, 0.0f, 1.0f, 0.0f);
+      const MatrixF4 translate = MatrixF4::translation(off.x, off.y, off.z);
+      const MatrixF4 rotate = MatrixF4::rotation(y_angle, MatrixF4::AXIS_Y);
 
-      const Matrix<float, 4> compose = translate * rotate;
+      const MatrixF4 compose = translate * rotate;
 
       for (size_t i = 0; i < (*it)->vertices.size(); i++) {
          const Vertex& v = (*it)->vertices[i];

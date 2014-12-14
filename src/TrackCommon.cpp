@@ -62,7 +62,7 @@ IMeshBufferPtr SleeperHelper::generate_sleeper_mesh_buffer()
       make_vector(-sleeper_off, 0.0f, -r),
       make_vector(-sleeper_off, sleeper_depth, -r),
       brown);
-      
+
    // Side 2
    buf->add_quad(make_vector(-sleeper_off, sleeper_depth, r),
       make_vector(-sleeper_off, 0.0f, r),
@@ -76,7 +76,7 @@ IMeshBufferPtr SleeperHelper::generate_sleeper_mesh_buffer()
       make_vector(sleeper_off, sleeper_depth, -r),
       make_vector(sleeper_off, sleeper_depth, r),
       brown);
-      
+
    // Back
    buf->add_quad(make_vector(-sleeper_off, sleeper_depth, r),
       make_vector(-sleeper_off, sleeper_depth, -r),
@@ -104,13 +104,13 @@ void BezierHelper::build_one_bezier_rail(const BezierCurve<float>& func,
    for (float t = 0.0f; t < 1.0f; t += step) {
 
       const float half_rail = RAIL_WIDTH / 2.0f;
-      
+
       Vector<float> v1_out = func.offset(t, p + half_rail);
       Vector<float> v2_out = func.offset(t + step, p + half_rail);
-      
+
       Vector<float> v1_in = func.offset(t, p - half_rail);
       Vector<float> v2_in = func.offset(t + step, p - half_rail);
-              
+
       // Top of rail
       buf->add_quad(
          make_vector(v1_out.x, v1_out.y + track::RAIL_HEIGHT, v1_out.z),
@@ -141,7 +141,7 @@ IMeshBufferPtr BezierHelper::make_bezier_rail_mesh(
    const BezierCurve<float>& func) const
 {
    IMeshBufferPtr buf = make_mesh_buffer();
-   
+
    build_one_bezier_rail(func, buf, GAUGE/2.0f);
    build_one_bezier_rail(func, buf, -GAUGE/2.0f);
 
@@ -160,14 +160,14 @@ IMeshBufferPtr StraightTrackHelper::generate_rail_mesh_buffer()
       make_vector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
       make_vector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
       METAL);
-      
+
    // Outer side
    buf->add_quad(make_vector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 0.0f),
       make_vector(-RAIL_WIDTH/2.0f, 0.0f, 0.0f),
       make_vector(-RAIL_WIDTH/2.0f, 0.0f, 1.0f),
       make_vector(-RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
       METAL);
-   
+
    // Inner side
    buf->add_quad(make_vector(RAIL_WIDTH/2.0f, track::RAIL_HEIGHT, 1.0f),
       make_vector(RAIL_WIDTH/2.0f, 0.0f, 1.0f),
@@ -176,22 +176,22 @@ IMeshBufferPtr StraightTrackHelper::generate_rail_mesh_buffer()
       METAL);
 
    return buf;
-}         
+}
 
 void StraightTrackHelper::merge_one_rail(IMeshBufferPtr buf,
    Vector<float> off, float y_angle) const
 {
    if (!rail_buf)
       rail_buf = generate_rail_mesh_buffer();
-   
+
    buf->merge(rail_buf, off, y_angle);
 }
-   
+
 void StraightTrackHelper::merge_straight_rail(IMeshBufferPtr buf,
    Vector<float> off, float y_angle) const
 {
-   Matrix<float, 4> r = Matrix<float, 4>::rotation(y_angle, 0.0f, 1.0f, 0.0f);
-   
+   MatrixF4 r = MatrixF4::rotation(y_angle, MatrixF4::AXIS_Y);
+
    off += r.transform(make_vector(-GAUGE/2.0f, 0.0f, -0.5f));
    merge_one_rail(buf, off, y_angle);
 
@@ -215,7 +215,7 @@ void CurvedTrackHelper::transform_to_origin(Vector<float>& off,
    // This is a complete a hack, but whatever...
    if (start_angle >= 90 && start_angle <= 180)
       off += make_vector(0.0f, 0.0f, 1.0f);
-   
+
    if (start_angle >= 180 && start_angle <= 270)
       off += make_vector(1.0f, 0.0f, 0.0f);
 }
@@ -227,18 +227,18 @@ void CurvedTrackHelper::generate_curved_rail_mesh(IMeshBufferPtr buf,
    const float R = static_cast<float>(base_radius) - edge_width
       - (type == OUTER_RAIL ? 0 : GAUGE);
    const float r = R - RAIL_WIDTH;
-      
+
    const float step = M_PI / 2.0f / 10.0f;
-      
+
    // Top of rail
    for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
-      buf->add_quad(make_vector(r * cos(theta), 0.1f, r * sin(theta)), 
+      buf->add_quad(make_vector(r * cos(theta), 0.1f, r * sin(theta)),
          make_vector(r * cos(theta + step), 0.1f, r * sin(theta + step)),
          make_vector(R * cos(theta + step), 0.1f, R * sin(theta + step)),
          make_vector(R * cos(theta), 0.1f, R * sin(theta)),
          METAL);
    }
-      
+
    // Outer edge
    for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
       const float sinT = sin(theta);
@@ -260,7 +260,7 @@ void CurvedTrackHelper::generate_curved_rail_mesh(IMeshBufferPtr buf,
 
          METAL);
    }
-      
+
    // Inner edge
    for (float theta = 0; theta < M_PI / 2.0f; theta += step) {
       const float sinT = sin(theta);
@@ -283,21 +283,21 @@ void CurvedTrackHelper::generate_curved_rail_mesh(IMeshBufferPtr buf,
          METAL);
    }
 }
-   
+
 void CurvedTrackHelper::merge_curved_rail(IMeshBufferPtr buf, int base_radius,
    Vector<float> off, float y_angle)
 {
    IMeshBufferPtr rail_buf;
-      
+
    CurvedRailMeshMap::iterator it = curved_rail_meshes.find(base_radius);
    if (it != curved_rail_meshes.end())
       rail_buf = (*it).second;
    else {
       rail_buf = make_mesh_buffer();
-         
+
       generate_curved_rail_mesh(rail_buf, base_radius, INNER_RAIL);
       generate_curved_rail_mesh(rail_buf, base_radius, OUTER_RAIL);
-            
+
       curved_rail_meshes[base_radius] = rail_buf;
    }
 
@@ -316,9 +316,9 @@ void CurvedTrackHelper::merge_curved_track(IMeshBufferPtr buf, Vector<float> off
    const int num_sleepers = static_cast<int>(length * SLEEPERS_PER_UNIT);
    const float sleeper_angle =
       static_cast<float>(end_angle - start_angle) / num_sleepers;
-   
+
    for (int i = 0; i < num_sleepers; i++) {
-      
+
       float y_angle = static_cast<float>(start_angle) + (i + 0.5f)*sleeper_angle;
       Vector<float> t =
          make_vector(0.0f, 0.0f, static_cast<float>(base_radius) - 0.5f);
