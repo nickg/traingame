@@ -118,6 +118,8 @@ struct Matrix {
             return Matrix<T, 4>(data);
          }
       }
+      assert(false);
+      return 0;
    }
 
    Vector<T> transform(const Vector<T>& v) const
