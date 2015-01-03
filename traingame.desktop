@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Train Game
+GenericName=The Train Game
+Comment=Game about Trains
+Icon=traingame
+Exec=traingame-map
+Categories=Game;Simulation;
+Terminal=true
+StartupNotify=false
